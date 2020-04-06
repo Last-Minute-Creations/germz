@@ -1,0 +1,107 @@
+{
+	// See https://go.microsoft.com/fwlink/?LinkId=733558
+	// for the documentation about the tasks.json format
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "bebbo cmake debug",
+			"type": "shell",
+			"command": "cmake",
+			"group": "build",
+			"args": [
+				"..",
+				"-DCMAKE_TOOLCHAIN_FILE=c:/prg/_git/AmigaCMakeCrossToolchains/m68k.cmake",
+				"-DM68K_TOOLCHAIN_PATH=c:/prg/kompilatory/bebbo/",
+				"-DM68K_CPU=68000",
+				"-DM68K_FPU=soft",
+				"-DM68K_CRT=nix13",
+				"-G\"Unix Makefiles\"",
+				"-DCMAKE_BUILD_TYPE=Release",
+				"-DACE_DEBUG=ON",
+				"-DCMAKE_EXPORT_COMPILE_COMMANDS=1",
+			],
+			"options": {
+				"cwd": "C:\\prg\\_git\\germz\\build",
+				"env": {
+					"PATH": "c:/prg/kompilatory/bebbo/bin;c:/prg/kompilatory/cygwin/bin;C:/Program Files/CMake/bin"
+				}
+			},
+			"problemMatcher": [],
+			"dependsOn": "cmake_del"
+		},
+		{
+			"label": "bebbo cmake release",
+			"type": "shell",
+			"command": "cmake",
+			"group": "build",
+			"args": [
+				"..",
+				"-DCMAKE_TOOLCHAIN_FILE=c:/prg/_git/AmigaCMakeCrossToolchains/m68k.cmake",
+				"-DM68K_TOOLCHAIN_PATH=c:/prg/kompilatory/bebbo/",
+				"-DM68K_CPU=68000",
+				"-DM68K_FPU=soft",
+				"-DM68K_CRT=nix13",
+				"-G\"Unix Makefiles\"",
+				"-DCMAKE_BUILD_TYPE=Release",
+				"-DACE_DEBUG=OFF",
+				"-DCMAKE_EXPORT_COMPILE_COMMANDS=1"
+			],
+			"options": {
+				"cwd": "C:\\prg\\_git\\germz\\build",
+				"env": {
+					"PATH": "c:/prg/kompilatory/bebbo/bin;c:/prg/kompilatory/cygwin/bin;C:/Program Files/CMake/bin"
+				}
+			},
+			"problemMatcher": [],
+			"dependsOn": "cmake_del"
+		},
+		{
+			"label": "bebbo cmake delete",
+			"type": "shell",
+			"command": "del",
+			"group": "build",
+			"args": [
+				"CMakeCache.txt",
+			],
+			"options": {
+				"cwd": "C:\\prg\\_git\\germz\\build",
+				"env": {
+					"PATH": "c:/prg/kompilatory/bebbo/bin;c:/prg/kompilatory/cygwin/bin;C:/Program Files/CMake/bin"
+				}
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "make",
+			"problemMatcher": "$gcc",
+			"group": "build",
+			"command": "make",
+			"options": {
+				"cwd": "C:\\prg\\_git\\germz\\build",
+				"env": {
+					"PATH": "c:/prg/kompilatory/bebbo/bin;c:/prg/kompilatory/cygwin/bin;C:/Program Files/CMake/bin;C:/prg/kompilatory/mingw-w64/i686-7.3.0-posix-dwarf-rt_v5-rev0/bin/"
+				}
+			}
+		},
+		{
+			"label": "make clean",
+			"problemMatcher": "$gcc",
+			"group": "build",
+			"command": "make",
+			"args": [
+				"clean"
+			],
+			"options": {
+				"cwd": "C:\\prg\\_git\\germz\\build",
+				"env": {
+					"PATH": "c:/prg/kompilatory/bebbo/bin;c:/prg/kompilatory/cygwin/bin;C:/Program Files/CMake/bin"
+				}
+			}
+		},
+		{
+			"label": "release",
+			"group": "build",
+			"command": "release.bat"
+		}
+	]
+}
