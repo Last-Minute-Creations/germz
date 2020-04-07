@@ -18,9 +18,12 @@ static tBitMap *s_pBmPlepMask;
 
 //------------------------------------------------------------------ PRIVATE FNS
 
-static void plepCaptureNode(tPlep *pPlep) {
+static void plepSinkInNode(tPlep *pPlep) {
 	pPlep->isActive = 0;
-	pPlep->pDestination->pPlayer = pPlep->pPlayer;
+	if(pPlep->pDestination->pPlayer != pPlep->pPlayer) {
+		pPlep->pDestination->pPlayer = pPlep->pPlayer;
+		displayAddNodeToQueue(pPlep->pDestination);
+	}
 }
 
 //------------------------------------------------------------------- PUBLIC FNS
@@ -57,8 +60,7 @@ void plepProcess(tPlep *pPlep) {
 			pPlep->sBob.sPos.uwX == pPlep->pDestination->ubTileX * 16 &&
 			pPlep->sBob.sPos.uwY == pPlep->pDestination->ubTileY * 16
 		) {
-			plepCaptureNode(pPlep);
-			displayAddNodeToQueue(pPlep->pDestination);
+			plepSinkInNode(pPlep);
 		}
 		else {
 			bobNewPush(&pPlep->sBob);

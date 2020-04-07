@@ -53,6 +53,7 @@ typedef struct _tMap {
 	tNode pNodes[NODES_MAX];
 	tNode *pNodesOnTiles[MAP_SIZE][MAP_SIZE];
 	UBYTE ubNodeCount;
+	tNode *pPlayerStartNodes[4];
 } tMap;
 
 tMap *mapCreateFromFile(const char *szPath);

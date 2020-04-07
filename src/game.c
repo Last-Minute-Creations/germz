@@ -21,12 +21,16 @@ void gameGsCreate(void) {
 	}
 	s_isMainLoop = 0;
 
-	playerReset(&s_pMap->pNodes[0]);
+	static const UBYTE pJoy[] = {JOY1, JOY2, JOY3, JOY4};
+	for(UBYTE i = 0; i < s_pMap->ubPlayerCount; ++i) {
+		playerReset(i, s_pMap->pPlayerStartNodes[i], pJoy[i]);
+	}
 	displayEnable();
 }
 
 void mainLoop(void) {
 	bobNewBegin();
+	displayQueueProcess();
 	playerProcess();
 	bobNewPushingDone();
 	bobNewEnd();

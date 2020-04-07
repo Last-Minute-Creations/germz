@@ -18,13 +18,17 @@ static tBitMap *s_pCursors, *s_pCursorsMask;
 
 //------------------------------------------------------------------ PRIVATE FNS
 
+static void playerSetCursorPos(tPlayer *pPlayer, tNode *pNode) {
+		pPlayer->pNodeCursor = pNode;
+		pPlayer->sBobCursor.sPos.uwX = pNode->ubTileX * 16;
+		pPlayer->sBobCursor.sPos.uwY = pNode->ubTileY * 16;
+}
+
 static void playerTryMoveSelectionFromInDir(
 	tPlayer *pPlayer, tNode *pNode, tDir eDir
 ) {
 	if(eDir != DIR_COUNT && pNode->pNeighbors[eDir]) {
-		pPlayer->pNodeCursor = pNode->pNeighbors[eDir];
-		pPlayer->sBobCursor.sPos.uwX = pPlayer->pNodeCursor->ubTileX * 16;
-		pPlayer->sBobCursor.sPos.uwY = pPlayer->pNodeCursor->ubTileY * 16;
+		playerSetCursorPos(pPlayer, pNode->pNeighbors[eDir]);
 	}
 }
 
@@ -42,25 +46,20 @@ void playerDestroy(void) {
 	plepDestroy();
 }
 
-void playerReset(tNode *pNodeStart) {
-	for(UBYTE i = 0; i < PLAYER_COUNT_MAX; ++i) {
-		tPlayer *pPlayer = &s_pPlayers[i];
-		bobNewInit(
-			&pPlayer->sBobCursor, 16, 16, 1, s_pCursors, s_pCursorsMask, 0, 0
-		);
-		for(UBYTE ubPlep = 0; ubPlep < PLEPS_PER_PLAYER; ++ubPlep) {
-			plepReset(&pPlayer->pPleps[ubPlep], pPlayer);
-		}
-		bobNewSetBitMapOffset(&pPlayer->sBobCursor, i * 16);
-		pPlayer->sBobCursor.sPos.uwX = i * 16;
-		pPlayer->sBobCursor.sPos.uwY = i * 16;
-		pPlayer->pNodeCursor = pNodeStart;
-		pPlayer->isSelectingDestination = 0;
+void playerReset(UBYTE ubIdx, tNode *pStartNode, UBYTE ubJoy) {
+	tPlayer *pPlayer = &s_pPlayers[ubIdx];
+	bobNewInit(
+		&pPlayer->sBobCursor, 16, 16, 1, s_pCursors, s_pCursorsMask, 0, 0
+	);
+	for(UBYTE ubPlep = 0; ubPlep < PLEPS_PER_PLAYER; ++ubPlep) {
+		plepReset(&pPlayer->pPleps[ubPlep], pPlayer);
 	}
-	s_pPlayers[0].ubJoy = JOY1;
-	s_pPlayers[1].ubJoy = JOY2;
-	s_pPlayers[2].ubJoy = JOY3;
-	s_pPlayers[3].ubJoy = JOY4;
+	bobNewSetBitMapOffset(&pPlayer->sBobCursor, ubIdx * 16);
+	pPlayer->pNodeCursor = pStartNode;
+	pPlayer->sBobCursor.sPos.uwX = pPlayer->pNodeCursor->ubTileX * 16;
+	pPlayer->sBobCursor.sPos.uwY = pPlayer->pNodeCursor->ubTileY * 16;
+	pPlayer->isSelectingDestination = 0;
+	s_pPlayers[ubIdx].ubJoy = ubJoy;
 }
 
 tTile playerToTile(const tPlayer *pPlayer) {
@@ -104,7 +103,7 @@ void playerProcess(void) {
 			playerTryMoveSelectionFromInDir(pPlayer, pPlayer->pNodePlepSrc, eDir);
 			if(joyUse(pPlayer->ubJoy + JOY_FIRE)) {
 				playerSpawnPlep(pPlayer);
-				pPlayer->pNodeCursor = pPlayer->pNodePlepSrc;
+				playerSetCursorPos(pPlayer, pPlayer->pNodePlepSrc);
 				pPlayer->isSelectingDestination = 0;
 			}
 		}

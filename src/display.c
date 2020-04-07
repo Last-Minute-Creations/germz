@@ -220,6 +220,7 @@ void displayLag(void) {
 }
 
 void displayProcess(void) {
+	displayDebugColor(0xFF0);
 	displayDebugColor(0xF00);
 	viewProcessManagers(s_pView);
 	copProcessBlocks();

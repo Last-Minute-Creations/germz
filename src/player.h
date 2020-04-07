@@ -23,7 +23,7 @@ void playerCreate(void);
 
 void playerDestroy(void);
 
-void playerReset(struct _tNode *pNodeStart);
+void playerReset(UBYTE ubIdx, struct _tNode *pStartNode, UBYTE ubJoy);
 
 void playerProcess(void);
 

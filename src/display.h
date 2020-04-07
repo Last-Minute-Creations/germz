@@ -16,6 +16,8 @@ UBYTE displayInitialAnim(const tMap *pMap);
 
 void displayAddNodeToQueue(tNode *pNode);
 
+void displayQueueProcess(void);
+
 void displayEnable(void);
 
 void displayDebugColor(UWORD uwColor);

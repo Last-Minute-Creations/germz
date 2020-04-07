@@ -8,10 +8,10 @@
 #include <ace/managers/log.h>
 #include "json/json.h"
 
-static void nodeAdd(tMap *pMap, UBYTE ubTrueX, UBYTE ubTrueY, tTile eTile) {
+static tNode *nodeAdd(tMap *pMap, UBYTE ubTrueX, UBYTE ubTrueY, tTile eTile) {
 	if(pMap->ubNodeCount >= NODES_MAX) {
 		logWrite("ERR: Can't add another node\n");
-		return;
+		return 0;
 	}
 	tNode *pNode = &pMap->pNodes[pMap->ubNodeCount];
 	pNode->ubTileX = ubTrueX;
@@ -26,6 +26,7 @@ static void nodeAdd(tMap *pMap, UBYTE ubTrueX, UBYTE ubTrueY, tTile eTile) {
 	++pMap->ubNodeCount;
 	pMap->pNodesOnTiles[ubTrueX][ubTrueY] = pNode;
 	logWrite("Added node %p at %hhu,%hhu\n", pNode, ubTrueX, ubTrueY);
+	return pNode;
 }
 
 static UBYTE tileIsMovable(tTile eTile) {
@@ -54,7 +55,6 @@ static void nodeFindNeighbor(tMap *pMap, UBYTE ubNodeIdx, tDir eDir) {
 	tNode *pNodeSrc = &pMap->pNodes[ubNodeIdx];
 	BYTE x = pNodeSrc->ubTileX;
 	BYTE y = pNodeSrc->ubTileY;
-	logWrite("Starting at %hhd,%hhd\n", x, y);
 	do {
 		x += pDeltas[eDir].bX;
 		y += pDeltas[eDir].bY;
@@ -156,7 +156,11 @@ tMap *mapCreateFromFile(const char *szPath) {
 						++eTile;
 					}
 					else if(TILE_BLOB_NEUTRAL <= eTile && eTile <= TILE_BLOB_P4) {
-						nodeAdd(pMap, ubTrueX, ubTrueY, eTile);
+						tNode *pNode = nodeAdd(pMap, ubTrueX, ubTrueY, eTile);
+						if(eTile >= TILE_BLOB_P1) {
+							UBYTE ubPlayerIdx = eTile - TILE_BLOB_P1;
+							pMap->pPlayerStartNodes[ubPlayerIdx] = pNode;
+						}
 					}
 					isFound = 1;
 					pMap->pTiles[ubTrueX][ubTrueY] = eTile;
