@@ -191,10 +191,18 @@ void mapProcessNodes(tMap *pMap) {
 	// TODO: nodes could save some sort of "timestamps" for growth start
 	// and deltas from them could be calculated when needed
 	// provided that the growth time is constant for each blob
-	if(++pMap->ubChargeClock >= 50) {
-		pMap->ubChargeClock = 0;
+	++pMap->ubChargeClock;
+	if(pMap->ubChargeClock == 50 || pMap->ubChargeClock == 100 || pMap->ubChargeClock == 150) {
+		UBYTE isNeutralCharge = 0;
+		if(pMap->ubChargeClock >= 150) {
+			pMap->ubChargeClock = 0;
+			isNeutralCharge = 1;
+		}
 		for(UBYTE i = 0; i < pMap->ubNodeCount; ++i) {
-			if(pMap->pNodes[i].pPlayer && pMap->pNodes[i].bCharges < 100) {
+			if(
+				pMap->pNodes[i].bCharges < 100 &&
+				(pMap->pNodes[i].pPlayer || isNeutralCharge)
+			) {
 				++pMap->pNodes[i].bCharges;
 			}
 		}
