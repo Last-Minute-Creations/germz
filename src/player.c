@@ -137,10 +137,15 @@ void playerProcess(void) {
 
 void playerSpawnPlep(tPlayer *pPlayer) {
 	// TODO: store last index, add starting from it
+	BYTE bPlepCharges = pPlayer->pNodePlepSrc->bCharges / 2;
+	if(!bPlepCharges) {
+		return;
+	}
 	for(UBYTE i = 0; i < PLEPS_PER_PLAYER; ++i) {
 		tPlep *pPlep = &pPlayer->pPleps[i];
 		if(!pPlep->isActive) {
-			plepSpawn(pPlep);
+			plepSpawn(pPlep, bPlepCharges);
+			pPlayer->pNodePlepSrc->bCharges -= bPlepCharges;
 			logWrite(
 				"Spawned plep %hhu on player %hhu: blob %hhu,%hhu -> %hhu,%hhu\n",
 				i, playerToIdx(pPlayer),

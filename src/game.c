@@ -55,6 +55,9 @@ void gameGsLoop(void) {
 	}
 
 	displayProcess();
+	if(keyUse(KEY_C)) {
+		displayToggleDebug();
+	}
 	if(keyCheck(KEY_B)) {
 		displayLag();
 	}

@@ -20,9 +20,33 @@ static tBitMap *s_pBmPlepMask;
 
 static void plepSinkInNode(tPlep *pPlep) {
 	pPlep->isActive = 0;
-	if(pPlep->pDestination->pPlayer != pPlep->pPlayer) {
-		pPlep->pDestination->pPlayer = pPlep->pPlayer;
-		displayAddNodeToQueue(pPlep->pDestination);
+	tNode *pNode = pPlep->pDestination;
+	if(pNode->pPlayer != pPlep->pPlayer) {
+		// logWrite("Attacking blob %hhd with plep %hhd\n", pNode->bCharges, pPlep->bCharges);
+		// Attack with plep's charges!
+		pNode->bCharges -= pPlep->bCharges;
+		if(pNode->bCharges == 0) {
+			// Zero charges in blob - make it neutral
+			if(pNode->pPlayer) {
+				// logWrite("Draw! To neutral\n");
+				pNode->pPlayer = 0;
+				displayAddNodeToQueue(pNode);
+				// TODO: if player is selecting from that blob, remove selection
+				// TODO: test it
+			}
+		}
+		else if(pNode->bCharges < 0) {
+			// Negative charge - capture blob!
+			pNode->bCharges = -pNode->bCharges;
+			pNode->pPlayer = pPlep->pPlayer;
+			displayAddNodeToQueue(pNode);
+			// logWrite("Capture! %hhd\n", pNode->bCharges);
+		}
+	}
+	else {
+		// logWrite("Power up! %hhd %hhd\n", pNode->bCharges, pPlep->bCharges);
+		// Power up blob with plep's charges
+		pNode->bCharges = MIN(100, pNode->bCharges + pPlep->bCharges);
 	}
 }
 
@@ -68,10 +92,11 @@ void plepProcess(tPlep *pPlep) {
 	}
 }
 
-void plepSpawn(tPlep *pPlep) {
+void plepSpawn(tPlep *pPlep, BYTE bCharges) {
 	const tNode *pSrc = pPlep->pPlayer->pNodePlepSrc;
 	pPlep->pDestination = pPlep->pPlayer->pNodeCursor;
 	pPlep->isActive = 1;
+	pPlep->bCharges = bCharges;
 	pPlep->sBob.sPos.uwX = pSrc->ubTileX * 16;
 	pPlep->sBob.sPos.uwY = pSrc->ubTileY * 16;
 	pPlep->bDeltaX = SGN(pPlep->pDestination->ubTileX - pSrc->ubTileX);

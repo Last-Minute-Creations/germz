@@ -53,6 +53,7 @@ static tBitMap *s_pBmBlobMask;
 static UWORD s_uwColorBg;
 static tFont *s_pFont;
 static tTextBitMap *s_pBmLine;
+static UBYTE s_isDebug = 1;
 
 //------------------------------------------------------------------ PRIVATE FNS
 
@@ -260,9 +261,9 @@ void displayProcess(void) {
 }
 
 void displayDebugColor(UWORD uwColor) {
-// #if defined(GAME_DEBUG)
-	g_pCustom->color[0] = uwColor;
-// #endif
+	if(s_isDebug) {
+		g_pCustom->color[0] = uwColor;
+	}
 }
 
 static UBYTE s_ubCurrPlayer = 1;
@@ -277,7 +278,7 @@ void displayUpdateHud(void) {
 	UWORD uwMonitorY = ubZeroBased * HUD_MONITOR_SIZE + ubMonitorPad;
 
 	blitRect(s_pBfr->pBack, uwMonitorX, uwMonitorY, 16, s_pFont->uwHeight, 6);
-	if(pPlayer->pNodeCursor && pPlayer->pNodeCursor->pPlayer == pPlayer) {
+	if(pPlayer->pNodeCursor) { // && pPlayer->pNodeCursor->pPlayer == pPlayer) {
 		char szBfr[4];
 		sprintf(szBfr, "%hhd", pPlayer->pNodeCursor->bCharges);
 		fontFillTextBitMap(s_pFont, s_pBmLine, szBfr);
@@ -293,4 +294,8 @@ void displayUpdateHud(void) {
 		}
 	}
 	s_ubWasEven = !s_ubWasEven;
+}
+
+void displayToggleDebug(void) {
+	s_isDebug = !s_isDebug;
 }

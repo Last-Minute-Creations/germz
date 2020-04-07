@@ -28,4 +28,6 @@ void displayProcess(void);
 
 void displayUpdateHud(void);
 
+void displayToggleDebug(void);
+
 #endif // _GERMZ_DISPLAY_H_

@@ -192,8 +192,9 @@ void mapProcessNodes(tMap *pMap) {
 	// and deltas from them could be calculated when needed
 	// provided that the growth time is constant for each blob
 	if(++pMap->ubChargeClock >= 50) {
+		pMap->ubChargeClock = 0;
 		for(UBYTE i = 0; i < pMap->ubNodeCount; ++i) {
-			if(pMap->pNodes[i].bCharges < 100) {
+			if(pMap->pNodes[i].pPlayer && pMap->pNodes[i].bCharges < 100) {
 				++pMap->pNodes[i].bCharges;
 			}
 		}
