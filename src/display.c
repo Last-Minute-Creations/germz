@@ -141,8 +141,8 @@ static UBYTE s_isEven = 0;
 UBYTE displayInitialAnim(const tMap *pMap) {
 	static const UBYTE s_ubStep = 2;
 	static const UBYTE s_ubAnimCount = 8;
-	static const UBYTE s_ubTailLength = 16;
-	for(UBYTE i = 0; i < s_ubTailLength; i += s_ubStep) {
+	static const UBYTE s_ubTailLength = 8;
+	for(UBYTE i = 0; i < s_ubTailLength; ++i) {
 		WORD wPos = s_uwCurr - i;
 		if(wPos < 0) {
 			break;
@@ -171,7 +171,8 @@ UBYTE displayInitialAnim(const tMap *pMap) {
 	}
 
 	if(s_isEven) {
-		if(++s_uwCurr - s_ubTailLength >= 16*16) {
+		s_uwCurr += s_ubStep;
+		if(s_uwCurr - s_ubTailLength >= 16*16) {
 			return 1;
 		}
 	}
