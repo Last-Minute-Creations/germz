@@ -31,8 +31,10 @@ void gameGsCreate(void) {
 void mainLoop(void) {
 	bobNewBegin();
 	displayQueueProcess();
+	displayUpdateHud();
 	playerProcess();
 	bobNewPushingDone();
+	mapProcessNodes(s_pMap);
 	bobNewEnd();
 }
 

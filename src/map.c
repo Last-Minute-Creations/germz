@@ -21,7 +21,11 @@ static tNode *nodeAdd(tMap *pMap, UBYTE ubTrueX, UBYTE ubTrueY, tTile eTile) {
 	}
 	pNode->pPlayer = playerFromTile(eTile);
 	if(pNode->pPlayer) {
+		pNode->bCharges = 50;
 		logWrite("player at pos %hhu,%hhu: %p (%d)\n", ubTrueX, ubTrueY, pNode->pPlayer, eTile);
+	}
+	else {
+		pNode->bCharges = 20;
 	}
 	++pMap->ubNodeCount;
 	pMap->pNodesOnTiles[ubTrueX][ubTrueY] = pNode;
@@ -173,6 +177,7 @@ tMap *mapCreateFromFile(const char *szPath) {
 		}
 	}
 
+	pMap->ubChargeClock = 0;
 	nodeCalculateNeighbors(pMap);
 	jsonDestroy(pJson);
 	return pMap;
@@ -186,4 +191,11 @@ void mapProcessNodes(tMap *pMap) {
 	// TODO: nodes could save some sort of "timestamps" for growth start
 	// and deltas from them could be calculated when needed
 	// provided that the growth time is constant for each blob
+	if(++pMap->ubChargeClock >= 50) {
+		for(UBYTE i = 0; i < pMap->ubNodeCount; ++i) {
+			if(pMap->pNodes[i].bCharges < 100) {
+				++pMap->pNodes[i].bCharges;
+			}
+		}
+	}
 }

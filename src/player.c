@@ -83,6 +83,14 @@ UBYTE playerToIdx(const tPlayer *pPlayer) {
 	return ubPlayerIdx;
 }
 
+tPlayer *playerFromIdx(UBYTE ubIdx) {
+	tPlayer *pPlayer = 0;
+	if(ubIdx > 0) {
+		pPlayer = &s_pPlayers[ubIdx - 1];
+	}
+	return pPlayer;
+}
+
 void playerProcess(void) {
 	for(UBYTE i = 0; i < PLAYER_COUNT_MAX; ++i) {
 		tPlayer *pPlayer = &s_pPlayers[i];

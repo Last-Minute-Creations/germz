@@ -8,6 +8,7 @@
 #include <ace/managers/blit.h>
 #include <ace/managers/system.h>
 #include <ace/utils/palette.h>
+#include <ace/utils/font.h>
 #include "bob_new.h"
 
 // 1. wyjscie germza z komorki
@@ -22,10 +23,12 @@
 #define QUEUE_ELEMENTS_MAX 10
 #define FRAME_COUNT 8
 #define FRAME_SIZE 16
+#define HUD_OFFS_X 256
+#define HUD_MONITOR_SIZE 64
 
 //------------------------------------------------------------------------ TYPES
 
-typedef struct {
+typedef struct _tQueueElement {
 	tNode *pNode;
 	UBYTE isDrawnOnce;
 	UBYTE ubFrame;
@@ -48,6 +51,8 @@ static tBitMap *s_pBmBlobs[TILE_BLOB_COUNT];
 static tBitMap *s_pBmLinks;
 static tBitMap *s_pBmBlobMask;
 static UWORD s_uwColorBg;
+static tFont *s_pFont;
+static tTextBitMap *s_pBmLine;
 
 //------------------------------------------------------------------ PRIVATE FNS
 
@@ -101,18 +106,24 @@ void displayCreate(void) {
 	paletteLoad("data/germz.plt", s_pVp->pPalette, 32);
 	s_uwColorBg = s_pVp->pPalette[0];
 
-	bitmapLoadFromFile(s_pBfr->pBack, "data/monitor.bm", 320 - 64, 0);
+	// Draw monitors on back buffer
+	bitmapLoadFromFile(s_pBfr->pBack, "data/monitor.bm", HUD_OFFS_X, 0);
 	for(UBYTE i = 1; i < 4; ++i) {
 		blitCopyAligned(
-			s_pBfr->pBack, 320 - 64, 0, s_pBfr->pBack, 320 - 64, i * 64, 64, 64
+			s_pBfr->pBack, HUD_OFFS_X, 0, s_pBfr->pBack,
+			HUD_OFFS_X, i * HUD_MONITOR_SIZE, HUD_MONITOR_SIZE, HUD_MONITOR_SIZE
 		);
 	}
-	// Split for OCS limitations
+
+	// Split back->front for OCS limitations
 	blitCopyAligned(
-		s_pBfr->pBack, 320 - 64, 128, s_pBfr->pFront, 320 - 64, 128, 64, 128
+		s_pBfr->pBack, HUD_OFFS_X, 0, s_pBfr->pFront, HUD_OFFS_X, 0,
+		HUD_MONITOR_SIZE, 2 * HUD_MONITOR_SIZE
 	);
 	blitCopyAligned(
-		s_pBfr->pBack, 320 - 64, 0, s_pBfr->pFront, 320 - 64, 0, 64, 128
+		s_pBfr->pBack, HUD_OFFS_X, 2 * HUD_MONITOR_SIZE,
+		s_pBfr->pFront, HUD_OFFS_X, 2 * HUD_MONITOR_SIZE,
+		HUD_MONITOR_SIZE, 2 * HUD_MONITOR_SIZE
 	);
 
 	for(UBYTE i = 0; i < TILE_BLOB_COUNT; ++i) {
@@ -126,11 +137,16 @@ void displayCreate(void) {
 	bobNewManagerCreate(s_pBfr->pFront, s_pBfr->pBack, s_pBfr->uBfrBounds.uwY);
 	displayQueueReset();
 	playerCreate();
+
+	s_pFont = fontCreate("data/uni54.fnt");
+	s_pBmLine = fontCreateTextBitMap(64, s_pFont->uwHeight);
 }
 
 void displayDestroy(void) {
 	viewLoad(0);
 	systemUse();
+	fontDestroyTextBitMap(s_pBmLine);
+	fontDestroy(s_pFont);
 	playerDestroy();
 	for(UBYTE i = 0; i < TILE_BLOB_COUNT; ++i) {
 		bitmapDestroy(s_pBmBlobs[i]);
@@ -247,4 +263,34 @@ void displayDebugColor(UWORD uwColor) {
 // #if defined(GAME_DEBUG)
 	g_pCustom->color[0] = uwColor;
 // #endif
+}
+
+static UBYTE s_ubCurrPlayer = 1;
+static UBYTE s_ubWasEven = 0;
+
+void displayUpdateHud(void) {
+	static const UBYTE pPlayerColors[] = {8, 12, 16, 20};
+	const tPlayer *pPlayer = playerFromIdx(s_ubCurrPlayer);
+	UBYTE ubZeroBased = s_ubCurrPlayer - 1;
+	const UBYTE ubMonitorPad = 7;
+	UWORD uwMonitorX = HUD_OFFS_X + ubMonitorPad;
+	UWORD uwMonitorY = ubZeroBased * HUD_MONITOR_SIZE + ubMonitorPad;
+
+	blitRect(s_pBfr->pBack, uwMonitorX, uwMonitorY, 16, s_pFont->uwHeight, 6);
+	if(pPlayer->pNodeCursor && pPlayer->pNodeCursor->pPlayer == pPlayer) {
+		char szBfr[4];
+		sprintf(szBfr, "%hhd", pPlayer->pNodeCursor->bCharges);
+		fontFillTextBitMap(s_pFont, s_pBmLine, szBfr);
+		fontDrawTextBitMap(
+			s_pBfr->pBack, s_pBmLine, uwMonitorX, uwMonitorY,
+			pPlayerColors[ubZeroBased], FONT_COOKIE
+		);
+	}
+
+	if(s_ubWasEven) {
+		if(++s_ubCurrPlayer > 4) {
+			s_ubCurrPlayer = 1;
+		}
+	}
+	s_ubWasEven = !s_ubWasEven;
 }

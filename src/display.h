@@ -26,4 +26,6 @@ void displayLag(void);
 
 void displayProcess(void);
 
+void displayUpdateHud(void);
+
 #endif // _GERMZ_DISPLAY_H_

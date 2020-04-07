@@ -31,8 +31,10 @@ void playerSpawnPlep(tPlayer *pPlayer);
 
 enum _tTile playerToTile(const tPlayer *pPlayer);
 
+tPlayer *playerFromTile(enum _tTile eTile);
+
 UBYTE playerToIdx(const tPlayer *pPlayer);
 
-tPlayer *playerFromTile(enum _tTile eTile);
+tPlayer *playerFromIdx(UBYTE ubIdx);
 
 #endif // _GERMZ_PLAYER_H_

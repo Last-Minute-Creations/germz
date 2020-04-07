@@ -26,6 +26,7 @@ typedef struct _tNode {
 	UBYTE ubTileY;
 	struct _tPlayer *pPlayer;
 	struct _tNode *pNeighbors[DIR_COUNT];
+	BYTE bCharges;
 } tNode;
 
 typedef enum _tTile {
@@ -54,6 +55,7 @@ typedef struct _tMap {
 	tNode *pNodesOnTiles[MAP_SIZE][MAP_SIZE];
 	UBYTE ubNodeCount;
 	tNode *pPlayerStartNodes[4];
+	UBYTE ubChargeClock;
 } tMap;
 
 tMap *mapCreateFromFile(const char *szPath);
