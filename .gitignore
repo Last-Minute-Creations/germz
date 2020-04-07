@@ -5,3 +5,6 @@ germz
 *.gif
 
 *.log
+.vscode/SYMBOLS.DB
+.vscode/SYMBOLS.DB-shm
+.vscode/SYMBOLS.DB-wal
