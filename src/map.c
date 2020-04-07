@@ -21,11 +21,11 @@ static tNode *nodeAdd(tMap *pMap, UBYTE ubTrueX, UBYTE ubTrueY, tTile eTile) {
 	}
 	pNode->pPlayer = playerFromTile(eTile);
 	if(pNode->pPlayer) {
-		pNode->bCharges = 50;
+		pNode->wCharges = 60;
 		logWrite("player at pos %hhu,%hhu: %p (%d)\n", ubTrueX, ubTrueY, pNode->pPlayer, eTile);
 	}
 	else {
-		pNode->bCharges = 20;
+		pNode->wCharges = 20;
 	}
 	++pMap->ubNodeCount;
 	pMap->pNodesOnTiles[ubTrueX][ubTrueY] = pNode;
@@ -201,10 +201,13 @@ void mapProcessNodes(tMap *pMap) {
 		}
 		for(UBYTE i = 0; i < pMap->ubNodeCount; ++i) {
 			if(
-				pMap->pNodes[i].bCharges < 100 &&
-				(pMap->pNodes[i].pPlayer || isNeutralCharge)
+				pMap->pNodes[i].wCharges < 100 ||
+				(!pMap->pNodes[i].pPlayer && isNeutralCharge)
 			) {
-				++pMap->pNodes[i].bCharges;
+				++pMap->pNodes[i].wCharges;
+			}
+			else if(isNeutralCharge && pMap->pNodes[i].wCharges > 100) {
+				--pMap->pNodes[i].wCharges;
 			}
 		}
 	}

@@ -1,0 +1,9 @@
+20.4.7.1
+- Neutral blobs grow every 3s
+- Initial work on input switching
+- You can now have more than 100 charges on blob by transporting it
+- Excessive charges will decay by 1 point every 3s
+- Initial charge incresed to 60 from 50
+
+20.4.7
+- Initial version

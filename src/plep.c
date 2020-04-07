@@ -22,10 +22,10 @@ static void plepSinkInNode(tPlep *pPlep) {
 	pPlep->isActive = 0;
 	tNode *pNode = pPlep->pDestination;
 	if(pNode->pPlayer != pPlep->pPlayer) {
-		// logWrite("Attacking blob %hhd with plep %hhd\n", pNode->bCharges, pPlep->bCharges);
+		// logWrite("Attacking blob %hd with plep %hd\n", pNode->wCharges, pPlep->wCharges);
 		// Attack with plep's charges!
-		pNode->bCharges -= pPlep->bCharges;
-		if(pNode->bCharges == 0) {
+		pNode->wCharges -= pPlep->wCharges;
+		if(pNode->wCharges == 0) {
 			// Zero charges in blob - make it neutral
 			if(pNode->pPlayer) {
 				// logWrite("Draw! To neutral\n");
@@ -35,18 +35,18 @@ static void plepSinkInNode(tPlep *pPlep) {
 				// TODO: test it
 			}
 		}
-		else if(pNode->bCharges < 0) {
+		else if(pNode->wCharges < 0) {
 			// Negative charge - capture blob!
-			pNode->bCharges = -pNode->bCharges;
+			pNode->wCharges = -pNode->wCharges;
 			pNode->pPlayer = pPlep->pPlayer;
 			displayAddNodeToQueue(pNode);
-			// logWrite("Capture! %hhd\n", pNode->bCharges);
+			// logWrite("Capture! %hd\n", pNode->wCharges);
 		}
 	}
 	else {
-		// logWrite("Power up! %hhd %hhd\n", pNode->bCharges, pPlep->bCharges);
+		// logWrite("Power up! %hd %hd\n", pNode->wCharges, pPlep->wCharges);
 		// Power up blob with plep's charges
-		pNode->bCharges = MIN(100, pNode->bCharges + pPlep->bCharges);
+		pNode->wCharges = pNode->wCharges + pPlep->wCharges;
 	}
 }
 
@@ -92,11 +92,11 @@ void plepProcess(tPlep *pPlep) {
 	}
 }
 
-void plepSpawn(tPlep *pPlep, BYTE bCharges) {
+void plepSpawn(tPlep *pPlep, WORD wCharges) {
 	const tNode *pSrc = pPlep->pPlayer->pNodePlepSrc;
 	pPlep->pDestination = pPlep->pPlayer->pNodeCursor;
 	pPlep->isActive = 1;
-	pPlep->bCharges = bCharges;
+	pPlep->wCharges = wCharges;
 	pPlep->sBob.sPos.uwX = pSrc->ubTileX * 16;
 	pPlep->sBob.sPos.uwY = pSrc->ubTileY * 16;
 	pPlep->bDeltaX = SGN(pPlep->pDestination->ubTileX - pSrc->ubTileX);

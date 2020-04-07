@@ -10,7 +10,7 @@
 typedef struct _tPlep {
 	UBYTE isActive;
 	BYTE bDeltaX, bDeltaY;
-	BYTE bCharges;
+	WORD wCharges;
 	struct _tPlayer *pPlayer;
 	tBobNew sBob;
 	struct _tNode *pDestination;
@@ -26,6 +26,6 @@ void plepReset(tPlep *pPlep, struct _tPlayer *pPlayer);
 
 void plepProcess(tPlep *pPlep);
 
-void plepSpawn(tPlep *pPlep, BYTE bCharges);
+void plepSpawn(tPlep *pPlep, WORD wCharges);
 
 #endif // _GERMZ_PLEP_H_

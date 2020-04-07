@@ -280,7 +280,7 @@ void displayUpdateHud(void) {
 	blitRect(s_pBfr->pBack, uwMonitorX, uwMonitorY, 16, s_pFont->uwHeight, 6);
 	if(pPlayer->pNodeCursor) { // && pPlayer->pNodeCursor->pPlayer == pPlayer) {
 		char szBfr[4];
-		sprintf(szBfr, "%hhd", pPlayer->pNodeCursor->bCharges);
+		sprintf(szBfr, "%hd", pPlayer->pNodeCursor->wCharges);
 		fontFillTextBitMap(s_pFont, s_pBmLine, szBfr);
 		fontDrawTextBitMap(
 			s_pBfr->pBack, s_pBmLine, uwMonitorX, uwMonitorY,

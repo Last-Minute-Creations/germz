@@ -19,7 +19,7 @@ typedef struct _tNode {
 	UBYTE ubTileY;
 	struct _tPlayer *pPlayer;
 	struct _tNode *pNeighbors[DIR_COUNT - 1];
-	BYTE bCharges;
+	WORD wCharges;
 } tNode;
 
 typedef enum _tTile {
