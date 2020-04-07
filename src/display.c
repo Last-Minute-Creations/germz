@@ -101,6 +101,20 @@ void displayCreate(void) {
 	paletteLoad("data/germz.plt", s_pVp->pPalette, 32);
 	s_uwColorBg = s_pVp->pPalette[0];
 
+	bitmapLoadFromFile(s_pBfr->pBack, "data/monitor.bm", 320 - 64, 0);
+	for(UBYTE i = 1; i < 4; ++i) {
+		blitCopyAligned(
+			s_pBfr->pBack, 320 - 64, 0, s_pBfr->pBack, 320 - 64, i * 64, 64, 64
+		);
+	}
+	// Split for OCS limitations
+	blitCopyAligned(
+		s_pBfr->pBack, 320 - 64, 128, s_pBfr->pFront, 320 - 64, 128, 64, 128
+	);
+	blitCopyAligned(
+		s_pBfr->pBack, 320 - 64, 0, s_pBfr->pFront, 320 - 64, 0, 64, 128
+	);
+
 	for(UBYTE i = 0; i < TILE_BLOB_COUNT; ++i) {
 		char szName[15];
 		sprintf(szName, "data/blob%hhu.bm", i);

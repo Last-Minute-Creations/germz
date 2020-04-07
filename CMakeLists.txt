@@ -36,13 +36,13 @@ convertBitmaps(
 	INTERLEAVED SOURCES
 	_res/blob0.png _res/blob1.png _res/blob2.png _res/blob3.png _res/blob4.png
 	_res/blob5.png _res/blob6.png _res/links.png _res/cursors.png
-	_res/plep0.png _res/plep1.png _res/plep2.png _res/plep3.png
+	_res/plep0.png _res/plep1.png _res/plep2.png _res/plep3.png _res/monitor.png
 	DESTINATIONS
 		data/blob0.bm data/blob1.bm data/blob2.bm data/blob3.bm data/blob4.bm
 		data/blob5.bm data/blob6.bm data/links.bm data/cursors.bm
-		data/plep0.bm data/plep1.bm data/plep2.bm data/plep3.bm
+		data/plep0.bm data/plep1.bm data/plep2.bm data/plep3.bm data/monitor.bm
 	MASKS
 		data/blob_mask.bm NONE NONE NONE NONE
 		NONE NONE NONE data/cursors_mask.bm
-		data/plep_mask.bm NONE NONE NONE
+		data/plep_mask.bm NONE NONE NONE NONE
 )

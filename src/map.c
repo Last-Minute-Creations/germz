@@ -181,3 +181,9 @@ tMap *mapCreateFromFile(const char *szPath) {
 void mapDestroy(tMap *pMap) {
 	memFree(pMap, sizeof(*pMap));
 }
+
+void mapProcessNodes(tMap *pMap) {
+	// TODO: nodes could save some sort of "timestamps" for growth start
+	// and deltas from them could be calculated when needed
+	// provided that the growth time is constant for each blob
+}

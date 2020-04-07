@@ -60,4 +60,6 @@ tMap *mapCreateFromFile(const char *szPath);
 
 void mapDestroy(tMap *pMap);
 
+void mapProcessNodes(tMap *pMap);
+
 #endif // _GERMZ_MAP_H_
