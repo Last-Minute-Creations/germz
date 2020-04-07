@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "player.h"
-#include <ace/managers/joy.h>
 
 //---------------------------------------------------------------------- DEFINES
 
@@ -59,7 +58,7 @@ void playerReset(UBYTE ubIdx, tNode *pStartNode, UBYTE ubJoy) {
 	pPlayer->sBobCursor.sPos.uwX = pPlayer->pNodeCursor->ubTileX * 16;
 	pPlayer->sBobCursor.sPos.uwY = pPlayer->pNodeCursor->ubTileY * 16;
 	pPlayer->isSelectingDestination = 0;
-	s_pPlayers[ubIdx].ubJoy = ubJoy;
+	s_pPlayers[ubIdx].sSteer = steerInitJoy(ubJoy);
 }
 
 tTile playerToTile(const tPlayer *pPlayer) {
@@ -94,34 +93,26 @@ tPlayer *playerFromIdx(UBYTE ubIdx) {
 void playerProcess(void) {
 	for(UBYTE i = 0; i < PLAYER_COUNT_MAX; ++i) {
 		tPlayer *pPlayer = &s_pPlayers[i];
-		tDir eDir = DIR_COUNT;
-		if(joyUse(pPlayer->ubJoy + JOY_LEFT)) {
-			eDir = DIR_LEFT;
-		}
-		else if(joyUse(pPlayer->ubJoy + JOY_RIGHT)) {
-			eDir = DIR_RIGHT;
-		}
-		else if(joyUse(pPlayer->ubJoy + JOY_UP)) {
-			eDir = DIR_UP;
-		}
-		else if(joyUse(pPlayer->ubJoy + JOY_DOWN)) {
-			eDir = DIR_DOWN;
-		}
+		tDir eDir = steerProcess(&pPlayer->sSteer);
 		if(pPlayer->isSelectingDestination) {
-			playerTryMoveSelectionFromInDir(pPlayer, pPlayer->pNodePlepSrc, eDir);
-			if(joyUse(pPlayer->ubJoy + JOY_FIRE)) {
+			if(eDir == DIR_FIRE) {
 				playerSpawnPlep(pPlayer);
 				playerSetCursorPos(pPlayer, pPlayer->pNodePlepSrc);
 				pPlayer->isSelectingDestination = 0;
 			}
+			else {
+				playerTryMoveSelectionFromInDir(pPlayer, pPlayer->pNodePlepSrc, eDir);
+			}
 		}
 		else {
-			playerTryMoveSelectionFromInDir(pPlayer, pPlayer->pNodeCursor, eDir);
-			if(joyUse(pPlayer->ubJoy + JOY_FIRE)) {
+			if(eDir == DIR_FIRE) {
 				if(pPlayer->pNodeCursor->pPlayer == pPlayer) {
 					pPlayer->pNodePlepSrc = pPlayer->pNodeCursor;
 					pPlayer->isSelectingDestination = 1;
 				}
+			}
+			else {
+				playerTryMoveSelectionFromInDir(pPlayer, pPlayer->pNodeCursor, eDir);
 			}
 		}
 

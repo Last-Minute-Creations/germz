@@ -53,6 +53,7 @@ static void nodeFindNeighbor(tMap *pMap, UBYTE ubNodeIdx, tDir eDir) {
 		[DIR_DOWN]  = {.bX =  0, .bY =  1},
 		[DIR_LEFT]  = {.bX = -1, .bY =  0},
 		[DIR_RIGHT] = {.bX =  1, .bY =  0},
+		[DIR_FIRE]  = {.bX =  0, .bY =  0}, // SHOULDN'T HAPPEN!
 	};
 
 	// Find next blob in line or give up
@@ -80,7 +81,7 @@ static void nodeFindNeighbor(tMap *pMap, UBYTE ubNodeIdx, tDir eDir) {
 static void nodeCalculateNeighbors(tMap *pMap) {
 	for(UBYTE i = 0; i < pMap->ubNodeCount; ++i) {
 		logWrite("Searching for neighbors for node %p\n", &pMap->pNodes[i]);
-		for(tDir eDir = 0; eDir < DIR_COUNT; ++eDir) {
+		for(tDir eDir = 0; eDir < DIR_FIRE; ++eDir) {
 			if(!pMap->pNodes[i].pNeighbors[eDir]) {
 				nodeFindNeighbor(pMap, i, eDir);
 			}

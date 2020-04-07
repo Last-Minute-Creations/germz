@@ -12,20 +12,13 @@
 
 #include <ace/types.h>
 #include "player.h"
-
-typedef enum _tDir {
-	DIR_UP,
-	DIR_DOWN,
-	DIR_LEFT,
-	DIR_RIGHT,
-	DIR_COUNT
-} tDir;
+#include "dir.h"
 
 typedef struct _tNode {
 	UBYTE ubTileX;
 	UBYTE ubTileY;
 	struct _tPlayer *pPlayer;
-	struct _tNode *pNeighbors[DIR_COUNT];
+	struct _tNode *pNeighbors[DIR_COUNT - 1];
 	BYTE bCharges;
 } tNode;
 

@@ -8,13 +8,14 @@
 #include "bob_new.h"
 #include "map.h"
 #include "plep.h"
+#include "steer.h"
 
 #define PLEPS_PER_PLAYER 3
 
 typedef struct _tPlayer {
-	tBobNew sBobCursor;
-	UBYTE ubJoy;
 	UBYTE isSelectingDestination;
+	tBobNew sBobCursor;
+	struct _tSteer sSteer;
 	struct _tNode *pNodeCursor, *pNodePlepSrc;
 	struct _tPlep pPleps[PLEPS_PER_PLAYER];
 } tPlayer;
