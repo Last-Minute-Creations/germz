@@ -201,8 +201,8 @@ void mapProcessNodes(tMap *pMap) {
 		}
 		for(UBYTE i = 0; i < pMap->ubNodeCount; ++i) {
 			if(
-				pMap->pNodes[i].wCharges < 100 ||
-				(!pMap->pNodes[i].pPlayer && isNeutralCharge)
+				pMap->pNodes[i].wCharges < 100 &&
+				(pMap->pNodes[i].pPlayer || isNeutralCharge)
 			) {
 				++pMap->pNodes[i].wCharges;
 			}

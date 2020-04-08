@@ -8,6 +8,7 @@
 #include <ace/managers/game.h>
 #include "map.h"
 #include "display.h"
+#include "menu.h"
 
 static UBYTE s_isMainLoop;
 static tMap *s_pMap = 0;
@@ -21,9 +22,8 @@ void gameGsCreate(void) {
 	}
 	s_isMainLoop = 0;
 
-	static const UBYTE pJoy[] = {JOY1, JOY2, JOY3, JOY4};
 	for(UBYTE i = 0; i < s_pMap->ubPlayerCount; ++i) {
-		playerReset(i, s_pMap->pPlayerStartNodes[i], pJoy[i]);
+		playerReset(i, s_pMap->pPlayerStartNodes[i], menuGetSteerForPlayer(i));
 	}
 	displayEnable();
 }
@@ -41,7 +41,7 @@ void mainLoop(void) {
 void gameGsLoop(void) {
 	displayDebugColor(0x00F);
 	if(keyUse(KEY_ESCAPE)) {
-		gameClose();
+		gameChangeState(menuGsCreate, menuGsLoop, menuGsDestroy);
 		return;
 	}
 

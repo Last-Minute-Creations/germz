@@ -20,8 +20,9 @@ typedef enum _tKeymap {
 typedef struct _tSteer {
 	tCbSteerProcess cbProcess;
 	union {
-		UBYTE ubJoy;
-		tKeymap eKeymap;
+		UBYTE ubJoy; ///< for joy steer
+		UBYTE ubPlayerIdx; ///< 0: P1, for ai steer
+		tKeymap eKeymap; ///< for keyboard steer
 	};
 } tSteer;
 
@@ -29,8 +30,10 @@ tSteer steerInitJoy(UBYTE ubJoy);
 
 tSteer steerInitKey(tKeymap eKeymap);
 
-tSteer steerInitAi(void);
+tSteer steerInitAi(UBYTE ubPlayerIdx);
 
 tDir steerProcess(tSteer *pSteer);
+
+tSteer steerInitIdle(void);
 
 #endif // _GERMZ_STEER_H_

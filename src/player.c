@@ -45,7 +45,7 @@ void playerDestroy(void) {
 	plepDestroy();
 }
 
-void playerReset(UBYTE ubIdx, tNode *pStartNode, UBYTE ubJoy) {
+void playerReset(UBYTE ubIdx, tNode *pStartNode, tSteer sSteer) {
 	tPlayer *pPlayer = &s_pPlayers[ubIdx];
 	bobNewInit(
 		&pPlayer->sBobCursor, 16, 16, 1, s_pCursors, s_pCursorsMask, 0, 0
@@ -58,7 +58,7 @@ void playerReset(UBYTE ubIdx, tNode *pStartNode, UBYTE ubJoy) {
 	pPlayer->sBobCursor.sPos.uwX = pPlayer->pNodeCursor->ubTileX * 16;
 	pPlayer->sBobCursor.sPos.uwY = pPlayer->pNodeCursor->ubTileY * 16;
 	pPlayer->isSelectingDestination = 0;
-	s_pPlayers[ubIdx].sSteer = steerInitJoy(ubJoy);
+	s_pPlayers[ubIdx].sSteer = sSteer;
 }
 
 tTile playerToTile(const tPlayer *pPlayer) {
@@ -77,7 +77,7 @@ tPlayer *playerFromTile(tTile eTile) {
 UBYTE playerToIdx(const tPlayer *pPlayer) {
 	UBYTE ubPlayerIdx = 0;
 	if(pPlayer) {
-		ubPlayerIdx = 1 + (UBYTE)(pPlayer - s_pPlayers) / sizeof(pPlayer);
+		ubPlayerIdx = 1 + (UBYTE)(pPlayer - &s_pPlayers[0]);
 	}
 	return ubPlayerIdx;
 }

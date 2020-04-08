@@ -55,6 +55,10 @@ static tFont *s_pFont;
 static tTextBitMap *s_pBmLine;
 static UBYTE s_isDebug = 1;
 
+static UWORD s_uwCurr = 0;
+static UBYTE s_isEven = 0;
+static UBYTE s_ubCurrPlayer = 1;
+
 //------------------------------------------------------------------ PRIVATE FNS
 
 static void displayAdvanceFrameInElement(tQueueElement *pElement) {
@@ -141,6 +145,10 @@ void displayCreate(void) {
 
 	s_pFont = fontCreate("data/uni54.fnt");
 	s_pBmLine = fontCreateTextBitMap(64, s_pFont->uwHeight);
+
+	s_uwCurr = 0;
+	s_isEven = 0;
+	s_ubCurrPlayer = 1;
 }
 
 void displayDestroy(void) {
@@ -165,15 +173,11 @@ static tUbCoordYX getNth(UWORD uwN) {
 	return sPos;
 }
 
-static UWORD s_uwCurr = 0;
-static UBYTE s_isEven = 0;
-
-
 UBYTE displayInitialAnim(const tMap *pMap) {
-	static const UBYTE s_ubStep = 2;
-	static const UBYTE s_ubAnimCount = 8;
-	static const UBYTE s_ubTailLength = 8;
-	for(UBYTE i = 0; i < s_ubTailLength; ++i) {
+	static const UBYTE ubStep = 2;
+	static const UBYTE ubAnimCount = 8;
+	static const UBYTE ubTailLength = 8;
+	for(UBYTE i = 0; i < ubTailLength; ++i) {
 		WORD wPos = s_uwCurr - i;
 		if(wPos < 0) {
 			break;
@@ -185,25 +189,25 @@ UBYTE displayInitialAnim(const tMap *pMap) {
 		tTile eTile = pMap->pTiles[sPos.ubX][sPos.ubY];
 		if(eTile < TILE_BLOB_COUNT) {
 			// Animate
-			UWORD uwOffsY = ((i * s_ubAnimCount) / s_ubTailLength) * 16;
+			UWORD uwFrameY = MIN(ubAnimCount - 1, (((i + ubStep - 1) * ubAnimCount) / ubTailLength)) * 16;
 			blitCopyAligned(
-				s_pBmBlobs[eTile], 0, uwOffsY,
+				s_pBmBlobs[eTile], 0, uwFrameY,
 				s_pBfr->pBack, sPos.ubX * 16, sPos.ubY * 16, 16, 16
 			);
 		}
 		else {
 			// Don't animate
-			UWORD uwOffsY = 16 * (eTile - TILE_PATH_H1);
+			UWORD uwTileY = 16 * (eTile - TILE_PATH_H1);
 			blitCopyAligned(
-				s_pBmLinks, 0, uwOffsY, s_pBfr->pBack,
+				s_pBmLinks, 0, uwTileY, s_pBfr->pBack,
 				sPos.ubX * 16, sPos.ubY * 16, 16, 16
 			);
 		}
 	}
 
 	if(s_isEven) {
-		s_uwCurr += s_ubStep;
-		if(s_uwCurr - s_ubTailLength >= 16*16) {
+		s_uwCurr += ubStep;
+		if(s_uwCurr - ubTailLength >= 16*16) {
 			return 1;
 		}
 	}
@@ -266,9 +270,6 @@ void displayDebugColor(UWORD uwColor) {
 	}
 }
 
-static UBYTE s_ubCurrPlayer = 1;
-static UBYTE s_ubWasEven = 0;
-
 void displayUpdateHud(void) {
 	static const UBYTE pPlayerColors[] = {8, 12, 16, 20};
 	const tPlayer *pPlayer = playerFromIdx(s_ubCurrPlayer);
@@ -279,7 +280,7 @@ void displayUpdateHud(void) {
 
 	blitRect(s_pBfr->pBack, uwMonitorX, uwMonitorY, 16, s_pFont->uwHeight, 6);
 	if(pPlayer->pNodeCursor) { // && pPlayer->pNodeCursor->pPlayer == pPlayer) {
-		char szBfr[4];
+		char szBfr[6];
 		sprintf(szBfr, "%hd", pPlayer->pNodeCursor->wCharges);
 		fontFillTextBitMap(s_pFont, s_pBmLine, szBfr);
 		fontDrawTextBitMap(
@@ -288,12 +289,23 @@ void displayUpdateHud(void) {
 		);
 	}
 
-	if(s_ubWasEven) {
+	blitRect(s_pBfr->pBack, uwMonitorX, uwMonitorY + 10, 16, s_pFont->uwHeight, 6);
+	if(pPlayer->isSelectingDestination) {
+		char szBfr[6];
+		sprintf(szBfr, "%hd", pPlayer->pNodePlepSrc->wCharges / 2);
+		fontFillTextBitMap(s_pFont, s_pBmLine, szBfr);
+		fontDrawTextBitMap(
+			s_pBfr->pBack, s_pBmLine, uwMonitorX, uwMonitorY + 10,
+			pPlayerColors[ubZeroBased], FONT_COOKIE
+		);
+	}
+
+	if(s_isEven) {
 		if(++s_ubCurrPlayer > 4) {
 			s_ubCurrPlayer = 1;
 		}
 	}
-	s_ubWasEven = !s_ubWasEven;
+	s_isEven = !s_isEven;
 }
 
 void displayToggleDebug(void) {

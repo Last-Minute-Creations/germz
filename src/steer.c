@@ -30,12 +30,41 @@ static tDir onJoy(tSteer *pSteer) {
 }
 
 static tDir onKey(tSteer *pSteer) {
-	// pSteer->eKeymap;
-	return DIR_COUNT;
+	static const UBYTE pDirsWsad[] = {
+		[DIR_UP] = KEY_W,
+		[DIR_DOWN] = KEY_S,
+		[DIR_LEFT] = KEY_A,
+		[DIR_RIGHT] = KEY_D,
+		[DIR_FIRE] = KEY_LSHIFT
+	};
+	static const UBYTE pDirsArrows[] = {
+		[DIR_UP] = KEY_UP,
+		[DIR_DOWN] = KEY_DOWN,
+		[DIR_LEFT] = KEY_LEFT,
+		[DIR_RIGHT] = KEY_RIGHT,
+		[DIR_FIRE] = KEY_RSHIFT
+	};
+
+	const UBYTE *pKeymap = (pSteer->eKeymap == KEYMAP_WSAD) ? pDirsWsad : pDirsArrows;
+
+	tDir eDir = DIR_COUNT;
+	for(UBYTE i = 0; i < DIR_COUNT; ++i) {
+		if(keyUse(pKeymap[i])) {
+			eDir = i;
+			break;
+		}
+	}
+
+	return eDir;
 }
 
 static tDir onAi(tSteer *pSteer) {
 	// TODO onAi
+	return DIR_COUNT;
+}
+
+static tDir onIdle(UNUSED_ARG tSteer *pSteer) {
+	// Do nothing
 	return DIR_COUNT;
 }
 
@@ -57,9 +86,17 @@ tSteer steerInitKey(tKeymap eKeymap) {
 	return sSteer;
 }
 
-tSteer steerInitAi(void) {
+tSteer steerInitAi(UBYTE ubPlayerIdx) {
 	tSteer sSteer = {
-		.cbProcess = onAi
+		.cbProcess = onAi,
+		.ubPlayerIdx = ubPlayerIdx
+	};
+	return sSteer;
+}
+
+tSteer steerInitIdle(void) {
+	tSteer sSteer = {
+		.cbProcess = onIdle
 	};
 	return sSteer;
 }

@@ -24,7 +24,14 @@ void playerCreate(void);
 
 void playerDestroy(void);
 
-void playerReset(UBYTE ubIdx, struct _tNode *pStartNode, UBYTE ubJoy);
+/**
+ * @brief
+ *
+ * @param ubIdx 0: P1
+ * @param pStartNode
+ * @param sSteer
+ */
+void playerReset(UBYTE ubIdx, struct _tNode *pStartNode, tSteer sSteer);
 
 void playerProcess(void);
 

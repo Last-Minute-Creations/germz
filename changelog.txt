@@ -1,3 +1,11 @@
+20.4.8
+- Fixed startup-sequence in ADF
+- fixed neutral blobs growing without limit
+- fixed frames in initial draw anim
+- added menu
+- hud displays number of charges which will be transferred to plep in targeting mode
+- fixed blob conversion using wrong colors
+
 20.4.7.1
 - Neutral blobs grow every 3s
 - Initial work on input switching
