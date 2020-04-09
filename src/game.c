@@ -9,6 +9,8 @@
 #include "map.h"
 #include "display.h"
 #include "menu.h"
+#include "ai.h"
+#include "player.h"
 
 static UBYTE s_isMainLoop;
 static tMap *s_pMap = 0;
@@ -19,7 +21,9 @@ void gameGsCreate(void) {
 	s_pMap = mapCreateFromFile("data/maps/map1.json");
 	if(!s_pMap) {
 		logWrite("MAP CREATE FAIL\n");
+		return;
 	}
+	aiCreate(s_pMap);
 	s_isMainLoop = 0;
 
 	for(UBYTE i = 0; i < s_pMap->ubPlayerCount; ++i) {
@@ -65,6 +69,7 @@ void gameGsLoop(void) {
 
 void gameGsDestroy(void) {
 	displayDestroy();
+	aiDestroy();
 	if(s_pMap) {
 		mapDestroy(s_pMap);
 	}

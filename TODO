@@ -5,15 +5,20 @@
 ✔ menu @done(20-04-08 14:45)
 ✔ make steer settings actually work @done(20-04-08 15:21)
 ✔ keyboard for p3/p4 @done(20-04-08 15:22)
+☐ AI
+☐ plep gfx
+☐ navigate menu using joy too
 ☐ add check if distinct steer options have been selected
 ☐ display in visible menu part how keyboard layouts have action button bound
 ☐ cursors should blink or something so that overlapping will be visible
-☐ plep gfx
+☐ menu gfx
 ☐ sound effects
-☐ AI
 ☐ ptplayer
 ☐ splash screen LMC
 ☐ EKG
 ☐ put latest gfx from files!
 ☐ hud scanlines
 ☐ hangup when going from menu to game
+☐ fix 060
+☐ fix ks1.3
+☐ ensure sprites are disabled

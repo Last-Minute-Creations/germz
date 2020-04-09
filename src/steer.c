@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "steer.h"
+#include "player.h"
 #include <ace/managers/joy.h>
 #include <ace/managers/key.h>
 
@@ -59,8 +60,8 @@ static tDir onKey(tSteer *pSteer) {
 }
 
 static tDir onAi(tSteer *pSteer) {
-	// TODO onAi
-	return DIR_COUNT;
+	tAi *pAi = &pSteer->sAi;
+	return aiProcess(pAi);
 }
 
 static tDir onIdle(UNUSED_ARG tSteer *pSteer) {
@@ -89,8 +90,11 @@ tSteer steerInitKey(tKeymap eKeymap) {
 tSteer steerInitAi(UBYTE ubPlayerIdx) {
 	tSteer sSteer = {
 		.cbProcess = onAi,
-		.ubPlayerIdx = ubPlayerIdx
+		.sAi = {
+			.ubPlayerIdx = ubPlayerIdx,
+		}
 	};
+	aiReset(&sSteer.sAi);
 	return sSteer;
 }
 

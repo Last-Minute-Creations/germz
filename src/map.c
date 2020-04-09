@@ -9,7 +9,7 @@
 #include "json/json.h"
 
 static tNode *nodeAdd(tMap *pMap, UBYTE ubTrueX, UBYTE ubTrueY, tTile eTile) {
-	if(pMap->ubNodeCount >= NODES_MAX) {
+	if(pMap->ubNodeCount >= MAP_NODES_MAX) {
 		logWrite("ERR: Can't add another node\n");
 		return 0;
 	}
@@ -27,6 +27,7 @@ static tNode *nodeAdd(tMap *pMap, UBYTE ubTrueX, UBYTE ubTrueY, tTile eTile) {
 	else {
 		pNode->wCharges = 20;
 	}
+	pNode->ubIdx = pMap->ubNodeCount;
 	++pMap->ubNodeCount;
 	pMap->pNodesOnTiles[ubTrueX][ubTrueY] = pNode;
 	logWrite("Added node %p at %hhu,%hhu\n", pNode, ubTrueX, ubTrueY);

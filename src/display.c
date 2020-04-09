@@ -10,6 +10,7 @@
 #include <ace/utils/palette.h>
 #include <ace/utils/font.h>
 #include "bob_new.h"
+#include "player.h"
 
 // 1. wyjscie germza z komorki
 // 2. ruch przez linie po wyjsciu z komorki

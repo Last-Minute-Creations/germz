@@ -134,7 +134,7 @@ void playerSpawnPlep(tPlayer *pPlayer) {
 	}
 	for(UBYTE i = 0; i < PLEPS_PER_PLAYER; ++i) {
 		tPlep *pPlep = &pPlayer->pPleps[i];
-		if(!pPlep->isActive) {
+		if(!pPlep->isActive && pPlayer->pNodePlepSrc->pPlayer == pPlayer) {
 			plepSpawn(pPlep, wPlepCharges);
 			pPlayer->pNodePlepSrc->wCharges -= wPlepCharges;
 			logWrite(

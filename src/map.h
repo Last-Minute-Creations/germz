@@ -8,13 +8,13 @@
 #define MAP_NAME_MAX 20
 #define MAP_AUTHOR_MAX 20
 #define MAP_SIZE 16
-#define NODES_MAX 32
+#define MAP_NODES_MAX 32
 
 #include <ace/types.h>
-#include "player.h"
 #include "dir.h"
 
 typedef struct _tNode {
+	UBYTE ubIdx;
 	UBYTE ubTileX;
 	UBYTE ubTileY;
 	struct _tPlayer *pPlayer;
@@ -44,7 +44,7 @@ typedef struct _tMap {
 	char szAuthor[MAP_AUTHOR_MAX];
 	UBYTE ubPlayerCount;
 	tTile pTiles[MAP_SIZE][MAP_SIZE];
-	tNode pNodes[NODES_MAX];
+	tNode pNodes[MAP_NODES_MAX];
 	tNode *pNodesOnTiles[MAP_SIZE][MAP_SIZE];
 	UBYTE ubNodeCount;
 	tNode *pPlayerStartNodes[4];

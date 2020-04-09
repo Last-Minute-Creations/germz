@@ -7,6 +7,7 @@
 
 #include <ace/types.h>
 #include "dir.h"
+#include "ai.h"
 
 struct _tSteer;
 
@@ -21,8 +22,8 @@ typedef struct _tSteer {
 	tCbSteerProcess cbProcess;
 	union {
 		UBYTE ubJoy; ///< for joy steer
-		UBYTE ubPlayerIdx; ///< 0: P1, for ai steer
 		tKeymap eKeymap; ///< for keyboard steer
+		tAi sAi;
 	};
 } tSteer;
 
