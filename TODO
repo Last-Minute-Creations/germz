@@ -6,12 +6,13 @@
 ✔ make steer settings actually work @done(20-04-08 15:21)
 ✔ keyboard for p3/p4 @done(20-04-08 15:22)
 ✔ AI @done(20-04-10 13:08)
-☐ fix p4 plep (white wtf)
+✔ fix p4 plep (white wtf) @done(20-04-10 13:18)
+✔ navigate menu using joy too @done(20-04-10 13:25)
 ☐ plep gfx
-☐ navigate menu using joy too
 ☐ add check if distinct steer options have been selected
 ☐ display in visible menu part how keyboard layouts have action button bound
 ☐ cursors should blink or something so that overlapping will be visible
+☐ win/lose screen
 ☐ menu gfx
 ☐ sound effects
 ☐ ptplayer

@@ -273,19 +273,40 @@ void menuGsLoop(void) {
 		}
 	}
 
-	if(keyUse(KEY_UP)) {
+	UBYTE isEnabled34 = joyIsParallelEnabled();
+	if(
+		keyUse(KEY_UP) || keyUse(KEY_W) ||
+		joyUse(JOY1_UP) || joyUse(JOY2_UP) ||
+		(isEnabled34 && (joyUse(JOY3_UP) || joyUse(JOY4_UP)))
+	) {
 		menuNavigate(-1);
 	}
-	else if(keyUse(KEY_DOWN)) {
+	else if(
+		keyUse(KEY_DOWN) || keyUse(KEY_S) ||
+		joyUse(JOY1_DOWN) || joyUse(JOY2_DOWN) ||
+		(isEnabled34 && (joyUse(JOY3_DOWN) || joyUse(JOY4_DOWN)))
+	) {
 		menuNavigate(+1);
 	}
-	else if(keyUse(KEY_LEFT)) {
+	else if(
+		keyUse(KEY_LEFT) || keyUse(KEY_A) ||
+		joyUse(JOY1_LEFT) || joyUse(JOY2_LEFT) ||
+		(isEnabled34 && (joyUse(JOY3_LEFT) || joyUse(JOY4_LEFT)))
+	) {
 		menuToggle(-1);
 	}
-	else if(keyUse(KEY_RIGHT)) {
+	else if(
+		keyUse(KEY_RIGHT) || keyUse(KEY_D) ||
+		joyUse(JOY1_RIGHT) || joyUse(JOY2_RIGHT) ||
+		(isEnabled34 && (joyUse(JOY3_RIGHT) || joyUse(JOY4_RIGHT)))
+	) {
 		menuToggle(+1);
 	}
-	else if(keyUse(KEY_RETURN)) {
+	else if(
+		keyUse(KEY_RETURN) || keyUse(KEY_LSHIFT) || keyUse(KEY_RSHIFT) ||
+		joyUse(JOY1_FIRE) || joyUse(JOY2_FIRE) ||
+		(isEnabled34 && (joyUse(JOY3_FIRE) || joyUse(JOY4_FIRE)))
+	) {
 		menuEnter();
 	}
 
