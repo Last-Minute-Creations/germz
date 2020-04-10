@@ -117,7 +117,7 @@ static tDir aiProcessPlanningDefensive(tAi *pAi) {
 						// because of being on border
 						pAi->pTargetCurrNode = pNode->pNeighbors[pAi->eNeighborIdx];
 						pAi->wBiggestDeltaCurrNode = wDelta;
-						// logWrite("def: stored next potential target: %p\n", pAi->pTarget);
+						// logWrite("def: stored next potential target for current node %p: %p\n", pNode, pAi->pTargetCurrNode);
 					}
 				}
 			}
@@ -125,9 +125,12 @@ static tDir aiProcessPlanningDefensive(tAi *pAi) {
 		}
 		else {
 			// Out of directions - next node, but store target if there is new
-			pAi->pTarget = pAi->pTargetCurrNode;
-			pAi->pTargetSrc = pNode;
-			pAi->wBiggestDelta = pAi->wBiggestDeltaCurrNode;
+			if(pAi->pTarget != pAi->pTargetCurrNode) {
+				pAi->pTarget = pAi->pTargetCurrNode;
+				pAi->pTargetSrc = pNode;
+				pAi->wBiggestDelta = pAi->wBiggestDeltaCurrNode;
+				// logWrite("def: stored global potential target: %p\n", pAi->pTarget);
+			}
 			isNextNode = 1;
 		}
 	}
@@ -142,9 +145,10 @@ static tDir aiProcessPlanningDefensive(tAi *pAi) {
 			// Out of nodes - execute defense or plan aggresive move
 			if(pAi->pTarget) {
 				// logWrite(
-				// 	"def: cursor %p, getting to %p to fire into %p (%hhu,%hhu)\n",
-				// 	pPlayer->pNodeCursor, pAi->pTargetSrc, pAi->pTarget,
-				// 	pAi->pTarget->ubTileX, pAi->pTarget->ubTileY
+				// 	"def: cursor %p, getting to %p (%hhu,%hhu) to fire into %p (%hhu,%hhu)\n",
+				// 	pPlayer->pNodeCursor,
+				// 	pAi->pTargetSrc, pAi->pTargetSrc->ubTileX, pAi->pTargetSrc->ubTileY,
+				// 	pAi->pTarget, pAi->pTarget->ubTileX, pAi->pTarget->ubTileY
 				// );
 				pAi->eState = AI_STATE_ROUTING;
 			}
@@ -238,11 +242,6 @@ static tDir aiProcessGettingToSourceBlob(tAi *pAi) {
 
 static tDir aiProcessTargetingTarget(tAi *pAi) {
 	// we've pressed fire button on source and now we'll attack weakest neighbor
-	// logWrite(
-	// 	"Checking if neighbor %p of node %p at dir %d is node %p\n",
-	// 	pAi->pTargetSrc->pNeighbors[pAi->eNeighborIdx], pAi->pTargetSrc,
-	// 	pAi->eNeighborIdx, pAi->pTarget
-	// );
 	if(pAi->pTargetSrc->pNeighbors[pAi->eNeighborIdx] == pAi->pTarget) {
 		// That's our neighbor
 		// logWrite("Confirming target!\n");
@@ -250,8 +249,17 @@ static tDir aiProcessTargetingTarget(tAi *pAi) {
 		return pAi->eNeighborIdx;
 	}
 	else {
-		if(++pAi->eNeighborIdx >= 3) {
-			logWrite("ERR: AI lost target node!\n");
+		if(++pAi->eNeighborIdx >= 4) {
+			logWrite(
+				"ERR: AI lost target node! While checking if target src %p (%hhu,%hhu) neighbors with target %p (%hhu,%hhu)\n",
+				pAi->pTargetSrc, pAi->pTargetSrc->ubTileX, pAi->pTargetSrc->ubTileY,
+				pAi->pTarget, pAi->pTarget->ubTileX, pAi->pTarget->ubTileY
+			);
+			logPushIndent();
+			for(UBYTE i = 0; i < 4; ++i) {
+				logWrite("Neighbor at dir %hhu: %p\n", i, pAi->pTargetSrc->pNeighbors[i]);
+			}
+			logPopIndent();
 			aiTransitToPlanning(pAi);
 		}
 	}
