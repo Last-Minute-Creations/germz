@@ -1,26 +1,33 @@
-✔ fix neutral growing without limit @done(20-04-08 09:06)
-✔ fix frames in initial draw anim @done(20-04-08 12:24)
-✔ hud should display number of charges which will be transferred to plep in targeting mode @done(20-04-08 12:31)
-✔ green player converts neutral blobs to red gfx @done(20-04-08 12:56)
-✔ menu @done(20-04-08 14:45)
-✔ make steer settings actually work @done(20-04-08 15:21)
-✔ keyboard for p3/p4 @done(20-04-08 15:22)
-✔ AI @done(20-04-10 13:08)
-✔ fix p4 plep (white wtf) @done(20-04-10 13:18)
-✔ navigate menu using joy too @done(20-04-10 13:25)
-☐ plep gfx
-☐ add check if distinct steer options have been selected
-☐ display in visible menu part how keyboard layouts have action button bound
-☐ cursors should blink or something so that overlapping will be visible
-☐ win/lose screen
-☐ menu gfx
-☐ sound effects
-☐ ptplayer
-☐ splash screen LMC
-☐ EKG
-☐ put latest gfx from files!
-☐ hud scanlines
-☐ hangup when going from menu to game
-☐ fix 060
-☐ fix ks1.3
-☐ ensure sprites are disabled
+Done:
+	✔ fix neutral growing without limit @done(20-04-08 09:06)
+	✔ fix frames in initial draw anim @done(20-04-08 12:24)
+	✔ hud should display number of charges which will be transferred to plep in targeting mode @done(20-04-08 12:31)
+	✔ green player converts neutral blobs to red gfx @done(20-04-08 12:56)
+	✔ menu @done(20-04-08 14:45)
+	✔ make steer settings actually work @done(20-04-08 15:21)
+	✔ keyboard for p3/p4 @done(20-04-08 15:22)
+	✔ AI @done(20-04-10 13:08)
+	✔ fix p4 plep (white wtf) @done(20-04-10 13:18)
+	✔ navigate menu using joy too @done(20-04-10 13:25)
+	✔ add check if distinct steer options have been selected @done(20-04-10 13:57)
+
+Now:
+	☐ plep gfx
+	☐ ptplayer
+	☐ win/lose screen
+	☐ sound effects
+	☐ cursors should blink or something so that overlapping will be visible
+	☐ menu gfx
+	☐ display in visible menu part how keyboard layouts have action button bound (how to play)
+
+Trivial:
+	☐ splash screen LMC
+	☐ put latest gfx!
+	☐ ensure sprites are disabled
+
+Later:
+	☐ EKG
+	☐ hud scanlines
+	☐ fix 060 (ACE)
+	☐ fix ks1.3 (ACE)
+	☐ freeze when going from menu to game (ACE)

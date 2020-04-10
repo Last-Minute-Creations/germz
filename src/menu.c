@@ -35,11 +35,11 @@ static UBYTE s_pPlayerSteers[4] = {
 	PLAYER_STEER_KEY_WSAD, PLAYER_STEER_KEY_ARROWS
 };
 
-static const char *g_pMenuEnumSteer[] = {
+static const char *s_pMenuEnumSteer[] = {
 	"Joy 1", "Joy 2", "Joy 3", "Joy 4", "WSAD", "Arrows", "CPU", "Idle", "Off"
 };
 
-static const char *g_pMenuCaptions[] = {
+static const char *s_pMenuCaptions[] = {
 	"Start game",
 	"Player 1",
 	"Player 2",
@@ -91,19 +91,19 @@ static tOption s_pOptions[] = {
 	{OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onStart}},
 	{OPTION_TYPE_UINT8, .isHidden = 0, .sOptUb = {
 		.pVar = &s_pPlayerSteers[0], .ubMax = PLAYER_STEER_IDLE, .isCyclic = 1,
-		.ubDefault = PLAYER_STEER_JOY_1, .pEnumLabels = g_pMenuEnumSteer
+		.ubDefault = PLAYER_STEER_JOY_1, .pEnumLabels = s_pMenuEnumSteer
 	}},
 	{OPTION_TYPE_UINT8, .isHidden = 0, .sOptUb = {
 		.pVar = &s_pPlayerSteers[1], .ubMax = PLAYER_STEER_IDLE, .isCyclic = 1,
-		.ubDefault = PLAYER_STEER_JOY_2, .pEnumLabels = g_pMenuEnumSteer
+		.ubDefault = PLAYER_STEER_JOY_2, .pEnumLabels = s_pMenuEnumSteer
 	}},
 	{OPTION_TYPE_UINT8, .isHidden = 0, .sOptUb = {
 		.pVar = &s_pPlayerSteers[2], .ubMax = PLAYER_STEER_IDLE, .isCyclic = 1,
-		.ubDefault = PLAYER_STEER_OFF, .pEnumLabels = g_pMenuEnumSteer
+		.ubDefault = PLAYER_STEER_OFF, .pEnumLabels = s_pMenuEnumSteer
 	}},
 	{OPTION_TYPE_UINT8, .isHidden = 0, .sOptUb = {
 		.pVar = &s_pPlayerSteers[3], .ubMax = PLAYER_STEER_IDLE, .isCyclic = 1,
-		.ubDefault = PLAYER_STEER_OFF, .pEnumLabels = g_pMenuEnumSteer
+		.ubDefault = PLAYER_STEER_OFF, .pEnumLabels = s_pMenuEnumSteer
 	}},
 	{OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onExit}},
 };
@@ -118,20 +118,20 @@ static void menuDrawPos(UBYTE ubPos, UWORD uwOffsTop) {
 	if(s_pOptions[ubPos].eOptionType == OPTION_TYPE_UINT8) {
 		if(s_pOptions[ubPos].sOptUb.pEnumLabels) {
 			sprintf(
-				szBfr, "%s: %s", g_pMenuCaptions[ubPos],
+				szBfr, "%s: %s", s_pMenuCaptions[ubPos],
 				s_pOptions[ubPos].sOptUb.pEnumLabels[*s_pOptions[ubPos].sOptUb.pVar]
 			);
 		}
 		else {
 			sprintf(
-				szBfr, "%s: %hhu", g_pMenuCaptions[ubPos],
+				szBfr, "%s: %hhu", s_pMenuCaptions[ubPos],
 				*s_pOptions[ubPos].sOptUb.pVar
 			);
 		}
 		szText = szBfr;
 	}
 	else if(s_pOptions[ubPos].eOptionType == OPTION_TYPE_CALLBACK) {
-		szText = g_pMenuCaptions[ubPos];
+		szText = s_pMenuCaptions[ubPos];
 	}
 	if(szText != 0) {
 		fontFillTextBitMap(s_pFont, s_pTextBitmap, szText);
@@ -194,23 +194,63 @@ static void onExit(void) {
 	gameClose();
 }
 
+static void menuErrorMsg(const char *szMsg) {
+	char szLine[80];
+	const char *szLineStart = szMsg;
+	UWORD uwOffsY = 180;
+	UBYTE ubLineHeight = s_pFont->uwHeight + 1;
+	blitRect(s_pBfr->pBack, 0, uwOffsY, 320, 2 * ubLineHeight, 0);
+
+	while(szLineStart) {
+		const char *szLineEnd = strchr(szLineStart, '\n');
+		if(szLineEnd) {
+			UWORD uwLineWidth = szLineEnd - szLineStart;
+			memcpy(szLine, szLineStart, uwLineWidth);
+			szLine[uwLineWidth] = '\0';
+			szLineStart = szLineEnd + 1;
+		}
+		else {
+			UWORD uwLineWidth = strlen(szLineStart);
+			memcpy(szLine, szLineStart, uwLineWidth);
+			szLine[uwLineWidth] = '\0';
+			szLineStart = 0;
+		}
+		fontFillTextBitMap(s_pFont, s_pTextBitmap, szLine);
+		fontDrawTextBitMap(
+			s_pBfr->pBack, s_pTextBitmap, 320/2, uwOffsY,
+			MENU_COLOR_ERROR, FONT_COOKIE | FONT_SHADOW | FONT_HCENTER
+		);
+		uwOffsY += ubLineHeight;
+	}
+}
+
 static void onStart(void) {
+	UBYTE pSteerToPlayer[PLAYER_STEER_AI] = {0};
 	for(UBYTE i = 0; i < 4; ++i) {
 		if((
 			s_pPlayerSteers[i] == PLAYER_STEER_JOY_3 ||
 			s_pPlayerSteers[i] == PLAYER_STEER_JOY_4
 		) && !joyEnableParallel()) {
-			fontFillTextBitMap(s_pFont, s_pTextBitmap, "Can't open parallel port for joystick adapter");
-			fontDrawTextBitMap(
-				s_pBfr->pBack, s_pTextBitmap, 320/2, 200,
-				MENU_COLOR_ERROR, FONT_COOKIE | FONT_SHADOW | FONT_HCENTER
-			);
-			fontFillTextBitMap(s_pFont, s_pTextBitmap, "Joy3 & 4 are not usable!");
-			fontDrawTextBitMap(
-				s_pBfr->pBack, s_pTextBitmap, 320/2, 210,
-				MENU_COLOR_ERROR, FONT_COOKIE | FONT_SHADOW | FONT_HCENTER
+			menuErrorMsg(
+				"Can't open parallel port for joystick adapter\n"
+				"Joy 3 & 4 are not usable!"
 			);
 			return;
+		}
+
+		if(s_pPlayerSteers[i] < PLAYER_STEER_AI) {
+			if(!pSteerToPlayer[s_pPlayerSteers[i]]) {
+				pSteerToPlayer[s_pPlayerSteers[i]] = 1;
+			}
+			else {
+				char szMsg[80];
+				sprintf(
+					szMsg, "Controller %s is bound to more than 1 player",
+					s_pMenuEnumSteer[s_pPlayerSteers[i]]
+				);
+				menuErrorMsg(szMsg);
+				return;
+			}
 		}
 	}
 	gameChangeState(gameGsCreate, gameGsLoop, gameGsDestroy);
