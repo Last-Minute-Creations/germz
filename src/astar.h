@@ -17,11 +17,12 @@
 
 /**
  * Pathfinding route struct.
+ * Nodes are in reverse order - index zero is always destination.
  * TOOD implement as stack
  */
 typedef struct _tRoute {
-	UBYTE ubNodeCount; ///< Number of nodes in route.
-	UBYTE ubCurrNode; ///< Currently processed route node idx.
+	BYTE bNodeCount; ///< Number of nodes in route.
+	BYTE bCurrNode; ///< Currently processed route node idx.
 	const tNode *pNodes[ASTAR_ROUTE_NODE_MAX]; ///< First is dest
 } tRoute;
 

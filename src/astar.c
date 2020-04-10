@@ -74,14 +74,14 @@ UBYTE astarProcess(tAstarData *pNav) {
 	else {
 		// ASTAR_STATE_DONE
 		pNav->sRoute.pNodes[0] = pNav->pNodeDst;
-		pNav->sRoute.ubNodeCount = 1;
+		pNav->sRoute.bNodeCount = 1;
 		const tNode *pPrev = pNav->pCameFrom[pNav->pNodeDst->ubIdx];
 		while(pPrev) {
-			pNav->sRoute.pNodes[pNav->sRoute.ubNodeCount] = pPrev;
-			++pNav->sRoute.ubNodeCount;
+			pNav->sRoute.pNodes[pNav->sRoute.bNodeCount] = pPrev;
+			++pNav->sRoute.bNodeCount;
 			pPrev = pNav->pCameFrom[pPrev->ubIdx];
 		}
-		pNav->sRoute.ubCurrNode = pNav->sRoute.ubNodeCount-1;
+		pNav->sRoute.bCurrNode = pNav->sRoute.bNodeCount-1;
 
 		heapClear(pNav->pFrontier);
 		pNav->ubState = ASTAR_STATE_OFF;

@@ -23,9 +23,13 @@ typedef struct _tAi {
 	UBYTE ubCurrNode;
 	UBYTE wasLastAggresive;
 	UBYTE isAstarStarted;
-	WORD wWeakestCharge;
-	tAiState eState;
+	//
+	WORD wBiggestDelta;
 	const struct _tNode *pTargetSrc, *pTarget;
+	//
+	WORD wBiggestDeltaCurrNode;
+	const struct _tNode *pTargetCurrNode;
+	tAiState eState;
 	tDir eNeighborIdx;
 } tAi;
 
