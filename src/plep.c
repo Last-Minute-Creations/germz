@@ -72,7 +72,8 @@ void plepReset(tPlep *pPlep, tPlayer *pPlayer) {
 	pPlep->isActive = 0;
 	pPlep->pPlayer = pPlayer;
 	bobNewInit(
-		&pPlep->sBob, PLEP_SIZE, PLEP_SIZE, 1, s_pBmPleps[playerToIdx(pPlayer)], s_pBmPlepMask, 0, 0
+		&pPlep->sBob, PLEP_SIZE, PLEP_SIZE, 1,
+		s_pBmPleps[playerToIdx(pPlayer) - 1], s_pBmPlepMask, 0, 0
 	);
 }
 

@@ -41,6 +41,12 @@ enum _tTile playerToTile(const tPlayer *pPlayer);
 
 tPlayer *playerFromTile(enum _tTile eTile);
 
+/**
+ * @brief
+ *
+ * @param pPlayer
+ * @return 0 on neutral/null, 1-4 for P1-P4
+ */
 UBYTE playerToIdx(const tPlayer *pPlayer);
 
 tPlayer *playerFromIdx(UBYTE ubIdx);
