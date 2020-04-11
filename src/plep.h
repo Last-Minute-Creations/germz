@@ -22,6 +22,7 @@ typedef struct _tPlep {
 	UBYTE isActive;
 	tDir eDir;
 	UBYTE ubAnimFrame;
+	UBYTE ubAnimTick;
 	tUwCoordYX sAnimAnchor;
 	tPlepAnim eAnim;
 	WORD wCharges;

@@ -35,13 +35,14 @@ static void playerTryMoveSelectionFromInDir(
 static void playerSpawnPlep(tPlayer *pPlayer) {
 	// TODO: store last index, add starting from it
 	WORD wPlepCharges = pPlayer->pNodePlepSrc->wCharges / 2;
-	if(!wPlepCharges) {
+	if(!wPlepCharges || pPlayer->eLastDir >= DIR_FIRE) {
 		return;
 	}
 	for(UBYTE i = 0; i < PLEPS_PER_PLAYER; ++i) {
 		tPlep *pPlep = &pPlayer->pPleps[i];
 		if(!pPlep->isActive && pPlayer->pNodePlepSrc->pPlayer == pPlayer) {
 			plepSpawn(pPlep, wPlepCharges, pPlayer->eLastDir);
+			pPlayer->eLastDir = DIR_COUNT;
 			pPlayer->pNodePlepSrc->wCharges -= wPlepCharges;
 			logWrite(
 				"Spawned plep %hhu on player %hhu: blob %hhu,%hhu -> %hhu,%hhu\n",

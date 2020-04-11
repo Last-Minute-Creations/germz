@@ -76,9 +76,9 @@ void plepCreate(void) {
 	for(UBYTE ubDir = 0; ubDir < 4; ++ubDir) {
 		for(UBYTE ubAnim = 0; ubAnim < PLEP_ANIM_COUNT; ++ubAnim) {
 			char szName[30];
-			sprintf(szName, "data/%s_%s.bm", szAnimNames[ubAnim], szDirNames[3]);
+			sprintf(szName, "data/%s_%s.bm", szAnimNames[ubAnim], szDirNames[ubDir]);
 			s_pBmPleps[ubDir][ubAnim] = bitmapCreateFromFile(szName, 0);
-			sprintf(szName, "data/%s_%s_mask.bm", szAnimNames[ubAnim], szDirNames[3]);
+			sprintf(szName, "data/%s_%s_mask.bm", szAnimNames[ubAnim], szDirNames[ubDir]);
 			s_pBmPlepMasks[ubDir][ubAnim] = bitmapCreateFromFile(szName, 0);
 		}
 	}
@@ -103,74 +103,81 @@ void plepReset(tPlep *pPlep, tPlayer *pPlayer) {
 	);
 }
 
+static void plepUpdateAnimFrame(tPlep *pPlep) {
+	BYTE bDelta = s_pAnimOffsets[pPlep->eAnim][pPlep->ubAnimFrame];
+	if(dirIsVertical(pPlep->eDir)) {
+		if(pPlep->eDir == DIR_UP) {
+			bDelta = -bDelta;
+		}
+		pPlep->sBob.sPos.uwX = pPlep->sAnimAnchor.uwX;
+		pPlep->sBob.sPos.uwY = pPlep->sAnimAnchor.uwY + bDelta;
+	}
+	else {
+		if(pPlep->eDir == DIR_LEFT) {
+			bDelta = -bDelta;
+		}
+		pPlep->sBob.sPos.uwX = pPlep->sAnimAnchor.uwX + bDelta;
+		pPlep->sBob.sPos.uwY = pPlep->sAnimAnchor.uwY;
+	}
+	bobNewSetBitMapOffset(&pPlep->sBob, pPlep->ubAnimFrame * 16);
+}
+
 void plepProcess(tPlep *pPlep) {
 	if(!pPlep->isActive) {
 		return;
 	}
 
-	// Advance frame & anim
-	if(pPlep->ubAnimFrame >= s_pFramesPerAnim[pPlep->eAnim]) {
-		// end of anim
-		// logWrite(
-		// 	"End of anim %d (%hu,%hu dir %d)\n",
-		// 	pPlep->eAnim, pPlep->sAnimAnchor.uwX, pPlep->sAnimAnchor.uwY, pPlep->eDir
-		// );
-		switch(pPlep->eAnim) {
-			case PLEP_ANIM_BORN:
-			case PLEP_ANIM_MOVE:
-				pPlep->sAnimAnchor.uwX += s_pPlepMoveDelta[pPlep->eDir].bX;
-				pPlep->sAnimAnchor.uwY += s_pPlepMoveDelta[pPlep->eDir].bY;
-				tTile eNextTile = s_pMap->pTiles[pPlep->sAnimAnchor.uwX / 16][pPlep->sAnimAnchor.uwY / 16];
-				if(eNextTile >= TILE_BLOB_COUNT) {
-					// We're at non-blob tile
-					pPlep->eAnim = PLEP_ANIM_MOVE;
-				}
-				else {
-					// We're at blob tile - win or lose against blob
-					if(plepSinkInNode(pPlep)) {
-						pPlep->eAnim = PLEP_ANIM_WIN;
+	if(++pPlep->ubAnimTick >= 5) {
+		if(pPlep->ubAnimFrame >= s_pFramesPerAnim[pPlep->eAnim]) {
+			// end of anim
+			// logWrite(
+			// 	"End of anim %d (%hu,%hu dir %d)\n",
+			// 	pPlep->eAnim, pPlep->sAnimAnchor.uwX, pPlep->sAnimAnchor.uwY, pPlep->eDir
+			// );
+			switch(pPlep->eAnim) {
+				case PLEP_ANIM_BORN:
+				case PLEP_ANIM_MOVE:
+					pPlep->sAnimAnchor.uwX += s_pPlepMoveDelta[pPlep->eDir].bX;
+					pPlep->sAnimAnchor.uwY += s_pPlepMoveDelta[pPlep->eDir].bY;
+					tTile eNextTile = s_pMap->pTiles[pPlep->sAnimAnchor.uwX / 16][pPlep->sAnimAnchor.uwY / 16];
+					if(eNextTile >= TILE_BLOB_COUNT) {
+						// We're at non-blob tile
+						pPlep->eAnim = PLEP_ANIM_MOVE;
 					}
 					else {
-						pPlep->eAnim = PLEP_ANIM_LOSE;
+						// We're at blob tile - win or lose against blob
+						if(plepSinkInNode(pPlep)) {
+							pPlep->eAnim = PLEP_ANIM_WIN;
+						}
+						else {
+							pPlep->eAnim = PLEP_ANIM_LOSE;
+						}
 					}
-				}
-				break;
-			case PLEP_ANIM_WIN:
-			case PLEP_ANIM_LOSE:
-			default:
-				// end of anim - end of plep
-				pPlep->isActive = 0;
-				break;
+					break;
+				case PLEP_ANIM_WIN:
+				case PLEP_ANIM_LOSE:
+				default:
+					// end of anim - end of plep
+					pPlep->isActive = 0;
+					break;
+			}
+			pPlep->sBob.pBitmap = s_pBmPleps[pPlep->eDir][pPlep->eAnim];
+			pPlep->sBob.pMask = s_pBmPlepMasks[pPlep->eDir][pPlep->eAnim];
+			pPlep->ubAnimFrame = 0;
+			// logWrite(
+			// 	"Next anim: %d (%hu,%hu), active: %hhu\n",
+			// 	pPlep->eAnim, pPlep->sAnimAnchor.uwX, pPlep->sAnimAnchor.uwY, pPlep->isActive
+			// );
 		}
-		pPlep->sBob.pBitmap = s_pBmPleps[pPlep->eDir][pPlep->eAnim];
-		pPlep->sBob.pMask = s_pBmPlepMasks[pPlep->eDir][pPlep->eAnim];
-		pPlep->ubAnimFrame = 0;
-		// logWrite(
-		// 	"Next anim: %d (%hu,%hu), active: %hhu\n",
-		// 	pPlep->eAnim, pPlep->sAnimAnchor.uwX, pPlep->sAnimAnchor.uwY, pPlep->isActive
-		// );
+		// Advance frame & anim
+		plepUpdateAnimFrame(pPlep);
+		++pPlep->ubAnimFrame;
+		pPlep->ubAnimTick = 0;
 	}
-	else {
-		// Animate current anim
-		BYTE bDelta = s_pAnimOffsets[pPlep->eAnim][pPlep->ubAnimFrame];
-		if(dirIsVertical(pPlep->eDir)) {
-			if(pPlep->eDir == DIR_UP) {
-				bDelta = -bDelta;
-			}
-			pPlep->sBob.sPos.uwX = pPlep->sAnimAnchor.uwX;
-			pPlep->sBob.sPos.uwY = pPlep->sAnimAnchor.uwY + bDelta;
-		}
-		else {
-			if(pPlep->eDir == DIR_LEFT) {
-				bDelta = -bDelta;
-			}
-			pPlep->sBob.sPos.uwX = pPlep->sAnimAnchor.uwX + bDelta;
-			pPlep->sBob.sPos.uwY = pPlep->sAnimAnchor.uwY;
-		}
-		bobNewSetBitMapOffset(&pPlep->sBob, pPlep->ubAnimFrame * 16);
+	if(pPlep->isActive) {
 		bobNewPush(&pPlep->sBob); // No bob changing past this point
 	}
-	++pPlep->ubAnimFrame;
+	// displayDumpFrame();
 }
 
 void plepSpawn(tPlep *pPlep, WORD wCharges, tDir eDir) {
@@ -187,8 +194,10 @@ void plepSpawn(tPlep *pPlep, WORD wCharges, tDir eDir) {
 	pPlep->sBob.pBitmap = s_pBmPleps[pPlep->eDir][pPlep->eAnim];
 	pPlep->sBob.pMask = s_pBmPlepMasks[pPlep->eDir][pPlep->eAnim];
 	pPlep->ubAnimFrame = 0;
+	pPlep->ubAnimTick = 0;
 	pPlep->sAnimAnchor.uwX = pSrc->ubTileX * 16;
 	pPlep->sAnimAnchor.uwY = pSrc->ubTileY * 16;
+	plepUpdateAnimFrame(pPlep);
 
 	bobNewSetBitMapOffset(&pPlep->sBob, 0);
 }
