@@ -14,4 +14,8 @@ typedef enum _tDir {
 	DIR_COUNT
 } tDir;
 
+static inline UBYTE dirIsVertical(tDir eDir) {
+	return (eDir < DIR_LEFT);
+}
+
 #endif // _GERMZ_DIR_H_

@@ -24,6 +24,7 @@ void gameGsCreate(void) {
 		return;
 	}
 	aiCreate(s_pMap);
+	plepSetMap(s_pMap);
 	s_isMainLoop = 0;
 
 	for(UBYTE i = 0; i < s_pMap->ubPlayerCount; ++i) {

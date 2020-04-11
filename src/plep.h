@@ -6,13 +6,27 @@
 #define _GERMZ_PLEP_H_
 
 #include "bob_new.h"
+#include "dir.h"
+
+//------------------------------------------------------------------------ TYPES
+
+typedef enum _tPlepAnim {
+	PLEP_ANIM_BORN,
+	PLEP_ANIM_MOVE,
+	PLEP_ANIM_WIN,
+	PLEP_ANIM_LOSE,
+	PLEP_ANIM_COUNT,
+} tPlepAnim;
 
 typedef struct _tPlep {
 	UBYTE isActive;
-	BYTE bDeltaX, bDeltaY;
+	tDir eDir;
+	UBYTE ubAnimFrame;
+	tUwCoordYX sAnimAnchor;
+	tPlepAnim eAnim;
 	WORD wCharges;
-	struct _tPlayer *pPlayer;
 	tBobNew sBob;
+	struct _tPlayer *pPlayer;
 	struct _tNode *pDestination;
 } tPlep;
 
@@ -26,6 +40,8 @@ void plepReset(tPlep *pPlep, struct _tPlayer *pPlayer);
 
 void plepProcess(tPlep *pPlep);
 
-void plepSpawn(tPlep *pPlep, WORD wCharges);
+void plepSpawn(tPlep *pPlep, WORD wCharges, tDir eDir);
+
+void plepSetMap(const tMap *pMap);
 
 #endif // _GERMZ_PLEP_H_

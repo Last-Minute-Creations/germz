@@ -5,6 +5,8 @@
 #ifndef _GERMZ_GAME_H_
 #define _GERMZ_GAME_H_
 
+#include "map.h"
+
 void gameGsCreate(void);
 
 void gameGsLoop(void);

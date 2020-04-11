@@ -18,6 +18,7 @@ typedef struct _tPlayer {
 	struct _tSteer sSteer;
 	struct _tNode *pNodeCursor, *pNodePlepSrc;
 	struct _tPlep pPleps[PLEPS_PER_PLAYER];
+	tDir eLastDir;
 } tPlayer;
 
 void playerCreate(void);
@@ -34,8 +35,6 @@ void playerDestroy(void);
 void playerReset(UBYTE ubIdx, struct _tNode *pStartNode, tSteer sSteer);
 
 void playerProcess(void);
-
-void playerSpawnPlep(tPlayer *pPlayer);
 
 enum _tTile playerToTile(const tPlayer *pPlayer);
 

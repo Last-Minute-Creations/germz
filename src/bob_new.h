@@ -142,6 +142,8 @@ void bobNewBegin(void);
  * undrawn if needed.
  * There is no z-order, thus bobs are drawn in order of pushing.
  * When this function operates, it calls bobNewProcessNext().
+ * Don't modify bob's struct past calling this fn - there is no guarantee when
+ * bob system will access its data!
  *
  * @param pBob Pointer to bob to be drawn.
  *

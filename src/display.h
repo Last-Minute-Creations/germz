@@ -30,4 +30,6 @@ void displayUpdateHud(void);
 
 void displayToggleDebug(void);
 
+void displayDumpFrame(void);
+
 #endif // _GERMZ_DISPLAY_H_

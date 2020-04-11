@@ -55,6 +55,7 @@ static UWORD s_uwColorBg;
 static tFont *s_pFont;
 static tTextBitMap *s_pBmLine;
 static UBYTE s_isDebug = 1;
+static UBYTE s_isDump = 0;
 
 static UWORD s_uwCurr = 0;
 static UBYTE s_isEven = 0;
@@ -90,6 +91,7 @@ static void displayQueueReset(void) {
 //------------------------------------------------------------------- PUBLIC FNS
 
 void displayCreate(void) {
+	logBlockBegin("displayCreate()");
 	s_pView = viewCreate(0,
 		TAG_VIEW_COPLIST_MODE, COPPER_MODE_BLOCK,
 		TAG_VIEW_GLOBAL_CLUT, 1,
@@ -150,6 +152,7 @@ void displayCreate(void) {
 	s_uwCurr = 0;
 	s_isEven = 0;
 	s_ubCurrPlayer = 1;
+	logBlockEnd("displayCreate()");
 }
 
 void displayDestroy(void) {
@@ -263,6 +266,13 @@ void displayProcess(void) {
 	copProcessBlocks();
 	displayDebugColor(s_uwColorBg);
 	vPortWaitForEnd(s_pVp);
+	if(s_isDump) {
+		s_isDump = 0;
+		static char szPath[30];
+		static UWORD uwFrame = 0;
+		sprintf(szPath, "debug/%hu.bmp", uwFrame++);
+		bitmapSaveBmp(s_pBfr->pFront, s_pVp->pPalette, szPath);
+	}
 }
 
 void displayDebugColor(UWORD uwColor) {
@@ -311,4 +321,8 @@ void displayUpdateHud(void) {
 
 void displayToggleDebug(void) {
 	s_isDebug = !s_isDebug;
+}
+
+void displayDumpFrame(void) {
+	s_isDump = 1;
 }

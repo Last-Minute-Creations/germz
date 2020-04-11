@@ -7,6 +7,7 @@
 #include <ace/managers/memory.h>
 #include <ace/managers/log.h>
 #include "json/json.h"
+#include "player.h"
 
 static tNode *nodeAdd(tMap *pMap, UBYTE ubTrueX, UBYTE ubTrueY, tTile eTile) {
 	if(pMap->ubNodeCount >= MAP_NODES_MAX) {
@@ -91,6 +92,7 @@ static void nodeCalculateNeighbors(tMap *pMap) {
 }
 
 tMap *mapCreateFromFile(const char *szPath) {
+	logBlockBegin("mapCreateFromFile(szPath: '%s')", szPath);
 	tJson *pJson = jsonCreate(szPath);
 
 	UWORD uwTokName = jsonGetDom(pJson, "name");
@@ -101,6 +103,7 @@ tMap *mapCreateFromFile(const char *szPath) {
 	if(!uwTokName || !uwTokAuthor || !uwTokPlayers || !uwTokTiles) {
 		logWrite("ERR: couldn't find all tokens\n");
 		jsonDestroy(pJson);
+		logBlockEnd("mapCreateFromFile()");
 		return 0;
 	}
 
@@ -146,6 +149,7 @@ tMap *mapCreateFromFile(const char *szPath) {
 			logWrite("ERR: line length mismatch\n");
 			memFree(pMap, sizeof(*pMap));
 			jsonDestroy(pJson);
+			logBlockEnd("mapCreateFromFile()");
 			return 0;
 		}
 
@@ -182,6 +186,7 @@ tMap *mapCreateFromFile(const char *szPath) {
 	pMap->ubChargeClock = 0;
 	nodeCalculateNeighbors(pMap);
 	jsonDestroy(pJson);
+	logBlockEnd("mapCreateFromFile()");
 	return pMap;
 }
 

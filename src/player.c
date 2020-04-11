@@ -28,15 +28,40 @@ static void playerTryMoveSelectionFromInDir(
 ) {
 	if(eDir != DIR_COUNT && pNode->pNeighbors[eDir]) {
 		playerSetCursorPos(pPlayer, pNode->pNeighbors[eDir]);
+		pPlayer->eLastDir = eDir;
+	}
+}
+
+static void playerSpawnPlep(tPlayer *pPlayer) {
+	// TODO: store last index, add starting from it
+	WORD wPlepCharges = pPlayer->pNodePlepSrc->wCharges / 2;
+	if(!wPlepCharges) {
+		return;
+	}
+	for(UBYTE i = 0; i < PLEPS_PER_PLAYER; ++i) {
+		tPlep *pPlep = &pPlayer->pPleps[i];
+		if(!pPlep->isActive && pPlayer->pNodePlepSrc->pPlayer == pPlayer) {
+			plepSpawn(pPlep, wPlepCharges, pPlayer->eLastDir);
+			pPlayer->pNodePlepSrc->wCharges -= wPlepCharges;
+			logWrite(
+				"Spawned plep %hhu on player %hhu: blob %hhu,%hhu -> %hhu,%hhu\n",
+				i, playerToIdx(pPlayer),
+				pPlayer->pNodePlepSrc->ubTileX, pPlayer->pNodePlepSrc->ubTileY,
+				pPlep->pDestination->ubTileX, pPlep->pDestination->ubTileY
+			);
+			break;
+		}
 	}
 }
 
 //------------------------------------------------------------------- PUBLIC FNS
 
 void playerCreate(void) {
+	logBlockBegin("playerCreate()");
 	s_pCursors = bitmapCreateFromFile("data/cursors.bm", 0);
 	s_pCursorsMask = bitmapCreateFromFile("data/cursors_mask.bm", 0);
 	plepCreate();
+	logBlockEnd("playerCreate()");
 }
 
 void playerDestroy(void) {
@@ -123,27 +148,5 @@ void playerProcess(void) {
 		}
 
 		bobNewPush(&pPlayer->sBobCursor);
-	}
-}
-
-void playerSpawnPlep(tPlayer *pPlayer) {
-	// TODO: store last index, add starting from it
-	WORD wPlepCharges = pPlayer->pNodePlepSrc->wCharges / 2;
-	if(!wPlepCharges) {
-		return;
-	}
-	for(UBYTE i = 0; i < PLEPS_PER_PLAYER; ++i) {
-		tPlep *pPlep = &pPlayer->pPleps[i];
-		if(!pPlep->isActive && pPlayer->pNodePlepSrc->pPlayer == pPlayer) {
-			plepSpawn(pPlep, wPlepCharges);
-			pPlayer->pNodePlepSrc->wCharges -= wPlepCharges;
-			logWrite(
-				"Spawned plep %hhu on player %hhu: blob %hhu,%hhu -> %hhu,%hhu\n",
-				i, playerToIdx(pPlayer),
-				pPlayer->pNodePlepSrc->ubTileX, pPlayer->pNodePlepSrc->ubTileY,
-				pPlep->pDestination->ubTileX, pPlep->pDestination->ubTileY
-			);
-			break;
-		}
 	}
 }
