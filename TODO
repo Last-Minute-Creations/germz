@@ -23,12 +23,12 @@ Now:
 Trivial:
 	☐ splash screen LMC
 	☐ put latest gfx!
-	☐ ensure sprites are disabled
 	☐ dont spread and stay the fuck at home
 
 Later:
 	☐ EKG
 	☐ hud scanlines
+	☐ ensure sprites are disabled
 	☐ fix 060 (ACE)
 	☐ fix ks1.3 (ACE)
 	☐ freeze when going from menu to game (ACE)

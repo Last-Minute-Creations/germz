@@ -11,6 +11,7 @@
 #include <ace/managers/viewport/simplebuffer.h>
 #include <ace/utils/font.h>
 #include <ace/utils/palette.h>
+#include <ace/utils/ptplayer.h>
 #include "game.h"
 #include "build_ver.h"
 
@@ -51,6 +52,8 @@ static const char *s_pMenuCaptions[] = {
 static tView *s_pView;
 static tVPort *s_pVp;
 static tSimpleBufferManager *s_pBfr;
+static ULONG s_ulModSize;
+static UBYTE *s_pMod;
 
 static void onStart(void);
 static void onExit(void);
@@ -296,11 +299,28 @@ void menuGsCreate(void) {
 	fontFillTextBitMap(s_pFont, s_pTextBitmap, "Alpha version - don't spread before release!");
 	fontDrawTextBitMap(s_pBfr->pBack, s_pTextBitmap, 320/2, 256 - 10, 17, FONT_HCENTER | FONT_COOKIE);
 
+	s_ulModSize = fileGetSize("data/germz2-25.mod");
+	s_pMod = memAllocChip(s_ulModSize);
+	tFile *pFileMod = fileOpen("data/germz2-25.mod", "rb");
+	fileRead(pFileMod, s_pMod, s_ulModSize);
+	fileClose(pFileMod);
+	ptplayerInit(s_pMod, 0, 0);
+
 	systemUnuse();
+	ptplayerInstallInterrupts(1);
 	viewLoad(s_pView);
 }
 
 void menuGsLoop(void) {
+	ptplayerEnableMusic(1);
+	ptplayerProcess();
+
+	UWORD uwDma = g_pCustom->dmaconr;
+	blitRect(s_pBfr->pBack, 4, 250, 3, 3, (uwDma & DMAF_AUD0) ? MENU_COLOR_ACTIVE : MENU_COLOR_INACTIVE);
+	blitRect(s_pBfr->pBack, 10, 250, 3, 3, (uwDma & DMAF_AUD1) ? MENU_COLOR_ACTIVE : MENU_COLOR_INACTIVE);
+	blitRect(s_pBfr->pBack, 16, 250, 3, 3, (uwDma & DMAF_AUD2) ? MENU_COLOR_ACTIVE : MENU_COLOR_INACTIVE);
+	blitRect(s_pBfr->pBack, 22, 250, 3, 3, (uwDma & DMAF_AUD3) ? MENU_COLOR_ACTIVE : MENU_COLOR_INACTIVE);
+
 	if(keyUse(KEY_ESCAPE)) {
 		gameClose();
 		return;
@@ -356,7 +376,9 @@ void menuGsLoop(void) {
 
 void menuGsDestroy(void) {
 	viewLoad(0);
+	ptplayerEnd();
 	systemUse();
+	memFree(s_pMod, s_ulModSize);
 	viewDestroy(s_pView);
 	fontDestroyTextBitMap(s_pTextBitmap);
 	fontDestroy(s_pFont);
