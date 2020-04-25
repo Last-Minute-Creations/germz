@@ -307,7 +307,7 @@ void menuGsCreate(void) {
 	ptplayerInit(s_pMod, 0, 0);
 
 	systemUnuse();
-	ptplayerInstallInterrupts(1);
+	ptplayerStartPlayback(1);
 	viewLoad(s_pView);
 }
 
@@ -375,8 +375,8 @@ void menuGsLoop(void) {
 }
 
 void menuGsDestroy(void) {
+	ptplayerStopPlayback();
 	viewLoad(0);
-	ptplayerEnd();
 	systemUse();
 	memFree(s_pMod, s_ulModSize);
 	viewDestroy(s_pView);

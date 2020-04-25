@@ -11,14 +11,16 @@ Done:
 	✔ navigate menu using joy too @done(20-04-10 13:25)
 	✔ add check if distinct steer options have been selected @done(20-04-10 13:57)
 	✔ plep gfx @done(20-04-11 12:49)
+	✔ run ptplayer @done(20-04-25 15:23)
 
 Now:
-	☐ ptplayer
+	☐ menu gfx
+	☐ debug ptplayer on higher cpu freq
 	☐ win/lose screen
 	☐ sound effects
 	☐ cursors should blink or something so that overlapping will be visible
-	☐ menu gfx
 	☐ display in visible menu part how keyboard layouts have action button bound (how to play)
+	☐ player cursor should hide on defeat
 
 Trivial:
 	☐ splash screen LMC

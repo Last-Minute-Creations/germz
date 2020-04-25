@@ -54,7 +54,7 @@ static tBitMap *s_pBmBlobMask;
 static UWORD s_uwColorBg;
 static tFont *s_pFont;
 static tTextBitMap *s_pBmLine;
-static UBYTE s_isDebug = 1;
+static UBYTE s_isDebug = 0;
 static UBYTE s_isDump = 0;
 
 static UWORD s_uwCurr = 0;
