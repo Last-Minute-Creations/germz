@@ -15,8 +15,9 @@
 #include "game.h"
 #include "build_ver.h"
 
-#define MENU_COLOR_ACTIVE 13
-#define MENU_COLOR_INACTIVE 14
+#define MENU_COLOR_ACTIVE 16
+#define MENU_COLOR_INACTIVE 17
+#define MENU_COLOR_SHADOW 19
 #define MENU_COLOR_ERROR 9
 
 typedef enum _tPlayerSteer {
@@ -41,12 +42,12 @@ static const char *s_pMenuEnumSteer[] = {
 };
 
 static const char *s_pMenuCaptions[] = {
-	"Start game",
+	"Infect",
 	"Player 1",
 	"Player 2",
 	"Player 3",
 	"Player 4",
-	"Exit to workbench"
+	"Cure"
 };
 
 static tView *s_pView;
@@ -54,6 +55,7 @@ static tVPort *s_pVp;
 static tSimpleBufferManager *s_pBfr;
 static ULONG s_ulModSize;
 static UBYTE *s_pMod;
+static tBitMap *s_pBg;
 
 static void onStart(void);
 static void onExit(void);
@@ -113,8 +115,11 @@ static tOption s_pOptions[] = {
 #define MENU_POS_COUNT (sizeof(s_pOptions) / sizeof(tOption))
 
 static void menuDrawPos(UBYTE ubPos, UWORD uwOffsTop) {
-	UWORD uwOffsY = uwOffsTop + ubPos * (s_pFont->uwHeight);
-	blitRect(s_pBfr->pBack, 0, uwOffsY, 320, s_pFont->uwHeight, 0);
+	UWORD uwOffsY = uwOffsTop + ubPos * (s_pFont->uwHeight + 2);
+	blitCopy(
+		s_pBg, 64, uwOffsY, s_pBfr->pBack, 64, uwOffsY,
+		320 - (2 * 64), s_pFont->uwHeight + 1, MINTERM_COPY, 0xFF
+	);
 
 	char szBfr[50];
 	const char *szText = 0;
@@ -138,9 +143,12 @@ static void menuDrawPos(UBYTE ubPos, UWORD uwOffsTop) {
 	}
 	if(szText != 0) {
 		fontFillTextBitMap(s_pFont, s_pTextBitmap, szText);
-		fontDrawTextBitMap(s_pBfr->pBack, s_pTextBitmap, 320 / 2, uwOffsY,
+		fontDrawTextBitMap(s_pBfr->pBack, s_pTextBitmap, 139, uwOffsY + 1,
+			MENU_COLOR_SHADOW, FONT_COOKIE
+		);
+		fontDrawTextBitMap(s_pBfr->pBack, s_pTextBitmap, 139, uwOffsY,
 			(ubPos == s_ubActivePos) ? MENU_COLOR_ACTIVE : MENU_COLOR_INACTIVE,
-			FONT_LAZY | FONT_HCENTER | FONT_COOKIE | FONT_SHADOW
+			FONT_COOKIE
 		);
 	}
 }
@@ -200,9 +208,12 @@ static void onExit(void) {
 static void menuErrorMsg(const char *szMsg) {
 	char szLine[80];
 	const char *szLineStart = szMsg;
-	UWORD uwOffsY = 180;
+	UWORD uwOffsY = 0;
 	UBYTE ubLineHeight = s_pFont->uwHeight + 1;
-	blitRect(s_pBfr->pBack, 0, uwOffsY, 320, 2 * ubLineHeight, 0);
+	blitCopy(
+		s_pBg, 0, uwOffsY, s_pBfr->pBack, 0, uwOffsY, 320, 2 * ubLineHeight,
+		MINTERM_COPY, 0xFF
+	);
 
 	while(szLineStart) {
 		const char *szLineEnd = strchr(szLineStart, '\n');
@@ -278,8 +289,10 @@ void menuGsCreate(void) {
 		TAG_SIMPLEBUFFER_IS_DBLBUF, 0,
 		TAG_END
 	);
+	s_pBg = bitmapCreateFromFile("data/menu_main.bm", 0);
+	blitCopy(s_pBg, 0, 0, s_pBfr->pBack, 0, 0, 320, 256, MINTERM_COPY, 0xFF);
 
-	paletteLoad("data/germz.plt", s_pVp->pPalette, 32);
+	paletteLoad("data/germz_menu.plt", s_pVp->pPalette, 32);
 	s_pFont = fontCreate("data/uni54.fnt");
 	s_pTextBitmap = fontCreateTextBitMap(320, s_pFont->uwHeight);
 
@@ -290,13 +303,15 @@ void menuGsCreate(void) {
 	char szVersion[15];
 	sprintf(szVersion, "v.%d.%d.%d", BUILD_YEAR, BUILD_MONTH, BUILD_DAY);
 	fontFillTextBitMap(s_pFont, s_pTextBitmap, szVersion);
-	fontDrawTextBitMap(s_pBfr->pBack, s_pTextBitmap, 320/2, 256 - 40, 18, FONT_HCENTER | FONT_COOKIE);
+	fontDrawTextBitMap(s_pBfr->pBack, s_pTextBitmap, 320/2, 256 - 50, 18, FONT_HCENTER | FONT_COOKIE);
 
 	fontFillTextBitMap(s_pFont, s_pTextBitmap, "Gfx: Softiron, Sfx: Luc3k, Code: KaiN");
+	fontDrawTextBitMap(s_pBfr->pBack, s_pTextBitmap, 320/2, 256 - 40, 18, FONT_HCENTER | FONT_COOKIE);
+
+	fontFillTextBitMap(s_pFont, s_pTextBitmap, "Alpha tests: Sordan, Renton, Tomu\x85");
 	fontDrawTextBitMap(s_pBfr->pBack, s_pTextBitmap, 320/2, 256 - 30, 18, FONT_HCENTER | FONT_COOKIE);
 
-	// fontFillTextBitMap(s_pFont, s_pTextBitmap, "Revision 2020 Party version - final coming soon!");
-	fontFillTextBitMap(s_pFont, s_pTextBitmap, "Alpha version - don't spread before release!");
+	fontFillTextBitMap(s_pFont, s_pTextBitmap, "R4 early priviu demo czy co\x85");
 	fontDrawTextBitMap(s_pBfr->pBack, s_pTextBitmap, 320/2, 256 - 10, 17, FONT_HCENTER | FONT_COOKIE);
 
 	s_ulModSize = fileGetSize("data/germz2-25.mod");
@@ -315,11 +330,11 @@ void menuGsLoop(void) {
 	ptplayerEnableMusic(1);
 	ptplayerProcess();
 
-	UWORD uwDma = g_pCustom->dmaconr;
-	blitRect(s_pBfr->pBack, 4, 250, 3, 3, (uwDma & DMAF_AUD0) ? MENU_COLOR_ACTIVE : MENU_COLOR_INACTIVE);
-	blitRect(s_pBfr->pBack, 10, 250, 3, 3, (uwDma & DMAF_AUD1) ? MENU_COLOR_ACTIVE : MENU_COLOR_INACTIVE);
-	blitRect(s_pBfr->pBack, 16, 250, 3, 3, (uwDma & DMAF_AUD2) ? MENU_COLOR_ACTIVE : MENU_COLOR_INACTIVE);
-	blitRect(s_pBfr->pBack, 22, 250, 3, 3, (uwDma & DMAF_AUD3) ? MENU_COLOR_ACTIVE : MENU_COLOR_INACTIVE);
+	// UWORD uwDma = g_pCustom->dmaconr;
+	// blitRect(s_pBfr->pBack, 4, 250, 3, 3, (uwDma & DMAF_AUD0) ? MENU_COLOR_ACTIVE : MENU_COLOR_INACTIVE);
+	// blitRect(s_pBfr->pBack, 10, 250, 3, 3, (uwDma & DMAF_AUD1) ? MENU_COLOR_ACTIVE : MENU_COLOR_INACTIVE);
+	// blitRect(s_pBfr->pBack, 16, 250, 3, 3, (uwDma & DMAF_AUD2) ? MENU_COLOR_ACTIVE : MENU_COLOR_INACTIVE);
+	// blitRect(s_pBfr->pBack, 22, 250, 3, 3, (uwDma & DMAF_AUD3) ? MENU_COLOR_ACTIVE : MENU_COLOR_INACTIVE);
 
 	if(keyUse(KEY_ESCAPE)) {
 		gameClose();
@@ -328,7 +343,7 @@ void menuGsLoop(void) {
 
 	for(UBYTE ubMenuPos = 0; ubMenuPos < MENU_POS_COUNT; ++ubMenuPos) {
 		if(!s_pOptions[ubMenuPos].isHidden && s_pOptions[ubMenuPos].isDirty) {
-			menuDrawPos(ubMenuPos, 64);
+			menuDrawPos(ubMenuPos, 128);
 			s_pOptions[ubMenuPos].isDirty = 0;
 		}
 	}
@@ -378,6 +393,7 @@ void menuGsDestroy(void) {
 	ptplayerStopPlayback();
 	viewLoad(0);
 	systemUse();
+	bitmapDestroy(s_pBg);
 	memFree(s_pMod, s_ulModSize);
 	viewDestroy(s_pView);
 	fontDestroyTextBitMap(s_pTextBitmap);

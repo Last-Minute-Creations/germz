@@ -29,6 +29,10 @@ file(GLOB GPL_PATH _res/germz.gpl)
 set(PLT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/data/germz.plt)
 convertPalette(germz ${GPL_PATH} ${PLT_PATH})
 
+file(GLOB GPL_PATH_MENU _res/germz_menu.gpl)
+set(PLT_PATH_MENU ${CMAKE_CURRENT_SOURCE_DIR}/data/germz_menu.plt)
+convertPalette(germz ${GPL_PATH_MENU} ${PLT_PATH_MENU})
+
 # Blobs & pleps
 # Left plep anim = right plep anim mirrored Y
 # Up plep anim = right plep anim rotated by 90deg
@@ -38,13 +42,13 @@ set(transparency_hex "#110000")
 convertBitmaps(
 	TARGET germz PALETTE ${PLT_PATH} MASK_COLOR ${transparency_hex}
 	INTERLEAVED SOURCES
-	_res/blob0.png _res/blob1.png _res/blob2.png _res/blob3.png _res/blob4.png
-	_res/blob5.png _res/blob6.png _res/links.png _res/cursors.png
-	_res/plep0.png _res/plep1.png _res/plep2.png _res/plep3.png _res/monitor.png
-	_res/plep/born_right.png _res/plep/move_right.png _res/plep/win_right.png _res/plep/lose_right.png
-	_res/plep/born_left.png _res/plep/move_left.png _res/plep/win_left.png _res/plep/lose_left.png
-	_res/plep/born_up.png _res/plep/move_up.png _res/plep/win_up.png _res/plep/lose_up.png
-	_res/plep/born_down.png _res/plep/move_down.png _res/plep/win_down.png _res/plep/lose_down.png
+		_res/blob0.png _res/blob1.png _res/blob2.png _res/blob3.png _res/blob4.png
+		_res/blob5.png _res/blob6.png _res/links.png _res/cursors.png
+		_res/plep0.png _res/plep1.png _res/plep2.png _res/plep3.png _res/monitor.png
+		_res/plep/born_right.png _res/plep/move_right.png _res/plep/win_right.png _res/plep/lose_right.png
+		_res/plep/born_left.png _res/plep/move_left.png _res/plep/win_left.png _res/plep/lose_left.png
+		_res/plep/born_up.png _res/plep/move_up.png _res/plep/win_up.png _res/plep/lose_up.png
+		_res/plep/born_down.png _res/plep/move_down.png _res/plep/win_down.png _res/plep/lose_down.png
 	DESTINATIONS
 		data/blob0.bm data/blob1.bm data/blob2.bm data/blob3.bm data/blob4.bm
 		data/blob5.bm data/blob6.bm data/links.bm data/cursors.bm
@@ -61,4 +65,12 @@ convertBitmaps(
 		data/born_left_mask.bm data/move_left_mask.bm data/win_left_mask.bm data/lose_left_mask.bm
 		data/born_up_mask.bm data/move_up_mask.bm data/win_up_mask.bm data/lose_up_mask.bm
 		data/born_down_mask.bm data/move_down_mask.bm data/win_down_mask.bm data/lose_down_mask.bm
+)
+
+convertBitmaps(
+	TARGET germz PALETTE ${PLT_PATH_MENU}
+	INTERLEAVED SOURCES
+		_res/menu_main.png
+	DESTINATIONS
+		data/menu_main.bm
 )

@@ -1,0 +1,36 @@
+GIMP Palette
+Name: germz_menu
+Columns: 4
+#
+ 17   0   0	Index 0
+204 221 204	Index 1
+170 187 170	Index 2
+136 153 136	Index 3
+102 119 102	Index 4
+ 68  85  68	Index 5
+ 34  51  34	Index 6
+  0  17   0	Index 7
+255  17  17	Index 8
+187  17  17	Index 9
+119  17  17	Index 10
+ 51  17  17	Index 11
+ 17 255  17	Index 12
+ 17 187  17	Index 13
+ 17 119  17	Index 14
+ 17  51  17	Index 15
+255 204  17	Index 16
+204 153   0	Index 17
+136 102   0	Index 18
+ 85  51   0	Index 19
+ 17  17 255	Index 20
+ 17  17 187	Index 21
+ 17  17 119	Index 22
+ 17  17  51	Index 23
+119 102 153	Index 24
+ 85  68 119	Index 25
+ 51  34  85	Index 26
+ 17   0  34	Index 27
+255 255 255	Index 28
+255 255 255	Index 29
+255 255 255	Index 30
+255 255 255	Index 31
