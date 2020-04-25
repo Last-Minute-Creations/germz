@@ -179,8 +179,8 @@ static tUbCoordYX getNth(UWORD uwN) {
 
 UBYTE displayInitialAnim(const tMap *pMap) {
 	static const UBYTE ubStep = 2;
-	static const UBYTE ubAnimCount = 8;
-	static const UBYTE ubTailLength = 8;
+	static const UBYTE ubAnimCount = 9;
+	static const UBYTE ubTailLength = 9;
 	for(UBYTE i = 0; i < ubTailLength; ++i) {
 		WORD wPos = s_uwCurr - i;
 		if(wPos < 0) {

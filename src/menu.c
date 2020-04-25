@@ -285,7 +285,7 @@ void menuGsCreate(void) {
 
 	s_pBfr = simpleBufferCreate(0,
 		TAG_SIMPLEBUFFER_VPORT, s_pVp,
-		TAG_SIMPLEBUFFER_BITMAP_FLAGS, BMF_CLEAR | BMF_INTERLEAVED,
+		TAG_SIMPLEBUFFER_BITMAP_FLAGS, BMF_INTERLEAVED,
 		TAG_SIMPLEBUFFER_IS_DBLBUF, 0,
 		TAG_END
 	);
@@ -311,7 +311,7 @@ void menuGsCreate(void) {
 	fontFillTextBitMap(s_pFont, s_pTextBitmap, "Alpha tests: Sordan, Renton, Tomu\x85");
 	fontDrawTextBitMap(s_pBfr->pBack, s_pTextBitmap, 320/2, 256 - 30, 18, FONT_HCENTER | FONT_COOKIE);
 
-	fontFillTextBitMap(s_pFont, s_pTextBitmap, "R4 early priviu demo czy co\x85");
+	fontFillTextBitMap(s_pFont, s_pTextBitmap, "Retronizacja 3.9 special demo release");
 	fontDrawTextBitMap(s_pBfr->pBack, s_pTextBitmap, 320/2, 256 - 10, 17, FONT_HCENTER | FONT_COOKIE);
 
 	s_ulModSize = fileGetSize("data/germz2-25.mod");

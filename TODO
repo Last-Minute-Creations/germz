@@ -12,25 +12,31 @@ Done:
 	✔ add check if distinct steer options have been selected @done(20-04-10 13:57)
 	✔ plep gfx @done(20-04-11 12:49)
 	✔ run ptplayer @done(20-04-25 15:23)
+	✔ put new gfx @done(20-04-25 19:00)
+	✔ menu gfx @done(20-04-25 19:09)
+	✔ splash screen LMC @done(20-04-25 19:09)
+	✘ dont spread and stay the fuck at home @cancelled(20-04-25 19:09)
 
 Now:
-	☐ menu gfx
-	☐ debug ptplayer on higher cpu freq
-	☐ win/lose screen
+	☐ fix ptplayer on higher cpu freq
+	☐ ptplayer in game
 	☐ sound effects
+	☐ win/lose screen
+	☐ map editor
 	☐ cursors should blink or something so that overlapping will be visible
 	☐ display in visible menu part how keyboard layouts have action button bound (how to play)
 	☐ player cursor should hide on defeat
-
-Trivial:
-	☐ splash screen LMC
-	☐ put latest gfx!
-	☐ dont spread and stay the fuck at home
+	☐ plep colored for each player
+	☐ fade in/out in menu
+	☐ fade in/out in game
+	☐ four variants for branches
 
 Later:
 	☐ EKG
+	☐ special blobs
 	☐ hud scanlines
 	☐ ensure sprites are disabled
 	☐ fix 060 (ACE)
 	☐ fix ks1.3 (ACE)
 	☐ freeze when going from menu to game (ACE)
+	☐ put final gfx!

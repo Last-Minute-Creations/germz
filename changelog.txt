@@ -1,3 +1,9 @@
+20.4.25
+- updated graphics
+- music kinda works
+- menu has proper graphics
+- added logo screen
+
 20.4.8
 - Fixed startup-sequence in ADF
 - fixed neutral blobs growing without limit
