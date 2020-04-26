@@ -13,7 +13,9 @@
 #define PLEPS_PER_PLAYER 3
 
 typedef struct _tPlayer {
+	BYTE bNodeCount;
 	UBYTE isSelectingDestination;
+	UBYTE isDead;
 	tBobNew sBobCursor;
 	struct _tSteer sSteer;
 	struct _tNode *pNodeCursor, *pNodePlepSrc;
@@ -49,5 +51,7 @@ tPlayer *playerFromTile(enum _tTile eTile);
 UBYTE playerToIdx(const tPlayer *pPlayer);
 
 tPlayer *playerFromIdx(UBYTE ubIdx);
+
+void playerUpdateDead(tPlayer *pPlayer);
 
 #endif // _GERMZ_PLAYER_H_

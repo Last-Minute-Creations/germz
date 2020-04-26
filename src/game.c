@@ -30,6 +30,7 @@ void gameGsCreate(void) {
 	for(UBYTE i = 0; i < s_pMap->ubPlayerCount; ++i) {
 		playerReset(i, s_pMap->pPlayerStartNodes[i], menuGetSteerForPlayer(i));
 	}
+	mapUpdateNodeCountForPlayers(s_pMap);
 	displayEnable();
 }
 

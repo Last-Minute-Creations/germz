@@ -218,3 +218,22 @@ void mapProcessNodes(tMap *pMap) {
 		}
 	}
 }
+
+void nodeChangeOwnership(tNode *pNode, tPlayer *pPlayer) {
+	if(pNode->pPlayer) {
+		--pNode->pPlayer->bNodeCount;
+		playerUpdateDead(pNode->pPlayer);
+	}
+	pNode->pPlayer = pPlayer;
+	if(pPlayer) {
+		++pPlayer->bNodeCount;
+	}
+}
+
+void mapUpdateNodeCountForPlayers(const tMap *pMap) {
+	for(UBYTE i = 0; i < pMap->ubNodeCount; ++i) {
+		if(pMap->pNodes[i].pPlayer) {
+			++pMap->pNodes[i].pPlayer->bNodeCount;
+		}
+	}
+}

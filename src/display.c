@@ -288,28 +288,28 @@ void displayUpdateHud(void) {
 	UWORD uwMonitorX = HUD_OFFS_X + ubMonitorPad;
 	UWORD uwMonitorY = ubZeroBased * HUD_MONITOR_SIZE + ubMonitorPad;
 
-	blitRect(s_pBfr->pBack, uwMonitorX, uwMonitorY, 16, s_pFont->uwHeight, 6);
-	if(pPlayer->pNodeCursor) { // && pPlayer->pNodeCursor->pPlayer == pPlayer) {
-		char szBfr[6];
-		sprintf(szBfr, "%hd", pPlayer->pNodeCursor->wCharges);
-		fontFillTextBitMap(s_pFont, s_pBmLine, szBfr);
-		fontDrawTextBitMap(
-			s_pBfr->pBack, s_pBmLine, uwMonitorX, uwMonitorY,
-			pPlayerColors[ubZeroBased], FONT_COOKIE
-		);
-	}
+	blitRect(s_pBfr->pBack, uwMonitorX, uwMonitorY, 32, 10 + s_pFont->uwHeight, 6);
+	if(!pPlayer->isDead) {
+		if(pPlayer->pNodeCursor) { // && pPlayer->pNodeCursor->pPlayer == pPlayer) {
+			char szBfr[6];
+			sprintf(szBfr, "%hd", pPlayer->pNodeCursor->wCharges);
+			fontFillTextBitMap(s_pFont, s_pBmLine, szBfr);
+			fontDrawTextBitMap(
+				s_pBfr->pBack, s_pBmLine, uwMonitorX, uwMonitorY,
+				pPlayerColors[ubZeroBased], FONT_COOKIE
+			);
+		}
 
-	blitRect(s_pBfr->pBack, uwMonitorX, uwMonitorY + 10, 16, s_pFont->uwHeight, 6);
-	if(pPlayer->isSelectingDestination) {
-		char szBfr[6];
-		sprintf(szBfr, "%hd", pPlayer->pNodePlepSrc->wCharges / 2);
-		fontFillTextBitMap(s_pFont, s_pBmLine, szBfr);
-		fontDrawTextBitMap(
-			s_pBfr->pBack, s_pBmLine, uwMonitorX, uwMonitorY + 10,
-			pPlayerColors[ubZeroBased], FONT_COOKIE
-		);
+		if(pPlayer->isSelectingDestination) {
+			char szBfr[6];
+			sprintf(szBfr, "%hd", pPlayer->pNodePlepSrc->wCharges / 2);
+			fontFillTextBitMap(s_pFont, s_pBmLine, szBfr);
+			fontDrawTextBitMap(
+				s_pBfr->pBack, s_pBmLine, uwMonitorX, uwMonitorY + 10,
+				pPlayerColors[ubZeroBased], FONT_COOKIE
+			);
+		}
 	}
-
 	if(s_isEven) {
 		if(++s_ubCurrPlayer > 4) {
 			s_ubCurrPlayer = 1;

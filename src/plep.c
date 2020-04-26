@@ -43,7 +43,7 @@ static UBYTE plepSinkInNode(tPlep *pPlep) {
 			// Zero charges in blob - make it neutral
 			if(pNode->pPlayer) {
 				// logWrite("Draw! To neutral\n");
-				pNode->pPlayer = 0;
+				nodeChangeOwnership(pNode, 0);
 				displayAddNodeToQueue(pNode);
 				// TODO: if player is selecting from that blob, remove selection
 				// TODO: test it
@@ -51,8 +51,8 @@ static UBYTE plepSinkInNode(tPlep *pPlep) {
 		}
 		else if(pNode->wCharges < 0) {
 			// Negative charge - capture blob!
+			nodeChangeOwnership(pNode, pPlep->pPlayer);
 			pNode->wCharges = -pNode->wCharges;
-			pNode->pPlayer = pPlep->pPlayer;
 			displayAddNodeToQueue(pNode);
 			return 1;
 			// logWrite("Capture! %hd\n", pNode->wCharges);
@@ -64,6 +64,8 @@ static UBYTE plepSinkInNode(tPlep *pPlep) {
 		pNode->wCharges = pNode->wCharges + pPlep->wCharges;
 		return 1;
 	}
+
+	// Plep capture / power up failed
 	return 0;
 }
 
@@ -159,6 +161,9 @@ void plepProcess(tPlep *pPlep) {
 				default:
 					// end of anim - end of plep
 					pPlep->isActive = 0;
+					if(pPlep->eAnim == PLEP_ANIM_LOSE) {
+						playerUpdateDead(pPlep->pPlayer);
+					}
 					break;
 			}
 			pPlep->sBob.pBitmap = s_pBmPleps[pPlep->eDir][pPlep->eAnim];

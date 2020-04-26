@@ -57,4 +57,8 @@ void mapDestroy(tMap *pMap);
 
 void mapProcessNodes(tMap *pMap);
 
+void nodeChangeOwnership(tNode *pNode, struct _tPlayer *pPlayer);
+
+void mapUpdateNodeCountForPlayers(const tMap *pMap);
+
 #endif // _GERMZ_MAP_H_

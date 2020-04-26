@@ -88,6 +88,8 @@ void playerReset(UBYTE ubIdx, tNode *pStartNode, tSteer sSteer) {
 	pPlayer->sBobCursor.sPos.uwY = pPlayer->pNodeCursor->ubTileY * 16;
 	pPlayer->isSelectingDestination = 0;
 	s_pPlayers[ubIdx].sSteer = sSteer;
+	pPlayer->isDead = 0;
+	pPlayer->bNodeCount = 0;
 }
 
 tTile playerToTile(const tPlayer *pPlayer) {
@@ -122,6 +124,9 @@ tPlayer *playerFromIdx(UBYTE ubIdx) {
 void playerProcess(void) {
 	for(UBYTE i = 0; i < PLAYER_COUNT_MAX; ++i) {
 		tPlayer *pPlayer = &s_pPlayers[i];
+		if(pPlayer->isDead) {
+			continue;
+		}
 		tDir eDir = steerProcess(&pPlayer->sSteer);
 		if(pPlayer->isSelectingDestination) {
 			if(eDir == DIR_FIRE) {
@@ -153,4 +158,24 @@ void playerProcess(void) {
 
 		bobNewPush(&pPlayer->sBobCursor);
 	}
+}
+
+void playerUpdateDead(tPlayer *pPlayer) {
+	// Check if player has some blobs or is dead already
+	logWrite("playerUpdateDead: %p has %hhd blobs\n", pPlayer, pPlayer->bNodeCount);
+	if(pPlayer->isDead || pPlayer->bNodeCount > 0) {
+		return;
+	}
+
+	// Check if player has any plep
+	for(UBYTE i = 0; i < PLEPS_PER_PLAYER; ++i) {
+		if(pPlayer->pPleps[i].isActive) {
+			logWrite("has active pleps!\n");
+			return;
+		}
+	}
+
+	// Nothing more to check - player is dead
+	logWrite("yep he ded\n");
+	pPlayer->isDead = 1;
 }
