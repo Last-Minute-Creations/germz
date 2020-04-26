@@ -22,7 +22,7 @@
 //---------------------------------------------------------------------- DEFINES
 
 #define QUEUE_ELEMENTS_MAX 10
-#define FRAME_COUNT 8
+#define FRAME_COUNT 9
 #define FRAME_SIZE 16
 #define HUD_OFFS_X 256
 #define HUD_MONITOR_SIZE 64
@@ -179,7 +179,6 @@ static tUbCoordYX getNth(UWORD uwN) {
 
 UBYTE displayInitialAnim(const tMap *pMap) {
 	static const UBYTE ubStep = 2;
-	static const UBYTE ubAnimCount = 9;
 	static const UBYTE ubTailLength = 9;
 	for(UBYTE i = 0; i < ubTailLength; ++i) {
 		WORD wPos = s_uwCurr - i;
@@ -193,7 +192,7 @@ UBYTE displayInitialAnim(const tMap *pMap) {
 		tTile eTile = pMap->pTiles[sPos.ubX][sPos.ubY];
 		if(eTile < TILE_BLOB_COUNT) {
 			// Animate
-			UWORD uwFrameY = MIN(ubAnimCount - 1, (((i + ubStep - 1) * ubAnimCount) / ubTailLength)) * 16;
+			UWORD uwFrameY = MIN(FRAME_COUNT - 1, (((i + ubStep - 1) * FRAME_COUNT) / ubTailLength)) * 16;
 			blitCopyAligned(
 				s_pBmBlobs[eTile], 0, uwFrameY,
 				s_pBfr->pBack, sPos.ubX * 16, sPos.ubY * 16, 16, 16

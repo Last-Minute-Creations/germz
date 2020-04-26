@@ -38,19 +38,19 @@ set(transparency_hex "#110000")
 convertBitmaps(
 	TARGET germz PALETTE ${PLT_PATH} MASK_COLOR ${transparency_hex}
 	INTERLEAVED SOURCES
-		_res/cursors.png
+		_res/cursors.png _res/blob0.png
 		_res/plep/born_right.png _res/plep/move_right.png _res/plep/win_right.png _res/plep/lose_right.png
 		_res/plep/born_left.png _res/plep/move_left.png _res/plep/win_left.png _res/plep/lose_left.png
 		_res/plep/born_up.png _res/plep/move_up.png _res/plep/win_up.png _res/plep/lose_up.png
 		_res/plep/born_down.png _res/plep/move_down.png _res/plep/win_down.png _res/plep/lose_down.png
 	DESTINATIONS
-		data/cursors.bm
+		data/cursors.bm data/blob0.bm
 		data/born_right.bm data/move_right.bm data/win_right.bm data/lose_right.bm
 		data/born_left.bm data/move_left.bm data/win_left.bm data/lose_left.bm
 		data/born_up.bm data/move_up.bm data/win_up.bm data/lose_up.bm
 		data/born_down.bm data/move_down.bm data/win_down.bm data/lose_down.bm
 	MASKS
-		data/cursors_mask.bm
+		data/cursors_mask.bm data/blob_mask.bm
 		data/born_right_mask.bm data/move_right_mask.bm data/win_right_mask.bm data/lose_right_mask.bm
 		data/born_left_mask.bm data/move_left_mask.bm data/win_left_mask.bm data/lose_left_mask.bm
 		data/born_up_mask.bm data/move_up_mask.bm data/win_up_mask.bm data/lose_up_mask.bm
@@ -60,11 +60,11 @@ convertBitmaps(
 convertBitmaps(
 	TARGET germz PALETTE ${PLT_PATH}
 	INTERLEAVED SOURCES
-		_res/blob0.png _res/blob1.png _res/blob2.png _res/blob3.png _res/blob4.png
+		_res/blob1.png _res/blob2.png _res/blob3.png _res/blob4.png
 		_res/blob5.png _res/blob6.png _res/links.png _res/menu_main.png _res/monitor.png
 		_res/lmc.png
 	DESTINATIONS
-		data/blob0.bm data/blob1.bm data/blob2.bm data/blob3.bm data/blob4.bm
+		data/blob1.bm data/blob2.bm data/blob3.bm data/blob4.bm
 		data/blob5.bm data/blob6.bm data/links.bm data/menu_main.bm data/monitor.bm
 		data/lmc.bm
 )
