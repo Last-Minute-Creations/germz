@@ -35,7 +35,10 @@ static void playerTryMoveSelectionFromInDir(
 static void playerSpawnPlep(tPlayer *pPlayer) {
 	// TODO: store last index, add starting from it
 	WORD wPlepCharges = pPlayer->pNodePlepSrc->wCharges / 2;
-	if(!wPlepCharges || pPlayer->eLastDir >= DIR_FIRE) {
+	if(
+		!wPlepCharges || pPlayer->eLastDir >= DIR_FIRE ||
+		!pPlayer->pNodePlepSrc->pNeighbors[pPlayer->eLastDir]
+	) {
 		return;
 	}
 	for(UBYTE i = 0; i < PLEPS_PER_PLAYER; ++i) {
