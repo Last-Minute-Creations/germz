@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "plep.h"
-#include "display.h"
 
 //---------------------------------------------------------------------- DEFINES
 
@@ -11,7 +10,6 @@
 
 //----------------------------------------------------------------- PRIVATE VARS
 
-static const tMap *s_pMap;
 static tBitMap *s_pBmPleps[4][PLEP_ANIM_COUNT];
 static tBitMap *s_pBmPlepMasks[4][PLEP_ANIM_COUNT];
 
@@ -44,7 +42,6 @@ static UBYTE plepSinkInNode(tPlep *pPlep) {
 			if(pNode->pPlayer) {
 				// logWrite("Draw! To neutral\n");
 				nodeChangeOwnership(pNode, 0);
-				displayAddNodeToQueue(pNode);
 				// TODO: if player is selecting from that blob, remove selection
 				// TODO: test it
 			}
@@ -53,7 +50,6 @@ static UBYTE plepSinkInNode(tPlep *pPlep) {
 			// Negative charge - capture blob!
 			nodeChangeOwnership(pNode, pPlep->pPlayer);
 			pNode->wCharges = -pNode->wCharges;
-			displayAddNodeToQueue(pNode);
 			return 1;
 			// logWrite("Capture! %hd\n", pNode->wCharges);
 		}
@@ -87,6 +83,13 @@ void plepCreate(void) {
 	logBlockEnd("plepCreate()");
 }
 
+void plepInitBob(tPlep *pPlep) {
+	bobNewInit(
+		&pPlep->sBob, PLEP_SIZE, PLEP_SIZE, 1,
+		s_pBmPleps[0][0], s_pBmPlepMasks[0][0], 0, 0
+	);
+}
+
 void plepDestroy(void) {
 	for(UBYTE ubDir = 0; ubDir < 4; ++ubDir) {
 		for(UBYTE ubAnim = 0; ubAnim < PLEP_ANIM_COUNT; ++ubAnim) {
@@ -99,10 +102,6 @@ void plepDestroy(void) {
 void plepReset(tPlep *pPlep, tPlayer *pPlayer) {
 	pPlep->isActive = 0;
 	pPlep->pPlayer = pPlayer;
-	bobNewInit(
-		&pPlep->sBob, PLEP_SIZE, PLEP_SIZE, 1,
-		s_pBmPleps[0][0], s_pBmPlepMasks[0][0], 0, 0
-	);
 }
 
 static void plepUpdateAnimFrame(tPlep *pPlep) {
@@ -141,7 +140,7 @@ void plepProcess(tPlep *pPlep) {
 				case PLEP_ANIM_MOVE:
 					pPlep->sAnimAnchor.uwX += s_pPlepMoveDelta[pPlep->eDir].bX;
 					pPlep->sAnimAnchor.uwY += s_pPlepMoveDelta[pPlep->eDir].bY;
-					tTile eNextTile = s_pMap->pTiles[pPlep->sAnimAnchor.uwX / 16][pPlep->sAnimAnchor.uwY / 16];
+					tTile eNextTile = g_sMapData.pTiles[pPlep->sAnimAnchor.uwX / 16][pPlep->sAnimAnchor.uwY / 16];
 					if(eNextTile >= TILE_BLOB_COUNT) {
 						// We're at non-blob tile
 						pPlep->eAnim = PLEP_ANIM_MOVE;
@@ -182,7 +181,7 @@ void plepProcess(tPlep *pPlep) {
 	if(pPlep->isActive) {
 		bobNewPush(&pPlep->sBob); // No bob changing past this point
 	}
-	// displayDumpFrame();
+	// gameDumpFrame();
 }
 
 void plepSpawn(tPlep *pPlep, WORD wCharges, tDir eDir) {
@@ -190,8 +189,8 @@ void plepSpawn(tPlep *pPlep, WORD wCharges, tDir eDir) {
 	pPlep->pDestination = pPlep->pPlayer->pNodeCursor;
 	pPlep->isActive = 1;
 	pPlep->wCharges = wCharges;
-	pPlep->sBob.sPos.uwX = pSrc->ubTileX * 16;
-	pPlep->sBob.sPos.uwY = pSrc->ubTileY * 16;
+	pPlep->sBob.sPos.uwX = pSrc->ubTileX * MAP_TILE_SIZE;
+	pPlep->sBob.sPos.uwY = pSrc->ubTileY * MAP_TILE_SIZE;
 	pPlep->eDir = eDir;
 
 	// Init anim
@@ -200,13 +199,9 @@ void plepSpawn(tPlep *pPlep, WORD wCharges, tDir eDir) {
 	pPlep->sBob.pMask = s_pBmPlepMasks[pPlep->eDir][pPlep->eAnim];
 	pPlep->ubAnimFrame = 0;
 	pPlep->ubAnimTick = 0;
-	pPlep->sAnimAnchor.uwX = pSrc->ubTileX * 16;
-	pPlep->sAnimAnchor.uwY = pSrc->ubTileY * 16;
+	pPlep->sAnimAnchor.uwX = pSrc->ubTileX * MAP_TILE_SIZE;
+	pPlep->sAnimAnchor.uwY = pSrc->ubTileY * MAP_TILE_SIZE;
 	plepUpdateAnimFrame(pPlep);
 
 	bobNewSetBitMapOffset(&pPlep->sBob, 0);
-}
-
-void plepSetMap(const tMap *pMap) {
-	s_pMap = pMap;
 }

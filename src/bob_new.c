@@ -183,7 +183,6 @@ UBYTE bobNewProcessNext(void) {
 			tBobNew *pBob = pQueue->pBobs[s_ubBobsDrawn];
 			const tUwCoordYX * pPos = &pBob->sPos;
 			++s_ubBobsDrawn;
-
 			UBYTE ubDstOffs = pPos->uwX & 0xF;
 			UWORD uwBlitWidth = (pBob->uwWidth + ubDstOffs + 15) & 0xFFF0;
 			UWORD uwBlitWords = uwBlitWidth >> 4;
@@ -244,7 +243,23 @@ UBYTE bobNewProcessNext(void) {
 	return 0;
 }
 
-void bobNewBegin(void) {
+static void bobNewCheckGood(const tBitMap *pBack) {
+#if defined(ACE_DEBUG)
+	if(s_pQueues[s_ubBufferCurr].pDst != pBack) {
+		if(s_pQueues[!s_ubBufferCurr].pDst == pBack) {
+			logWrite("ERR: Wrong bob buffer as curr!\n");
+			s_ubBufferCurr = !s_ubBufferCurr;
+		}
+		logWrite(
+			"ERR: bobNew manager operates on wrong buffer! Current: %p, Other: %p, Game: %p\n",
+			s_pQueues[s_ubBufferCurr].pDst, s_pQueues[!s_ubBufferCurr].pDst, pBack
+		);
+	}
+#endif
+}
+
+void bobNewBegin(tBitMap *pBuffer) {
+	bobNewCheckGood(pBuffer);
 	tBobQueue *pQueue = &s_pQueues[s_ubBufferCurr];
 
 	// Prepare for undraw

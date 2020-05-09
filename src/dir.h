@@ -5,6 +5,8 @@
 #ifndef _GERMZ_DIR_H_
 #define _GERMZ_DIR_H_
 
+#include <ace/types.h>
+
 typedef enum _tDir {
 	DIR_UP,
 	DIR_DOWN,

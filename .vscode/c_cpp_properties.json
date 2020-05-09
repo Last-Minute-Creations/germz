@@ -25,7 +25,8 @@
 				],
 				"databaseFilename": "${workspaceFolder}/.vscode/symbols.db",
 				"limitSymbolsToIncludedHeaders": true
-			}
+			},
+			"configurationProvider": "vector-of-bool.cmake-tools"
 		}
 	],
 	"version": 4

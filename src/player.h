@@ -16,8 +16,8 @@ typedef struct _tPlayer {
 	BYTE bNodeCount;
 	UBYTE isSelectingDestination;
 	UBYTE isDead;
-	tBobNew sBobCursor;
-	struct _tSteer sSteer;
+	tBobNew *pBobCursor;
+	struct _tSteer *pSteer;
 	struct _tNode *pNodeCursor, *pNodePlepSrc;
 	struct _tPlep pPleps[PLEPS_PER_PLAYER];
 	tDir eLastDir;
@@ -34,9 +34,14 @@ void playerDestroy(void);
  * @param pStartNode
  * @param sSteer
  */
-void playerReset(UBYTE ubIdx, struct _tNode *pStartNode, tSteer sSteer);
+void playerReset(UBYTE ubIdx, struct _tNode *pStartNode);
 
-void playerProcess(void);
+/**
+ * @brief
+ *
+ * @return Number of players alive.
+ */
+UBYTE playerProcess(void);
 
 enum _tTile playerToTile(const tPlayer *pPlayer);
 
@@ -53,5 +58,7 @@ UBYTE playerToIdx(const tPlayer *pPlayer);
 tPlayer *playerFromIdx(UBYTE ubIdx);
 
 void playerUpdateDead(tPlayer *pPlayer);
+
+void playerAllDead(void);
 
 #endif // _GERMZ_PLAYER_H_

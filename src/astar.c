@@ -6,12 +6,10 @@
 #include <ace/managers/memory.h>
 #include <ace/managers/log.h>
 
-tAstarData *astarCreate(const tMap *pMap) {
+tAstarData *astarCreate(void) {
 	tAstarData *pNav = memAllocFast(sizeof(tAstarData));
-	pNav->pFrontier = heapCreate(pMap->ubNodeCount * pMap->ubNodeCount);
+	pNav->pFrontier = heapCreate(MAP_NODES_MAX * MAP_NODES_MAX);
 	pNav->ubState = ASTAR_STATE_OFF;
-	pNav->ubNodeCount = pMap->ubNodeCount;
-	pNav->pMap = pMap;
 	return pNav;
 }
 

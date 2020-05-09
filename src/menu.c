@@ -290,7 +290,8 @@ void menuGsCreate(void) {
 		TAG_END
 	);
 	s_pBg = bitmapCreateFromFile("data/menu_main.bm", 0);
-	blitCopy(s_pBg, 0, 0, s_pBfr->pBack, 0, 0, 320, 256, MINTERM_COPY, 0xFF);
+	blitCopy(s_pBg, 0, 0, s_pBfr->pBack, 0, 0, 320, 128, MINTERM_COPY, 0xFF);
+	blitCopy(s_pBg, 0, 128, s_pBfr->pBack, 0, 128, 320, 128, MINTERM_COPY, 0xFF);
 
 	paletteLoad("data/germz_menu.plt", s_pVp->pPalette, 32);
 	s_pFont = fontCreate("data/uni54.fnt");
@@ -377,16 +378,19 @@ void menuGsLoop(void) {
 	) {
 		menuToggle(+1);
 	}
-	else if(
+
+	// Do this now since menuEnter may change gamestate and deallocate s_pVp
+	copProcessBlocks();
+	vPortWaitForEnd(s_pVp);
+
+	if(
 		keyUse(KEY_RETURN) || keyUse(KEY_LSHIFT) || keyUse(KEY_RSHIFT) ||
 		joyUse(JOY1_FIRE) || joyUse(JOY2_FIRE) ||
 		(isEnabled34 && (joyUse(JOY3_FIRE) || joyUse(JOY4_FIRE)))
 	) {
+		// menuEnter may change gamestate, so do nothing past it
 		menuEnter();
 	}
-
-	copProcessBlocks();
-	vPortWaitForEnd(s_pVp);
 }
 
 void menuGsDestroy(void) {

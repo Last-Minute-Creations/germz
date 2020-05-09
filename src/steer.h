@@ -37,4 +37,6 @@ tDir steerProcess(tSteer *pSteer);
 
 tSteer steerInitIdle(void);
 
+UBYTE steerIsPlayer(const tSteer *pSteer);
+
 #endif // _GERMZ_STEER_H_

@@ -37,6 +37,8 @@ void plepCreate(void);
 
 void plepDestroy(void);
 
+void plepInitBob(tPlep *pPlep);
+
 void plepReset(tPlep *pPlep, struct _tPlayer *pPlayer);
 
 void plepProcess(tPlep *pPlep);

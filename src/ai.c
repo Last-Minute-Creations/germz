@@ -292,7 +292,7 @@ tDir aiProcess(tAi *pAi) {
 
 void aiCreate(const tMap *pMap) {
 	for(UBYTE i = 0; i < 4; ++i) {
-		s_pAstar[i] = astarCreate(pMap);
+		s_pAstar[i] = astarCreate();
 	}
 	s_pMap = pMap;
 }

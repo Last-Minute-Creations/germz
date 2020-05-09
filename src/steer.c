@@ -111,3 +111,7 @@ tDir steerProcess(tSteer *pSteer) {
 	}
 	return DIR_COUNT;
 }
+
+UBYTE steerIsPlayer(const tSteer *pSteer) {
+	return (pSteer->cbProcess == onJoy || pSteer->cbProcess == onKey);
+}

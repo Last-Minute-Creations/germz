@@ -22,7 +22,7 @@
  * in gamestate loop:
  * bobNewBegin()
  * someCalcHereOrOtherBlitterOperationsHere()
- * bobNewPush(&sBobX)
+ * bobNewPush(&sBobX) <-- no other blitting past this point
  * someCalcHere()
  * bobNewPush(&sBobY)
  * bobNewPush(&sBobZ)
@@ -134,7 +134,7 @@ void bobNewSetBitMapOffset(tBobNew *pBob, UWORD uwOffsetY);
  *
  * @see bobNewPush()
  */
-void bobNewBegin(void);
+void bobNewBegin(tBitMap *pBuffer);
 
 /**
  * @brief Adds next bob to draw queue.

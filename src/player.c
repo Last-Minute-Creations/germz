@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "player.h"
+#include "game.h"
 
 //---------------------------------------------------------------------- DEFINES
 
@@ -13,14 +14,13 @@
 //----------------------------------------------------------------- PRIVATE VARS
 
 tPlayer s_pPlayers[PLAYER_COUNT_MAX];
-static tBitMap *s_pCursors, *s_pCursorsMask;
 
 //------------------------------------------------------------------ PRIVATE FNS
 
 static void playerSetCursorPos(tPlayer *pPlayer, tNode *pNode) {
 		pPlayer->pNodeCursor = pNode;
-		pPlayer->sBobCursor.sPos.uwX = pNode->ubTileX * 16;
-		pPlayer->sBobCursor.sPos.uwY = pNode->ubTileY * 16;
+		pPlayer->pBobCursor->sPos.uwX = pNode->ubTileX * MAP_TILE_SIZE;
+		pPlayer->pBobCursor->sPos.uwY = pNode->ubTileY * MAP_TILE_SIZE;
 }
 
 static void playerTryMoveSelectionFromInDir(
@@ -62,34 +62,37 @@ static void playerSpawnPlep(tPlayer *pPlayer) {
 
 void playerCreate(void) {
 	logBlockBegin("playerCreate()");
-	s_pCursors = bitmapCreateFromFile("data/cursors.bm", 0);
-	s_pCursorsMask = bitmapCreateFromFile("data/cursors_mask.bm", 0);
 	plepCreate();
+
+	for(UBYTE ubIdx = 0; ubIdx < 4; ++ubIdx) {
+		tPlayer *pPlayer = &s_pPlayers[ubIdx];
+		for(UBYTE ubPlep = 0; ubPlep < PLEPS_PER_PLAYER; ++ubPlep) {
+			plepInitBob(&pPlayer->pPleps[ubPlep]);
+		}
+	}
 	logBlockEnd("playerCreate()");
 }
 
 void playerDestroy(void) {
-	bitmapDestroy(s_pCursors);
-	bitmapDestroy(s_pCursorsMask);
 	plepDestroy();
 }
 
-void playerReset(UBYTE ubIdx, tNode *pStartNode, tSteer sSteer) {
+void playerReset(UBYTE ubIdx, tNode *pStartNode) {
 	tPlayer *pPlayer = &s_pPlayers[ubIdx];
-	bobNewInit(
-		&pPlayer->sBobCursor, 16, 16, 1, s_pCursors, s_pCursorsMask, 0, 0
-	);
+	pPlayer->pBobCursor = gameGetCursorBob(ubIdx);
 	for(UBYTE ubPlep = 0; ubPlep < PLEPS_PER_PLAYER; ++ubPlep) {
 		plepReset(&pPlayer->pPleps[ubPlep], pPlayer);
 	}
-	bobNewSetBitMapOffset(&pPlayer->sBobCursor, ubIdx * 16);
-	pPlayer->pNodeCursor = pStartNode;
-	pPlayer->sBobCursor.sPos.uwX = pPlayer->pNodeCursor->ubTileX * 16;
-	pPlayer->sBobCursor.sPos.uwY = pPlayer->pNodeCursor->ubTileY * 16;
+	logWrite(
+		"Player %hhu start pos: %hhu,%hhu\n",
+		ubIdx, pStartNode->ubTileX, pStartNode->ubTileY
+	);
+	playerSetCursorPos(pPlayer, pStartNode);
 	pPlayer->isSelectingDestination = 0;
-	s_pPlayers[ubIdx].sSteer = sSteer;
+	pPlayer->pSteer = gameGetSteerForPlayer(ubIdx);
 	pPlayer->isDead = 0;
 	pPlayer->bNodeCount = 0;
+	pPlayer->eLastDir = DIR_COUNT;
 }
 
 tTile playerToTile(const tPlayer *pPlayer) {
@@ -121,13 +124,15 @@ tPlayer *playerFromIdx(UBYTE ubIdx) {
 	return pPlayer;
 }
 
-void playerProcess(void) {
+UBYTE playerProcess(void) {
+	UBYTE ubAliveCount = 0;
 	for(UBYTE i = 0; i < PLAYER_COUNT_MAX; ++i) {
 		tPlayer *pPlayer = &s_pPlayers[i];
 		if(pPlayer->isDead) {
 			continue;
 		}
-		tDir eDir = steerProcess(&pPlayer->sSteer);
+		++ubAliveCount;
+		tDir eDir = steerProcess(pPlayer->pSteer);
 		if(pPlayer->isSelectingDestination) {
 			if(eDir == DIR_FIRE) {
 				playerSpawnPlep(pPlayer);
@@ -155,9 +160,9 @@ void playerProcess(void) {
 				plepProcess(&pPlayer->pPleps[i]);
 			}
 		}
-
-		bobNewPush(&pPlayer->sBobCursor);
+		bobNewPush(pPlayer->pBobCursor);
 	}
+	return ubAliveCount;
 }
 
 void playerUpdateDead(tPlayer *pPlayer) {
@@ -178,4 +183,10 @@ void playerUpdateDead(tPlayer *pPlayer) {
 	// Nothing more to check - player is dead
 	logWrite("yep he ded\n");
 	pPlayer->isDead = 1;
+}
+
+void playerAllDead(void) {
+	for(UBYTE i = 0; i < PLAYER_COUNT_MAX; ++i) {
+		s_pPlayers[i].isDead = 1;
+	}
 }

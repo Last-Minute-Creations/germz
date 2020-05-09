@@ -28,14 +28,12 @@ typedef struct _tRoute {
 
 typedef struct {
 	UBYTE ubState; ///< See ASTAR_STATE_* defines
-	UBYTE ubNodeCount;
 	UBYTE ubCurrNeighbourIdx;
 	UWORD pCostSoFar[MAP_NODES_MAX];
 	tHeap *pFrontier;
 	const tNode *pCameFrom[MAP_NODES_MAX];
 	const tNode *pNodeDst;
 	const tNode *pNodeCurr;
-	const tMap *pMap;
 	tRoute sRoute;
 } tAstarData;
 
@@ -43,7 +41,7 @@ typedef struct {
  * Allocates data for A* algorithm.
  * @return Newly allocated A* data struct.
  */
-tAstarData *astarCreate(const tMap *pMap);
+tAstarData *astarCreate(void);
 
 /**
  * Frees A* data structure.

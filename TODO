@@ -17,13 +17,13 @@ Done:
 	✔ splash screen LMC @done(20-04-25 19:09)
 	✘ dont spread and stay the fuck at home @cancelled(20-04-25 19:09)
 	✔ player cursor should hide on defeat @done(20-04-26 16:33)
+	✔ map editor @done(20-05-09 19:49)
 
 Now:
 	☐ fix ptplayer on higher cpu freq
 	☐ ptplayer in game
 	☐ sound effects
 	☐ win/lose screen
-	☐ map editor
 	☐ cursors should blink or something so that overlapping will be visible
 	☐ display in visible menu part how keyboard layouts have action button bound (how to play)
 	☐ plep colored for each player
@@ -32,6 +32,12 @@ Now:
 	☐ four variants for branches
 	☐ fix performance on 7MHz
 	☐ delay blob takeover anim to the point after plep have sunk in it
+	☐ Credits in separate screen in menu
+	☐ Editor should check whether there are no holes in spawn point placements (e.g. player 1, 2, 4, but no 3)
+	☐ Import/export to/from editor by typing in code
+	☐ Map save/load to/from file
+	☐ Enter editor from menu
+	☐ Remove placement of branch variants in editor since they are placed automatically
 
 Later:
 	☐ EKG

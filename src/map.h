@@ -5,13 +5,11 @@
 #ifndef _GERMZ_MAP_H_
 #define _GERMZ_MAP_H_
 
-#define MAP_NAME_MAX 20
-#define MAP_AUTHOR_MAX 20
-#define MAP_SIZE 16
 #define MAP_NODES_MAX 32
+#define MAP_TILE_SIZE 16
 
-#include <ace/types.h>
 #include "dir.h"
+#include "map_data.h"
 
 typedef struct _tNode {
 	UBYTE ubIdx;
@@ -22,28 +20,7 @@ typedef struct _tNode {
 	WORD wCharges;
 } tNode;
 
-typedef enum _tTile {
-	TILE_PAD,
-	TILE_BLANK,
-	TILE_BLOB_NEUTRAL,
-	TILE_BLOB_P1,
-	TILE_BLOB_P2,
-	TILE_BLOB_P3,
-	TILE_BLOB_P4,
-	TILE_BLOB_COUNT,
-	TILE_PATH_H1 = TILE_BLOB_COUNT,
-	TILE_PATH_H2,
-	TILE_PATH_V1,
-	TILE_PATH_V2,
-	TILE_PATH_X,
-	TILE_COUNT
-} tTile;
-
 typedef struct _tMap {
-	char szName[MAP_NAME_MAX];
-	char szAuthor[MAP_AUTHOR_MAX];
-	UBYTE ubPlayerCount;
-	tTile pTiles[MAP_SIZE][MAP_SIZE];
 	tNode pNodes[MAP_NODES_MAX];
 	tNode *pNodesOnTiles[MAP_SIZE][MAP_SIZE];
 	UBYTE ubNodeCount;
@@ -51,14 +28,15 @@ typedef struct _tMap {
 	UBYTE ubChargeClock;
 } tMap;
 
-tMap *mapCreateFromFile(const char *szPath);
+void mapInitFromMapData(void);
 
-void mapDestroy(tMap *pMap);
-
-void mapProcessNodes(tMap *pMap);
+void mapProcessNodes(void);
 
 void nodeChangeOwnership(tNode *pNode, struct _tPlayer *pPlayer);
 
-void mapUpdateNodeCountForPlayers(const tMap *pMap);
+void mapUpdateNodeCountForPlayers(void);
+
+extern tMapData g_sMapData;
+extern tMap g_sMap;
 
 #endif // _GERMZ_MAP_H_
