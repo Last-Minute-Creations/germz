@@ -11,34 +11,29 @@
 #include "map.h"
 
 static UBYTE s_isEven;
-static UWORD s_uwCurr;
-
-static tUbCoordYX getNth(UWORD uwN) {
-	tUbCoordYX sPos = {.ubX = uwN % 16, .ubY = uwN / 16};
-	return sPos;
-}
+static UBYTE s_ubCurrY;
+static UBYTE s_ubFrame = 0;
 
 static UBYTE initialAnim(void) {
-	static const UBYTE ubStep = 2;
-	static const UBYTE ubTailLength = 9;
-
-	for(UBYTE i = 0; i < ubTailLength; ++i) {
-		WORD wPos = s_uwCurr - i;
-		if(wPos < 0) {
-			break;
+	UBYTE isDrawnAnyBlob = 0;
+	UBYTE ubY = s_ubCurrY;
+	while(!isDrawnAnyBlob && ubY < MAP_SIZE) {
+		for(UBYTE ubX = 0; ubX < MAP_SIZE; ++ubX) {
+			tTile eTile = g_sMapData.pTiles[ubX][ubY];
+			if(tileIsNode(eTile)) {
+				isDrawnAnyBlob = 1;
+			}
+			gameDrawMapTileAt(ubX, ubY, s_ubFrame);
 		}
-		if(wPos >= 256) {
-			continue;
+		if(!isDrawnAnyBlob || ++s_ubFrame >= BLOB_FRAME_COUNT) {
+			s_ubFrame = 0;
+			++ubY;
 		}
-		tUbCoordYX sPos = getNth(wPos);
-		BYTE bFrame = ((i + ubStep - 1) * BLOB_FRAME_COUNT) / ubTailLength;
-		bFrame = MIN(bFrame, BLOB_FRAME_COUNT - 1);
-		gameDrawMapTileAt(sPos.ubX, sPos.ubY, bFrame);
-	}
+	};
 
 	if(s_isEven) {
-		s_uwCurr += ubStep;
-		if(s_uwCurr - ubTailLength >= 16*16) {
+		s_ubCurrY = ubY;
+		if(ubY >= MAP_SIZE) {
 			return 1;
 		}
 	}
@@ -50,16 +45,16 @@ static UBYTE initialAnim(void) {
 
 void gameInitGsCreate(void) {
 	s_isEven = 0;
-	s_uwCurr = 0;
+	s_ubCurrY = 0;
+	s_ubFrame = 0;
 	tBitMap *pDisplay = gameGetBackBuffer();
 
 	blitRect(pDisplay, 0, 0, 320, 128, 0);
 	blitRect(pDisplay, 0, 128, 320, 128, 0);
 	bobNewDiscardUndraw();
 
-	systemUse();
-	bitmapLoadFromFile(pDisplay, "data/monitor.bm", HUD_OFFS_X, 0);
-	systemUnuse();
+	bitmapLoadFromFile(pDisplay, "data/game_hud.bm", HUD_OFFS_X, 0);
+	bitmapLoadFromFile(pDisplay, "data/game_bg.bm", 0, 0);
 
 	// Draw monitors on back buffer
 	for(UBYTE i = 1; i < 4; ++i) {
@@ -68,9 +63,24 @@ void gameInitGsCreate(void) {
 			HUD_OFFS_X, i * HUD_MONITOR_SIZE, HUD_MONITOR_SIZE, HUD_MONITOR_SIZE
 		);
 	}
+
+	// Draw tiled bg on back buffer
+	for(UBYTE x = 0; x < 256 / 64; ++x) {
+		for(UBYTE y = 0; y < 256 / 64; ++y) {
+			if(x == 0 && y < 2) {
+				continue;
+			}
+			UBYTE ubSrcY = ((x + y) & 1) ? 64 : 0;
+			blitCopyAligned(pDisplay, 0, ubSrcY, pDisplay, x * 64, y * 64, 64, 64);
+		}
+	}
+
 	gameCopyBackToFront();
 
+	bobNewManagerReset();
+	gameInitCursorBobs();
 	gameInitMap();
+	bobNewReallocateBgBuffers();
 }
 
 void gameInitGsLoop(void) {

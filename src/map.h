@@ -5,7 +5,7 @@
 #ifndef _GERMZ_MAP_H_
 #define _GERMZ_MAP_H_
 
-#define MAP_NODES_MAX 32
+#define MAP_NODES_MAX 255
 #define MAP_TILE_SIZE 16
 
 #include "dir.h"
@@ -23,7 +23,7 @@ typedef struct _tNode {
 typedef struct _tMap {
 	tNode pNodes[MAP_NODES_MAX];
 	tNode *pNodesOnTiles[MAP_SIZE][MAP_SIZE];
-	UBYTE ubNodeCount;
+	UWORD uwNodeCount;
 	tNode *pPlayerStartNodes[4];
 	UBYTE ubChargeClock;
 } tMap;

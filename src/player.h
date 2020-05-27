@@ -12,6 +12,14 @@
 
 #define PLEPS_PER_PLAYER 3
 
+typedef enum _tPlayerIdx {
+	PLAYER_1,
+	PLAYER_2,
+	PLAYER_3,
+	PLAYER_4,
+	PLAYER_NONE,
+} tPlayerIdx;
+
 typedef struct _tPlayer {
 	BYTE bNodeCount;
 	UBYTE isSelectingDestination;
@@ -27,14 +35,7 @@ void playerCreate(void);
 
 void playerDestroy(void);
 
-/**
- * @brief
- *
- * @param ubIdx 0: P1
- * @param pStartNode
- * @param sSteer
- */
-void playerReset(UBYTE ubIdx, struct _tNode *pStartNode);
+void playerReset(tPlayerIdx eIdx, struct _tNode *pStartNode);
 
 /**
  * @brief
@@ -47,15 +48,9 @@ enum _tTile playerToTile(const tPlayer *pPlayer);
 
 tPlayer *playerFromTile(enum _tTile eTile);
 
-/**
- * @brief
- *
- * @param pPlayer
- * @return 0 on neutral/null, 1-4 for P1-P4
- */
-UBYTE playerToIdx(const tPlayer *pPlayer);
+tPlayerIdx playerToIdx(const tPlayer *pPlayer);
 
-tPlayer *playerFromIdx(UBYTE ubIdx);
+tPlayer *playerFromIdx(tPlayerIdx eIdx);
 
 void playerUpdateDead(tPlayer *pPlayer);
 

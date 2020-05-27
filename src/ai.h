@@ -19,8 +19,8 @@ typedef enum _tAiState {
 } tAiState;
 
 typedef struct _tAi {
-	UBYTE ubPlayerIdx; ///< 0: P1, for ai steer
-	UBYTE ubCurrNode;
+	UBYTE ubPlayerIdx;
+	UWORD uwCurrNode;
 	UBYTE wasLastAggresive;
 	UBYTE isAstarStarted;
 	//

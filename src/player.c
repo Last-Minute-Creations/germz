@@ -48,7 +48,7 @@ static void playerSpawnPlep(tPlayer *pPlayer) {
 			pPlayer->eLastDir = DIR_COUNT;
 			pPlayer->pNodePlepSrc->wCharges -= wPlepCharges;
 			logWrite(
-				"Spawned plep %hhu on player %hhu: blob %hhu,%hhu -> %hhu,%hhu\n",
+				"Spawned plep %hhu on player %d: blob %hhu,%hhu -> %hhu,%hhu\n",
 				i, playerToIdx(pPlayer),
 				pPlayer->pNodePlepSrc->ubTileX, pPlayer->pNodePlepSrc->ubTileY,
 				pPlep->pDestination->ubTileX, pPlep->pDestination->ubTileY
@@ -63,13 +63,6 @@ static void playerSpawnPlep(tPlayer *pPlayer) {
 void playerCreate(void) {
 	logBlockBegin("playerCreate()");
 	plepCreate();
-
-	for(UBYTE ubIdx = 0; ubIdx < 4; ++ubIdx) {
-		tPlayer *pPlayer = &s_pPlayers[ubIdx];
-		for(UBYTE ubPlep = 0; ubPlep < PLEPS_PER_PLAYER; ++ubPlep) {
-			plepInitBob(&pPlayer->pPleps[ubPlep]);
-		}
-	}
 	logBlockEnd("playerCreate()");
 }
 
@@ -77,49 +70,53 @@ void playerDestroy(void) {
 	plepDestroy();
 }
 
-void playerReset(UBYTE ubIdx, tNode *pStartNode) {
-	tPlayer *pPlayer = &s_pPlayers[ubIdx];
-	pPlayer->pBobCursor = gameGetCursorBob(ubIdx);
+void playerReset(tPlayerIdx eIdx, tNode *pStartNode) {
+	tPlayer *pPlayer = playerFromIdx(eIdx);
+	pPlayer->pBobCursor = gameGetCursorBob(eIdx);
 	for(UBYTE ubPlep = 0; ubPlep < PLEPS_PER_PLAYER; ++ubPlep) {
 		plepReset(&pPlayer->pPleps[ubPlep], pPlayer);
 	}
 	logWrite(
-		"Player %hhu start pos: %hhu,%hhu\n",
-		ubIdx, pStartNode->ubTileX, pStartNode->ubTileY
+		"Player %d start pos: %hhu,%hhu\n",
+		eIdx, pStartNode->ubTileX, pStartNode->ubTileY
 	);
 	playerSetCursorPos(pPlayer, pStartNode);
 	pPlayer->isSelectingDestination = 0;
-	pPlayer->pSteer = gameGetSteerForPlayer(ubIdx);
+	pPlayer->pSteer = gameGetSteerForPlayer(eIdx);
 	pPlayer->isDead = 0;
 	pPlayer->bNodeCount = 0;
 	pPlayer->eLastDir = DIR_COUNT;
+
+	for(UBYTE ubPlep = 0; ubPlep < PLEPS_PER_PLAYER; ++ubPlep) {
+		plepInitBob(&pPlayer->pPleps[ubPlep]);
+	}
 }
 
 tTile playerToTile(const tPlayer *pPlayer) {
-	tTile eTile = TILE_BLOB_NEUTRAL + playerToIdx(pPlayer);
+	tTile eTile = TILE_BLOB_P1 + playerToIdx(pPlayer) - PLAYER_1;
 	return eTile;
 }
 
 tPlayer *playerFromTile(tTile eTile) {
 	tPlayer *pPlayer = 0;
-	if(eTile >= TILE_BLOB_P1) {
+	if(eTile < TILE_BLOB_NEUTRAL) {
 		pPlayer = &s_pPlayers[eTile - TILE_BLOB_P1];
 	}
 	return pPlayer;
 }
 
-UBYTE playerToIdx(const tPlayer *pPlayer) {
-	UBYTE ubPlayerIdx = 0;
+tPlayerIdx playerToIdx(const tPlayer *pPlayer) {
+	tPlayerIdx eIdx = PLAYER_NONE;
 	if(pPlayer) {
-		ubPlayerIdx = 1 + (UBYTE)(pPlayer - &s_pPlayers[0]);
+		eIdx = pPlayer - &s_pPlayers[0];
 	}
-	return ubPlayerIdx;
+	return eIdx;
 }
 
-tPlayer *playerFromIdx(UBYTE ubIdx) {
+tPlayer *playerFromIdx(tPlayerIdx eIdx) {
 	tPlayer *pPlayer = 0;
-	if(ubIdx > 0) {
-		pPlayer = &s_pPlayers[ubIdx - 1];
+	if(eIdx != PLAYER_NONE) {
+		pPlayer = &s_pPlayers[eIdx];
 	}
 	return pPlayer;
 }

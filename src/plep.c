@@ -10,18 +10,19 @@
 
 //----------------------------------------------------------------- PRIVATE VARS
 
-static tBitMap *s_pBmPleps[4][PLEP_ANIM_COUNT];
-static tBitMap *s_pBmPlepMasks[4][PLEP_ANIM_COUNT];
+static tBitMap *s_pBmPleps[4][4];
+static tBitMap *s_pBmPlepMasks[4];
 
 // For right direction, left must have sign reversed
-static const BYTE s_pAnimOffsets[PLEP_ANIM_COUNT][8] = {
-	{6, 7, 9, 11},
-	{-5, -4, -2, 0, 2, 4, 6, 10},
-	{-5, -3, 0, 4},
-	{-5, -2, 0, 1, 2, 3, 4, 5}
+static const BYTE s_pAnimOffsets[] = {
+	6, 7, 9, 11, // Born
+	-5, -4, -2, 0, 2, 4, 6, 10, // Move
+	-5, -3, 0, 4, // Win
+	-5, -2, 0, 1, 2, 3, 4, 5 // Lose
 };
 
-static const UBYTE s_pFramesPerAnim[PLEP_ANIM_COUNT] = {4, 8, 4, 8};
+static const UBYTE s_pAnimFrameStart[PLEP_ANIM_COUNT] = {0, 4, 12, 16};
+static const UBYTE s_pAnimFrameEnd[PLEP_ANIM_COUNT] = {3, 11, 15, 23};
 static const tBCoordYX s_pPlepMoveDelta[4] = {
 	[DIR_UP] = {.bX = 0, .bY = -16},
 	[DIR_DOWN] = {.bX = 0, .bY = 16},
@@ -70,15 +71,14 @@ static UBYTE plepSinkInNode(tPlep *pPlep) {
 void plepCreate(void) {
 	logBlockBegin("plepCreate()");
 	static const char *szDirNames[] = {"up", "down", "left", "right"};
-	static const char *szAnimNames[] = {"born", "move", "win", "lose"};
 	for(UBYTE ubDir = 0; ubDir < 4; ++ubDir) {
-		for(UBYTE ubAnim = 0; ubAnim < PLEP_ANIM_COUNT; ++ubAnim) {
-			char szName[30];
-			sprintf(szName, "data/%s_%s.bm", szAnimNames[ubAnim], szDirNames[ubDir]);
-			s_pBmPleps[ubDir][ubAnim] = bitmapCreateFromFile(szName, 0);
-			sprintf(szName, "data/%s_%s_mask.bm", szAnimNames[ubAnim], szDirNames[ubDir]);
-			s_pBmPlepMasks[ubDir][ubAnim] = bitmapCreateFromFile(szName, 0);
+		char szName[30];
+		for(UBYTE ubPlayer = 0; ubPlayer < 4; ++ubPlayer) {
+			sprintf(szName, "data/plep%hhu_%s.bm", ubPlayer, szDirNames[ubDir]);
+			s_pBmPleps[ubPlayer][ubDir] = bitmapCreateFromFile(szName, 0);
 		}
+		sprintf(szName, "data/plep_%s_mask.bm", szDirNames[ubDir]);
+		s_pBmPlepMasks[ubDir] = bitmapCreateFromFile(szName, 0);
 	}
 	logBlockEnd("plepCreate()");
 }
@@ -86,17 +86,19 @@ void plepCreate(void) {
 void plepInitBob(tPlep *pPlep) {
 	bobNewInit(
 		&pPlep->sBob, PLEP_SIZE, PLEP_SIZE, 1,
-		s_pBmPleps[0][0], s_pBmPlepMasks[0][0], 0, 0
+		s_pBmPleps[0][0], s_pBmPlepMasks[0], 0, 0
 	);
 }
 
 void plepDestroy(void) {
+	logBlockBegin("plepDestroy()");
 	for(UBYTE ubDir = 0; ubDir < 4; ++ubDir) {
-		for(UBYTE ubAnim = 0; ubAnim < PLEP_ANIM_COUNT; ++ubAnim) {
-			bitmapDestroy(s_pBmPleps[ubDir][ubAnim]);
-			bitmapDestroy(s_pBmPlepMasks[ubDir][ubAnim]);
+		for(UBYTE ubPlayer = 0; ubPlayer < 4; ++ubPlayer) {
+			bitmapDestroy(s_pBmPleps[ubPlayer][ubDir]);
 		}
+		bitmapDestroy(s_pBmPlepMasks[ubDir]);
 	}
+	logBlockEnd("plepDestroy()");
 }
 
 void plepReset(tPlep *pPlep, tPlayer *pPlayer) {
@@ -105,7 +107,7 @@ void plepReset(tPlep *pPlep, tPlayer *pPlayer) {
 }
 
 static void plepUpdateAnimFrame(tPlep *pPlep) {
-	BYTE bDelta = s_pAnimOffsets[pPlep->eAnim][pPlep->ubAnimFrame];
+	BYTE bDelta = s_pAnimOffsets[pPlep->ubAnimFrame];
 	if(dirIsVertical(pPlep->eDir)) {
 		if(pPlep->eDir == DIR_UP) {
 			bDelta = -bDelta;
@@ -129,7 +131,7 @@ void plepProcess(tPlep *pPlep) {
 	}
 
 	if(++pPlep->ubAnimTick >= 5) {
-		if(pPlep->ubAnimFrame >= s_pFramesPerAnim[pPlep->eAnim]) {
+		if(pPlep->ubAnimFrame >= s_pAnimFrameEnd[pPlep->eAnim]) {
 			// end of anim
 			// logWrite(
 			// 	"End of anim %d (%hu,%hu dir %d)\n",
@@ -165,9 +167,9 @@ void plepProcess(tPlep *pPlep) {
 					}
 					break;
 			}
-			pPlep->sBob.pBitmap = s_pBmPleps[pPlep->eDir][pPlep->eAnim];
-			pPlep->sBob.pMask = s_pBmPlepMasks[pPlep->eDir][pPlep->eAnim];
-			pPlep->ubAnimFrame = 0;
+			pPlep->sBob.pBitmap = s_pBmPleps[playerToIdx(pPlep->pPlayer)][pPlep->eDir];
+			pPlep->sBob.pMask = s_pBmPlepMasks[pPlep->eDir];
+			pPlep->ubAnimFrame = s_pAnimFrameStart[pPlep->eAnim];
 			// logWrite(
 			// 	"Next anim: %d (%hu,%hu), active: %hhu\n",
 			// 	pPlep->eAnim, pPlep->sAnimAnchor.uwX, pPlep->sAnimAnchor.uwY, pPlep->isActive
@@ -195,9 +197,9 @@ void plepSpawn(tPlep *pPlep, WORD wCharges, tDir eDir) {
 
 	// Init anim
 	pPlep->eAnim = PLEP_ANIM_BORN;
-	pPlep->sBob.pBitmap = s_pBmPleps[pPlep->eDir][pPlep->eAnim];
-	pPlep->sBob.pMask = s_pBmPlepMasks[pPlep->eDir][pPlep->eAnim];
-	pPlep->ubAnimFrame = 0;
+	pPlep->sBob.pBitmap = s_pBmPleps[playerToIdx(pPlep->pPlayer)][pPlep->eDir];
+	pPlep->sBob.pMask = s_pBmPlepMasks[pPlep->eDir];
+	pPlep->ubAnimFrame = s_pAnimFrameStart[pPlep->eAnim];
 	pPlep->ubAnimTick = 0;
 	pPlep->sAnimAnchor.uwX = pSrc->ubTileX * MAP_TILE_SIZE;
 	pPlep->sAnimAnchor.uwY = pSrc->ubTileY * MAP_TILE_SIZE;

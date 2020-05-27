@@ -40,11 +40,15 @@ void gamePostprocess(void);
  */
 tSteer *gameGetSteerForPlayer(UBYTE ubPlayer);
 
-void gameDrawBlobAt(tTile eTile, UBYTE ubFrame, UBYTE ubTileX, UBYTE ubTileY);
+void gameDrawBlobAt(tTile eTile, UBYTE ubFrame, UWORD uwX, UWORD uwY);
 
-void gameDrawMapTileAt(UBYTE ubX, UBYTE ubY, UBYTE ubFrame);
+void gameDrawMapTileAt(UBYTE ubTileX, UBYTE ubTileY, UBYTE ubFrame);
 
-void gameDrawTileAt(tTile eTile, UBYTE ubX, UBYTE ubY, UBYTE ubFrame);
+void gameDrawTileAt(tTile eTile, UWORD uwX, UWORD uwY, UBYTE ubFrame);
+
+void gameInitCursorBobs(void);
+
+void gameSetEditor(UBYTE isEditor);
 
 tBobNew *gameGetCursorBob(UBYTE ubIdx);
 

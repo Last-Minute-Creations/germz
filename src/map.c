@@ -11,11 +11,11 @@
 #include "blob_anim.h"
 
 static tNode *nodeAdd(UBYTE ubX, UBYTE ubY, tTile eTile) {
-	if(g_sMap.ubNodeCount >= MAP_NODES_MAX) {
+	if(g_sMap.uwNodeCount >= MAP_NODES_MAX) {
 		logWrite("ERR: Can't add another node\n");
 		return 0;
 	}
-	tNode *pNode = &g_sMap.pNodes[g_sMap.ubNodeCount];
+	tNode *pNode = &g_sMap.pNodes[g_sMap.uwNodeCount];
 	pNode->ubTileX = ubX;
 	pNode->ubTileY = ubY;
 	for(UBYTE i = 4; i--;) {
@@ -29,8 +29,8 @@ static tNode *nodeAdd(UBYTE ubX, UBYTE ubY, tTile eTile) {
 	else {
 		pNode->wCharges = 20;
 	}
-	pNode->ubIdx = g_sMap.ubNodeCount;
-	++g_sMap.ubNodeCount;
+	pNode->ubIdx = g_sMap.uwNodeCount;
+	++g_sMap.uwNodeCount;
 	g_sMap.pNodesOnTiles[ubX][ubY] = pNode;
 	logWrite("Added node %p (%hhu) at %hhu,%hhu\n", pNode, pNode->ubIdx, ubX, ubY);
 	return pNode;
@@ -72,7 +72,7 @@ static void nodeFindNeighbor(tNode *pNode, tDir eDir) {
 
 static void nodeCalculateNeighbors(void) {
 	logBlockBegin("nodeCalculateNeighbors()");
-	for(UBYTE i = 0; i < g_sMap.ubNodeCount; ++i) {
+	for(UBYTE i = 0; i < g_sMap.uwNodeCount; ++i) {
 		logWrite(
 			"Searching for neighbors for node %p (%hhu,%hhu)\n",
 			&g_sMap.pNodes[i], g_sMap.pNodes[i].ubTileX, g_sMap.pNodes[i].ubTileY
@@ -88,7 +88,7 @@ static void nodeCalculateNeighbors(void) {
 
 void mapInitFromMapData(void) {
 	logBlockBegin("mapInitFromMapData()");
-	g_sMap.ubNodeCount = 0;
+	g_sMap.uwNodeCount = 0;
 	for(UBYTE x = 0; x < MAP_SIZE; ++x) {
 		for(UBYTE y = 0; y < MAP_SIZE; ++y) {
 			g_sMap.pNodesOnTiles[x][y] = 0;
@@ -123,7 +123,7 @@ void mapProcessNodes(void) {
 			g_sMap.ubChargeClock = 0;
 			isNeutralCharge = 1;
 		}
-		for(UBYTE i = 0; i < g_sMap.ubNodeCount; ++i) {
+		for(UBYTE i = 0; i < g_sMap.uwNodeCount; ++i) {
 			if(
 				g_sMap.pNodes[i].wCharges < 100 &&
 				(g_sMap.pNodes[i].pPlayer || isNeutralCharge)
@@ -150,7 +150,7 @@ void nodeChangeOwnership(tNode *pNode, tPlayer *pPlayer) {
 }
 
 void mapUpdateNodeCountForPlayers(void) {
-	for(UBYTE i = 0; i < g_sMap.ubNodeCount; ++i) {
+	for(UBYTE i = 0; i < g_sMap.uwNodeCount; ++i) {
 		if(g_sMap.pNodes[i].pPlayer) {
 			++g_sMap.pNodes[i].pPlayer->bNodeCount;
 		}

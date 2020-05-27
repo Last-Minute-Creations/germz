@@ -8,7 +8,6 @@
 
 static tTile tileFromChar(char c) {
 	static const char pTileToChar[TILE_COUNT] = {'\0',
-		[TILE_PAD] = ' ',
 		[TILE_BLANK] = '.',
 		[TILE_BLOB_NEUTRAL] = 'N',
 		[TILE_BLOB_P1] = '1',
@@ -30,6 +29,7 @@ static tTile tileFromChar(char c) {
 
 UBYTE mapDataInitFromFile(tMapData *pMapData, const char *szPath) {
 	logBlockBegin("mapDataInitFromFile(szPath: '%s')", szPath);
+	mapDataClear(pMapData);
 	tJson *pJson = jsonCreate(szPath);
 
 	UWORD uwTokName = jsonGetDom(pJson, "name");
@@ -94,7 +94,7 @@ end:
 void mapDataClear(tMapData *pMapData) {
 	for(UBYTE x = 0; x < MAP_SIZE; ++x) {
 		for(UBYTE y = 0; y < MAP_SIZE; ++y) {
-			pMapData->pTiles[x][y] = TILE_PAD;
+			pMapData->pTiles[x][y] = TILE_BLANK;
 		}
 	}
 	strcpy(pMapData->szAuthor, "");
@@ -108,7 +108,7 @@ UBYTE tileIsMovable(tTile eTile) {
 }
 
 UBYTE tileIsNode(tTile eTile) {
-	UBYTE isNode = (TILE_BLOB_NEUTRAL <= eTile && eTile <= TILE_BLOB_P4);
+	UBYTE isNode = (eTile < TILE_BLOB_COUNT);
 	return isNode;
 }
 

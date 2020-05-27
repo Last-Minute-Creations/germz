@@ -13,6 +13,7 @@
 				"_UNICODE",
 				"AMIGA",
 				"ACE_DEBUG",
+				"ACE_DEBUG_UAE",
 				"__CODE_CHECKER__"
 			],
 			"compilerPath": "C:\\\\prg\\\\kompilatory\\\\mingw-w64\\\\i686-7.3.0-posix-dwarf-rt_v5-rev0\\\\bin\\\\gcc.exe",

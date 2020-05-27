@@ -1,3 +1,7 @@
+20.5.9
+- editor kinda works, press F1 ingame
+- reorganized source for displaying game summary and editor directly from game
+
 20.4.25
 - updated graphics
 - music kinda works

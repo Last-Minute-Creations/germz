@@ -17,7 +17,7 @@
  * bobNewInit(&sBob1, ...)
  * bobNewInit(&sBob2, ...)
  * bobNewInit(&sBobN, ...)
- * bobNewAllocateBgBuffers()
+ * bobNewReallocateBgBuffers()
  *
  * in gamestate loop:
  * bobNewBegin()
@@ -71,14 +71,14 @@ typedef struct _tBobNew {
  * If you use single buffering, pass same pointer in pFront and pBack.
  *
  * After calling this fn you should call series of bobNewInit() followed by
- * single bobNewAllocateBgBuffers().
+ * single bobNewReallocateBgBuffers().
  *
  * @param pFront Double buffering's front buffer bitmap.
  * @param pBack Double buffering's back buffer bitmap.
  * @param uwAvailHeight True available height for Y-scroll in passed bitmap.
  *
  * @see bobNewInit()
- * @see bobNewAllocateBgBuffers()
+ * @see bobNewReallocateBgBuffers()
  * @see bobNewManagerDestroy()
  */
 void bobNewManagerCreate(tBitMap *pFront, tBitMap *pBack, UWORD uwAvailHeight);
@@ -89,6 +89,8 @@ void bobNewManagerCreate(tBitMap *pFront, tBitMap *pBack, UWORD uwAvailHeight);
  * @see bobNewManagerCreate()
  */
 void bobNewManagerDestroy(void);
+
+void bobNewManagerReset(void);
 
 /**
  * @brief Initializes new bob for use with manager.
@@ -114,7 +116,7 @@ void bobNewInit(
  *
  * After call to this function, you can't call bobNewInit() anymore!
  */
-void bobNewAllocateBgBuffers(void);
+void bobNewReallocateBgBuffers(void);
 
 /**
  * @brief Changes bob's animation frame.

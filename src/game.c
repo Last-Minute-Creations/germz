@@ -15,6 +15,7 @@
 #include "player.h"
 #include "game_assets.h"
 #include "game_init.h"
+#include "game_editor.h"
 #include "game_play.h"
 #include "game_summary.h"
 
@@ -25,6 +26,7 @@ static tBobNew s_pCursorBobs[4];
 
 //------------------------------------------------------------------------ DEBUG
 
+static UBYTE s_isEditor = 0;
 static UBYTE s_isDebug = 0;
 static UBYTE s_isDump = 0;
 static tSteer s_pSteers[4];
@@ -109,28 +111,31 @@ void gameGsCreate(void) {
 	paletteLoad("data/germz.plt", s_pVp->pPalette, 32);
 	s_uwColorBg = s_pVp->pPalette[0];
 
-	// Are we here from menu? If so, load map
-	if(!mapDataInitFromFile(&g_sMapData, "data/maps/map1.json")) {
-		logWrite("MAP CREATE FAIL\n");
-		// FIXME: handle it cleanly - it will crash for now
-		return;
+	// Load settings from menu
+	for(UBYTE i = 0; i < 4; ++i) {
+		s_pSteers[i] = menuGetSteerForPlayer(i);
 	}
 
 	gameAssetsCreate();
-	bobNewManagerCreate(s_pBfr->pFront, s_pBfr->pBack, s_pBfr->uBfrBounds.uwY);
 	playerCreate();
-	for(UBYTE ubIdx = 0; ubIdx < 4; ++ubIdx) {
-		bobNewInit(
-			&s_pCursorBobs[ubIdx], 16, 16, 1, g_pCursors, g_pCursorsMask, 0, 0
-		);
-		bobNewSetBitMapOffset(&s_pCursorBobs[ubIdx], ubIdx * 16);
-	}
-	bobNewAllocateBgBuffers();
 	aiCreate(&g_sMap);
 
+	bobNewManagerCreate(s_pBfr->pFront, s_pBfr->pBack, s_pBfr->uBfrBounds.uwY);
+
+	if(s_isEditor) {
+		gamePushState(gameEditorGsCreate, gameEditorGsLoop, gameEditorGsDestroy);
+	}
+	else {
+		// Are we here from menu? If so, load map
+		if(!mapDataInitFromFile(&g_sMapData, "data/maps/map1.json")) {
+			logWrite("MAP CREATE FAIL\n");
+			// FIXME: handle it cleanly - it will crash for now
+			return;
+		}
+		gamePushState(gameInitGsCreate, gameInitGsLoop, gameInitGsDestroy);
+	}
 	systemUnuse();
 	viewLoad(s_pView);
-	gamePushState(gameInitGsCreate, gameInitGsLoop, gameInitGsDestroy);
 }
 
 void gameGsLoop(void) {
@@ -167,7 +172,6 @@ void gameInitMap(void) {
 	// First assume that all are dead, then init only those who really play
 	playerAllDead();
 	for(UBYTE i = 0; i < g_sMapData.ubPlayerCount; ++i) {
-		s_pSteers[i] = menuGetSteerForPlayer(i);
 		playerReset(i, g_sMap.pPlayerStartNodes[i]);
 	}
 
@@ -184,38 +188,52 @@ tSteer *gameGetSteerForPlayer(UBYTE ubPlayer) {
 	return &s_pSteers[ubPlayer];
 }
 
-void gameDrawTileAt(tTile eTile, UBYTE ubX, UBYTE ubY, UBYTE ubFrame) {
+void gameDrawTileAt(tTile eTile, UWORD uwX, UWORD uwY, UBYTE ubFrame) {
 	if(eTile < TILE_BLOB_COUNT) {
 		// Animate
-		gameDrawBlobAt(eTile, ubFrame, ubX, ubY);
+		gameDrawBlobAt(eTile, ubFrame, uwX, uwY);
 	}
-	else {
+	else if(eTile != TILE_BLANK) {
 		// Don't animate
 		UWORD uwTileY = 16 * (eTile - TILE_PATH_H1);
-		blitCopyAligned(
-			g_pBmLinks, 0, uwTileY,
-			s_pBfr->pBack, ubX * MAP_TILE_SIZE, ubY * MAP_TILE_SIZE,
-			MAP_TILE_SIZE, MAP_TILE_SIZE
+		blitCopyMask(
+			g_pBmLinks, 0, uwTileY, s_pBfr->pBack, uwX, uwY,
+			MAP_TILE_SIZE, MAP_TILE_SIZE, (UWORD*)g_pBmLinksMask->Planes[0]
 		);
 	}
 }
 
-void gameDrawMapTileAt(UBYTE ubX, UBYTE ubY, UBYTE ubFrame) {
-	tTile eTile = g_sMapData.pTiles[ubX][ubY];
-	gameDrawTileAt(eTile, ubX, ubY, ubFrame);
+void gameDrawMapTileAt(UBYTE ubTileX, UBYTE ubTileY, UBYTE ubFrame) {
+	tTile eTile = g_sMapData.pTiles[ubTileX][ubTileY];
+	gameDrawTileAt(eTile, ubTileX * MAP_TILE_SIZE, ubTileY * MAP_TILE_SIZE, ubFrame);
 }
 
-void gameDrawBlobAt(tTile eTile, UBYTE ubFrame, UBYTE ubTileX, UBYTE ubTileY) {
+void gameDrawBlobAt(tTile eTile, UBYTE ubFrame, UWORD uwX, UWORD uwY) {
 	if(s_isDebug) {
-		logWrite("gameDrawBlobAt(%d, %hhu, %hhu, %hhu)\n", eTile, ubFrame, ubTileX, ubTileY);
+		logWrite(
+			"gameDrawBlobAt(%d, %hhu, %hu, %hu), bitmap %p\n",
+			eTile, ubFrame, uwX, uwY, g_pBmBlobs[eTile]
+		);
 	}
 	blitCopyMask(
-		g_pBmBlobs[eTile], 0, ubFrame * MAP_TILE_SIZE,
-		s_pBfr->pBack, ubTileX * MAP_TILE_SIZE, ubTileY * MAP_TILE_SIZE,
+		g_pBmBlobs[eTile], 0, ubFrame * MAP_TILE_SIZE, s_pBfr->pBack, uwX, uwY,
 		MAP_TILE_SIZE, MAP_TILE_SIZE, (const UWORD*)g_pBmBlobMask->Planes[0]
 	);
 }
 
 tBobNew *gameGetCursorBob(UBYTE ubIdx) {
 	return &s_pCursorBobs[ubIdx];
+}
+
+void gameInitCursorBobs(void) {
+	for(UBYTE ubIdx = 0; ubIdx < 4; ++ubIdx) {
+		bobNewInit(
+			&s_pCursorBobs[ubIdx], 16, 16, 1, g_pCursors, g_pCursorsMask, 0, 0
+		);
+		bobNewSetBitMapOffset(&s_pCursorBobs[ubIdx], ubIdx * 16);
+	}
+}
+
+void gameSetEditor(UBYTE isEditor) {
+	s_isEditor = isEditor;
 }

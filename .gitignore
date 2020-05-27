@@ -1,12 +1,8 @@
 build
-germz
 *.zip
 *.adf
 *.gif
 
-*.log
 .vscode/SYMBOLS.DB
 .vscode/SYMBOLS.DB-shm
 .vscode/SYMBOLS.DB-wal
-
-_res/gfx.png

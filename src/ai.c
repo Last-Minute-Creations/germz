@@ -18,7 +18,7 @@ static void aiTransitToPlanning(tAi *pAi) {
 		pAi->eState = AI_STATE_PLANNING_AGGRESIVE;
 		// logWrite("\nReplan to aggro\n");
 	}
-	pAi->ubCurrNode = 0;
+	pAi->uwCurrNode = 0;
 	pAi->wBiggestDelta = -32768;
 	pAi->pTargetSrc = 0;
 	pAi->pTarget = 0;
@@ -29,9 +29,9 @@ static void aiTransitToPlanning(tAi *pAi) {
 }
 
 static tDir aiProcessPlanningAggressive(tAi *pAi) {
-	const tPlayer *pPlayer = playerFromIdx(pAi->ubPlayerIdx + 1);
+	const tPlayer *pPlayer = playerFromIdx(pAi->ubPlayerIdx);
 	// Get next owned blob
-	const tNode *pNode = &s_pMap->pNodes[pAi->ubCurrNode];
+	const tNode *pNode = &s_pMap->pNodes[pAi->uwCurrNode];
 	UBYTE isNextNode = 0;
 
 	if(pNode->pPlayer == pPlayer && pNode->wCharges > 10) {
@@ -67,7 +67,7 @@ static tDir aiProcessPlanningAggressive(tAi *pAi) {
 	}
 
 	if(isNextNode) {
-		if(++pAi->ubCurrNode >= s_pMap->ubNodeCount) {
+		if(++pAi->uwCurrNode >= s_pMap->uwNodeCount) {
 			// Out of nodes - execute attack or plan defensive move
 			if(pAi->pTarget) {
 				// logWrite(
@@ -86,9 +86,9 @@ static tDir aiProcessPlanningAggressive(tAi *pAi) {
 }
 
 static tDir aiProcessPlanningDefensive(tAi *pAi) {
-	const tPlayer *pPlayer = playerFromIdx(pAi->ubPlayerIdx + 1);
+	const tPlayer *pPlayer = playerFromIdx(pAi->ubPlayerIdx);
 	// Get next owned blob
-	const tNode *pNode = &s_pMap->pNodes[pAi->ubCurrNode];
+	const tNode *pNode = &s_pMap->pNodes[pAi->uwCurrNode];
 	UBYTE isNextNode = 0;
 
 	if(pNode->pPlayer == pPlayer && pNode->wCharges > 10) {
@@ -141,7 +141,7 @@ static tDir aiProcessPlanningDefensive(tAi *pAi) {
 	if(isNextNode) {
 		pAi->pTargetCurrNode = pAi->pTarget;
 		pAi->wBiggestDeltaCurrNode = pAi->wBiggestDelta;
-		if(++pAi->ubCurrNode >= s_pMap->ubNodeCount) {
+		if(++pAi->uwCurrNode >= s_pMap->uwNodeCount) {
 			// Out of nodes - execute defense or plan aggresive move
 			if(pAi->pTarget) {
 				// logWrite(
@@ -180,7 +180,7 @@ static tDir aiProcessRouting(tAi *pAi) {
 		}
 	}
 	else {
-		const tPlayer *pPlayer = playerFromIdx(pAi->ubPlayerIdx + 1);
+		const tPlayer *pPlayer = playerFromIdx(pAi->ubPlayerIdx);
 		astarStart(s_pAstar[pAi->ubPlayerIdx], pPlayer->pNodeCursor, pAi->pTargetSrc);
 		pAi->isAstarStarted = 1;
 	}
@@ -188,7 +188,7 @@ static tDir aiProcessRouting(tAi *pAi) {
 }
 
 static tDir aiProcessGettingToSourceBlob(tAi *pAi) {
-	const tPlayer *pPlayer = playerFromIdx(pAi->ubPlayerIdx + 1);
+	const tPlayer *pPlayer = playerFromIdx(pAi->ubPlayerIdx);
 	tAstarData *pNav = s_pAstar[pAi->ubPlayerIdx];
 
 	if(pNav->sRoute.bCurrNode < 0) {

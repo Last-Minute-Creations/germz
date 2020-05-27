@@ -47,6 +47,7 @@ static const char *s_pMenuCaptions[] = {
 	"Player 2",
 	"Player 3",
 	"Player 4",
+	"Editor",
 	"Cure"
 };
 
@@ -58,6 +59,7 @@ static UBYTE *s_pMod;
 static tBitMap *s_pBg;
 
 static void onStart(void);
+static void onEditor(void);
 static void onExit(void);
 
 //------------------------------------------------------------------------- MENU
@@ -110,6 +112,7 @@ static tOption s_pOptions[] = {
 		.pVar = &s_pPlayerSteers[3], .ubMax = PLAYER_STEER_IDLE, .isCyclic = 1,
 		.ubDefault = PLAYER_STEER_OFF, .pEnumLabels = s_pMenuEnumSteer
 	}},
+	{OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onEditor}},
 	{OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onExit}},
 };
 #define MENU_POS_COUNT (sizeof(s_pOptions) / sizeof(tOption))
@@ -238,7 +241,7 @@ static void menuErrorMsg(const char *szMsg) {
 	}
 }
 
-static void onStart(void) {
+static void startGame(UBYTE isEditor) {
 	UBYTE pSteerToPlayer[PLAYER_STEER_AI] = {0};
 	for(UBYTE i = 0; i < 4; ++i) {
 		if((
@@ -267,7 +270,17 @@ static void onStart(void) {
 			}
 		}
 	}
+	gameSetEditor(isEditor);
 	gameChangeState(gameGsCreate, gameGsLoop, gameGsDestroy);
+}
+
+static void onStart(void) {
+	startGame(0);
+}
+
+static void onEditor(void) {
+	mapDataClear(&g_sMapData);
+	startGame(1);
 }
 
 void menuGsCreate(void) {
@@ -293,7 +306,7 @@ void menuGsCreate(void) {
 	blitCopy(s_pBg, 0, 0, s_pBfr->pBack, 0, 0, 320, 128, MINTERM_COPY, 0xFF);
 	blitCopy(s_pBg, 0, 128, s_pBfr->pBack, 0, 128, 320, 128, MINTERM_COPY, 0xFF);
 
-	paletteLoad("data/germz_menu.plt", s_pVp->pPalette, 32);
+	paletteLoad("data/germz.plt", s_pVp->pPalette, 32);
 	s_pFont = fontCreate("data/uni54.fnt");
 	s_pTextBitmap = fontCreateTextBitMap(320, s_pFont->uwHeight);
 
@@ -344,7 +357,7 @@ void menuGsLoop(void) {
 
 	for(UBYTE ubMenuPos = 0; ubMenuPos < MENU_POS_COUNT; ++ubMenuPos) {
 		if(!s_pOptions[ubMenuPos].isHidden && s_pOptions[ubMenuPos].isDirty) {
-			menuDrawPos(ubMenuPos, 128);
+			menuDrawPos(ubMenuPos, 100);
 			s_pOptions[ubMenuPos].isDirty = 0;
 		}
 	}

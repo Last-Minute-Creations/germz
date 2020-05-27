@@ -12,47 +12,44 @@
 #include "player.h"
 #include "blob_anim.h"
 
-static UBYTE s_isEven = 0;
-static UBYTE s_ubCurrPlayer;
+#define HUD_BG 7
 
-static tTextBitMap *s_pBmLine;
+static UBYTE s_isEven = 0;
+static tPlayerIdx s_eCurrPlayer;
 
 void displayUpdateHud(void) {
 	static const UBYTE pPlayerColors[] = {8, 12, 16, 20};
-	const tPlayer *pPlayer = playerFromIdx(s_ubCurrPlayer);
-	UBYTE ubZeroBased = s_ubCurrPlayer - 1;
+	const tPlayer *pPlayer = playerFromIdx(s_eCurrPlayer);
 	const UBYTE ubMonitorPad = 7;
 	UWORD uwMonitorX = HUD_OFFS_X + ubMonitorPad;
-	UWORD uwMonitorY = ubZeroBased * HUD_MONITOR_SIZE + ubMonitorPad;
+	UWORD uwMonitorY = s_eCurrPlayer * HUD_MONITOR_SIZE + ubMonitorPad;
 
 	tBitMap *pDisplay = gameGetBackBuffer();
 
-	blitRect(pDisplay, uwMonitorX, uwMonitorY, 32, 10 + g_pFont->uwHeight, 6);
+	blitRect(pDisplay, uwMonitorX, uwMonitorY, 32, 10 + g_pFont->uwHeight, HUD_BG);
 	if(!pPlayer->isDead) {
 		if(pPlayer->pNodeCursor) {
 			char szBfr[6];
 			sprintf(szBfr, "%hd", pPlayer->pNodeCursor->wCharges);
-			fontFillTextBitMap(g_pFont, s_pBmLine, szBfr);
+			fontFillTextBitMap(g_pFont, g_pTextBitmap, szBfr);
 			fontDrawTextBitMap(
-				pDisplay, s_pBmLine, uwMonitorX, uwMonitorY,
-				pPlayerColors[ubZeroBased], FONT_COOKIE
+				pDisplay, g_pTextBitmap, uwMonitorX, uwMonitorY,
+				pPlayerColors[s_eCurrPlayer], FONT_COOKIE
 			);
 		}
 
 		if(pPlayer->isSelectingDestination) {
 			char szBfr[6];
 			sprintf(szBfr, "%hd", pPlayer->pNodePlepSrc->wCharges / 2);
-			fontFillTextBitMap(g_pFont, s_pBmLine, szBfr);
+			fontFillTextBitMap(g_pFont, g_pTextBitmap, szBfr);
 			fontDrawTextBitMap(
-				pDisplay, s_pBmLine, uwMonitorX, uwMonitorY + 10,
-				pPlayerColors[ubZeroBased], FONT_COOKIE
+				pDisplay, g_pTextBitmap, uwMonitorX, uwMonitorY + 10,
+				pPlayerColors[s_eCurrPlayer], FONT_COOKIE
 			);
 		}
 	}
 	if(s_isEven) {
-		if(++s_ubCurrPlayer > 4) {
-			s_ubCurrPlayer = 1;
-		}
+		s_eCurrPlayer = (s_eCurrPlayer + 1) & 3;
 	}
 	s_isEven = !s_isEven;
 }
@@ -61,13 +58,16 @@ void displayUpdateHud(void) {
 
 void gamePlayGsCreate(void) {
 	s_isEven = 0;
-	s_ubCurrPlayer = 1;
-	s_pBmLine = fontCreateTextBitMap(64, g_pFont->uwHeight);
+	s_eCurrPlayer = 1;
 	blobAnimReset();
 }
 
 void gamePlayGsLoop(void) {
 	if(keyUse(KEY_F1)) {
+		// Ensure that player pushes off that button so it won't bug editor
+		while(keyCheck(KEY_F1)) {
+			keyProcess();
+		}
 		gameChangeState(gameEditorGsCreate, gameEditorGsLoop, gameEditorGsDestroy);
 		return;
 	}
@@ -91,5 +91,4 @@ void gamePlayGsLoop(void) {
 }
 
 void gamePlayGsDestroy(void) {
-	fontDestroyTextBitMap(s_pBmLine);
 }

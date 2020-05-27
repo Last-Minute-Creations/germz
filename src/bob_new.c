@@ -34,6 +34,40 @@ static UWORD s_uwBgBufferLength;
 
 tBobQueue s_pQueues[2];
 
+static void bobNewDeallocBuffers(void) {
+	blitWait();
+	systemUse();
+	if(s_pQueues[0].pBobs && s_ubMaxBobCount) {
+		memFree(s_pQueues[0].pBobs, sizeof(tBobNew*) * s_ubMaxBobCount);
+		s_pQueues[0].pBobs = 0;
+	}
+	if(s_pQueues[1].pBobs && s_ubMaxBobCount) {
+		memFree(s_pQueues[1].pBobs, sizeof(tBobNew*) * s_ubMaxBobCount);
+		s_pQueues[1].pBobs = 0;
+	}
+	s_ubMaxBobCount = 0;
+	if(s_pQueues[0].pBg) {
+		bitmapDestroy(s_pQueues[0].pBg);
+		s_pQueues[0].pBg = 0;
+	}
+	if(s_pQueues[1].pBg) {
+		bitmapDestroy(s_pQueues[1].pBg);
+		s_pQueues[1].pBg = 0;
+	}
+	systemUnuse();
+}
+
+void bobNewManagerReset(void) {
+	bobNewDeallocBuffers();
+	s_uwBgBufferLength = 0;
+	s_isPushingDone = 0;
+	s_ubBufferCurr = 0;
+	s_ubBobsPushed = 0;
+	s_ubBobsSaved = 0;
+	s_ubBobsDrawn = 0;
+	bobNewDiscardUndraw();
+}
+
 void bobNewManagerCreate(
 	tBitMap *pFront, tBitMap *pBack, UWORD uwAvailHeight
 ) {
@@ -42,21 +76,15 @@ void bobNewManagerCreate(
 		pFront, pBack, uwAvailHeight
 	);
 	s_ubBpp = pFront->Depth;
-	s_ubMaxBobCount = 0;
-
 	s_pQueues[0].pDst = pBack;
 	s_pQueues[1].pDst = pFront;
 
-	s_isPushingDone = 0;
-	s_ubBufferCurr = 0;
-	s_ubBobsPushed = 0;
-	s_ubBobsSaved = 0;
-	s_ubBobsDrawn = 0;
-	s_pQueues[0].ubUndrawCount = 0;
-	s_pQueues[1].ubUndrawCount = 0;
+	s_pQueues[0].pBg = 0;
+	s_pQueues[1].pBg = 0;
+	s_ubMaxBobCount = 0;
+	bobNewManagerReset();
 	s_uwAvailHeight = uwAvailHeight;
 
-	s_uwBgBufferLength = 0;
 	s_pQueues[0].pBg = 0;
 	s_pQueues[1].pBg = 0;
 	s_pQueues[0].pBobs = 0;
@@ -64,33 +92,23 @@ void bobNewManagerCreate(
 	logBlockEnd("bobNewManagerCreate()");
 }
 
-void bobNewAllocateBgBuffers(void) {
+void bobNewReallocateBgBuffers(void) {
 	systemUse();
-	logBlockBegin("bobNewAllocateBgBuffers()");
+	logBlockBegin("bobNewReallocateBgBuffers()");
 	s_pQueues[0].pBobs = memAllocFast(sizeof(tBobNew*) * s_ubMaxBobCount);
 	s_pQueues[1].pBobs = memAllocFast(sizeof(tBobNew*) * s_ubMaxBobCount);
 	s_pQueues[0].pBg = bitmapCreate(16, s_uwBgBufferLength, s_ubBpp, BMF_INTERLEAVED);
 	s_pQueues[1].pBg = bitmapCreate(16, s_uwBgBufferLength, s_ubBpp, BMF_INTERLEAVED);
+	logWrite(
+		"New bg buffer length: %hu, max bobs: %hhu\n",
+		s_uwBgBufferLength, s_ubMaxBobCount
+	);
+	logBlockEnd("bobNewReallocateBgBuffers()");
 	systemUnuse();
-	logBlockEnd("bobNewAllocateBgBuffers()");
 }
 
 void bobNewManagerDestroy(void) {
-	blitWait();
-	systemUse();
-	if(s_pQueues[0].pBg) {
-		bitmapDestroy(s_pQueues[0].pBg);
-	}
-	if(s_pQueues[1].pBg) {
-		bitmapDestroy(s_pQueues[1].pBg);
-	}
-	if(s_pQueues[0].pBobs) {
-		memFree(s_pQueues[0].pBobs, sizeof(tBobNew*) * s_ubMaxBobCount);
-	}
-	if(s_pQueues[1].pBobs) {
-		memFree(s_pQueues[1].pBobs, sizeof(tBobNew*) * s_ubMaxBobCount);
-	}
-	systemUnuse();
+	bobNewDeallocBuffers();
 }
 
 void bobNewPush(tBobNew *pBob) {
@@ -125,6 +143,7 @@ void bobNewInit(
 
 	s_uwBgBufferLength += uwBlitWords * uwHeight * s_ubBpp;
 	++s_ubMaxBobCount;
+	// logWrite("Added bob, now max: %hhu\n", s_ubMaxBobCount);
 }
 
 void bobNewSetBitMapOffset(tBobNew *pBob, UWORD uwOffsetY) {

@@ -18,15 +18,23 @@ Done:
 	✘ dont spread and stay the fuck at home @cancelled(20-04-25 19:09)
 	✔ player cursor should hide on defeat @done(20-04-26 16:33)
 	✔ map editor @done(20-05-09 19:49)
+	✔ Enter editor from menu @done(20-05-27 09:05)
+	✔ Remove placement of branch variants in editor since they are placed automatically @done(20-05-27 09:39)
+	✔ plep colored for each player @done(20-05-27 13:45)
 
 Now:
+	☐ Map save/load to/from file
+		☐ List only .json files
+		☐ Remember last saved/load file name and use it for default selection
+		☐ Ask for overwrite
+		☐ Ask for saving unsaved progress
+	☐ Reduce mem usage by AI
 	☐ fix ptplayer on higher cpu freq
 	☐ ptplayer in game
 	☐ sound effects
 	☐ win/lose screen
 	☐ cursors should blink or something so that overlapping will be visible
 	☐ display in visible menu part how keyboard layouts have action button bound (how to play)
-	☐ plep colored for each player
 	☐ fade in/out in menu
 	☐ fade in/out in game
 	☐ four variants for branches
@@ -35,9 +43,6 @@ Now:
 	☐ Credits in separate screen in menu
 	☐ Editor should check whether there are no holes in spawn point placements (e.g. player 1, 2, 4, but no 3)
 	☐ Import/export to/from editor by typing in code
-	☐ Map save/load to/from file
-	☐ Enter editor from menu
-	☐ Remove placement of branch variants in editor since they are placed automatically
 
 Later:
 	☐ EKG
