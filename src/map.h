@@ -8,7 +8,7 @@
 #define MAP_NODES_MAX 255
 #define MAP_TILE_SIZE 16
 
-#include "dir.h"
+#include "direction.h"
 #include "map_data.h"
 
 typedef struct _tNode {
@@ -16,7 +16,7 @@ typedef struct _tNode {
 	UBYTE ubTileX;
 	UBYTE ubTileY;
 	struct _tPlayer *pPlayer;
-	struct _tNode *pNeighbors[DIR_COUNT - 1];
+	struct _tNode *pNeighbors[DIRECTION_COUNT - 1];
 	WORD wCharges;
 } tNode;
 

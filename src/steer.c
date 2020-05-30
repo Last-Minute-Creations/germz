@@ -9,47 +9,47 @@
 
 //------------------------------------------------------------------ PRIVATE FNS
 
-static tDir onJoy(tSteer *pSteer) {
+static tDirection onJoy(tSteer *pSteer) {
 	UBYTE ubJoy = pSteer->ubJoy;
-	tDir eDir = DIR_COUNT;
+	tDirection eDir = DIRECTION_COUNT;
 	if(joyUse(ubJoy + JOY_LEFT)) {
-		eDir = DIR_LEFT;
+		eDir = DIRECTION_LEFT;
 	}
 	else if(joyUse(ubJoy + JOY_RIGHT)) {
-		eDir = DIR_RIGHT;
+		eDir = DIRECTION_RIGHT;
 	}
 	else if(joyUse(ubJoy + JOY_UP)) {
-		eDir = DIR_UP;
+		eDir = DIRECTION_UP;
 	}
 	else if(joyUse(ubJoy + JOY_DOWN)) {
-		eDir = DIR_DOWN;
+		eDir = DIRECTION_DOWN;
 	}
 	else if(joyUse(ubJoy + JOY_FIRE)) {
-		eDir = DIR_FIRE;
+		eDir = DIRECTION_FIRE;
 	}
 	return eDir;
 }
 
-static tDir onKey(tSteer *pSteer) {
+static tDirection onKey(tSteer *pSteer) {
 	static const UBYTE pDirsWsad[] = {
-		[DIR_UP] = KEY_W,
-		[DIR_DOWN] = KEY_S,
-		[DIR_LEFT] = KEY_A,
-		[DIR_RIGHT] = KEY_D,
-		[DIR_FIRE] = KEY_LSHIFT
+		[DIRECTION_UP] = KEY_W,
+		[DIRECTION_DOWN] = KEY_S,
+		[DIRECTION_LEFT] = KEY_A,
+		[DIRECTION_RIGHT] = KEY_D,
+		[DIRECTION_FIRE] = KEY_LSHIFT
 	};
 	static const UBYTE pDirsArrows[] = {
-		[DIR_UP] = KEY_UP,
-		[DIR_DOWN] = KEY_DOWN,
-		[DIR_LEFT] = KEY_LEFT,
-		[DIR_RIGHT] = KEY_RIGHT,
-		[DIR_FIRE] = KEY_RSHIFT
+		[DIRECTION_UP] = KEY_UP,
+		[DIRECTION_DOWN] = KEY_DOWN,
+		[DIRECTION_LEFT] = KEY_LEFT,
+		[DIRECTION_RIGHT] = KEY_RIGHT,
+		[DIRECTION_FIRE] = KEY_RSHIFT
 	};
 
 	const UBYTE *pKeymap = (pSteer->eKeymap == KEYMAP_WSAD) ? pDirsWsad : pDirsArrows;
 
-	tDir eDir = DIR_COUNT;
-	for(UBYTE i = 0; i < DIR_COUNT; ++i) {
+	tDirection eDir = DIRECTION_COUNT;
+	for(UBYTE i = 0; i < DIRECTION_COUNT; ++i) {
 		if(keyUse(pKeymap[i])) {
 			eDir = i;
 			break;
@@ -59,14 +59,14 @@ static tDir onKey(tSteer *pSteer) {
 	return eDir;
 }
 
-static tDir onAi(tSteer *pSteer) {
+static tDirection onAi(tSteer *pSteer) {
 	tAi *pAi = &pSteer->sAi;
 	return aiProcess(pAi);
 }
 
-static tDir onIdle(UNUSED_ARG tSteer *pSteer) {
+static tDirection onIdle(UNUSED_ARG tSteer *pSteer) {
 	// Do nothing
-	return DIR_COUNT;
+	return DIRECTION_COUNT;
 }
 
 //------------------------------------------------------------------- PUBLIC FNS
@@ -105,11 +105,11 @@ tSteer steerInitIdle(void) {
 	return sSteer;
 }
 
-tDir steerProcess(tSteer *pSteer) {
+tDirection steerProcess(tSteer *pSteer) {
 	if(pSteer->cbProcess) {
 		return pSteer->cbProcess(pSteer);
 	}
-	return DIR_COUNT;
+	return DIRECTION_COUNT;
 }
 
 UBYTE steerIsPlayer(const tSteer *pSteer) {

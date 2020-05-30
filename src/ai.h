@@ -6,7 +6,7 @@
 #define _GERMZ_AI_H_
 
 #include <ace/types.h>
-#include "dir.h"
+#include "direction.h"
 #include "map.h"
 
 typedef enum _tAiState {
@@ -30,7 +30,7 @@ typedef struct _tAi {
 	WORD wBiggestDeltaCurrNode;
 	const struct _tNode *pTargetCurrNode;
 	tAiState eState;
-	tDir eNeighborIdx;
+	tDirection eNeighborIdx;
 } tAi;
 
 void aiCreate(const tMap *pMap);
@@ -39,6 +39,6 @@ void aiDestroy(void);
 
 void aiReset(tAi *pAi);
 
-tDir aiProcess(tAi *pAi);
+tDirection aiProcess(tAi *pAi);
 
 #endif // _GERMZ_AI_H_

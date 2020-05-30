@@ -6,7 +6,7 @@
 #define _GERMZ_PLEP_H_
 
 #include "bob_new.h"
-#include "dir.h"
+#include "direction.h"
 
 //------------------------------------------------------------------------ TYPES
 
@@ -20,7 +20,7 @@ typedef enum _tPlepAnim {
 
 typedef struct _tPlep {
 	UBYTE isActive;
-	tDir eDir;
+	tDirection eDir;
 	UBYTE ubAnimFrame;
 	UBYTE ubAnimTick;
 	tUwCoordYX sAnimAnchor;
@@ -43,7 +43,7 @@ void plepReset(tPlep *pPlep, struct _tPlayer *pPlayer);
 
 void plepProcess(tPlep *pPlep);
 
-void plepSpawn(tPlep *pPlep, WORD wCharges, tDir eDir);
+void plepSpawn(tPlep *pPlep, WORD wCharges, tDirection eDir);
 
 void plepSetMap(const tMap *pMap);
 

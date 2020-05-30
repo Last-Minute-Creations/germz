@@ -36,17 +36,17 @@ static tNode *nodeAdd(UBYTE ubX, UBYTE ubY, tTile eTile) {
 	return pNode;
 }
 
-static tDir dirReverse(tDir eDir) {
+static tDirection dirReverse(tDirection eDir) {
 	return (eDir ^ 1);
 }
 
-static void nodeFindNeighbor(tNode *pNode, tDir eDir) {
-	static const tBCoordYX pDeltas[DIR_COUNT] = {
-		[DIR_UP]    = {.bX =  0, .bY = -1},
-		[DIR_DOWN]  = {.bX =  0, .bY =  1},
-		[DIR_LEFT]  = {.bX = -1, .bY =  0},
-		[DIR_RIGHT] = {.bX =  1, .bY =  0},
-		[DIR_FIRE]  = {.bX =  0, .bY =  0}, // SHOULDN'T HAPPEN!
+static void nodeFindNeighbor(tNode *pNode, tDirection eDir) {
+	static const tBCoordYX pDeltas[DIRECTION_COUNT] = {
+		[DIRECTION_UP]    = {.bX =  0, .bY = -1},
+		[DIRECTION_DOWN]  = {.bX =  0, .bY =  1},
+		[DIRECTION_LEFT]  = {.bX = -1, .bY =  0},
+		[DIRECTION_RIGHT] = {.bX =  1, .bY =  0},
+		[DIRECTION_FIRE]  = {.bX =  0, .bY =  0}, // SHOULDN'T HAPPEN!
 	};
 
 	// Find next blob in line or give up
@@ -77,7 +77,7 @@ static void nodeCalculateNeighbors(void) {
 			"Searching for neighbors for node %p (%hhu,%hhu)\n",
 			&g_sMap.pNodes[i], g_sMap.pNodes[i].ubTileX, g_sMap.pNodes[i].ubTileY
 		);
-		for(tDir eDir = 0; eDir < DIR_FIRE; ++eDir) {
+		for(tDirection eDir = 0; eDir < DIRECTION_FIRE; ++eDir) {
 			if(!g_sMap.pNodes[i].pNeighbors[eDir]) {
 				nodeFindNeighbor(&g_sMap.pNodes[i], eDir);
 			}

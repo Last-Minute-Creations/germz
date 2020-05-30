@@ -6,12 +6,12 @@
 #define _GERMZ_STEER_H_
 
 #include <ace/types.h>
-#include "dir.h"
+#include "direction.h"
 #include "ai.h"
 
 struct _tSteer;
 
-typedef tDir (*tCbSteerProcess)(struct _tSteer *pSteer);
+typedef tDirection (*tCbSteerProcess)(struct _tSteer *pSteer);
 
 typedef enum _tKeymap {
 	KEYMAP_WSAD,
@@ -33,7 +33,7 @@ tSteer steerInitKey(tKeymap eKeymap);
 
 tSteer steerInitAi(UBYTE ubPlayerIdx);
 
-tDir steerProcess(tSteer *pSteer);
+tDirection steerProcess(tSteer *pSteer);
 
 tSteer steerInitIdle(void);
 

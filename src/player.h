@@ -28,7 +28,7 @@ typedef struct _tPlayer {
 	struct _tSteer *pSteer;
 	struct _tNode *pNodeCursor, *pNodePlepSrc;
 	struct _tPlep pPleps[PLEPS_PER_PLAYER];
-	tDir eLastDir;
+	tDirection eLastDir;
 } tPlayer;
 
 void playerCreate(void);

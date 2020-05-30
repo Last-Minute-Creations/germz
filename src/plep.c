@@ -24,10 +24,10 @@ static const BYTE s_pAnimOffsets[] = {
 static const UBYTE s_pAnimFrameStart[PLEP_ANIM_COUNT] = {0, 4, 12, 16};
 static const UBYTE s_pAnimFrameEnd[PLEP_ANIM_COUNT] = {3, 11, 15, 23};
 static const tBCoordYX s_pPlepMoveDelta[4] = {
-	[DIR_UP] = {.bX = 0, .bY = -16},
-	[DIR_DOWN] = {.bX = 0, .bY = 16},
-	[DIR_LEFT] = {.bX = -16, .bY = 0},
-	[DIR_RIGHT] = {.bX = 16, .bY = 0},
+	[DIRECTION_UP] = {.bX = 0, .bY = -16},
+	[DIRECTION_DOWN] = {.bX = 0, .bY = 16},
+	[DIRECTION_LEFT] = {.bX = -16, .bY = 0},
+	[DIRECTION_RIGHT] = {.bX = 16, .bY = 0},
 };
 
 //------------------------------------------------------------------ PRIVATE FNS
@@ -109,14 +109,14 @@ void plepReset(tPlep *pPlep, tPlayer *pPlayer) {
 static void plepUpdateAnimFrame(tPlep *pPlep) {
 	BYTE bDelta = s_pAnimOffsets[pPlep->ubAnimFrame];
 	if(dirIsVertical(pPlep->eDir)) {
-		if(pPlep->eDir == DIR_UP) {
+		if(pPlep->eDir == DIRECTION_UP) {
 			bDelta = -bDelta;
 		}
 		pPlep->sBob.sPos.uwX = pPlep->sAnimAnchor.uwX;
 		pPlep->sBob.sPos.uwY = pPlep->sAnimAnchor.uwY + bDelta;
 	}
 	else {
-		if(pPlep->eDir == DIR_LEFT) {
+		if(pPlep->eDir == DIRECTION_LEFT) {
 			bDelta = -bDelta;
 		}
 		pPlep->sBob.sPos.uwX = pPlep->sAnimAnchor.uwX + bDelta;
@@ -186,7 +186,7 @@ void plepProcess(tPlep *pPlep) {
 	// gameDumpFrame();
 }
 
-void plepSpawn(tPlep *pPlep, WORD wCharges, tDir eDir) {
+void plepSpawn(tPlep *pPlep, WORD wCharges, tDirection eDir) {
 	const tNode *pSrc = pPlep->pPlayer->pNodePlepSrc;
 	pPlep->pDestination = pPlep->pPlayer->pNodeCursor;
 	pPlep->isActive = 1;

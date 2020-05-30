@@ -202,29 +202,29 @@ void gameEditorGsLoop(void) {
 		editorDrawMapTileAt(s_sPlayer.ubX, s_sPlayer.ubY);
 	}
 	else {
-		tDir eDir = steerProcess(pSteer);
+		tDirection eDir = steerProcess(pSteer);
 		switch(eDir) {
-			case DIR_UP:
+			case DIRECTION_UP:
 				if(s_sPlayer.ubY > 0) {
 					--s_sPlayer.ubY;
 				}
 				break;
-			case DIR_DOWN:
+			case DIRECTION_DOWN:
 				if(s_sPlayer.ubY < MAP_SIZE - 1) {
 					++s_sPlayer.ubY;
 				}
 				break;
-			case DIR_LEFT:
+			case DIRECTION_LEFT:
 				if(s_sPlayer.ubX > 0) {
 					--s_sPlayer.ubX;
 				}
 				break;
-			case DIR_RIGHT:
+			case DIRECTION_RIGHT:
 				if(s_sPlayer.ubX < MAP_SIZE - 1) {
 					++s_sPlayer.ubX;
 				}
 				break;
-			case DIR_FIRE: {
+			case DIRECTION_FIRE: {
 				tTile eTile = s_pMenuTiles[s_sPlayer.ubPaletteOption];
 				g_sMapData.pTiles[s_sPlayer.ubX][s_sPlayer.ubY] = eTile;
 				s_ubTileDrawCount = 2;
@@ -233,7 +233,6 @@ void gameEditorGsLoop(void) {
 				break;
 		}
 	}
-	logWrite("d\n");
 
 	// Now that all manual blits are done draw bobs
 	if(ubFnBtnPressed != s_ubFnBtnCount) {

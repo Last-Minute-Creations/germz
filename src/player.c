@@ -24,9 +24,9 @@ static void playerSetCursorPos(tPlayer *pPlayer, tNode *pNode) {
 }
 
 static void playerTryMoveSelectionFromInDir(
-	tPlayer *pPlayer, tNode *pNode, tDir eDir
+	tPlayer *pPlayer, tNode *pNode, tDirection eDir
 ) {
-	if(eDir != DIR_COUNT && pNode->pNeighbors[eDir]) {
+	if(eDir != DIRECTION_COUNT && pNode->pNeighbors[eDir]) {
 		playerSetCursorPos(pPlayer, pNode->pNeighbors[eDir]);
 		pPlayer->eLastDir = eDir;
 	}
@@ -36,7 +36,7 @@ static void playerSpawnPlep(tPlayer *pPlayer) {
 	// TODO: store last index, add starting from it
 	WORD wPlepCharges = pPlayer->pNodePlepSrc->wCharges / 2;
 	if(
-		!wPlepCharges || pPlayer->eLastDir >= DIR_FIRE ||
+		!wPlepCharges || pPlayer->eLastDir >= DIRECTION_FIRE ||
 		!pPlayer->pNodePlepSrc->pNeighbors[pPlayer->eLastDir]
 	) {
 		return;
@@ -45,7 +45,7 @@ static void playerSpawnPlep(tPlayer *pPlayer) {
 		tPlep *pPlep = &pPlayer->pPleps[i];
 		if(!pPlep->isActive && pPlayer->pNodePlepSrc->pPlayer == pPlayer) {
 			plepSpawn(pPlep, wPlepCharges, pPlayer->eLastDir);
-			pPlayer->eLastDir = DIR_COUNT;
+			pPlayer->eLastDir = DIRECTION_COUNT;
 			pPlayer->pNodePlepSrc->wCharges -= wPlepCharges;
 			logWrite(
 				"Spawned plep %hhu on player %d: blob %hhu,%hhu -> %hhu,%hhu\n",
@@ -85,7 +85,7 @@ void playerReset(tPlayerIdx eIdx, tNode *pStartNode) {
 	pPlayer->pSteer = gameGetSteerForPlayer(eIdx);
 	pPlayer->isDead = 0;
 	pPlayer->bNodeCount = 0;
-	pPlayer->eLastDir = DIR_COUNT;
+	pPlayer->eLastDir = DIRECTION_COUNT;
 
 	for(UBYTE ubPlep = 0; ubPlep < PLEPS_PER_PLAYER; ++ubPlep) {
 		plepInitBob(&pPlayer->pPleps[ubPlep]);
@@ -129,9 +129,9 @@ UBYTE playerProcess(void) {
 			continue;
 		}
 		++ubAliveCount;
-		tDir eDir = steerProcess(pPlayer->pSteer);
+		tDirection eDir = steerProcess(pPlayer->pSteer);
 		if(pPlayer->isSelectingDestination) {
-			if(eDir == DIR_FIRE) {
+			if(eDir == DIRECTION_FIRE) {
 				playerSpawnPlep(pPlayer);
 				playerSetCursorPos(pPlayer, pPlayer->pNodePlepSrc);
 				pPlayer->isSelectingDestination = 0;
@@ -141,7 +141,7 @@ UBYTE playerProcess(void) {
 			}
 		}
 		else {
-			if(eDir == DIR_FIRE) {
+			if(eDir == DIRECTION_FIRE) {
 				if(pPlayer->pNodeCursor->pPlayer == pPlayer) {
 					pPlayer->pNodePlepSrc = pPlayer->pNodeCursor;
 					pPlayer->isSelectingDestination = 1;

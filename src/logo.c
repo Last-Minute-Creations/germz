@@ -15,14 +15,6 @@
 #define STATE_FADE_OUT 1
 #define STATE_WAIT 2
 
-#define RGB(r,g,b) ((((r) >> 4) << 8) | (((g) >> 4) << 4) | (((b) >> 4) << 0))
-
-typedef enum _tLanguage {
-	LANGUAGE_EN,
-	LANGUAGE_PL,
-	LANGUAGE_COUNT
-} tLanguage;
-
 typedef void (*tCbLogo)(void);
 typedef UBYTE (*tCbFadeOut)(void);
 

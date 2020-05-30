@@ -28,7 +28,7 @@ static void aiTransitToPlanning(tAi *pAi) {
 	pAi->wBiggestDeltaCurrNode = pAi->wBiggestDelta;
 }
 
-static tDir aiProcessPlanningAggressive(tAi *pAi) {
+static tDirection aiProcessPlanningAggressive(tAi *pAi) {
 	const tPlayer *pPlayer = playerFromIdx(pAi->ubPlayerIdx);
 	// Get next owned blob
 	const tNode *pNode = &s_pMap->pNodes[pAi->uwCurrNode];
@@ -82,10 +82,10 @@ static tDir aiProcessPlanningAggressive(tAi *pAi) {
 			}
 		}
 	}
-	return DIR_COUNT;
+	return DIRECTION_COUNT;
 }
 
-static tDir aiProcessPlanningDefensive(tAi *pAi) {
+static tDirection aiProcessPlanningDefensive(tAi *pAi) {
 	const tPlayer *pPlayer = playerFromIdx(pAi->ubPlayerIdx);
 	// Get next owned blob
 	const tNode *pNode = &s_pMap->pNodes[pAi->uwCurrNode];
@@ -157,10 +157,10 @@ static tDir aiProcessPlanningDefensive(tAi *pAi) {
 			}
 		}
 	}
-	return DIR_COUNT;
+	return DIRECTION_COUNT;
 }
 
-static tDir aiProcessRouting(tAi *pAi) {
+static tDirection aiProcessRouting(tAi *pAi) {
 	if(pAi->isAstarStarted) {
 		if(astarProcess(s_pAstar[pAi->ubPlayerIdx])) {
 			// logWrite(
@@ -184,10 +184,10 @@ static tDir aiProcessRouting(tAi *pAi) {
 		astarStart(s_pAstar[pAi->ubPlayerIdx], pPlayer->pNodeCursor, pAi->pTargetSrc);
 		pAi->isAstarStarted = 1;
 	}
-	return DIR_COUNT;
+	return DIRECTION_COUNT;
 }
 
-static tDir aiProcessGettingToSourceBlob(tAi *pAi) {
+static tDirection aiProcessGettingToSourceBlob(tAi *pAi) {
 	const tPlayer *pPlayer = playerFromIdx(pAi->ubPlayerIdx);
 	tAstarData *pNav = s_pAstar[pAi->ubPlayerIdx];
 
@@ -200,7 +200,7 @@ static tDir aiProcessGettingToSourceBlob(tAi *pAi) {
 				// logWrite("We're at source, fire!\n");
 				pAi->eNeighborIdx = 0;
 				pAi->eState = AI_STATE_TARGETING_TARGET;
-				return DIR_FIRE;
+				return DIRECTION_FIRE;
 			}
 			else {
 				// It's no longer ours - start again
@@ -225,7 +225,7 @@ static tDir aiProcessGettingToSourceBlob(tAi *pAi) {
 			// logWrite("Skipping movement\n");
 		}
 		else {
-			for(tDir i = 0; i < 4; ++i) {
+			for(tDirection i = 0; i < 4; ++i) {
 				if(pPlayer->pNodeCursor->pNeighbors[i] == pNode) {
 					--pNav->sRoute.bCurrNode;
 					// logWrite("Moving in dir %d\n", i);
@@ -237,10 +237,10 @@ static tDir aiProcessGettingToSourceBlob(tAi *pAi) {
 			// Go to source node by pushing buttons
 		}
 	}
-	return DIR_COUNT;
+	return DIRECTION_COUNT;
 }
 
-static tDir aiProcessTargetingTarget(tAi *pAi) {
+static tDirection aiProcessTargetingTarget(tAi *pAi) {
 	// we've pressed fire button on source and now we'll attack weakest neighbor
 	if(pAi->pTargetSrc->pNeighbors[pAi->eNeighborIdx] == pAi->pTarget) {
 		// That's our neighbor
@@ -263,16 +263,16 @@ static tDir aiProcessTargetingTarget(tAi *pAi) {
 			aiTransitToPlanning(pAi);
 		}
 	}
-	return DIR_COUNT;
+	return DIRECTION_COUNT;
 }
 
-static tDir aiProcessConfirmingTarget(tAi *pAi) {
+static tDirection aiProcessConfirmingTarget(tAi *pAi) {
 	// FIRE!
 	aiTransitToPlanning(pAi);
-	return DIR_FIRE;
+	return DIRECTION_FIRE;
 }
 
-tDir aiProcess(tAi *pAi) {
+tDirection aiProcess(tAi *pAi) {
 	switch(pAi->eState) {
 		case AI_STATE_PLANNING_AGGRESIVE:
 			return aiProcessPlanningAggressive(pAi);
@@ -287,7 +287,7 @@ tDir aiProcess(tAi *pAi) {
 		case AI_STATE_CONFIRMING_TARGET:
 			return aiProcessConfirmingTarget(pAi);
 	}
-	return DIR_COUNT;
+	return DIRECTION_COUNT;
 }
 
 void aiCreate(const tMap *pMap) {
