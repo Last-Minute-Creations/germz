@@ -4,103 +4,34 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "bebbo cmake debug",
+			"label": "debug on",
 			"type": "shell",
 			"command": "cmake",
 			"group": "build",
 			"args": [
 				"..",
-				"-DCMAKE_TOOLCHAIN_FILE=c:/prg/_git/AmigaCMakeCrossToolchains/m68k-amigaos.cmake",
-				"-DTOOLCHAIN_PATH=c:/prg/kompilatory/bebbo/",
-				"-DM68K_CPU=68000",
-				"-DM68K_FPU=soft",
-				"-DM68K_CRT=nix13",
-				"-DTOOLCHAIN_PREFIX=m68k-amigaos",
-				"-G\"Unix Makefiles\"",
-				"-DCMAKE_BUILD_TYPE=Release",
 				"-DACE_DEBUG=ON",
-				"-DGAME_DEBUG=ON",
-				"-DCMAKE_EXPORT_COMPILE_COMMANDS=1",
+				"-DGAME_DEBUG=ON"
 			],
 			"options": {
-				"cwd": "C:\\prg\\_git\\germz\\build",
-				"env": {
-					"PATH": "c:/prg/kompilatory/bebbo/bin;c:/prg/kompilatory/cygwin/bin;C:/Program Files/CMake/bin"
-				}
-			},
-			"problemMatcher": [],
-			"dependsOn": "cmake_del"
-		},
-		{
-			"label": "bebbo cmake release",
-			"type": "shell",
-			"command": "cmake",
-			"group": "build",
-			"args": [
-				"..",
-				"-DCMAKE_TOOLCHAIN_FILE=c:/prg/_git/AmigaCMakeCrossToolchains/m68k-amigaos.cmake",
-				"-DM68K_TOOLCHAIN_PATH=c:/prg/kompilatory/bebbo/",
-				"-DM68K_CPU=68000",
-				"-DM68K_FPU=soft",
-				"-DM68K_CRT=nix13",
-				"-DTOOLCHAIN_PREFIX=m68k-amigaos",
-				"-G\"Unix Makefiles\"",
-				"-DCMAKE_BUILD_TYPE=Release",
-				"-DACE_DEBUG=OFF",
-				"-DGAME_DEBUG=OFF",
-				"-DCMAKE_EXPORT_COMPILE_COMMANDS=1"
-			],
-			"options": {
-				"cwd": "C:\\prg\\_git\\germz\\build",
-				"env": {
-					"PATH": "c:/prg/kompilatory/bebbo/bin;c:/prg/kompilatory/cygwin/bin;C:/Program Files/CMake/bin"
-				}
-			},
-			"problemMatcher": [],
-			"dependsOn": "cmake_del"
-		},
-		{
-			"label": "bebbo cmake delete",
-			"type": "shell",
-			"command": "del",
-			"group": "build",
-			"args": [
-				"CMakeCache.txt",
-			],
-			"options": {
-				"cwd": "C:\\prg\\_git\\germz\\build",
-				"env": {
-					"PATH": "c:/prg/kompilatory/bebbo/bin;c:/prg/kompilatory/cygwin/bin;C:/Program Files/CMake/bin"
-				}
+				"cwd": "${workspaceFolder}/build"
 			},
 			"problemMatcher": []
 		},
 		{
-			"label": "make",
-			"problemMatcher": "$gcc",
+			"label": "debug off",
+			"type": "shell",
+			"command": "cmake",
 			"group": "build",
-			"command": "make",
-			"options": {
-				"cwd": "C:\\prg\\_git\\germz\\build",
-				"env": {
-					"PATH": "c:/prg/kompilatory/bebbo/bin;c:/prg/kompilatory/cygwin/bin;C:/Program Files/CMake/bin;C:/prg/kompilatory/mingw-w64/i686-7.3.0-posix-dwarf-rt_v5-rev0/bin/"
-				}
-			}
-		},
-		{
-			"label": "make clean",
-			"problemMatcher": "$gcc",
-			"group": "build",
-			"command": "make",
 			"args": [
-				"clean"
+				"..",
+				"-DACE_DEBUG=OFF",
+				"-DGAME_DEBUG=OFF"
 			],
 			"options": {
-				"cwd": "C:\\prg\\_git\\germz\\build",
-				"env": {
-					"PATH": "c:/prg/kompilatory/bebbo/bin;c:/prg/kompilatory/cygwin/bin;C:/Program Files/CMake/bin"
-				}
-			}
+				"cwd": "${workspaceFolder}/build"
+			},
+			"problemMatcher": []
 		},
 		{
 			"label": "release",
