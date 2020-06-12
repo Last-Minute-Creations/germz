@@ -1,6 +1,20 @@
 {
 	"configurations": [
 		{
+			"name": "Amiga",
+			"includePath": [
+				"${workspaceFolder}/**"
+			],
+			"defines": [
+				"__GNUC__=8",
+				"_NO_INLINE"
+			],
+			"compilerPath": "${default}",
+			"cStandard": "c11",
+			"cppStandard": "c++17",
+			"intelliSenseMode": "gcc-x64"
+		},
+		{
 			"name": "Win32",
 			"includePath": [
 				"${workspaceFolder}/src",
@@ -16,7 +30,6 @@
 				"ACE_DEBUG_UAE",
 				"__CODE_CHECKER__"
 			],
-			"compilerPath": "C:\\\\prg\\\\kompilatory\\\\mingw-w64\\\\i686-7.3.0-posix-dwarf-rt_v5-rev0\\\\bin\\\\gcc.exe",
 			"cStandard": "c11",
 			"cppStandard": "c++17",
 			"intelliSenseMode": "clang-x64",

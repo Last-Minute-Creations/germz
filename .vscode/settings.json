@@ -2,5 +2,6 @@
 	"files.associations": {
 		"game_summary.h": "c",
 		"game_init.h": "c"
-	}
+	},
+	"C_Cpp.default.compilerPath": "c:\\Users\\tehKa\\.vscode\\extensions\\bartmanabyss.amiga-debug-1.0.0\\bin\\opt\\bin\\m68k-amiga-elf-gcc.exe"
 }

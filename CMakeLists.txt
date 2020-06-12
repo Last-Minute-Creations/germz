@@ -10,13 +10,30 @@ add_subdirectory(deps/ace ace)
 
 set(CMAKE_C_STANDARD 11)
 file(GLOB_RECURSE SOURCES src/*.c src/*.h)
-add_executable(germz ${SOURCES})
-target_include_directories(germz PRIVATE ${PROJECT_SOURCE_DIR}/src)
-target_compile_options(germz PUBLIC -Wall -Wextra)
-target_link_libraries(germz ace)
+
+if(ELF2HUNK)
+	set(GERMZ_EXECUTABLE germz.elf)
+	add_executable(${GERMZ_EXECUTABLE} ${SOURCES})
+	target_link_libraries(${GERMZ_EXECUTABLE} -Wl,-Map=germz.map)
+	add_custom_command(
+		TARGET ${GERMZ_EXECUTABLE} POST_BUILD
+		COMMAND ${ELF2HUNK} ${GERMZ_EXECUTABLE} germz.exe
+	)
+	add_custom_command(
+		TARGET ${GERMZ_EXECUTABLE} POST_BUILD
+		COMMAND ${OBJDUMP} --disassemble -S ${GERMZ_EXECUTABLE} > germz.s
+	)
+else()
+	SET(GERMZ_EXECUTABLE germz)
+	add_executable(${GERMZ_EXECUTABLE} ${SOURCES})
+endif()
+
+target_include_directories(${GERMZ_EXECUTABLE} PRIVATE ${PROJECT_SOURCE_DIR}/src)
+target_compile_options(${GERMZ_EXECUTABLE} PUBLIC -Wall)
+target_link_libraries(${GERMZ_EXECUTABLE} ace)
 if(GAME_DEBUG)
-	target_compile_definitions(germz PRIVATE GAME_DEBUG)
-	target_compile_definitions(ace PUBLIC ACE_DEBUG_UAE)
+	target_compile_definitions(${GERMZ_EXECUTABLE} PRIVATE GAME_DEBUG)
+	target_compile_definitions(ace PUBLIC ACE_DEBUG ACE_DEBUG_UAE)
 endif()
 
 set(RES_DIR ${CMAKE_CURRENT_LIST_DIR}/res)
@@ -38,10 +55,10 @@ file(
 # Palette
 set(PLT_PATH ${DATA_DIR}/germz.plt)
 set(TRANSPARENCY_HEX "#000000")
-convertPalette(germz ${RES_DIR}/germz.gpl ${PLT_PATH})
+convertPalette(${GERMZ_EXECUTABLE} ${RES_DIR}/germz.gpl ${PLT_PATH})
 
 # Extract smaller gfx from bigger gfx sheet
-extractBitmaps(TARGET germz SOURCE 	${RES_DIR}/gfx.png
+extractBitmaps(TARGET ${GERMZ_EXECUTABLE} SOURCE 	${RES_DIR}/gfx.png
 	DESTINATIONS
 		${GEN_DIR}/cursors/0.png  96   0 16 16
 		${GEN_DIR}/cursors/1.png 112   0 16 16
@@ -116,7 +133,7 @@ extractBitmaps(TARGET germz SOURCE 	${RES_DIR}/gfx.png
 		${GEN_DIR}/links/12.png 128 0 16 16
 )
 
-extractBitmaps(TARGET germz SOURCE 	${RES_DIR}/editor_gfx.png
+extractBitmaps(TARGET ${GERMZ_EXECUTABLE} SOURCE 	${RES_DIR}/editor_gfx.png
 	DESTINATIONS
 		${GEN_DIR}/btn_small/0.png 64   0 16 10
 		${GEN_DIR}/btn_small/1.png 64  10 16 10
@@ -151,7 +168,7 @@ foreach(player RANGE 3)
 	MATH(EXPR offsMove "128 + ${player} * 16")
 	MATH(EXPR offsWin "192 + ${player} * 16")
 	MATH(EXPR offsLose "256 + ${player} * 16")
-	extractBitmaps(TARGET germz SOURCE ${RES_DIR}/plep.png
+	extractBitmaps(TARGET ${GERMZ_EXECUTABLE} SOURCE ${RES_DIR}/plep.png
 		DESTINATIONS
 			# Born
 			${GEN_DIR}/plep${player}_right/0.png  6 ${offsBorn} 16 16
@@ -186,17 +203,17 @@ foreach(player RANGE 3)
 	foreach(i RANGE 23)
 		# Left plep anim = right plep anim mirrored Y
 		transformBitmap(
-			TARGET germz SOURCE ${GEN_DIR}/plep${player}_right/${i}.png
+			TARGET ${GERMZ_EXECUTABLE} SOURCE ${GEN_DIR}/plep${player}_right/${i}.png
 			DESTINATION ${GEN_DIR}/plep${player}_left/${i}.png TRANSFORM -mirror y
 		)
 		# Up plep anim = right plep anim rotated by 90deg
 		transformBitmap(
-			TARGET germz SOURCE ${GEN_DIR}/plep${player}_right/${i}.png
+			TARGET ${GERMZ_EXECUTABLE} SOURCE ${GEN_DIR}/plep${player}_right/${i}.png
 			DESTINATION ${GEN_DIR}/plep${player}_up/${i}.png TRANSFORM -rotate -90 ${TRANSPARENCY_HEX}
 		)
 		# Down plep anim = up plep anim mirrored X
 		transformBitmap(
-			TARGET germz SOURCE ${GEN_DIR}/plep${player}_up/${i}.png
+			TARGET ${GERMZ_EXECUTABLE} SOURCE ${GEN_DIR}/plep${player}_up/${i}.png
 			DESTINATION ${GEN_DIR}/plep${player}_down/${i}.png TRANSFORM -mirror x
 		)
 	endforeach()
@@ -205,43 +222,43 @@ endforeach()
 
 # Group small gfx into bigger tile sheets
 convertTileset(
-	TARGET germz SIZE 16
+	TARGET ${GERMZ_EXECUTABLE} SIZE 16
 	SOURCE ${GEN_DIR}/cursors DESTINATION ${GEN_DIR}/cursors.png
 	TILES 0.png 1.png 2.png 3.png
 )
 foreach(i RANGE 4)
 	convertTileset(
-		TARGET germz SIZE 16
+		TARGET ${GERMZ_EXECUTABLE} SIZE 16
 		SOURCE ${GEN_DIR}/blob${i} DESTINATION ${GEN_DIR}/blob${i}.png
 		TILES 0.png 1.png 2.png 3.png 4.png 5.png 6.png 7.png 8.png
 	)
 endforeach()
 convertTileset(
-	TARGET germz SIZE 16
+	TARGET ${GERMZ_EXECUTABLE} SIZE 16
 	SOURCE ${GEN_DIR}/links DESTINATION ${GEN_DIR}/links.png
 	TILES 0.png 1.png 2.png 3.png 4.png 5.png 6.png 7.png 8.png 9.png 10.png 11.png 12.png
 )
 convertTileset(
-	TARGET germz SIZE 16 HEIGHT 10 TILES 0.png 1.png 2.png 3.png 4.png 5.png 6.png 7.png
+	TARGET ${GERMZ_EXECUTABLE} SIZE 16 HEIGHT 10 TILES 0.png 1.png 2.png 3.png 4.png 5.png 6.png 7.png
 	SOURCE ${GEN_DIR}/btn_small DESTINATION ${GEN_DIR}/btn_small.png
 )
 convertTileset(
-	TARGET germz SIZE 32 HEIGHT 10 TILES 0.png 1.png 2.png 3.png 4.png 5.png
+	TARGET ${GERMZ_EXECUTABLE} SIZE 32 HEIGHT 10 TILES 0.png 1.png 2.png 3.png 4.png 5.png
 	SOURCE ${GEN_DIR}/btn_big DESTINATION ${GEN_DIR}/btn_big.png
 )
 convertTileset(
-	TARGET germz SIZE 32 HEIGHT 10 TILES 0.png 1.png 2.png 3.png 4.png
+	TARGET ${GERMZ_EXECUTABLE} SIZE 32 HEIGHT 10 TILES 0.png 1.png 2.png 3.png 4.png
 	SOURCE ${GEN_DIR}/led_big DESTINATION ${GEN_DIR}/led_big.png
 )
 convertTileset(
-	TARGET germz SIZE 64 TILES 0.png 1.png
+	TARGET ${GERMZ_EXECUTABLE} SIZE 64 TILES 0.png 1.png
 	SOURCE ${GEN_DIR}/game_bg DESTINATION ${GEN_DIR}/game_bg.png
 )
 set(DIRS "up;down;left;right")
 foreach(player RANGE 3)
 	foreach(dir ${DIRS})
 		convertTileset(
-			TARGET germz SIZE 16
+			TARGET ${GERMZ_EXECUTABLE} SIZE 16
 			SOURCE ${GEN_DIR}/plep${player}_${dir} DESTINATION ${GEN_DIR}/plep${player}_${dir}.png
 			TILES
 				0.png 1.png 2.png 3.png 4.png 5.png 6.png 7.png 8.png 9.png
@@ -253,7 +270,7 @@ endforeach()
 
 # Convert to .bm
 convertBitmaps(
-	TARGET germz PALETTE ${PLT_PATH} MASK_COLOR ${TRANSPARENCY_HEX}
+	TARGET ${GERMZ_EXECUTABLE} PALETTE ${PLT_PATH} MASK_COLOR ${TRANSPARENCY_HEX}
 	INTERLEAVED SOURCES
 		${GEN_DIR}/cursors.png ${GEN_DIR}/blob0.png
 		${GEN_DIR}/plep0_right.png ${GEN_DIR}/plep0_left.png
@@ -278,7 +295,7 @@ convertBitmaps(
 )
 
 convertBitmaps(
-	TARGET germz PALETTE ${PLT_PATH}
+	TARGET ${GERMZ_EXECUTABLE} PALETTE ${PLT_PATH}
 	INTERLEAVED SOURCES
 		${GEN_DIR}/blob1.png ${GEN_DIR}/blob2.png ${GEN_DIR}/blob3.png
 		${GEN_DIR}/blob4.png ${GEN_DIR}/game_hud.png
