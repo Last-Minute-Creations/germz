@@ -95,10 +95,10 @@ void mapInitFromMapData(void) {
 			tTile eTile = g_sMapData.pTiles[x][y];
 			if(tileIsNode(eTile)) {
 				tNode *pNode = nodeAdd(x, y, eTile);
-				if(eTile >= TILE_BLOB_P1) {
-					UBYTE ubPlayerIdx = eTile - TILE_BLOB_P1;
-					g_sMap.pPlayerStartNodes[ubPlayerIdx] = pNode;
-					logWrite("Player %hhu start: %hhu,%hhu\n", ubPlayerIdx, pNode->ubTileX, pNode->ubTileY);
+				tPlayerIdx ePlayerIdx = playerToIdx(playerFromTile(eTile));
+				if(ePlayerIdx != PLAYER_NONE) {
+					g_sMap.pPlayerStartNodes[ePlayerIdx] = pNode;
+					logWrite("Player %d start: %hhu,%hhu\n", ePlayerIdx, pNode->ubTileX, pNode->ubTileY);
 				}
 			}
 		}

@@ -21,7 +21,7 @@ void heapPush(tHeap *pHeap, const void *pData, UWORD uwPriority) {
 
 	if(pHeap->uwCount > pHeap->uwMaxEntries) {
 		logWrite(
-			"ERR: too much entries: %hu > %hu\n", pHeap->uwCount, pHeap->uwMaxEntries
+			"ERR: too many entries: %hu > %hu\n", pHeap->uwCount, pHeap->uwMaxEntries
 		);
 	}
 
