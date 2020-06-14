@@ -33,11 +33,6 @@ UBYTE gamePreprocess(void);
 
 void gamePostprocess(void);
 
-/**
- * @brief
- *
- * @param ubPlayer 0: P1
- */
 tSteer *gameGetSteerForPlayer(UBYTE ubPlayer);
 
 void gameDrawBlobAt(tTile eTile, UBYTE ubFrame, UWORD uwX, UWORD uwY);
