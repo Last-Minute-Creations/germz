@@ -6,7 +6,7 @@
 #include <ace/managers/game.h>
 #include <ace/managers/system.h>
 #include "game_assets.h"
-#include "game_dialog.h"
+#include "dialog_load.h"
 #include "game.h"
 #include "game_init.h"
 #include "blob_anim.h"
@@ -123,17 +123,16 @@ static void onTest(void) {
 }
 
 static void onLoad(void) {
-	// TODO: Load
-	dialogShow(DIALOG_LOAD);
+	dialogLoadShow();
 }
 
 static void onSave(void) {
 	// TODO: Save
-	dialogShow(DIALOG_SAVE);
+	// dialogShow(DIALOG_SAVE);
 }
 
 static void onQuit(void) {
-	dialogShow(DIALOG_QUIT);
+	// dialogShow(DIALOG_QUIT);
 }
 
 static const tCbFn s_pFnCallbacks[] = {
@@ -143,7 +142,8 @@ static const UBYTE s_ubFnBtnCount = sizeof(s_pFnCallbacks) / sizeof(s_pFnCallbac
 
 void gameEditorGsLoop(void) {
 	if(keyUse(KEY_ESCAPE)) {
-		dialogShow(DIALOG_QUIT);
+		// dialogShow(DIALOG_QUIT);
+		dialogLoadShow();
 		return;
 	}
 

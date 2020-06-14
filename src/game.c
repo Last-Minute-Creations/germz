@@ -184,6 +184,10 @@ tBitMap *gameGetBackBuffer(void) {
 	return s_pBfr->pBack;
 }
 
+tBitMap *gameGetFrontBuffer(void) {
+	return s_pBfr->pFront;
+}
+
 tSteer *gameGetSteerForPlayer(UBYTE ubPlayer) {
 	return &s_pSteers[ubPlayer];
 }

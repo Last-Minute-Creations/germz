@@ -2,15 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _GERMZ_GAME_DIALOG_H_
-#define _GERMZ_GAME_DIALOG_H_
+#ifndef _GERMZ_DIALOG_LOAD_H_
+#define _GERMZ_DIALOG_LOAD_H_
 
-typedef enum _tDialog {
-	DIALOG_SAVE,
-	DIALOG_LOAD,
-	DIALOG_QUIT,
-} tDialog;
+void dialogLoadShow(void);
 
-void dialogShow(tDialog eDialog);
-
-#endif // _GERMZ_GAME_DIALOG_H_
+#endif // _GERMZ_DIALOG_LOAD_H_

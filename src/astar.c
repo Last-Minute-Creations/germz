@@ -8,7 +8,7 @@
 
 tAstarData *astarCreate(void) {
 	tAstarData *pNav = memAllocFast(sizeof(tAstarData));
-	pNav->pFrontier = heapCreate(MAP_NODES_MAX * MAP_NODES_MAX);
+	pNav->pFrontier = heapCreate(MAP_NODES_MAX);
 	pNav->ubState = ASTAR_STATE_OFF;
 	return pNav;
 }

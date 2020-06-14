@@ -19,6 +19,8 @@ void gameCopyBackToFront(void);
 
 tBitMap *gameGetBackBuffer(void);
 
+tBitMap *gameGetFrontBuffer(void);
+
 void gameInitMap(void);
 
 //------------------------------------------------------------------------ UTILS
