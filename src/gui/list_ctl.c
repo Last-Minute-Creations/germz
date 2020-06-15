@@ -202,3 +202,7 @@ void listCtlSelectNext(tListCtl *pCtl) {
 void listCtlSortEntries(tListCtl *pCtl) {
 	// qsort(pCtl->pEntries, pCtl->uwEntryCnt, sizeof(pCtl->pEntries[0]), onSortAsc);
 }
+
+const char *listCtlGetSelection(const tListCtl *pCtl) {
+	return pCtl->pEntries[pCtl->uwEntrySel];
+}

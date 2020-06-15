@@ -18,9 +18,16 @@ typedef struct _tEditorPlayer {
 	UBYTE ubPaletteOption;
 } tEditorPlayer;
 
+typedef enum _tDialogResult {
+	DIALOG_RESULT_NONE,
+	DIALOG_RESULT_RELOAD_MAP,
+	DIALOG_RESULT_EXIT,
+} tDialogResult;
+
 typedef void (*tCbFn)(void);
 
-tEditorPlayer s_sPlayer;
+static tEditorPlayer s_sPlayer;
+static tDialogResult s_eDialogResult;
 
 static tTile s_pMenuTiles[] = {TILE_BLOB_P1, TILE_PATH_X1, TILE_BLANK};
 static const UBYTE s_ubMenuPosCount = sizeof(s_pMenuTiles) / sizeof(s_pMenuTiles[0]);
@@ -104,6 +111,7 @@ void gameEditorGsCreate(void) {
 	s_sPlayer.ubPaletteOption = 0;
 	s_sPlayer.ubX = 0;
 	s_sPlayer.ubY = 0;
+	s_eDialogResult = DIALOG_RESULT_NONE;
 	editorInitialDraw();
 }
 
@@ -124,6 +132,7 @@ static void onTest(void) {
 
 static void onLoad(void) {
 	dialogLoadShow();
+	s_eDialogResult = DIALOG_RESULT_RELOAD_MAP;
 }
 
 static void onSave(void) {
@@ -143,7 +152,15 @@ static const UBYTE s_ubFnBtnCount = sizeof(s_pFnCallbacks) / sizeof(s_pFnCallbac
 void gameEditorGsLoop(void) {
 	if(keyUse(KEY_ESCAPE)) {
 		// dialogShow(DIALOG_QUIT);
-		dialogLoadShow();
+		gamePopState();
+		return;
+	}
+
+	if(s_eDialogResult != DIALOG_RESULT_NONE) {
+		if(s_eDialogResult == DIALOG_RESULT_RELOAD_MAP) {
+			editorInitialDraw();
+		}
+		s_eDialogResult = DIALOG_RESULT_NONE;
 		return;
 	}
 

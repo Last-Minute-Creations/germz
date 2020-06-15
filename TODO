@@ -24,7 +24,7 @@ Done:
 
 Now:
 	☐ Map save/load to/from file
-		☐ List only .json files
+		✔ List only .json files @done(20-06-15 19:52)
 		☐ Remember last saved/load file name and use it for default selection
 		☐ Ask for overwrite
 		☐ Ask for saving unsaved progress

@@ -51,4 +51,6 @@ void listCtlSelectNext(tListCtl *pCtl);
 
 void listCtlSortEntries(tListCtl *pCtl);
 
+const char *listCtlGetSelection(const tListCtl *pCtl);
+
 #endif // _GUI_LIST_CTL_H_
