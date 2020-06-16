@@ -12,6 +12,7 @@ typedef struct _tGuiConfig {
 	UBYTE ubColorDark;
 	UBYTE ubColorFill;
 	UBYTE ubColorText;
+	// TODO move font here instead of params
 } tGuiConfig;
 
 tGuiConfig *guiGetConfig(void);

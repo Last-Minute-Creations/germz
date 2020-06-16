@@ -5,6 +5,7 @@
 #include "list_ctl.h"
 #include "config.h"
 #include "button.h"
+#include "border.h"
 #include <ace/managers/log.h>
 #include <ace/macros.h>
 
@@ -138,26 +139,13 @@ void listCtlRemoveEntry(tListCtl *pCtl, UWORD uwIdx) {
 }
 
 void listCtlDraw(tListCtl *pCtl) {
-	tGuiConfig *pCfg = guiGetConfig();
-	// Draw border
-	blitRect(
+	guiDraw3dBorder(
 		pCtl->pBfr, pCtl->sRect.uwX, pCtl->sRect.uwY,
-		pCtl->sRect.uwWidth, 1, pCfg->ubColorLight
-	);
-	blitRect(
-		pCtl->pBfr, pCtl->sRect.uwX, pCtl->sRect.uwY,
-		1, pCtl->sRect.uwHeight, pCfg->ubColorLight
-	);
-	blitRect(
-		pCtl->pBfr, pCtl->sRect.uwX + 1, pCtl->sRect.uwY + pCtl->sRect.uwHeight-1,
-		pCtl->sRect.uwWidth - 1, 1, pCfg->ubColorDark
-	);
-	blitRect(
-		pCtl->pBfr, pCtl->sRect.uwX + pCtl->sRect.uwWidth - 1, pCtl->sRect.uwY + 1,
-		1, pCtl->sRect.uwHeight - 1, pCfg->ubColorDark
+		pCtl->sRect.uwWidth, pCtl->sRect.uwHeight
 	);
 
 	// Draw scroll bar
+	tGuiConfig *pCfg = guiGetConfig();
 	blitRect(
 		pCtl->pBfr,
 		pCtl->sRect.uwX + pCtl->sRect.uwWidth - LISTCTL_BTN_WIDTH - 2,

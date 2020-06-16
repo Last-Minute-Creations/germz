@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "button.h"
+#include "border.h"
 #include "config.h"
 #include <ace/managers/log.h>
 
@@ -82,32 +83,14 @@ static void buttonDraw(tButton *pButton) {
 	tUwRect *pRect = &pButton->sRect;
 	const tGuiConfig *pConfig = guiGetConfig();
 
-	const UBYTE ubRidgeSize = 1;
-
 	// Fill
 	blitRect(
 		s_pBfr, pRect->uwX, pRect->uwY,
 		pRect->uwWidth, pRect->uwHeight, pConfig->ubColorFill
 	);
 
-	// Ridge
-	blitRect(
-		s_pBfr, pRect->uwX, pRect->uwY, pRect->uwWidth, ubRidgeSize,
-		pConfig->ubColorLight
-	);
-	blitRect(
-		s_pBfr, pRect->uwX, pRect->uwY, ubRidgeSize, pRect->uwHeight,
-		pConfig->ubColorLight
-	);
-
-	// Grove
-	blitRect(
-		s_pBfr, pRect->uwX + ubRidgeSize, pRect->uwY + pRect->uwHeight - 1,
-		pRect->uwWidth - ubRidgeSize, 1, pConfig->ubColorDark
-	);
-	blitRect(
-		s_pBfr, pRect->uwX + pRect->uwWidth - 1, pRect->uwY + ubRidgeSize,
-		1, pRect->uwHeight - ubRidgeSize, pConfig->ubColorDark
+	guiDraw3dBorder(
+		s_pBfr, pRect->uwX, pRect->uwY, pRect->uwWidth, pRect->uwHeight
 	);
 
 	// Text

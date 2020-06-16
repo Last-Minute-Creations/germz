@@ -7,6 +7,7 @@
 #include <ace/managers/system.h>
 #include "game_assets.h"
 #include "dialog_load.h"
+#include "dialog_save.h"
 #include "game.h"
 #include "game_init.h"
 #include "blob_anim.h"
@@ -138,6 +139,7 @@ static void onLoad(void) {
 static void onSave(void) {
 	// TODO: Save
 	// dialogShow(DIALOG_SAVE);
+	dialogSaveShow();
 }
 
 static void onQuit(void) {
@@ -145,7 +147,7 @@ static void onQuit(void) {
 }
 
 static const tCbFn s_pFnCallbacks[] = {
-	onChangeColor, onReset, onTest, onLoad, onSave, onQuit
+	onChangeColor, onReset, onTest, onSave, onLoad, onQuit
 };
 static const UBYTE s_ubFnBtnCount = sizeof(s_pFnCallbacks) / sizeof(s_pFnCallbacks[0]);
 

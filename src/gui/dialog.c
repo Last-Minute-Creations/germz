@@ -6,9 +6,9 @@
 #include <ace/managers/blit.h>
 #include <ace/managers/system.h>
 
-tBitMap *s_pBmDialog, *s_pBmDialogBgFirst, *s_pBmDialogBgSecond;
-tBitMap *s_pBmFirst, *s_pBmSecond; // For synchronizing save/restore
-UWORD s_uwWidth, s_uwHeight, s_uwOffsX, s_uwOffsY;
+static tBitMap *s_pBmDialog, *s_pBmDialogBgFirst, *s_pBmDialogBgSecond;
+static tBitMap *s_pBmFirst, *s_pBmSecond; // For synchronizing save/restore
+static UWORD s_uwWidth, s_uwHeight, s_uwOffsX, s_uwOffsY;
 
 tBitMap *dialogCreate(
 	UWORD uwWidth, UWORD uwHeight, tBitMap *pBack, tBitMap *pFront

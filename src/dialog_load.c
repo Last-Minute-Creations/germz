@@ -12,7 +12,7 @@
 #include "game.h"
 #include "game_assets.h"
 
-#define FILENAME_MAX 100
+#define MAP_FILENAME_MAX 100
 
 static tListCtl *s_pCtrl;
 static tMapData *s_pPreview;
@@ -43,7 +43,7 @@ static void updateMapInfo(tBitMap *pBmDialog) {
 		return;
 	}
 
-	char szPath[FILENAME_MAX];
+	char szPath[MAP_FILENAME_MAX];
 	sprintf(szPath, "data/maps/%s.json", szFile);
 	mapDataInitFromFile(s_pPreview, szPath);
 
@@ -68,7 +68,7 @@ static void updateMapInfo(tBitMap *pBmDialog) {
 	s_szFilePrev = szFile;
 }
 
-void dialogLoadGsCreate(void) {
+static void dialogLoadGsCreate(void) {
 	s_pBmDialog = dialogCreate(256, 128, gameGetBackBuffer(), gameGetFrontBuffer());
 	s_pPreview = memAllocFast(sizeof(*s_pPreview));
 	s_szFilePrev = 0;
@@ -102,8 +102,8 @@ void dialogLoadGsCreate(void) {
 	}
 
 	// Count relevant files
-	char szFileName[FILENAME_MAX];
-	while(dirRead(pDir, szFileName, FILENAME_MAX)) {
+	char szFileName[MAP_FILENAME_MAX];
+	while(dirRead(pDir, szFileName, MAP_FILENAME_MAX)) {
 		UWORD uwLen = strlen(szFileName);
 		if(uwLen < 20 && !strcmp(&szFileName[uwLen - 5], ".json")) {
 			// Trim extension and add to list
@@ -127,7 +127,7 @@ void dialogLoadGsCreate(void) {
 	buttonDrawAll();
 }
 
-void dialogLoadGsLoop(void) {
+static void dialogLoadGsLoop(void) {
 	if(!gamePreprocess()) {
 		return;
 	}
@@ -170,7 +170,7 @@ void dialogLoadGsLoop(void) {
 	}
 }
 
-void dialogLoadGsDestroy(void) {
+static void dialogLoadGsDestroy(void) {
 	memFree(s_pPreview, sizeof(*s_pPreview));
 	buttonListDestroy();
 	listCtlDestroy(s_pCtrl);
