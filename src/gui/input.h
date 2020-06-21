@@ -11,14 +11,19 @@
 typedef struct _tInput {
 	tUwCoordYX sPos;
 	UWORD uwMaxChars;
+	UWORD uwValueLength;
 	UWORD uwWidth;
-	char *pValue;
+	char *szValue;
 	tFont *pFont;
 	tBitMap *pBfr;
+	tTextBitMap *pTextBitMap;
+	UBYTE isTextBitMapAllocated;
+	UBYTE isValueBufferAllocated;
 } tInput;
 
 tInput *inputCreate(
-	tBitMap *pBg, tFont *pFont, UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwMaxChars
+	tBitMap *pBg, tFont *pFont, tTextBitMap *pTextBitMap, UWORD uwX, UWORD uwY,
+	UWORD uwWidth, UWORD uwMaxChars, const char *szLabel, char *szValueBuffer
 );
 
 void inputDestroy(tInput *pInput);
@@ -27,5 +32,10 @@ void inputProcess(tInput *pInput);
 
 const char *inputGetValue(const tInput *pInput);
 
+UBYTE inputGetHeight(const tInput *pInput);
+
+void inputLoseFocus(tInput *pInput);
+
+void inputSetFocus(tInput *pInput);
 
 #endif // _GUI_INPUT_H_

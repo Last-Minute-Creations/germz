@@ -3,24 +3,26 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include <ace/managers/log.h>
+#include <ace/managers/system.h>
 #include "map_data.h"
 #include "json/json.h"
 
+static const char s_pTileToChar[TILE_COUNT] = {'\0',
+	[TILE_BLANK] = '.',
+	[TILE_BLOB_NEUTRAL] = 'N',
+	[TILE_BLOB_P1] = '1',
+	[TILE_BLOB_P2] = '2',
+	[TILE_BLOB_P3] = '3',
+	[TILE_BLOB_P4] = '4',
+	[TILE_PATH_H1...TILE_PATH_H4] = '-',
+	[TILE_PATH_V1...TILE_PATH_V4] = '|',
+	[TILE_PATH_X1...TILE_PATH_X4] = '+',
+};
+
 static tTile tileFromChar(char c) {
-	static const char pTileToChar[TILE_COUNT] = {'\0',
-		[TILE_BLANK] = '.',
-		[TILE_BLOB_NEUTRAL] = 'N',
-		[TILE_BLOB_P1] = '1',
-		[TILE_BLOB_P2] = '2',
-		[TILE_BLOB_P3] = '3',
-		[TILE_BLOB_P4] = '4',
-		[TILE_PATH_H1] = '-',
-		[TILE_PATH_V1] = '|',
-		[TILE_PATH_X1] = '+',
-	};
 
 	for(tTile eTile = 0; eTile < TILE_COUNT; ++eTile) {
-		if(c == pTileToChar[eTile]) {
+		if(c == s_pTileToChar[eTile]) {
 			return eTile;
 		}
 	}
@@ -28,6 +30,7 @@ static tTile tileFromChar(char c) {
 }
 
 UBYTE mapDataInitFromFile(tMapData *pMapData, const char *szPath) {
+	systemUse();
 	logBlockBegin("mapDataInitFromFile(szPath: '%s')", szPath);
 	mapDataClear(pMapData);
 	tJson *pJson = jsonCreate(szPath);
@@ -88,6 +91,7 @@ end:
 		jsonDestroy(pJson);
 	}
 	logBlockEnd("mapDataInitFromFile()");
+	systemUnuse();
 	return isOk;
 }
 
@@ -127,4 +131,47 @@ void mapDataRecalculateStuff(tMapData *pMapData) {
 			pMapData->pTiles[x][y] = eTile;
 		}
 	}
+}
+
+UBYTE mapDataSaveToFile(const tMapData *pMapData, const char *szPath) {
+	systemUse();
+	logBlockBegin("mapDataSaveToFile(pMapData: %p, szPath: '%s')", pMapData, szPath);
+	tFile *pFile = fileOpen(szPath, "wb");
+	if(!pFile) {
+		logWrite("ERR: File doesn't exist\n");
+		logBlockEnd("mapDataSaveToFile()");
+		systemUnuse();
+		return 0;
+	}
+	fileWriteStr(pFile, "{\n");
+
+	fileWriteStr(pFile, "\t\"name\": \"");
+	fileWriteStr(pFile, pMapData->szName);
+	fileWriteStr(pFile, "\",\n");
+
+	fileWriteStr(pFile, "\t\"author\": \"");
+	fileWriteStr(pFile, pMapData->szAuthor);
+	fileWriteStr(pFile, "\",\n");
+
+	char szBfr[2];
+	sprintf(szBfr, "%hhu", pMapData->ubPlayerCount);
+	fileWriteStr(pFile, "\t\"players\": ");
+	fileWriteStr(pFile, szBfr);
+	fileWriteStr(pFile, ",\n");
+
+	fileWriteStr(pFile, "\t\"tiles\": [\n");
+	for(UBYTE ubY = 0; ubY < MAP_SIZE; ++ubY) {
+		fileWriteStr(pFile, "\t\t\"");
+		for(UBYTE ubX = 0; ubX < MAP_SIZE; ++ubX) {
+			char c = s_pTileToChar[pMapData->pTiles[ubX][ubY]];
+			fileWrite(pFile, &c, 1);
+		}
+		fileWriteStr(pFile, "\",\n");
+	}
+	fileWriteStr(pFile, "\t]\n}\n");
+
+	fileClose(pFile);
+	logBlockEnd("mapDataSaveToFile()");
+	systemUnuse();
+	return 1;
 }

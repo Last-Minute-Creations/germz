@@ -9,6 +9,7 @@
 
 static UBYTE s_ubButtonCount;
 static UBYTE s_ubMaxButtonCount;
+static tButton *s_pSelected = 0;
 static tButton *s_pButtons;
 static tBitMap *s_pBfr;
 static const tFont *s_pFont;
@@ -27,6 +28,7 @@ void buttonListCreate(
 	);
 	s_ubButtonCount = 0;
 	s_ubMaxButtonCount = ubButtonCount;
+	s_pSelected = 0;
 	s_pBfr = pBfr;
 	s_pFont = pFont;
 	if(pTextBfr) {
@@ -83,6 +85,10 @@ static void buttonDraw(tButton *pButton) {
 	tUwRect *pRect = &pButton->sRect;
 	const tGuiConfig *pConfig = guiGetConfig();
 
+	UBYTE ubColor = (
+		pButton == s_pSelected ? pConfig->ubColorText : pConfig->ubColorDark
+	);
+
 	// Fill
 	blitRect(
 		s_pBfr, pRect->uwX, pRect->uwY,
@@ -98,7 +104,7 @@ static void buttonDraw(tButton *pButton) {
 	fontDrawTextBitMap(
 		s_pBfr, s_pLabelTextBfr,
 		pRect->uwX + pRect->uwWidth/2, pRect->uwY + pRect->uwHeight/2,
-		pConfig->ubColorText, FONT_CENTER | FONT_SHADOW | FONT_COOKIE
+		ubColor, FONT_CENTER | FONT_SHADOW | FONT_COOKIE
 	);
 }
 
@@ -123,4 +129,12 @@ void buttonClick(const tButton *pButton) {
 	if(pButton->onClick) {
 		pButton->onClick(pButton->pData);
 	}
+}
+
+void buttonSelect(tButton *pButton) {
+	s_pSelected = pButton;
+}
+
+tButton *buttonGetSelected(void) {
+	return s_pSelected;
 }

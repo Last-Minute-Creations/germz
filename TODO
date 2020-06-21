@@ -28,6 +28,11 @@ Now:
 		☐ Remember last saved/load file name and use it for default selection
 		☐ Ask for overwrite
 		☐ Ask for saving unsaved progress
+		☐ don't allow WSAD in editor
+		☐ convert junction tiles to proper orientation
+		☐ animation while loading preview
+		☐ animation while saving
+		☐ animation while loading
 	☐ Reduce mem usage by AI
 	☐ fix ptplayer on higher cpu freq
 	☐ ptplayer in game

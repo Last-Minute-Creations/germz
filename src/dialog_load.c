@@ -9,6 +9,7 @@
 #include <gui/config.h>
 #include <ace/utils/dir.h>
 #include <ace/managers/game.h>
+#include "dialog_save.h"
 #include "game.h"
 #include "game_assets.h"
 
@@ -152,6 +153,7 @@ static void dialogLoadGsLoop(void) {
 			updateMapInfo(s_pBmDialog);
 		}
 		memcpy(&g_sMapData, s_pPreview, sizeof(g_sMapData));
+		dialogSaveSetSaveName(listCtlGetSelection(s_pCtrl));
 		isMapSelected = 1;
 	}
 

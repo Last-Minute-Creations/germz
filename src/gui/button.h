@@ -34,6 +34,10 @@ tButton *buttonAdd(
 
 void buttonDrawAll(void);
 
+void buttonSelect(tButton *pButton);
+
+tButton *buttonGetSelected(void);
+
 UBYTE buttonListProcessMouseClick(UWORD uwX, UWORD uwY);
 
 void buttonClick(const tButton *pButton);

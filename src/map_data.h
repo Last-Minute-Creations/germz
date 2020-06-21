@@ -44,6 +44,8 @@ typedef struct _tMapData {
 
 UBYTE mapDataInitFromFile(tMapData *pMapData, const char *szPath);
 
+UBYTE mapDataSaveToFile(const tMapData *pMapData, const char *szPath);
+
 void mapDataClear(tMapData *pMapData);
 
 UBYTE tileIsMovable(tTile eTile);
