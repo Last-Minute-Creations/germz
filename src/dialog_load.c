@@ -8,6 +8,7 @@
 #include <gui/button.h>
 #include <ace/utils/dir.h>
 #include <ace/managers/game.h>
+#include "game_editor.h"
 #include "dialog_save.h"
 #include "game.h"
 #include "game_assets.h"
@@ -133,10 +134,8 @@ static void dialogLoadGsLoop(void) {
 		return;
 	}
 
-	tSteer *pSteer = gameGetSteerForPlayer(0);
-	tDirection eDir = steerProcess(pSteer);
-
 	UBYTE isMapSelected = 0;
+	tDirection eDir = gameEditorGetSteerDir();
 	if(eDir == DIRECTION_UP) {
 		listCtlSelectPrev(s_pCtrl);
 		clearMapInfo(s_pBmDialog);

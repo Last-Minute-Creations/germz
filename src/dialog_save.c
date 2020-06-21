@@ -8,6 +8,7 @@
 #include "gui/input.h"
 #include "gui/button.h"
 #include "gui/config.h"
+#include "game_editor.h"
 #include "game.h"
 #include "game_assets.h"
 
@@ -72,9 +73,7 @@ void dialogSaveGsCreate(void) {
 void dialogSaveGsLoop(void) {
 	gamePreprocess();
 
-	tSteer *pSteer = gameGetSteerForPlayer(0);
-	tDirection eDir = steerProcess(pSteer);
-
+	tDirection eDir = gameEditorGetSteerDir();
 	if(eDir == DIRECTION_UP) {
 		if(s_eCurrentInput) {
 			if(s_eCurrentInput == SAVE_INPUT_COUNT) {

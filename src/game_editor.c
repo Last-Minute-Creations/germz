@@ -150,7 +150,9 @@ static void onSave(void) {
 }
 
 static void onQuit(void) {
-	// dialogShow(DIALOG_QUIT);
+	// TODO: confirm exit
+	gamePopState();
+	return;
 }
 
 static const tCbFn s_pFnCallbacks[] = {
@@ -160,8 +162,7 @@ static const UBYTE s_ubFnBtnCount = sizeof(s_pFnCallbacks) / sizeof(s_pFnCallbac
 
 void gameEditorGsLoop(void) {
 	if(keyUse(KEY_ESCAPE)) {
-		// dialogShow(DIALOG_QUIT);
-		gamePopState();
+		onQuit();
 		return;
 	}
 
@@ -185,13 +186,6 @@ void gameEditorGsLoop(void) {
 		s_sBobBtnFn.sPos.uwY = 148 + ubFnBtnPressed * 14;
 		s_pFnCallbacks[ubFnBtnPressed]();
 		// Don't process anything else since callbacks could change game state
-		return;
-	}
-
-	tSteer *pSteer = gameGetSteerForPlayer(0);
-	if(!steerIsPlayer(pSteer)) {
-		logWrite("ERR: P1 not set as a player\n");
-		gamePopState();
 		return;
 	}
 
@@ -236,7 +230,9 @@ void gameEditorGsLoop(void) {
 		}
 	}
 	else {
-		tDirection eDir = steerProcess(pSteer);
+		// Hackty hack
+		tDirection eDir = gameEditorGetSteerDir();
+
 		switch(eDir) {
 			case DIRECTION_UP:
 				if(s_sPlayer.ubY > 0) {
@@ -303,6 +299,16 @@ void gameEditorGsDestroy(void) {
 	bitmapDestroy(s_pLedBig);
 	bitmapDestroy(s_pLedBigMask);
 	systemUnuse();
+}
+
+tDirection gameEditorGetSteerDir(void) {
+	tSteer sSteer = steerInitKey(KEYMAP_ARROWS);
+	tDirection eDir = steerProcess(&sSteer);
+	if(eDir == DIRECTION_COUNT) {
+		sSteer = steerInitJoy(JOY1);
+		eDir = steerProcess(&sSteer);
+	}
+	return eDir;
 }
 
 // #error MAP CREATE FAIL - in editor

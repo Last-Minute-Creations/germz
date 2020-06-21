@@ -5,10 +5,14 @@
 #ifndef _GERMZ_GAME_EDITOR_H_
 #define _GERMZ_GAME_EDITOR_H_
 
+#include "direction.h"
+
 void gameEditorGsCreate(void);
 
 void gameEditorGsLoop(void);
 
 void gameEditorGsDestroy(void);
+
+tDirection gameEditorGetSteerDir(void);
 
 #endif // _GERMZ_GAME_EDITOR_H_

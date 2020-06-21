@@ -5,7 +5,7 @@
 #ifndef _GERMZ_STEER_H_
 #define _GERMZ_STEER_H_
 
-#include <ace/types.h>
+#include <ace/managers/joy.h> // for steerInitJoy() param
 #include "direction.h"
 #include "ai.h"
 
