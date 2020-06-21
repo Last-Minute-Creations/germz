@@ -5,6 +5,10 @@
 #ifndef _GUI_DIALOG_H_
 #define _GUI_DIALOG_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <ace/utils/bitmap.h>
 
 typedef void *tCbDialog(void);
@@ -16,5 +20,9 @@ tBitMap *dialogCreate(
 void dialogDestroy(void);
 
 void dialogProcess(tBitMap *pBack);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _GUI_DIALOG_H_

@@ -5,6 +5,10 @@
 #ifndef _GUI_CONFIG_H_
 #define _GUI_CONFIG_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <ace/types.h>
 
 typedef struct _tGuiConfig {
@@ -16,5 +20,9 @@ typedef struct _tGuiConfig {
 } tGuiConfig;
 
 tGuiConfig *guiGetConfig(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _GUI_CONFIG_H_

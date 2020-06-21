@@ -5,6 +5,10 @@
 #ifndef _GUI_BUTTON_H_
 #define _GUI_BUTTON_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <ace/types.h>
 #include <ace/utils/bitmap.h>
 #include <ace/utils/font.h>
@@ -41,5 +45,9 @@ tButton *buttonGetSelected(void);
 UBYTE buttonListProcessMouseClick(UWORD uwX, UWORD uwY);
 
 void buttonClick(const tButton *pButton);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _GUI_BUTTON_H_

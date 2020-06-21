@@ -5,6 +5,10 @@
 #ifndef _GUI_INPUT_H_
 #define _GUI_INPUT_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <ace/types.h>
 #include <ace/utils/font.h>
 
@@ -37,5 +41,9 @@ UBYTE inputGetHeight(const tInput *pInput);
 void inputLoseFocus(tInput *pInput);
 
 void inputSetFocus(tInput *pInput);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _GUI_INPUT_H_

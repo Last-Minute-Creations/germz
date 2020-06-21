@@ -5,6 +5,10 @@
 #ifndef _GUI_LIST_CTL_H_
 #define _GUI_LIST_CTL_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <ace/types.h>
 #include <ace/utils/font.h>
 
@@ -52,5 +56,9 @@ void listCtlSelectNext(tListCtl *pCtl);
 void listCtlSortEntries(tListCtl *pCtl);
 
 const char *listCtlGetSelection(const tListCtl *pCtl);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _GUI_LIST_CTL_H_
