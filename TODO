@@ -22,6 +22,7 @@ Done:
 	✔ Remove placement of branch variants in editor since they are placed automatically @done(20-05-27 09:39)
 	✔ plep colored for each player @done(20-05-27 13:45)
 	✔ four variants for branches @done(20-06-21 11:33)
+	✔ fade in/out in menu @done(20-06-21 14:15)
 
 Now:
 	☐ Map save/load to/from file
@@ -42,7 +43,6 @@ Now:
 	☐ win/lose screen
 	☐ cursors should blink or something so that overlapping will be visible
 	☐ display in visible menu part how keyboard layouts have action button bound (how to play)
-	☐ fade in/out in menu
 	☐ fade in/out in game
 	☐ fix performance on 7MHz
 	☐ delay blob takeover anim to the point after plep have sunk in it

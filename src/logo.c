@@ -10,10 +10,7 @@
 #include <ace/managers/blit.h>
 #include <ace/utils/palette.h>
 #include "menu.h"
-
-#define STATE_FADE_IN 0
-#define STATE_FADE_OUT 1
-#define STATE_WAIT 2
+#include "fade.h"
 
 typedef void (*tCbLogo)(void);
 typedef UBYTE (*tCbFadeOut)(void);
@@ -26,7 +23,7 @@ static tView *s_pView;
 static tVPort *s_pVp;
 static tSimpleBufferManager *s_pBfr;
 static UBYTE s_ubFrame = 0;
-static UBYTE s_ubState;
+static tFadeState s_eFadeState;
 
 static UWORD s_pPaletteRef[32];
 static UBYTE s_ubFadeoutCnt;
@@ -53,7 +50,7 @@ void logoGsCreate(void) {
 	TAG_END);
 
 	s_ubFadeoutCnt = 0;
-	s_ubState = STATE_FADE_IN;
+	s_eFadeState = FADE_STATE_IN;
 
 	s_cbFadeIn = lmcFadeIn;
 	s_cbFadeOut = lmcFadeOut;
@@ -70,9 +67,9 @@ void logoGsLoop(void) {
 		keyUse(KEY_LSHIFT) | keyUse(KEY_RSHIFT) |
 		joyUse(JOY1 + JOY_FIRE) | joyUse(JOY2 + JOY_FIRE)
 	);
-	if(s_ubState == STATE_FADE_IN) {
+	if(s_eFadeState == FADE_STATE_IN) {
 		if(s_ubFadeoutCnt >= 50) {
-			s_ubState = STATE_WAIT;
+			s_eFadeState = FADE_STATE_IDLE;
 			s_ubFrame = 0;
 		}
 		else {
@@ -83,18 +80,18 @@ void logoGsLoop(void) {
 			paletteDim(s_pPaletteRef, s_pVp->pPalette, 32, (15 * s_ubFadeoutCnt) / 50);
 		}
 	}
-	else if(s_ubState == STATE_WAIT) {
+	else if(s_eFadeState == FADE_STATE_IDLE) {
 		if(s_cbWait) {
 			s_cbWait();
 		}
 	}
-	else if(s_ubState == STATE_FADE_OUT) {
+	else if(s_eFadeState == FADE_STATE_OUT) {
 		if(s_ubFadeoutCnt == 0) {
 			if(s_cbFadeOut && s_cbFadeOut()) {
 				return;
 			}
 			else {
-				s_ubState = STATE_FADE_IN;
+				s_eFadeState = FADE_STATE_IN;
 			}
 		}
 		else {
@@ -138,14 +135,14 @@ void lmcFadeIn(void) {
 		systemUnuse();
 	}
 	else if(s_isAnyPressed) {
-		s_ubState = STATE_FADE_OUT;
+		s_eFadeState = FADE_STATE_OUT;
 	}
 }
 
 void lmcWait(void) {
 	++s_ubFrame;
 	if(s_ubFrame >= 100 || s_isAnyPressed) {
-		s_ubState = STATE_FADE_OUT;
+		s_eFadeState = FADE_STATE_OUT;
 	}
 }
 

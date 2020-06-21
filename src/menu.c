@@ -14,6 +14,7 @@
 #include <ace/utils/ptplayer.h>
 #include "game.h"
 #include "build_ver.h"
+#include "fade.h"
 
 #define MENU_COLOR_ACTIVE 16
 #define MENU_COLOR_INACTIVE 17
@@ -204,8 +205,16 @@ static UBYTE menuEnter(void) {
 
 //------------------------------------------------------------------ PRIVATE FNS
 
-static void onExit(void) {
+static void onFadeoutStart(void) {
+	gameChangeState(gameGsCreate, gameGsLoop, gameGsDestroy);
+}
+
+static void onFadeoutExit(void) {
 	gameClose();
+}
+
+static void onExit(void) {
+	fadeSet(s_pView, FADE_STATE_OUT, 50, onFadeoutExit);
 }
 
 static void menuErrorMsg(const char *szMsg) {
@@ -271,7 +280,7 @@ static void startGame(UBYTE isEditor) {
 		}
 	}
 	gameSetEditor(isEditor);
-	gameChangeState(gameGsCreate, gameGsLoop, gameGsDestroy);
+	fadeSet(s_pView, FADE_STATE_OUT, 50, onFadeoutStart);
 }
 
 static void onStart(void) {
@@ -306,7 +315,10 @@ void menuGsCreate(void) {
 	blitCopy(s_pBg, 0, 0, s_pBfr->pBack, 0, 0, 320, 128, MINTERM_COPY, 0xFF);
 	blitCopy(s_pBg, 0, 128, s_pBfr->pBack, 0, 128, 320, 128, MINTERM_COPY, 0xFF);
 
-	paletteLoad("data/germz.plt", s_pVp->pPalette, 32);
+	UWORD pPalette[32];
+	paletteLoad("data/germz.plt", pPalette, 32);
+	fadeSetPalette(pPalette, 32);
+
 	s_pFont = fontCreate("data/uni54.fnt");
 	s_pTextBitmap = fontCreateTextBitMap(320, s_pFont->uwHeight);
 
@@ -334,6 +346,7 @@ void menuGsCreate(void) {
 	fileRead(pFileMod, s_pMod, s_ulModSize);
 	fileClose(pFileMod);
 	ptplayerInit(s_pMod, 0, 0);
+	fadeSet(s_pView, FADE_STATE_IN, 50, 0);
 
 	systemUnuse();
 	ptplayerStartPlayback(1);
@@ -344,14 +357,12 @@ void menuGsLoop(void) {
 	ptplayerEnableMusic(1);
 	ptplayerProcess();
 
-	// UWORD uwDma = g_pCustom->dmaconr;
-	// blitRect(s_pBfr->pBack, 4, 250, 3, 3, (uwDma & DMAF_AUD0) ? MENU_COLOR_ACTIVE : MENU_COLOR_INACTIVE);
-	// blitRect(s_pBfr->pBack, 10, 250, 3, 3, (uwDma & DMAF_AUD1) ? MENU_COLOR_ACTIVE : MENU_COLOR_INACTIVE);
-	// blitRect(s_pBfr->pBack, 16, 250, 3, 3, (uwDma & DMAF_AUD2) ? MENU_COLOR_ACTIVE : MENU_COLOR_INACTIVE);
-	// blitRect(s_pBfr->pBack, 22, 250, 3, 3, (uwDma & DMAF_AUD3) ? MENU_COLOR_ACTIVE : MENU_COLOR_INACTIVE);
-
-	if(keyUse(KEY_ESCAPE)) {
-		gameClose();
+	tFadeState eFadeState = fadeProcess();
+	if(eFadeState == FADE_STATE_EVENT_FIRED) {
+		return;
+	}
+	if(eFadeState != FADE_STATE_OUT && keyUse(KEY_ESCAPE)) {
+		fadeSet(s_pView, FADE_STATE_OUT, 50, onFadeoutExit);
 		return;
 	}
 
@@ -363,44 +374,46 @@ void menuGsLoop(void) {
 	}
 
 	UBYTE isEnabled34 = joyIsParallelEnabled();
-	if(
-		keyUse(KEY_UP) || keyUse(KEY_W) ||
-		joyUse(JOY1_UP) || joyUse(JOY2_UP) ||
-		(isEnabled34 && (joyUse(JOY3_UP) || joyUse(JOY4_UP)))
-	) {
-		menuNavigate(-1);
-	}
-	else if(
-		keyUse(KEY_DOWN) || keyUse(KEY_S) ||
-		joyUse(JOY1_DOWN) || joyUse(JOY2_DOWN) ||
-		(isEnabled34 && (joyUse(JOY3_DOWN) || joyUse(JOY4_DOWN)))
-	) {
-		menuNavigate(+1);
-	}
-	else if(
-		keyUse(KEY_LEFT) || keyUse(KEY_A) ||
-		joyUse(JOY1_LEFT) || joyUse(JOY2_LEFT) ||
-		(isEnabled34 && (joyUse(JOY3_LEFT) || joyUse(JOY4_LEFT)))
-	) {
-		menuToggle(-1);
-	}
-	else if(
-		keyUse(KEY_RIGHT) || keyUse(KEY_D) ||
-		joyUse(JOY1_RIGHT) || joyUse(JOY2_RIGHT) ||
-		(isEnabled34 && (joyUse(JOY3_RIGHT) || joyUse(JOY4_RIGHT)))
-	) {
-		menuToggle(+1);
+	if(eFadeState != FADE_STATE_OUT) {
+		if(
+			keyUse(KEY_UP) || keyUse(KEY_W) ||
+			joyUse(JOY1_UP) || joyUse(JOY2_UP) ||
+			(isEnabled34 && (joyUse(JOY3_UP) || joyUse(JOY4_UP)))
+		) {
+			menuNavigate(-1);
+		}
+		else if(
+			keyUse(KEY_DOWN) || keyUse(KEY_S) ||
+			joyUse(JOY1_DOWN) || joyUse(JOY2_DOWN) ||
+			(isEnabled34 && (joyUse(JOY3_DOWN) || joyUse(JOY4_DOWN)))
+		) {
+			menuNavigate(+1);
+		}
+		else if(
+			keyUse(KEY_LEFT) || keyUse(KEY_A) ||
+			joyUse(JOY1_LEFT) || joyUse(JOY2_LEFT) ||
+			(isEnabled34 && (joyUse(JOY3_LEFT) || joyUse(JOY4_LEFT)))
+		) {
+			menuToggle(-1);
+		}
+		else if(
+			keyUse(KEY_RIGHT) || keyUse(KEY_D) ||
+			joyUse(JOY1_RIGHT) || joyUse(JOY2_RIGHT) ||
+			(isEnabled34 && (joyUse(JOY3_RIGHT) || joyUse(JOY4_RIGHT)))
+		) {
+			menuToggle(+1);
+		}
 	}
 
 	// Do this now since menuEnter may change gamestate and deallocate s_pVp
 	copProcessBlocks();
 	vPortWaitForEnd(s_pVp);
 
-	if(
+	if(eFadeState != FADE_STATE_OUT && (
 		keyUse(KEY_RETURN) || keyUse(KEY_LSHIFT) || keyUse(KEY_RSHIFT) ||
 		joyUse(JOY1_FIRE) || joyUse(JOY2_FIRE) ||
 		(isEnabled34 && (joyUse(JOY3_FIRE) || joyUse(JOY4_FIRE)))
-	) {
+	)) {
 		// menuEnter may change gamestate, so do nothing past it
 		menuEnter();
 	}
