@@ -6,7 +6,6 @@
 #include <gui/dialog.h>
 #include <gui/list_ctl.h>
 #include <gui/button.h>
-#include <gui/config.h>
 #include <ace/utils/dir.h>
 #include <ace/managers/game.h>
 #include "dialog_save.h"
@@ -70,21 +69,20 @@ static void updateMapInfo(tBitMap *pBmDialog) {
 }
 
 static void dialogLoadGsCreate(void) {
-	s_pBmDialog = dialogCreate(256, 128, gameGetBackBuffer(), gameGetFrontBuffer());
+	UWORD uwDlgWidth = 256;
+	UWORD uwDlgHeight = 128;
+	s_pBmDialog = dialogCreate(
+		uwDlgWidth, uwDlgHeight, gameGetBackBuffer(), gameGetFrontBuffer()
+	);
 	s_pPreview = memAllocFast(sizeof(*s_pPreview));
 	s_szFilePrev = 0;
 	s_isMapInfoRefreshed = 0;
 
 	// Initial draw
 	UBYTE ubPad = 1;
-	UWORD uwWidth = 128;
-	UWORD uwHeight = 126;
+	UWORD uwWidth = uwDlgWidth / 2;
+	UWORD uwHeight = uwDlgHeight - 2;
 
-	tGuiConfig *pConfig = guiGetConfig();
-	pConfig->ubColorLight = 16;
-	pConfig->ubColorDark = 19;
-	pConfig->ubColorFill = 18;
-	pConfig->ubColorText = 17;
 	buttonListCreate(5, s_pBmDialog, g_pFont, g_pTextBitmap);
 	s_pCtrl = listCtlCreate(
 		s_pBmDialog, ubPad, ubPad, uwWidth, uwHeight, g_pFont, 10, g_pTextBitmap, 0
@@ -118,13 +116,15 @@ static void dialogLoadGsCreate(void) {
 	updateMapInfo(s_pBmDialog);
 	s_ullChangeTimer = timerGet();
 
-	const UBYTE ubButtonWidth = 50;
-	const UBYTE ubButtonHeight = 30;
-	buttonAdd(
-		uwWidth + (256 - uwWidth - ubButtonWidth) / 2, 128 - ubButtonHeight - 1,
-		ubButtonWidth, ubButtonHeight, "Load", 0, 0
+	const UWORD uwBtnWidth = 50;
+	const UWORD uwBtnHeight = 20;
+	tButton *pButtonLoad = buttonAdd(
+		uwWidth + (uwDlgWidth - uwWidth - uwBtnWidth) / 2,
+		uwDlgHeight - uwBtnHeight - 10,
+		uwBtnWidth, uwBtnHeight, "Load", 0, 0
 	);
 	listCtlDraw(s_pCtrl);
+	buttonSelect(pButtonLoad);
 	buttonDrawAll();
 }
 

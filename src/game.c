@@ -193,13 +193,13 @@ tSteer *gameGetSteerForPlayer(UBYTE ubPlayer) {
 }
 
 void gameDrawTileAt(tTile eTile, UWORD uwX, UWORD uwY, UBYTE ubFrame) {
-	if(eTile < TILE_BLOB_COUNT) {
+	if(tileIsNode(eTile)) {
 		// Animate
 		gameDrawBlobAt(eTile, ubFrame, uwX, uwY);
 	}
 	else if(eTile != TILE_BLANK) {
 		// Don't animate
-		UWORD uwTileY = 16 * (eTile - TILE_PATH_H1);
+		UWORD uwTileY = 16 * (eTile - TILE_EDITOR_BLANK);
 		blitCopyMask(
 			g_pBmLinks, 0, uwTileY, s_pBfr->pBack, uwX, uwY,
 			MAP_TILE_SIZE, MAP_TILE_SIZE, (UWORD*)g_pBmLinksMask->Planes[0]

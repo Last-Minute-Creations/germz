@@ -59,7 +59,7 @@ static void nodeFindNeighbor(tNode *pNode, tDirection eDir) {
 			// logWrite("No more tiles on dir %d\n", eDir);
 			return;
 		}
-	} while(tileIsMovable(g_sMapData.pTiles[x][y]));
+	} while(tileIsLink(g_sMapData.pTiles[x][y]));
 
 	if(tileIsNode(g_sMapData.pTiles[x][y])) {
 		// Mark given node as neigbor

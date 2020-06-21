@@ -114,23 +114,23 @@ extractBitmaps(TARGET ${GERMZ_EXECUTABLE} SOURCE 	${RES_DIR}/gfx.png
 		${GEN_DIR}/blob4/6.png  96 224 16 16
 		${GEN_DIR}/blob4/7.png 112 224 16 16
 		${GEN_DIR}/blob4/8.png 128 224 16 16
-		# Links - horizontal
-		${GEN_DIR}/links/0.png   0 112 16 16
-		${GEN_DIR}/links/1.png  16 112 16 16
-		${GEN_DIR}/links/2.png   0 128 16 16
-		${GEN_DIR}/links/3.png  16 128 16 16
-		# Links - vertical
-		${GEN_DIR}/links/4.png  32 112 16 16
-		${GEN_DIR}/links/5.png  48 112 16 16
-		${GEN_DIR}/links/6.png  32 128 16 16
-		${GEN_DIR}/links/7.png  48 128 16 16
-		# Links - junctions
-		${GEN_DIR}/links/8.png   0 144 16 16
-		${GEN_DIR}/links/9.png  16 144 16 16
-		${GEN_DIR}/links/10.png 32 144 16 16
-		${GEN_DIR}/links/11.png 48 144 16 16
 		# Links - additional tiles
-		${GEN_DIR}/links/12.png 128 0 16 16
+		${GEN_DIR}/links/0.png 128 0 16 16
+		# Links - horizontal
+		${GEN_DIR}/links/1.png   0 112 16 16
+		${GEN_DIR}/links/2.png  16 112 16 16
+		${GEN_DIR}/links/3.png   0 128 16 16
+		${GEN_DIR}/links/4.png  16 128 16 16
+		# Links - vertical
+		${GEN_DIR}/links/5.png  32 112 16 16
+		${GEN_DIR}/links/6.png  48 112 16 16
+		${GEN_DIR}/links/7.png  32 128 16 16
+		${GEN_DIR}/links/8.png  48 128 16 16
+		# Links - junctions
+		${GEN_DIR}/links/9.png   0 144 16 16
+		${GEN_DIR}/links/10.png  16 144 16 16
+		${GEN_DIR}/links/11.png 32 144 16 16
+		${GEN_DIR}/links/12.png 48 144 16 16
 )
 
 extractBitmaps(TARGET ${GERMZ_EXECUTABLE} SOURCE 	${RES_DIR}/editor_gfx.png

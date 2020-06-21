@@ -85,10 +85,6 @@ static void buttonDraw(tButton *pButton) {
 	tUwRect *pRect = &pButton->sRect;
 	const tGuiConfig *pConfig = guiGetConfig();
 
-	UBYTE ubColor = (
-		pButton == s_pSelected ? pConfig->ubColorText : pConfig->ubColorDark
-	);
-
 	// Fill
 	blitRect(
 		s_pBfr, pRect->uwX, pRect->uwY,
@@ -100,11 +96,17 @@ static void buttonDraw(tButton *pButton) {
 	);
 
 	// Text
+	UBYTE ubFontColor = pConfig->ubColorDark;
+	UBYTE ubFontFlags = FONT_CENTER | FONT_COOKIE;
+	if(pButton == s_pSelected) {
+		ubFontColor = pConfig->ubColorText;
+		ubFontFlags |= FONT_SHADOW;
+	}
 	fontFillTextBitMap(s_pFont, s_pLabelTextBfr, pButton->szText);
 	fontDrawTextBitMap(
 		s_pBfr, s_pLabelTextBfr,
 		pRect->uwX + pRect->uwWidth/2, pRect->uwY + pRect->uwHeight/2,
-		ubColor, FONT_CENTER | FONT_SHADOW | FONT_COOKIE
+		ubFontColor, ubFontFlags
 	);
 }
 

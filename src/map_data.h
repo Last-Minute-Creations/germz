@@ -19,6 +19,7 @@ typedef enum _tTile {
 	TILE_BLOB_NEUTRAL,
 	TILE_BLOB_COUNT,
 	TILE_BLANK = TILE_BLOB_COUNT,
+	TILE_EDITOR_BLANK,
 	TILE_PATH_H1,
 	TILE_PATH_H2,
 	TILE_PATH_H3,
@@ -31,7 +32,6 @@ typedef enum _tTile {
 	TILE_PATH_X2,
 	TILE_PATH_X3,
 	TILE_PATH_X4,
-	TILE_EDITOR_BLANK,
 	TILE_COUNT
 } tTile;
 
@@ -48,10 +48,12 @@ UBYTE mapDataSaveToFile(const tMapData *pMapData, const char *szPath);
 
 void mapDataClear(tMapData *pMapData);
 
-UBYTE tileIsMovable(tTile eTile);
+UBYTE tileIsLink(tTile eTile);
 
 UBYTE tileIsNode(tTile eTile);
 
 void mapDataRecalculateStuff(tMapData *pMapData);
+
+void mapDataRecalculateLinkTileAt(tMapData *pMapData, UBYTE ubX, UBYTE ubY);
 
 #endif // _GERMZ_MAP_DATA_H_

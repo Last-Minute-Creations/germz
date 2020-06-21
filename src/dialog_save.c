@@ -31,19 +31,21 @@ void dialogSaveGsCreate(void) {
 	UWORD uwDlgHeight = 128;
 
 	const tGuiConfig *pConfig = guiGetConfig();
-	s_pBmDialog = dialogCreate(uwDlgWidth, uwDlgHeight, gameGetBackBuffer(), gameGetFrontBuffer());
+	s_pBmDialog = dialogCreate(
+		uwDlgWidth, uwDlgHeight, gameGetBackBuffer(), gameGetFrontBuffer()
+	);
 	buttonListCreate(2, s_pBmDialog, g_pFont, g_pTextBitmap);
 	s_pInputs[SAVE_INPUT_TITLE] = inputCreate(
-		s_pBmDialog, g_pFont, g_pTextBitmap, 3 + 50, 3, 100, sizeof(g_sMapData.szName),
-		"Title", g_sMapData.szName
+		s_pBmDialog, g_pFont, g_pTextBitmap, 3 + 50, 3, 100,
+		sizeof(g_sMapData.szName), "Title", g_sMapData.szName
 	);
 	s_pInputs[SAVE_INPUT_AUTHOR] = inputCreate(
-		s_pBmDialog, g_pFont, g_pTextBitmap, 3 + 50, 3+20, 100, sizeof(g_sMapData.szAuthor),
-		"Author", g_sMapData.szAuthor
+		s_pBmDialog, g_pFont, g_pTextBitmap, 3 + 50, 3+20, 100,
+		sizeof(g_sMapData.szAuthor), "Author", g_sMapData.szAuthor
 	);
 	s_pInputs[SAVE_INPUT_FILENAME] = inputCreate(
-		s_pBmDialog, g_pFont, g_pTextBitmap, 3 + 50, 3+40, 100, sizeof(s_szFileName),
-		"File name", s_szFileName
+		s_pBmDialog, g_pFont, g_pTextBitmap, 3 + 50, 3+40, 100,
+		sizeof(s_szFileName), "File name", s_szFileName
 	);
 	fontFillTextBitMap(g_pFont, g_pTextBitmap, ".json");
 	fontDrawTextBitMap(
@@ -78,6 +80,7 @@ void dialogSaveGsLoop(void) {
 			if(s_eCurrentInput == SAVE_INPUT_COUNT) {
 				// Focus out of button
 				buttonSelect(0);
+				buttonDrawAll();
 			}
 			else {
 				inputLoseFocus(s_pInputs[s_eCurrentInput]);
@@ -92,6 +95,7 @@ void dialogSaveGsLoop(void) {
 			++s_eCurrentInput;
 			if(s_eCurrentInput == SAVE_INPUT_COUNT) {
 				buttonSelect(s_pButtonSave);
+				buttonDrawAll();
 			}
 			else {
 				inputSetFocus(s_pInputs[s_eCurrentInput]);
@@ -100,9 +104,11 @@ void dialogSaveGsLoop(void) {
 	}
 	else if(eDir == DIRECTION_LEFT && s_eCurrentInput == SAVE_INPUT_COUNT) {
 		buttonSelect(s_pButtonSave);
+		buttonDrawAll();
 	}
 	else if(eDir == DIRECTION_RIGHT && s_eCurrentInput == SAVE_INPUT_COUNT) {
 		buttonSelect(s_pButtonCancel);
+		buttonDrawAll();
 	}
 
 	if(s_eCurrentInput < SAVE_INPUT_COUNT) {

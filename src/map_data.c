@@ -106,7 +106,7 @@ void mapDataClear(tMapData *pMapData) {
 	pMapData->ubPlayerCount = 0;
 }
 
-UBYTE tileIsMovable(tTile eTile) {
+UBYTE tileIsLink(tTile eTile) {
 	UBYTE isMovable = (eTile >= TILE_PATH_H1);
 	return isMovable;
 }
@@ -125,8 +125,8 @@ void mapDataRecalculateStuff(tMapData *pMapData) {
 					pMapData->ubPlayerCount, eTile - TILE_BLOB_P1 + 1
 				);
 			}
-			else if(tileIsMovable(eTile) && (x + y) & 1) {
-				++eTile;
+			else if(tileIsLink(eTile)) {
+				eTile += ((x + y) & 3);
 			}
 			pMapData->pTiles[x][y] = eTile;
 		}
@@ -174,4 +174,47 @@ UBYTE mapDataSaveToFile(const tMapData *pMapData, const char *szPath) {
 	logBlockEnd("mapDataSaveToFile()");
 	systemUnuse();
 	return 1;
+}
+
+void mapDataRecalculateLinkTileAt(tMapData *pMapData, UBYTE ubX, UBYTE ubY) {
+	UBYTE isHorizontal = 0, isVertical = 0;
+	tTile eTile;
+	if(ubX > 0) {
+		eTile = pMapData->pTiles[ubX - 1][ubY];
+		if(tileIsLink(eTile) || tileIsNode(eTile)) {
+			isHorizontal = 1;
+		}
+	}
+	if(ubX < MAP_SIZE - 1) {
+		eTile = pMapData->pTiles[ubX + 1][ubY];
+		if(tileIsLink(eTile) || tileIsNode(eTile)) {
+			isHorizontal = 1;
+		}
+	}
+
+	if(ubY > 0) {
+		eTile = pMapData->pTiles[ubX][ubY - 1];
+		if(tileIsLink(eTile) || tileIsNode(eTile)) {
+			isVertical = 1;
+		}
+	}
+
+	if(ubY < MAP_SIZE - 1) {
+		eTile = pMapData->pTiles[ubX][ubY + 1];
+		if(tileIsLink(eTile) || tileIsNode(eTile)) {
+			isVertical = 1;
+		}
+	}
+
+	if(isHorizontal && isVertical) {
+		eTile = TILE_PATH_X1;
+	}
+	else if(isHorizontal) {
+		eTile = TILE_PATH_H1;
+	}
+	else { // isVertical
+		eTile = TILE_PATH_V1;
+	}
+	eTile += ((ubX + ubY) & 3);
+	pMapData->pTiles[ubX][ubY] = eTile;
 }

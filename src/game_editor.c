@@ -5,6 +5,7 @@
 #include "game_editor.h"
 #include <ace/managers/game.h>
 #include <ace/managers/system.h>
+#include <gui/config.h>
 #include "game_assets.h"
 #include "dialog_load.h"
 #include "dialog_save.h"
@@ -45,7 +46,7 @@ static void editorDrawMapTileAt(UBYTE ubTileX, UBYTE ubTileY) {
 		gameGetBackBuffer(), ubTileX * MAP_TILE_SIZE, ubTileY * MAP_TILE_SIZE,
 		16, 16, 0
 	);
-	gameDrawTileAt( // TODO: blit all tiles with mask
+	gameDrawTileAt(
 		TILE_EDITOR_BLANK,
 		ubTileX * MAP_TILE_SIZE, ubTileY * MAP_TILE_SIZE, ubFrame
 	);
@@ -80,6 +81,12 @@ static void editorInitialDraw(void) {
 
 void gameEditorGsCreate(void) {
 	systemUse();
+
+	tGuiConfig *pConfig = guiGetConfig();
+	pConfig->ubColorLight = 16;
+	pConfig->ubColorDark = 19;
+	pConfig->ubColorFill = 18;
+	pConfig->ubColorText = 17;
 
 	s_pBtnSmall = bitmapCreateFromFile("data/btn_small.bm", 0);
 	s_pBtnSmallMask = bitmapCreateFromFile("data/btn_small_mask.bm", 0);
@@ -210,7 +217,6 @@ void gameEditorGsLoop(void) {
 	if(s_ubPaletteDrawCount) {
 		--s_ubPaletteDrawCount;
 		for(UBYTE i = 0; i < s_ubMenuPosCount; ++i) {
-			logWrite("Drawing editor palette tile %hhu\n", i);
 			gameDrawTileAt(
 				s_pMenuTiles[i], HUD_OFFS_X + 6, 7 + i * MAP_TILE_SIZE, BLOB_FRAME_COUNT - 1
 			);
@@ -218,7 +224,16 @@ void gameEditorGsLoop(void) {
 	}
 	else if(s_ubTileDrawCount) {
 		--s_ubTileDrawCount;
-		editorDrawMapTileAt(s_sPlayer.ubX, s_sPlayer.ubY);
+		for(BYTE bDy = -1; bDy <= 1; ++bDy) {
+			for(BYTE bDx = -1; bDx <= 1; ++bDx) {
+				UBYTE ubX = CLAMP(s_sPlayer.ubX + bDx, 0, MAP_SIZE);
+				UBYTE ubY = CLAMP(s_sPlayer.ubY + bDy, 0, MAP_SIZE);
+				if(tileIsLink(g_sMapData.pTiles[ubX][ubY])) {
+					mapDataRecalculateLinkTileAt(&g_sMapData, ubX, ubY);
+				}
+				editorDrawMapTileAt(ubX, ubY);
+			}
+		}
 	}
 	else {
 		tDirection eDir = steerProcess(pSteer);
