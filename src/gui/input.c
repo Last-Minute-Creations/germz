@@ -8,6 +8,40 @@
 #include "config.h"
 #include "border.h"
 
+//------------------------------------------------------------------- STATIC FNS
+
+static void inputDrawText(const tInput *pInput, UBYTE isDrawCursor) {
+	// Clear bg
+	const tGuiConfig *pConfig = guiGetConfig();
+	blitRect(
+		pInput->pBfr, pInput->sPos.uwX + 2, pInput->sPos.uwY + 2,
+		pInput->uwWidth - 4, pInput->pFont->uwHeight, 0
+	);
+
+	// Draw new text
+	fontFillTextBitMap(pInput->pFont, pInput->pTextBitMap, pInput->szValue);
+	if(pInput->pTextBitMap->uwActualWidth) {
+		fontDrawTextBitMap(
+			pInput->pBfr, pInput->pTextBitMap,
+			pInput->sPos.uwX + 2, pInput->sPos.uwY + 2,
+			pConfig->ubColorText, FONT_COOKIE
+		);
+	}
+
+	// Draw cursor if needed
+	if(isDrawCursor) {
+		UWORD uwTextLength = pInput->pTextBitMap->uwActualWidth;
+		fontFillTextBitMap(pInput->pFont, pInput->pTextBitMap, "_");
+		fontDrawTextBitMap(
+			pInput->pBfr, pInput->pTextBitMap,
+			pInput->sPos.uwX + 2 + uwTextLength, pInput->sPos.uwY + 2,
+			pConfig->ubColorText, FONT_COOKIE
+		);
+	}
+}
+
+//------------------------------------------------------------------- PUBLIC FNS
+
 tInput *inputCreate(
 	tBitMap *pBg, tFont *pFont, tTextBitMap *pTextBitMap, UWORD uwX, UWORD uwY,
 	UWORD uwWidth, UWORD uwMaxChars, const char *szLabel, char *szValueBuffer
@@ -59,6 +93,7 @@ tInput *inputCreate(
 		);
 	}
 	guiDraw3dBorder(pBg, pInput->sPos.uwX, pInput->sPos.uwY, uwWidth, uwHeight);
+	inputDrawText(pInput, 0);
 
 	return pInput;
 fail:
@@ -79,36 +114,6 @@ void inputDestroy(tInput *pInput) {
 		memFree(pInput, sizeof(*pInput));
 	}
 	systemUnuse();
-}
-
-static void inputDrawText(const tInput *pInput, UBYTE isDrawCursor) {
-	// Clear bg
-	const tGuiConfig *pConfig = guiGetConfig();
-	blitRect(
-		pInput->pBfr, pInput->sPos.uwX + 2, pInput->sPos.uwY + 2,
-		pInput->uwWidth - 4, pInput->pFont->uwHeight, 0
-	);
-
-	// Draw new text
-	fontFillTextBitMap(pInput->pFont, pInput->pTextBitMap, pInput->szValue);
-	if(pInput->pTextBitMap->uwActualWidth) {
-		fontDrawTextBitMap(
-			pInput->pBfr, pInput->pTextBitMap,
-			pInput->sPos.uwX + 2, pInput->sPos.uwY + 2,
-			pConfig->ubColorText, FONT_COOKIE
-		);
-	}
-
-	// Draw cursor if needed
-	if(isDrawCursor) {
-		UWORD uwTextLength = pInput->pTextBitMap->uwActualWidth;
-		fontFillTextBitMap(pInput->pFont, pInput->pTextBitMap, "_");
-		fontDrawTextBitMap(
-			pInput->pBfr, pInput->pTextBitMap,
-			pInput->sPos.uwX + 2 + uwTextLength, pInput->sPos.uwY + 2,
-			pConfig->ubColorText, FONT_COOKIE
-		);
-	}
 }
 
 void inputProcess(tInput *pInput) {

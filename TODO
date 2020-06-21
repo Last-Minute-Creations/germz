@@ -25,9 +25,9 @@ Done:
 Now:
 	☐ Map save/load to/from file
 		✔ List only .json files @done(20-06-15 19:52)
-		☐ Remember last saved/load file name and use it for default selection
+		✔ Remember last saved/load file name and use it for default selection @done(20-06-21 08:03)
 		☐ Ask for overwrite
-		☐ Ask for saving unsaved progress
+		☐ Ask for saving unsaved progress on load
 		☐ don't allow WSAD in editor
 		☐ convert junction tiles to proper orientation
 		☐ animation while loading preview
