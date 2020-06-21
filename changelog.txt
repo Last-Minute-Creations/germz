@@ -1,3 +1,9 @@
+20.6.21
+- added save/load in map editor
+- added fade-in and fade-out
+- editor now aligns blob links properly
+- editor now always use keyboard arrows or joy1
+
 20.5.9
 - editor kinda works, press F1 ingame
 - reorganized source for displaying game summary and editor directly from game
