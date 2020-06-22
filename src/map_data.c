@@ -125,10 +125,6 @@ void mapDataRecalculateStuff(tMapData *pMapData) {
 					pMapData->ubPlayerCount, eTile - TILE_BLOB_P1 + 1
 				);
 			}
-			else if(tileIsLink(eTile)) {
-				eTile += ((x + y) & 3);
-			}
-			pMapData->pTiles[x][y] = eTile;
 		}
 	}
 }

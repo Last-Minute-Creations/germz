@@ -68,7 +68,7 @@ tInput *inputCreate(
 	pInput->sPos.uwY = uwY;
 	pInput->uwWidth = uwWidth;
 	pInput->uwMaxChars = uwMaxChars;
-	pInput->uwValueLength = 0;
+	pInput->uwValueLength = strlen(pInput->szValue);
 	pInput->pFont = pFont;
 	pInput->pBfr = pBg;
 
