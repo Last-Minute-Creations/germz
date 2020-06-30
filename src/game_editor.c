@@ -109,7 +109,7 @@ void gameEditorGsCreate(void) {
 	s_sBobLedTile.sPos.uwY = 9;
 
 	s_sBobLedColor.sPos.uwX = HUD_OFFS_X + 5;
-	s_sBobLedColor.sPos.uwY = 148;
+	s_sBobLedColor.sPos.uwY = 164;
 
 	s_sBobBtnTile.sPos.uwX = HUD_OFFS_X + 37;
 	s_sBobBtnFn.sPos.uwX = HUD_OFFS_X + 29;
@@ -183,7 +183,7 @@ void gameEditorGsLoop(void) {
 	}
 	if(ubFnBtnPressed != s_ubFnBtnCount && keyUse(KEY_F1 + ubFnBtnPressed)) {
 		bobNewSetBitMapOffset(&s_sBobBtnFn, ubFnBtnPressed * 10);
-		s_sBobBtnFn.sPos.uwY = 148 + ubFnBtnPressed * 14;
+		s_sBobBtnFn.sPos.uwY = 164 + ubFnBtnPressed * 14;
 		s_pFnCallbacks[ubFnBtnPressed]();
 		// Don't process anything else since callbacks could change game state
 		return;

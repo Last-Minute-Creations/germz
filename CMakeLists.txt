@@ -143,12 +143,13 @@ extractBitmaps(TARGET ${GERMZ_EXECUTABLE} SOURCE 	${RES_DIR}/editor_gfx.png
 		${GEN_DIR}/btn_small/5.png 64  50 16 10
 		${GEN_DIR}/btn_small/6.png 64  60 16 10
 		${GEN_DIR}/btn_small/7.png 64  70 16 10
-		${GEN_DIR}/btn_big/0.png   64  80 32 10
-		${GEN_DIR}/btn_big/1.png   64  90 32 10
-		${GEN_DIR}/btn_big/2.png   64 100 32 10
-		${GEN_DIR}/btn_big/3.png   64 110 32 10
-		${GEN_DIR}/btn_big/4.png   64 120 32 10
-		${GEN_DIR}/btn_big/5.png   64 130 32 10
+		${GEN_DIR}/btn_small/8.png 64  80 16 10
+		${GEN_DIR}/btn_big/0.png   64  90 32 10
+		${GEN_DIR}/btn_big/1.png   64 100 32 10
+		${GEN_DIR}/btn_big/2.png   64 110 32 10
+		${GEN_DIR}/btn_big/3.png   64 120 32 10
+		${GEN_DIR}/btn_big/4.png   64 130 32 10
+		${GEN_DIR}/btn_big/5.png   64 140 32 10
 		${GEN_DIR}/led_small.png    0  44 16 10
 		${GEN_DIR}/led_big/1.png    0  66 32 10
 		${GEN_DIR}/led_big/0.png    0  77 32 10
