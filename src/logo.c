@@ -7,10 +7,12 @@
 #include <ace/managers/game.h>
 #include <ace/managers/system.h>
 #include <ace/managers/joy.h>
+#include <ace/managers/key.h>
 #include <ace/managers/blit.h>
 #include <ace/utils/palette.h>
 #include "menu.h"
 #include "fade.h"
+#include "germz.h"
 
 typedef void (*tCbLogo)(void);
 typedef UBYTE (*tCbFadeOut)(void);
@@ -31,7 +33,7 @@ static tCbLogo s_cbFadeIn = 0, s_cbWait = 0;
 static tCbFadeOut s_cbFadeOut = 0;
 static UBYTE s_isAnyPressed = 0;
 
-void logoGsCreate(void) {
+static void logoGsCreate(void) {
 	logBlockBegin("logoGsCreate()");
 
 	s_pView = viewCreate(0,
@@ -61,7 +63,7 @@ void logoGsCreate(void) {
 	viewLoad(s_pView);
 }
 
-void logoGsLoop(void) {
+static void logoGsLoop(void) {
 	s_isAnyPressed = (
 		keyUse(KEY_RETURN) | keyUse(KEY_ESCAPE) | keyUse(KEY_SPACE) |
 		keyUse(KEY_LSHIFT) | keyUse(KEY_RSHIFT) |
@@ -104,13 +106,12 @@ void logoGsLoop(void) {
 	viewUpdateCLUT(s_pView);
 }
 
-void logoGsDestroy(void) {
+static void logoGsDestroy(void) {
 	systemUse();
 	logBlockBegin("logoGsDestroy()");
 	viewDestroy(s_pView);
 	logBlockEnd("logoGsDestroy()");
 }
-
 
 //-------------------------------------------------------------------------- LMC
 
@@ -147,6 +148,8 @@ void lmcWait(void) {
 }
 
 UBYTE lmcFadeOut(void) {
-	gameChangeState(menuGsCreate, menuGsLoop, menuGsDestroy);
+	stateChange(g_pStateMachineGame, &g_sStateMenu);
 	return 1;
 }
+
+tState g_sStateLogo = STATE(logoGsCreate, logoGsLoop, logoGsDestroy, 0, 0);

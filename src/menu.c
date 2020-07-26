@@ -15,6 +15,7 @@
 #include "game.h"
 #include "build_ver.h"
 #include "fade.h"
+#include "germz.h"
 
 #define MENU_COLOR_ACTIVE 16
 #define MENU_COLOR_INACTIVE 17
@@ -58,6 +59,7 @@ static tSimpleBufferManager *s_pBfr;
 static ULONG s_ulModSize;
 static UBYTE *s_pMod;
 static tBitMap *s_pBg;
+static tFade *s_pFade;
 
 static void onStart(void);
 static void onEditor(void);
@@ -206,15 +208,15 @@ static UBYTE menuEnter(void) {
 //------------------------------------------------------------------ PRIVATE FNS
 
 static void onFadeoutStart(void) {
-	gameChangeState(gameGsCreate, gameGsLoop, gameGsDestroy);
+	stateChange(g_pStateMachineGame, &g_sStateGame);
 }
 
 static void onFadeoutExit(void) {
-	gameClose();
+	gameExit();
 }
 
 static void onExit(void) {
-	fadeSet(s_pView, FADE_STATE_OUT, 50, onFadeoutExit);
+	fadeSet(s_pFade, FADE_STATE_OUT, 50, onFadeoutExit);
 }
 
 static void menuErrorMsg(const char *szMsg) {
@@ -280,7 +282,7 @@ static void startGame(UBYTE isEditor) {
 		}
 	}
 	gameSetEditor(isEditor);
-	fadeSet(s_pView, FADE_STATE_OUT, 50, onFadeoutStart);
+	fadeSet(s_pFade, FADE_STATE_OUT, 50, onFadeoutStart);
 }
 
 static void onStart(void) {
@@ -317,7 +319,7 @@ void menuGsCreate(void) {
 
 	UWORD pPalette[32];
 	paletteLoad("data/germz.plt", pPalette, 32);
-	fadeSetPalette(pPalette, 32);
+	s_pFade = fadeCreate(s_pView, pPalette, 32);
 
 	s_pFont = fontCreate("data/uni54.fnt");
 	s_pTextBitmap = fontCreateTextBitMap(320, s_pFont->uwHeight);
@@ -346,7 +348,7 @@ void menuGsCreate(void) {
 	fileRead(pFileMod, s_pMod, s_ulModSize);
 	fileClose(pFileMod);
 	ptplayerInit(s_pMod, 0, 0);
-	fadeSet(s_pView, FADE_STATE_IN, 50, 0);
+	fadeSet(s_pFade, FADE_STATE_IN, 50, 0);
 
 	systemUnuse();
 	ptplayerStartPlayback(1);
@@ -357,12 +359,12 @@ void menuGsLoop(void) {
 	ptplayerEnableMusic(1);
 	ptplayerProcess();
 
-	tFadeState eFadeState = fadeProcess();
+	tFadeState eFadeState = fadeProcess(s_pFade);
 	if(eFadeState == FADE_STATE_EVENT_FIRED) {
 		return;
 	}
 	if(eFadeState != FADE_STATE_OUT && keyUse(KEY_ESCAPE)) {
-		fadeSet(s_pView, FADE_STATE_OUT, 50, onFadeoutExit);
+		fadeSet(s_pFade, FADE_STATE_OUT, 50, onFadeoutExit);
 		return;
 	}
 
@@ -428,6 +430,7 @@ void menuGsDestroy(void) {
 	viewDestroy(s_pView);
 	fontDestroyTextBitMap(s_pTextBitmap);
 	fontDestroy(s_pFont);
+	fadeDestroy(s_pFade);
 }
 
 UBYTE menuIsPlayerActive(UBYTE ubPlayerIdx) {
@@ -456,3 +459,5 @@ tSteer menuGetSteerForPlayer(UBYTE ubPlayerIdx) {
 	}
 	return steerInitIdle();
 }
+
+tState g_sStateMenu = STATE(menuGsCreate, menuGsLoop, menuGsDestroy, 0, 0);

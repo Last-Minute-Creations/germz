@@ -16,13 +16,33 @@ typedef enum _tFadeState {
 
 typedef void (*tCbFadeOnDone)(void);
 
-void fadeSetPalette(UWORD *pPalette, UBYTE ubColorCount);
+typedef struct _tFade {
+	tFadeState eState;
+	UBYTE ubColorCount;
+	UBYTE ubCnt;
+	UBYTE ubCntEnd;
+	UWORD pPaletteRef[32];
+	tCbFadeOnDone cbOnDone;
+	tView *pView;
+} tFade;
+
+tFade *fadeCreate(tView *pView, UWORD *pPalette, UBYTE ubColorCount);
+
+void fadeDestroy(tFade *pFade);
 
 void fadeSet(
-	tView *pView, tFadeState eState, UBYTE ubFramesToFullFade,
+	tFade *pFade, tFadeState eState, UBYTE ubFramesToFullFade,
 	tCbFadeOnDone cbOnDone
 );
 
-tFadeState fadeProcess(void);
+/**
+ * @brief Processes fade-in or fade-out.
+ * @param pFade Fade definition to be processed.
+ *
+ * @return Current fade state:
+ * - FADE_STATE_EVENT_FIRED if fade is done, and OnDone event has just fired.
+ * - FADE_STATE_IDLE if fade is done.
+ */
+tFadeState fadeProcess(tFade *pFade);
 
 #endif // _GERMZ_FADE_H_

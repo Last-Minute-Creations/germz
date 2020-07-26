@@ -5,21 +5,27 @@
 #include <ace/generic/main.h>
 #include <ace/managers/key.h>
 #include <ace/managers/joy.h>
+#include <ace/managers/state.h>
+#include "germz.h"
 #include "logo.h"
 
+tStateManager *g_pStateMachineGame;
+
 void genericCreate(void) {
+	g_pStateMachineGame = stateManagerCreate();
 	keyCreate();
 	joyOpen();
-	gamePushState(logoGsCreate, logoGsLoop, logoGsDestroy);
+	statePush(g_pStateMachineGame, &g_sStateLogo);
 }
 
 void genericProcess(void) {
 	keyProcess();
 	joyProcess();
-	gameProcess();
+	stateProcess(g_pStateMachineGame);
 }
 
 void genericDestroy(void) {
 	keyDestroy();
 	joyClose();
+	stateManagerDestroy(g_pStateMachineGame);
 }

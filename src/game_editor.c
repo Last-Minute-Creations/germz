@@ -5,6 +5,7 @@
 #include "game_editor.h"
 #include <ace/managers/game.h>
 #include <ace/managers/system.h>
+#include <ace/managers/key.h>
 #include <gui/config.h>
 #include "game_assets.h"
 #include "dialog_load.h"
@@ -13,6 +14,7 @@
 #include "game_init.h"
 #include "blob_anim.h"
 #include "steer.h"
+#include "germz.h"
 
 typedef struct _tEditorPlayer {
 	UBYTE ubX;
@@ -135,7 +137,7 @@ static void onReset(void) {
 
 static void onTest(void) {
 	mapDataRecalculateStuff(&g_sMapData);
-	gameChangeState(gameInitGsCreate, gameInitGsLoop, gameInitGsDestroy);
+	stateChange(g_pStateMachineGame, &g_sStateGameInit);
 }
 
 static void onLoad(void) {
@@ -151,7 +153,7 @@ static void onSave(void) {
 
 static void onQuit(void) {
 	// TODO: confirm exit
-	gamePopState();
+	statePop(g_pStateMachineGame);
 	return;
 }
 
@@ -312,3 +314,7 @@ tDirection gameEditorGetSteerDir(void) {
 }
 
 // #error MAP CREATE FAIL - in editor
+
+tState g_sStateEditor = STATE(
+	gameEditorGsCreate, gameEditorGsLoop, gameEditorGsDestroy, 0, 0
+);

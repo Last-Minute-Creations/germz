@@ -5,10 +5,4 @@
 #ifndef _LOGO_H_
 #define _LOGO_H_
 
-void logoGsCreate(void);
-
-void logoGsLoop(void);
-
-void logoGsDestroy(void);
-
 #endif // _LOGO_H_

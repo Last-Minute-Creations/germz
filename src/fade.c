@@ -5,56 +5,75 @@
 #include "fade.h"
 #include <ace/utils/palette.h>
 
-static tFadeState s_eFadeState;
-static UBYTE s_ubColorCount;
-static UBYTE s_ubFadeCnt;
-static UBYTE s_ubFadeCntEnd;
-static UWORD s_pPaletteRef[32];
-static tCbFadeOnDone s_cbOnDone;
-static tView *s_pView;
-
-void fadeSetPalette(UWORD *pPalette, UBYTE ubColorCount) {
-	for(UBYTE i = 0; i < ubColorCount; ++i) {
-		s_pPaletteRef[i] = pPalette[i];
+tFade *fadeCreate(tView *pView, UWORD *pPalette, UBYTE ubColorCount) {
+	logBlockBegin(
+		"fadeCreate(pView: %p, pPalette: %p, ubColorCount: %hhu)",
+		pView, pPalette, ubColorCount
+	);
+	tFade *pFade = memAllocFastClear(sizeof(*pFade));
+	pFade->eState = FADE_STATE_IDLE;
+	pFade->pView = pView;
+	pFade->ubColorCount = ubColorCount;
+	const UBYTE ubMaxColors = (
+		sizeof(pFade->pPaletteRef) / sizeof(pFade->pPaletteRef[0])
+	);
+	if(ubColorCount > ubMaxColors) {
+		logWrite(
+			"ERR: Unsupported palette size: %hhu, max: %hhu",
+			ubColorCount, ubMaxColors
+		);
 	}
-	s_ubColorCount = ubColorCount;
+	for(UBYTE i = 0; i < ubColorCount; ++i) {
+		pFade->pPaletteRef[i] = pPalette[i];
+	}
+	logBlockEnd("fadeCreate()");
+	return pFade;
+}
+
+void fadeDestroy(tFade *pFade) {
+	memFree(pFade, sizeof(*pFade));
 }
 
 void fadeSet(
-	tView *pView, tFadeState eState, UBYTE ubFramesToFullFade,
+	tFade *pFade, tFadeState eState, UBYTE ubFramesToFullFade,
 	tCbFadeOnDone cbOnDone
 ) {
-	s_pView = pView;
-	s_eFadeState = eState;
-	s_ubFadeCnt = 0;
-	s_ubFadeCntEnd = ubFramesToFullFade;
-	s_cbOnDone = cbOnDone;
+	logBlockBegin(
+		"fadeSet(pFade: %p, eState: %d, ubFramesToFullFade: %hhu, cbOnDone: %p)",
+		pFade, eState, ubFramesToFullFade, cbOnDone
+	);
+	pFade->eState = eState;
+	pFade->ubCnt = 0;
+	pFade->ubCntEnd = ubFramesToFullFade;
+	pFade->cbOnDone = cbOnDone;
+	logBlockEnd("fadeSet()");
 }
 
-tFadeState fadeProcess(void) {
-	if(s_eFadeState != FADE_STATE_IDLE && s_eFadeState != FADE_STATE_EVENT_FIRED) {
-		++s_ubFadeCnt;
+tFadeState fadeProcess(tFade *pFade) {
+	if(pFade->eState != FADE_STATE_IDLE && pFade->eState != FADE_STATE_EVENT_FIRED) {
+		++pFade->ubCnt;
 
-		UBYTE ubCnt = s_ubFadeCnt;
-		if(s_eFadeState == FADE_STATE_OUT) {
-			ubCnt = s_ubFadeCntEnd - s_ubFadeCnt;
+		UBYTE ubCnt = pFade->ubCnt;
+		if(pFade->eState == FADE_STATE_OUT) {
+			ubCnt = pFade->ubCntEnd - pFade->ubCnt;
 		}
-		UBYTE ubRatio = (15 * ubCnt) / s_ubFadeCntEnd;
+		UBYTE ubRatio = (15 * ubCnt) / pFade->ubCntEnd;
 
 		paletteDim(
-			s_pPaletteRef, s_pView->pFirstVPort->pPalette, s_ubColorCount, ubRatio
+			pFade->pPaletteRef, pFade->pView->pFirstVPort->pPalette,
+			pFade->ubColorCount, ubRatio
 		);
-		viewUpdateCLUT(s_pView);
+		viewUpdateCLUT(pFade->pView);
 
-		if(s_ubFadeCnt >= s_ubFadeCntEnd) {
-			if(s_cbOnDone) {
-				s_cbOnDone();
+		if(pFade->ubCnt >= pFade->ubCntEnd) {
+			if(pFade->cbOnDone) {
+				pFade->cbOnDone();
 			}
-			s_eFadeState = FADE_STATE_EVENT_FIRED;
+			pFade->eState = FADE_STATE_EVENT_FIRED;
 		}
 	}
 	else {
-		s_eFadeState = FADE_STATE_IDLE;
+		pFade->eState = FADE_STATE_IDLE;
 	}
-	return s_eFadeState;
+	return pFade->eState;
 }

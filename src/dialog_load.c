@@ -8,10 +8,12 @@
 #include <gui/button.h>
 #include <ace/utils/dir.h>
 #include <ace/managers/game.h>
+#include <ace/managers/key.h>
 #include "game_editor.h"
 #include "dialog_save.h"
 #include "game.h"
 #include "game_assets.h"
+#include "germz.h"
 
 #define MAP_FILENAME_MAX 100
 
@@ -97,7 +99,7 @@ static void dialogLoadGsCreate(void) {
 	if(!pDir) {
 		// TODO: something better
 		logWrite("Can't open or create maps dir!\n");
-		gamePopState();
+		statePop(g_pStateMachineGame);
 		return;
 	}
 
@@ -167,7 +169,7 @@ static void dialogLoadGsLoop(void) {
 	gamePostprocess();
 
 	if(isMapSelected || keyUse(KEY_ESCAPE)) {
-		gamePopState();
+		statePop(g_pStateMachineGame);
 	}
 }
 
@@ -180,5 +182,9 @@ static void dialogLoadGsDestroy(void) {
 
 
 void dialogLoadShow(void) {
-	gamePushState(dialogLoadGsCreate, dialogLoadGsLoop, dialogLoadGsDestroy);
+	statePush(g_pStateMachineGame, &g_sStateDialogLoad);
 }
+
+tState g_sStateDialogLoad = STATE(
+	dialogLoadGsCreate, dialogLoadGsLoop, dialogLoadGsDestroy, 0, 0
+);

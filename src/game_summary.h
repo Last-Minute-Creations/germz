@@ -5,10 +5,4 @@
 #ifndef _GERMZ_GAME_SUMMARY_H_
 #define _GERMZ_GAME_SUMMARY_H_
 
-void gameSummaryGsCreate(void);
-
-void gameSummaryGsLoop(void);
-
-void gameSummaryGsDestroy(void);
-
 #endif // _GERMZ_GAME_SUMMARY_H_

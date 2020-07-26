@@ -9,6 +9,8 @@
 #include "game_assets.h"
 #include "game_play.h"
 #include "map.h"
+#include "fade.h"
+#include "germz.h"
 
 static UBYTE s_isEven;
 static UBYTE s_ubCurrY;
@@ -81,14 +83,16 @@ void gameInitGsCreate(void) {
 	gameInitCursorBobs();
 	gameInitMap();
 	bobNewReallocateBgBuffers();
+	fadeSet(gameGetFade(), FADE_STATE_IN, 50, 0);
 }
 
 void gameInitGsLoop(void) {
+	tFadeState eState = fadeProcess(gameGetFade());
 	if(!gamePreprocess()) {
 		return;
 	}
-	if(initialAnim()) {
-		gameChangeState(gamePlayGsCreate, gamePlayGsLoop, gamePlayGsDestroy);
+	if(initialAnim() && eState == FADE_STATE_IDLE) {
+		stateChange(g_pStateMachineGame, &g_sStateGamePlay);
 		return;
 	}
 	gamePostprocess();
@@ -97,3 +101,7 @@ void gameInitGsLoop(void) {
 void gameInitGsDestroy(void) {
 
 }
+
+tState g_sStateGameInit = STATE(
+	gameInitGsCreate, gameInitGsLoop, gameInitGsDestroy, 0, 0
+);

@@ -4,6 +4,7 @@
 
 #include "game_play.h"
 #include <ace/managers/game.h>
+#include <ace/managers/key.h>
 #include <ace/utils/font.h>
 #include "game.h"
 #include "game_assets.h"
@@ -11,6 +12,7 @@
 #include "game_editor.h"
 #include "player.h"
 #include "blob_anim.h"
+#include "germz.h"
 
 #define HUD_BG 7
 
@@ -68,7 +70,7 @@ void gamePlayGsLoop(void) {
 		while(keyCheck(KEY_F1)) {
 			keyProcess();
 		}
-		gameChangeState(gameEditorGsCreate, gameEditorGsLoop, gameEditorGsDestroy);
+		stateChange(g_pStateMachineGame, &g_sStateEditor);
 		return;
 	}
 	if(!gamePreprocess()) {
@@ -82,9 +84,7 @@ void gamePlayGsLoop(void) {
 	mapProcessNodes();
 
 	if(!ubAliveCount) {
-		gameChangeState(
-			gameSummaryGsCreate, gameSummaryGsLoop, gameSummaryGsDestroy
-		);
+		stateChange(g_pStateMachineGame, &g_sStateGameSummary);
 		return;
 	}
 	gamePostprocess();
@@ -92,3 +92,7 @@ void gamePlayGsLoop(void) {
 
 void gamePlayGsDestroy(void) {
 }
+
+tState g_sStateGamePlay = STATE(
+	gamePlayGsCreate, gamePlayGsLoop, gamePlayGsDestroy, 0, 0
+);

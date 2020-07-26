@@ -4,6 +4,7 @@
 
 #include "dialog_save.h"
 #include <ace/managers/game.h>
+#include <ace/managers/key.h>
 #include "gui/dialog.h"
 #include "gui/input.h"
 #include "gui/button.h"
@@ -11,6 +12,7 @@
 #include "game_editor.h"
 #include "game.h"
 #include "game_assets.h"
+#include "germz.h"
 
 typedef enum _tSaveInput {
 	SAVE_INPUT_TITLE,
@@ -134,15 +136,15 @@ void dialogSaveGsLoop(void) {
 				strcat(szPath, s_szFileName);
 				strcat(szPath, ".json");
 				mapDataSaveToFile(&g_sMapData, szPath);
-				gamePopState();
+				statePop(g_pStateMachineGame);
 			}
 		}
 		else if(buttonGetSelected() == s_pButtonCancel) {
-			gamePopState();
+			statePop(g_pStateMachineGame);
 		}
 	}
 	else if(keyUse(KEY_ESCAPE)) {
-		gamePopState();
+		statePop(g_pStateMachineGame);
 	}
 }
 
@@ -155,9 +157,13 @@ void dialogSaveGsDestroy(void) {
 }
 
 void dialogSaveShow(void) {
-	gamePushState(dialogSaveGsCreate, dialogSaveGsLoop, dialogSaveGsDestroy);
+	statePush(g_pStateMachineGame, &g_sStateDialogSave);
 }
 
 void dialogSaveSetSaveName(const char *szName) {
 	strcpy(s_szFileName, szName);
 }
+
+tState g_sStateDialogSave = STATE(
+	dialogSaveGsCreate, dialogSaveGsLoop, dialogSaveGsDestroy, 0, 0
+);

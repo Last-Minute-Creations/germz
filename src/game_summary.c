@@ -3,17 +3,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "game_summary.h"
-#include <ace/managers/game.h>
+#include "germz.h"
 
-void gameSummaryGsCreate(void) {
+static void gameSummaryGsCreate(void) {
 	// Go to game -> will go to menu
-	gamePopState();
+	statePop(g_pStateMachineGame);
 }
 
-void gameSummaryGsLoop(void) {
+static void gameSummaryGsLoop(void) {
 
 }
 
-void gameSummaryGsDestroy(void) {
+static void gameSummaryGsDestroy(void) {
 
 }
+
+tState g_sStateGameSummary = STATE(
+	gameSummaryGsCreate, gameSummaryGsLoop, gameSummaryGsDestroy, 0, 0
+);

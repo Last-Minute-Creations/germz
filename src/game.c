@@ -18,11 +18,13 @@
 #include "game_editor.h"
 #include "game_play.h"
 #include "game_summary.h"
+#include "germz.h"
 
 static tView *s_pView;
 static tVPort *s_pVp;
 static tSimpleBufferManager *s_pBfr;
 static tBobNew s_pCursorBobs[4];
+static tFade *s_pFade;
 
 //------------------------------------------------------------------------ DEBUG
 
@@ -58,7 +60,7 @@ void gameDumpFrame(void) {
 UBYTE gamePreprocess(void) {
 	gameDebugColor(0x00F);
 	if(keyUse(KEY_ESCAPE)) {
-		gamePopState();
+		statePop(g_pStateMachineGame);
 		return 0;
 	}
 	bobNewBegin(s_pBfr->pBack);
@@ -108,8 +110,10 @@ void gameGsCreate(void) {
 		TAG_END
 	);
 
-	paletteLoad("data/germz.plt", s_pVp->pPalette, 32);
-	s_uwColorBg = s_pVp->pPalette[0];
+	UWORD pPalette[32];
+	paletteLoad("data/germz.plt", pPalette, 32);
+	s_uwColorBg = pPalette[0];
+	s_pFade = fadeCreate(s_pView, pPalette, 32);
 
 	// Load settings from menu
 	for(UBYTE i = 0; i < 4; ++i) {
@@ -123,7 +127,7 @@ void gameGsCreate(void) {
 	bobNewManagerCreate(s_pBfr->pFront, s_pBfr->pBack, s_pBfr->uBfrBounds.uwY);
 
 	if(s_isEditor) {
-		gamePushState(gameEditorGsCreate, gameEditorGsLoop, gameEditorGsDestroy);
+		statePush(g_pStateMachineGame, &g_sStateEditor);
 	}
 	else {
 		// Are we here from menu? If so, load map
@@ -132,7 +136,7 @@ void gameGsCreate(void) {
 			// FIXME: handle it cleanly - it will crash for now
 			return;
 		}
-		gamePushState(gameInitGsCreate, gameInitGsLoop, gameInitGsDestroy);
+		statePush(g_pStateMachineGame, &g_sStateGameInit);
 	}
 	systemUnuse();
 	viewLoad(s_pView);
@@ -141,7 +145,7 @@ void gameGsCreate(void) {
 void gameGsLoop(void) {
 	// If game reaches this code then init/play/summary state has popped.
 	// Go to menu.
-	gameChangeState(menuGsCreate, menuGsLoop, menuGsDestroy);
+	stateChange(g_pStateMachineGame, &g_sStateMenu);
 }
 
 void gameGsDestroy(void) {
@@ -152,6 +156,7 @@ void gameGsDestroy(void) {
 	playerDestroy();
 	bobNewManagerDestroy();
 	aiDestroy();
+	fadeDestroy(s_pFade);
 
 	viewDestroy(s_pView);
 }
@@ -241,3 +246,9 @@ void gameInitCursorBobs(void) {
 void gameSetEditor(UBYTE isEditor) {
 	s_isEditor = isEditor;
 }
+
+tFade *gameGetFade(void) {
+	return s_pFade;
+}
+
+tState g_sStateGame = STATE(gameGsCreate, gameGsLoop, gameGsDestroy, 0, 0);

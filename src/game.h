@@ -9,6 +9,7 @@
 #include <ace/utils/font.h>
 #include "steer.h"
 #include "bob_new.h"
+#include "fade.h"
 
 #define HUD_OFFS_X 256
 #define HUD_MONITOR_SIZE 64
@@ -48,5 +49,7 @@ void gameInitCursorBobs(void);
 void gameSetEditor(UBYTE isEditor);
 
 tBobNew *gameGetCursorBob(UBYTE ubIdx);
+
+tFade *gameGetFade(void);
 
 #endif // _GERMZ_GAME_H_
