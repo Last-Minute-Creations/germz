@@ -347,11 +347,10 @@ void menuGsCreate(void) {
 	tFile *pFileMod = fileOpen("data/germz2-25.mod", "rb");
 	fileRead(pFileMod, s_pMod, s_ulModSize);
 	fileClose(pFileMod);
-	ptplayerInit(s_pMod, 0, 0);
+	ptplayerLoadMod(s_pMod, 0, 0);
 	fadeSet(s_pFade, FADE_STATE_IN, 50, 0);
 
 	systemUnuse();
-	ptplayerStartPlayback(1);
 	viewLoad(s_pView);
 }
 
@@ -422,8 +421,8 @@ void menuGsLoop(void) {
 }
 
 void menuGsDestroy(void) {
-	ptplayerStopPlayback();
 	viewLoad(0);
+	ptplayerStop();
 	systemUse();
 	bitmapDestroy(s_pBg);
 	memFree(s_pMod, s_ulModSize);
