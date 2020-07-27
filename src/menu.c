@@ -56,8 +56,6 @@ static const char *s_pMenuCaptions[] = {
 static tView *s_pView;
 static tVPort *s_pVp;
 static tSimpleBufferManager *s_pBfr;
-static ULONG s_ulModSize;
-static UBYTE *s_pMod;
 static tBitMap *s_pBg;
 static tFade *s_pFade;
 
@@ -342,12 +340,6 @@ void menuGsCreate(void) {
 	fontFillTextBitMap(s_pFont, s_pTextBitmap, "Retronizacja 3.9 special demo release");
 	fontDrawTextBitMap(s_pBfr->pBack, s_pTextBitmap, 320/2, 256 - 10, 17, FONT_HCENTER | FONT_COOKIE);
 
-	s_ulModSize = fileGetSize("data/germz2-25.mod");
-	s_pMod = memAllocChip(s_ulModSize);
-	tFile *pFileMod = fileOpen("data/germz2-25.mod", "rb");
-	fileRead(pFileMod, s_pMod, s_ulModSize);
-	fileClose(pFileMod);
-	ptplayerLoadMod(s_pMod, 0, 0);
 	fadeSet(s_pFade, FADE_STATE_IN, 50, 0);
 
 	systemUnuse();
@@ -355,9 +347,6 @@ void menuGsCreate(void) {
 }
 
 void menuGsLoop(void) {
-	ptplayerEnableMusic(1);
-	ptplayerProcess();
-
 	tFadeState eFadeState = fadeProcess(s_pFade);
 	if(eFadeState == FADE_STATE_EVENT_FIRED) {
 		return;
@@ -422,10 +411,8 @@ void menuGsLoop(void) {
 
 void menuGsDestroy(void) {
 	viewLoad(0);
-	ptplayerStop();
 	systemUse();
 	bitmapDestroy(s_pBg);
-	memFree(s_pMod, s_ulModSize);
 	viewDestroy(s_pView);
 	fontDestroyTextBitMap(s_pTextBitmap);
 	fontDestroy(s_pFont);
