@@ -321,6 +321,15 @@ convertBitmaps(
 		${DATA_DIR}/menu_main.bm ${DATA_DIR}/lmc.bm ${DATA_DIR}/ace.bm
 )
 
+convertAudio(
+	TARGET ${GERMZ_EXECUTABLE} SOURCE ${RES_DIR}/ace.wav
+	DESTINATION ${DATA_DIR}/ace.sfx
+)
+convertAudio(
+	TARGET ${GERMZ_EXECUTABLE} SOURCE ${RES_DIR}/lmc.wav
+	STRICT DESTINATION ${DATA_DIR}/sfx/lmc.sfx
+)
+
 # Copy MODs and maps
 file(
 	COPY ${RES_DIR}/germz2-25.mod ${RES_DIR}/maps ${RES_DIR}/uni54.fnt

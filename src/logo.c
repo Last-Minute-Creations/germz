@@ -10,6 +10,7 @@
 #include <ace/managers/key.h>
 #include <ace/managers/blit.h>
 #include <ace/utils/palette.h>
+#include <ace/utils/ptplayer.h>
 #include "menu.h"
 #include "fade.h"
 #include "germz.h"
@@ -32,6 +33,7 @@ static UBYTE s_ubFadeoutCnt;
 static tCbLogo s_cbFadeIn = 0, s_cbWait = 0;
 static tCbFadeOut s_cbFadeOut = 0;
 static UBYTE s_isAnyPressed = 0;
+static tPtplayerSfx *s_pSfxLmc;
 
 static void logoGsCreate(void) {
 	logBlockBegin("logoGsCreate()");
@@ -123,6 +125,7 @@ void lmcFadeIn(void) {
 		systemUse();
 		paletteLoad("data/germz.plt", s_pPaletteRef, 1 << s_pVp->ubBPP);
 		tBitMap *pLogo = bitmapCreateFromFile("data/lmc.bm", 0);
+		s_pSfxLmc = ptplayerSfxCreateFromFile("data/lmc.sfx");
 		systemUnuse();
 
 		blitCopy(
@@ -145,9 +148,13 @@ void lmcWait(void) {
 	if(s_ubFrame >= 100 || s_isAnyPressed) {
 		s_eFadeState = FADE_STATE_OUT;
 	}
+	else if(s_ubFrame == 1){
+		ptplayerSfxPlay(s_pSfxLmc, -1, 64, 1);
+	}
 }
 
 UBYTE lmcFadeOut(void) {
+	ptplayerSfxDestroy(s_pSfxLmc);
 	stateChange(g_pStateMachineGame, &g_sStateMenu);
 	return 1;
 }
