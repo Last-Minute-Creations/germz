@@ -42,7 +42,7 @@ set(GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated)
 
 file(
 	MAKE_DIRECTORY
-	${DATA_DIR} ${GEN_DIR}/cursors ${GEN_DIR}/links ${GEN_DIR}/blob0
+	${DATA_DIR} ${DATA_DIR}/sfx ${GEN_DIR}/cursors ${GEN_DIR}/links ${GEN_DIR}/blob0
 	${GEN_DIR}/blob1 ${GEN_DIR}/blob2 ${GEN_DIR}/blob3 ${GEN_DIR}/blob4
 	${GEN_DIR}/led_small ${GEN_DIR}/led_big ${GEN_DIR}/btn_small ${GEN_DIR}/btn_big
 	${GEN_DIR}/plep0_up ${GEN_DIR}/plep0_down ${GEN_DIR}/plep0_left ${GEN_DIR}/plep0_right
@@ -322,12 +322,20 @@ convertBitmaps(
 )
 
 convertAudio(
-	TARGET ${GERMZ_EXECUTABLE} SOURCE ${RES_DIR}/ace.wav
+	TARGET ${GERMZ_EXECUTABLE} SOURCE ${RES_DIR}/sfx/ace.wav
 	DESTINATION ${DATA_DIR}/ace.sfx
 )
 convertAudio(
-	TARGET ${GERMZ_EXECUTABLE} SOURCE ${RES_DIR}/lmc.wav
+	TARGET ${GERMZ_EXECUTABLE} SOURCE ${RES_DIR}/sfx/lmc.wav
 	STRICT DESTINATION ${DATA_DIR}/sfx/lmc.sfx
+)
+convertAudio(
+	TARGET ${GERMZ_EXECUTABLE} SOURCE ${RES_DIR}/sfx/plep1.wav
+	STRICT DESTINATION ${DATA_DIR}/sfx/plep1.sfx
+)
+convertAudio(
+	TARGET ${GERMZ_EXECUTABLE} SOURCE ${RES_DIR}/sfx/plep2.wav
+	STRICT DESTINATION ${DATA_DIR}/sfx/plep2.sfx
 )
 
 # Copy MODs and maps

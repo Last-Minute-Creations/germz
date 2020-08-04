@@ -7,6 +7,7 @@
 
 #include "map.h"
 #include <ace/utils/font.h>
+#include <ace/utils/ptplayer.h>
 #define BLOB_FRAME_COUNT 9
 
 /**
@@ -29,5 +30,6 @@ extern tBitMap *g_pCursors, *g_pCursorsMask;
 extern tBitMap *g_pBmLinks, *g_pBmLinksMask;
 extern tFont *g_pFont;
 extern tTextBitMap *g_pTextBitmap;
+extern tPtplayerSfx *g_pSfxPlep1, *g_pSfxPlep2;
 
 #endif // _GERMZ_GAME_ASSETS_H_

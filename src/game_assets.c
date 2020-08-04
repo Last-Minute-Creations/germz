@@ -27,6 +27,10 @@ void gameAssetsCreate(void) {
 	// Font
 	g_pFont = fontCreate("data/uni54.fnt");
 	g_pTextBitmap = fontCreateTextBitMap(320, g_pFont->uwHeight);
+
+	// Sounds
+	g_pSfxPlep1 = ptplayerSfxCreateFromFile("data/sfx/plep1.sfx");
+	g_pSfxPlep2 = ptplayerSfxCreateFromFile("data/sfx/plep2.sfx");
 }
 
 void gameAssetsDestroy(void) {
@@ -58,3 +62,4 @@ tBitMap *g_pCursors, *g_pCursorsMask;
 tBitMap *g_pBmLinks, *g_pBmLinksMask;
 tFont *g_pFont;
 tTextBitMap *g_pTextBitmap;
+tPtplayerSfx *g_pSfxPlep1, *g_pSfxPlep2;

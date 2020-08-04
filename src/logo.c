@@ -125,7 +125,7 @@ void lmcFadeIn(void) {
 		systemUse();
 		paletteLoad("data/germz.plt", s_pPaletteRef, 1 << s_pVp->ubBPP);
 		tBitMap *pLogo = bitmapCreateFromFile("data/lmc.bm", 0);
-		s_pSfxLmc = ptplayerSfxCreateFromFile("data/lmc.sfx");
+		s_pSfxLmc = ptplayerSfxCreateFromFile("data/sfx/lmc.sfx");
 		systemUnuse();
 
 		blitCopy(

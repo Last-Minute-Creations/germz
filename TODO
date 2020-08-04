@@ -23,6 +23,8 @@ Done:
 	✔ plep colored for each player @done(20-05-27 13:45)
 	✔ four variants for branches @done(20-06-21 11:33)
 	✔ fade in/out in menu @done(20-06-21 14:15)
+	✔ ptplayer in game @done(20-08-04 17:00)
+	✔ sound effects @done(20-08-04 17:00)
 
 Now:
 	☐ Map save/load to/from file
@@ -38,8 +40,6 @@ Now:
 		☐ display map preview in load dialog
 	☐ Reduce mem usage by AI
 	☐ fix ptplayer on higher cpu freq
-	☐ ptplayer in game
-	☐ sound effects
 	☐ win/lose screen
 	☐ cursors should blink or something so that overlapping will be visible
 	☐ display in visible menu part how keyboard layouts have action button bound (how to play)
