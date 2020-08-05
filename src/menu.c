@@ -446,4 +446,6 @@ tSteer menuGetSteerForPlayer(UBYTE ubPlayerIdx) {
 	return steerInitIdle();
 }
 
-tState g_sStateMenu = STATE(menuGsCreate, menuGsLoop, menuGsDestroy, 0, 0);
+tState g_sStateMenu = {
+	.cbCreate = menuGsCreate, .cbLoop = menuGsLoop, .cbDestroy = menuGsDestroy
+};

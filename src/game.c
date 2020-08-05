@@ -251,4 +251,6 @@ tFade *gameGetFade(void) {
 	return s_pFade;
 }
 
-tState g_sStateGame = STATE(gameGsCreate, gameGsLoop, gameGsDestroy, 0, 0);
+tState g_sStateGame = {
+	.cbCreate = gameGsCreate, .cbLoop = gameGsLoop, .cbDestroy = gameGsDestroy
+};

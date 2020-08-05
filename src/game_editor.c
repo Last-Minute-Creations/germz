@@ -315,6 +315,7 @@ tDirection gameEditorGetSteerDir(void) {
 
 // #error MAP CREATE FAIL - in editor
 
-tState g_sStateEditor = STATE(
-	gameEditorGsCreate, gameEditorGsLoop, gameEditorGsDestroy, 0, 0
-);
+tState g_sStateEditor = {
+	.cbCreate = gameEditorGsCreate, .cbLoop = gameEditorGsLoop,
+	.cbDestroy = gameEditorGsDestroy
+};

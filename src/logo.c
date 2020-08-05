@@ -159,4 +159,6 @@ UBYTE lmcFadeOut(void) {
 	return 1;
 }
 
-tState g_sStateLogo = STATE(logoGsCreate, logoGsLoop, logoGsDestroy, 0, 0);
+tState g_sStateLogo = {
+	.cbCreate = logoGsCreate, .cbLoop = logoGsLoop, .cbDestroy = logoGsDestroy
+};

@@ -164,6 +164,7 @@ void dialogSaveSetSaveName(const char *szName) {
 	strcpy(s_szFileName, szName);
 }
 
-tState g_sStateDialogSave = STATE(
-	dialogSaveGsCreate, dialogSaveGsLoop, dialogSaveGsDestroy, 0, 0
-);
+tState g_sStateDialogSave = {
+	.cbCreate = dialogSaveGsCreate, .cbLoop = dialogSaveGsLoop,
+	.cbDestroy = dialogSaveGsDestroy
+};

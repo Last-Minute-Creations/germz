@@ -3,12 +3,6 @@
 
 #include <ace/managers/state.h>
 
-#define STATE(a_cbCreate, a_cbLoop, a_cbDestroy, a_cbSuspend, a_cbResume) \
-	{ \
-		.cbCreate = a_cbCreate, .cbLoop = a_cbLoop, .cbDestroy = a_cbDestroy, \
-		.cbSuspend = a_cbSuspend, .cbResume = a_cbResume, .pPrev = 0 \
-	}
-
 extern tStateManager *g_pStateMachineGame;
 
 extern tState

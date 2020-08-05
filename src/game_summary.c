@@ -18,6 +18,7 @@ static void gameSummaryGsDestroy(void) {
 
 }
 
-tState g_sStateGameSummary = STATE(
-	gameSummaryGsCreate, gameSummaryGsLoop, gameSummaryGsDestroy, 0, 0
-);
+tState g_sStateGameSummary = {
+	.cbCreate = gameSummaryGsCreate, .cbLoop = gameSummaryGsLoop,
+	.cbDestroy = gameSummaryGsDestroy
+};

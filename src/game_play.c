@@ -93,6 +93,7 @@ void gamePlayGsLoop(void) {
 void gamePlayGsDestroy(void) {
 }
 
-tState g_sStateGamePlay = STATE(
-	gamePlayGsCreate, gamePlayGsLoop, gamePlayGsDestroy, 0, 0
-);
+tState g_sStateGamePlay = {
+	.cbCreate = gamePlayGsCreate, .cbLoop = gamePlayGsLoop,
+	.cbDestroy = gamePlayGsDestroy
+};

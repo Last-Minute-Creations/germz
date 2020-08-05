@@ -185,6 +185,7 @@ void dialogLoadShow(void) {
 	statePush(g_pStateMachineGame, &g_sStateDialogLoad);
 }
 
-tState g_sStateDialogLoad = STATE(
-	dialogLoadGsCreate, dialogLoadGsLoop, dialogLoadGsDestroy, 0, 0
-);
+tState g_sStateDialogLoad = {
+	.cbCreate = dialogLoadGsCreate, .cbLoop = dialogLoadGsLoop,
+	.cbDestroy = dialogLoadGsDestroy
+};

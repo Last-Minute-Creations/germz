@@ -102,6 +102,7 @@ void gameInitGsDestroy(void) {
 
 }
 
-tState g_sStateGameInit = STATE(
-	gameInitGsCreate, gameInitGsLoop, gameInitGsDestroy, 0, 0
-);
+tState g_sStateGameInit = {
+	.cbCreate = gameInitGsCreate, .cbLoop = gameInitGsLoop,
+	.cbDestroy = gameInitGsDestroy
+};
