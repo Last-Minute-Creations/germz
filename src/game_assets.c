@@ -53,6 +53,11 @@ void gameAssetsDestroy(void) {
 	// Font
 	fontDestroy(g_pFont);
 	fontDestroyTextBitMap(g_pTextBitmap);
+
+	// Sounds
+	ptplayerSfxDestroy(g_pSfxPlep1);
+	ptplayerSfxDestroy(g_pSfxPlep2);
+
 	systemUnuse();
 	logBlockEnd("gameAssetsDestroy()");
 }
