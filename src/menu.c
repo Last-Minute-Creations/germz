@@ -50,17 +50,19 @@ static const char *s_pMenuCaptions[] = {
 	"Player 3",
 	"Player 4",
 	"Editor",
+	"Credits",
 	"Cure"
 };
 
 static tView *s_pView;
 static tVPort *s_pVp;
 static tSimpleBufferManager *s_pBfr;
-static tBitMap *s_pBg;
-static tFade *s_pFade;
+static tBitMap *s_pBg, *s_pBgSub;
+static tFade *s_pFadeMenu;
 
 static void onStart(void);
 static void onEditor(void);
+static void onCredits(void);
 static void onExit(void);
 
 //------------------------------------------------------------------------- MENU
@@ -114,6 +116,7 @@ static tOption s_pOptions[] = {
 		.ubDefault = PLAYER_STEER_OFF, .pEnumLabels = s_pMenuEnumSteer
 	}},
 	{OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onEditor}},
+	{OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onCredits}},
 	{OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onExit}},
 };
 #define MENU_POS_COUNT (sizeof(s_pOptions) / sizeof(tOption))
@@ -214,7 +217,7 @@ static void onFadeoutExit(void) {
 }
 
 static void onExit(void) {
-	fadeSet(s_pFade, FADE_STATE_OUT, 50, onFadeoutExit);
+	fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, onFadeoutExit);
 }
 
 static void menuErrorMsg(const char *szMsg) {
@@ -280,7 +283,7 @@ static void startGame(UBYTE isEditor) {
 		}
 	}
 	gameSetEditor(isEditor);
-	fadeSet(s_pFade, FADE_STATE_OUT, 50, onFadeoutStart);
+	fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, onFadeoutStart);
 }
 
 static void onStart(void) {
@@ -292,7 +295,39 @@ static void onEditor(void) {
 	startGame(1);
 }
 
-void menuGsCreate(void) {
+static void onFadeoutToCredits(void) {
+	statePush(g_pStateMachineGame, &g_sStateCredits);
+}
+
+static void onCredits(void) {
+	fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, onFadeoutToCredits);
+}
+
+static void menuInitialDraw(void) {
+	blitCopy(s_pBg, 0, 0, s_pBfr->pBack, 0, 0, 320, 128, MINTERM_COPY, 0xFF);
+	blitCopy(s_pBg, 0, 128, s_pBfr->pBack, 0, 128, 320, 128, MINTERM_COPY, 0xFF);
+	for(UBYTE ubMenuPos = 0; ubMenuPos < MENU_POS_COUNT; ++ubMenuPos) {
+		s_pOptions[ubMenuPos].isDirty = 1;
+	}
+
+	char szVersion[15];
+	sprintf(szVersion, "v.%d.%d.%d", BUILD_YEAR, BUILD_MONTH, BUILD_DAY);
+	fontFillTextBitMap(s_pFont, s_pTextBitmap, szVersion);
+	fontDrawTextBitMap(s_pBfr->pBack, s_pTextBitmap, 320/2, 256 - 50, 18, FONT_HCENTER | FONT_COOKIE);
+
+	fontFillTextBitMap(s_pFont, s_pTextBitmap, "A game by Last Minute Creations");
+	fontDrawTextBitMap(s_pBfr->pBack, s_pTextBitmap, 320/2, 256 - 30, 18, FONT_HCENTER | FONT_COOKIE);
+
+	fontFillTextBitMap(s_pFont, s_pTextBitmap, "lastminutecreations.itch.io/germz");
+	fontDrawTextBitMap(s_pBfr->pBack, s_pTextBitmap, 320/2, 256 - 10, 17, FONT_HCENTER | FONT_COOKIE);
+}
+
+static void menuGsResume(void) {
+	menuInitialDraw();
+	fadeSet(s_pFadeMenu, FADE_STATE_IN, 50, 0);
+}
+
+static void menuGsCreate(void) {
 	s_pView = viewCreate(0,
 		TAG_VIEW_COPLIST_MODE, COPPER_MODE_BLOCK,
 		TAG_VIEW_GLOBAL_CLUT, 1,
@@ -312,47 +347,28 @@ void menuGsCreate(void) {
 		TAG_END
 	);
 	s_pBg = bitmapCreateFromFile("data/menu_main.bm", 0);
-	blitCopy(s_pBg, 0, 0, s_pBfr->pBack, 0, 0, 320, 128, MINTERM_COPY, 0xFF);
-	blitCopy(s_pBg, 0, 128, s_pBfr->pBack, 0, 128, 320, 128, MINTERM_COPY, 0xFF);
+	s_pBgSub = bitmapCreateFromFile("data/menu_sub.bm", 0);
 
 	UWORD pPalette[32];
 	paletteLoad("data/germz.plt", pPalette, 32);
-	s_pFade = fadeCreate(s_pView, pPalette, 32);
+	s_pFadeMenu = fadeCreate(s_pView, pPalette, 32);
 
 	s_pFont = fontCreate("data/uni54.fnt");
 	s_pTextBitmap = fontCreateTextBitMap(320, s_pFont->uwHeight);
-
-	for(UBYTE ubMenuPos = 0; ubMenuPos < MENU_POS_COUNT; ++ubMenuPos) {
-		s_pOptions[ubMenuPos].isDirty = 1;
-	}
-
-	char szVersion[15];
-	sprintf(szVersion, "v.%d.%d.%d", BUILD_YEAR, BUILD_MONTH, BUILD_DAY);
-	fontFillTextBitMap(s_pFont, s_pTextBitmap, szVersion);
-	fontDrawTextBitMap(s_pBfr->pBack, s_pTextBitmap, 320/2, 256 - 50, 18, FONT_HCENTER | FONT_COOKIE);
-
-	fontFillTextBitMap(s_pFont, s_pTextBitmap, "Gfx: Softiron, Sfx: Luc3k, Code: KaiN");
-	fontDrawTextBitMap(s_pBfr->pBack, s_pTextBitmap, 320/2, 256 - 40, 18, FONT_HCENTER | FONT_COOKIE);
-
-	fontFillTextBitMap(s_pFont, s_pTextBitmap, "Alpha tests: Sordan, Renton, Tomu\x85");
-	fontDrawTextBitMap(s_pBfr->pBack, s_pTextBitmap, 320/2, 256 - 30, 18, FONT_HCENTER | FONT_COOKIE);
-
-	fontFillTextBitMap(s_pFont, s_pTextBitmap, "Retronizacja 3.9 special demo release");
-	fontDrawTextBitMap(s_pBfr->pBack, s_pTextBitmap, 320/2, 256 - 10, 17, FONT_HCENTER | FONT_COOKIE);
-
-	fadeSet(s_pFade, FADE_STATE_IN, 50, 0);
-
 	systemUnuse();
+
+	menuInitialDraw();
+	fadeSet(s_pFadeMenu, FADE_STATE_IN, 50, 0);
 	viewLoad(s_pView);
 }
 
-void menuGsLoop(void) {
-	tFadeState eFadeState = fadeProcess(s_pFade);
+static void menuGsLoop(void) {
+	tFadeState eFadeState = fadeProcess(s_pFadeMenu);
 	if(eFadeState == FADE_STATE_EVENT_FIRED) {
 		return;
 	}
 	if(eFadeState != FADE_STATE_OUT && keyUse(KEY_ESCAPE)) {
-		fadeSet(s_pFade, FADE_STATE_OUT, 50, onFadeoutExit);
+		fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, onFadeoutExit);
 		return;
 	}
 
@@ -409,14 +425,15 @@ void menuGsLoop(void) {
 	}
 }
 
-void menuGsDestroy(void) {
+static void menuGsDestroy(void) {
 	viewLoad(0);
 	systemUse();
 	bitmapDestroy(s_pBg);
+	bitmapDestroy(s_pBgSub);
 	viewDestroy(s_pView);
 	fontDestroyTextBitMap(s_pTextBitmap);
 	fontDestroy(s_pFont);
-	fadeDestroy(s_pFade);
+	fadeDestroy(s_pFadeMenu);
 }
 
 UBYTE menuIsPlayerActive(UBYTE ubPlayerIdx) {
@@ -446,6 +463,79 @@ tSteer menuGetSteerForPlayer(UBYTE ubPlayerIdx) {
 	return steerInitIdle();
 }
 
-tState g_sStateMenu = {
-	.cbCreate = menuGsCreate, .cbLoop = menuGsLoop, .cbDestroy = menuGsDestroy
+//---------------------------------------------------------------------- CREDITS
+
+static const char *s_pCreditsLines[] = {
+	"GermZ by Last Minute Creations",
+	"  Graphics: Softiron",
+	"  Sound & Music: Luc3k",
+	"  Code: KaiN",
+	"  Alpha tests: Sordan, Renton, Tomu\x85",
+	"",
+	"This was supposed to be a little entry for Revision 2020,",
+	"but we weren't able to finish it in time due to audio playback issues.",
+	"",
+	"Preview released on 2020.04.26 Retrinizacja 3.9 zoom meeting.",
+	"",
+	"GermZ source code is available on:",
+	"  github.com/Last-Minute-Creations/germz",
+	"This game uses following software:",
+	"- Amiga C Engine, licensed under MPL2 (github.com/AmigaPorts/ACE)",
+	"- jsmn, licensed under MIT license (github.com/zserge/jsmn)",
+	"- UTF-8 parser, licensed under MIT license",
+	"  (bjoern.hoehrmann.de/utf-8/decoder/dfa)",
+	"See links for license details, sorry for not printing them here!",
+	"",
+	"Thanks for playing!",
 };
+#define CREDITS_LINES_COUNT (sizeof(s_pCreditsLines) / sizeof(s_pCreditsLines[1]))
+
+static void onCreditsFadeout(void) {
+	statePop(g_pStateMachineGame);
+}
+
+static void creditsGsCreate(void) {
+	blitCopy(s_pBgSub, 0, 0, s_pBfr->pBack, 0, 0, 320, 128, MINTERM_COPY, 0xFF);
+	blitCopy(s_pBgSub, 0, 128, s_pBfr->pBack, 0, 128, 320, 128, MINTERM_COPY, 0xFF);
+
+	UBYTE ubLineWidth = s_pFont->uwHeight + 1;
+	UWORD uwOffsY = 0;
+	for(UBYTE ubLine = 0; ubLine < CREDITS_LINES_COUNT; ++ubLine) {
+		// Draw only non-empty lines
+		if(s_pCreditsLines[ubLine][0] != '\0') {
+			fontFillTextBitMap(s_pFont, s_pTextBitmap, s_pCreditsLines[ubLine]);
+			fontDrawTextBitMap(
+				s_pBfr->pBack, s_pTextBitmap, 0, uwOffsY, MENU_COLOR_ACTIVE,
+				FONT_COOKIE | FONT_SHADOW
+			);
+		}
+
+		// Advance Y pos nonetheless
+		uwOffsY += ubLineWidth;
+	}
+	fadeSet(s_pFadeMenu, FADE_STATE_IN, 50, 0);
+}
+
+static void creditsGsLoop(void) {
+	tFadeState eFadeState = fadeProcess(s_pFadeMenu);
+	UBYTE isEnabled34 = joyIsParallelEnabled();
+	if(eFadeState != FADE_STATE_OUT && (
+		keyUse(KEY_RETURN) || keyUse(KEY_ESCAPE) ||
+		keyUse(KEY_RETURN) || keyUse(KEY_LSHIFT) || keyUse(KEY_RSHIFT) ||
+		joyUse(JOY1_FIRE) || joyUse(JOY2_FIRE) ||
+		(isEnabled34 && (joyUse(JOY3_FIRE) || joyUse(JOY4_FIRE)))
+	)) {
+		// menuEnter may change gamestate, so do nothing past it
+		fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, onCreditsFadeout);
+	}
+}
+
+//--------------------------------------------------------------- GAMESTATE DEFS
+
+tState g_sStateMenu = {
+	.cbCreate = menuGsCreate, .cbLoop = menuGsLoop, .cbDestroy = menuGsDestroy,
+	.cbResume = menuGsResume
+};
+
+tState g_sStateCredits = {.cbCreate = creditsGsCreate, .cbLoop = creditsGsLoop};
+

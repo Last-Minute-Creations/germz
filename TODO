@@ -25,6 +25,7 @@ Done:
 	✔ fade in/out in menu @done(20-06-21 14:15)
 	✔ ptplayer in game @done(20-08-04 17:00)
 	✔ sound effects @done(20-08-04 17:00)
+	✔ Credits in separate screen in menu @done(20-08-05 18:10)
 
 Now:
 	☐ Map save/load to/from file
@@ -47,7 +48,6 @@ Now:
 	☐ fix performance on 7MHz
 	☐ delay blob takeover anim to the point after plep have sunk in it
 	☐ fix plep anim rotations
-	☐ Credits in separate screen in menu
 	☐ Editor should check whether there are no holes in spawn point placements (e.g. player 1, 2, 4, but no 3)
 	☐ Import/export to/from editor by typing in code
 

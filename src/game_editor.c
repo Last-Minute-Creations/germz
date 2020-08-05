@@ -81,7 +81,7 @@ static void editorInitialDraw(void) {
 	gameCopyBackToFront();
 }
 
-void gameEditorGsCreate(void) {
+static void gameEditorGsCreate(void) {
 	systemUse();
 
 	tGuiConfig *pConfig = guiGetConfig();
@@ -162,7 +162,7 @@ static const tCbFn s_pFnCallbacks[] = {
 };
 static const UBYTE s_ubFnBtnCount = sizeof(s_pFnCallbacks) / sizeof(s_pFnCallbacks[0]);
 
-void gameEditorGsLoop(void) {
+static void gameEditorGsLoop(void) {
 	if(keyUse(KEY_ESCAPE)) {
 		onQuit();
 		return;
@@ -290,7 +290,7 @@ void gameEditorGsLoop(void) {
 	gamePostprocess();
 }
 
-void gameEditorGsDestroy(void) {
+static void gameEditorGsDestroy(void) {
 	systemUse();
 	bitmapDestroy(s_pBtnSmall);
 	bitmapDestroy(s_pBtnSmallMask);

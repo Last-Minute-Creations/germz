@@ -7,12 +7,6 @@
 
 #include "steer.h"
 
-void menuGsCreate(void);
-
-void menuGsLoop(void);
-
-void menuGsDestroy(void);
-
 /**
  * @brief
  *

@@ -307,7 +307,8 @@ convertBitmaps(
 		${GEN_DIR}/plep3_right.png ${GEN_DIR}/plep3_left.png
 		${GEN_DIR}/plep3_up.png ${GEN_DIR}/plep3_down.png
 		${GEN_DIR}/editor_hud.png ${GEN_DIR}/game_bg.png
-		${RES_DIR}/menu_main.png ${RES_DIR}/lmc.png ${RES_DIR}/ace.png
+		${RES_DIR}/menu_main.png ${RES_DIR}/menu_sub.png
+		${RES_DIR}/lmc.png ${RES_DIR}/ace.png
 	DESTINATIONS
 		${DATA_DIR}/blob1.bm ${DATA_DIR}/blob2.bm ${DATA_DIR}/blob3.bm
 		${DATA_DIR}/blob4.bm ${DATA_DIR}/game_hud.bm
@@ -318,7 +319,8 @@ convertBitmaps(
 		${DATA_DIR}/plep3_right.bm ${DATA_DIR}/plep3_left.bm
 		${DATA_DIR}/plep3_up.bm ${DATA_DIR}/plep3_down.bm
 		${DATA_DIR}/editor_hud.bm ${DATA_DIR}/game_bg.bm
-		${DATA_DIR}/menu_main.bm ${DATA_DIR}/lmc.bm ${DATA_DIR}/ace.bm
+		${DATA_DIR}/menu_main.bm ${DATA_DIR}/menu_sub.bm
+		${DATA_DIR}/lmc.bm ${DATA_DIR}/ace.bm
 )
 
 convertAudio(

@@ -45,7 +45,7 @@ static UBYTE initialAnim(void) {
 
 //-------------------------------------------------------------------- GAMESTATE
 
-void gameInitGsCreate(void) {
+static void gameInitGsCreate(void) {
 	s_isEven = 0;
 	s_ubCurrY = 0;
 	s_ubFrame = 0;
@@ -86,7 +86,7 @@ void gameInitGsCreate(void) {
 	fadeSet(gameGetFade(), FADE_STATE_IN, 50, 0);
 }
 
-void gameInitGsLoop(void) {
+static void gameInitGsLoop(void) {
 	tFadeState eState = fadeProcess(gameGetFade());
 	if(!gamePreprocess()) {
 		return;
@@ -98,7 +98,7 @@ void gameInitGsLoop(void) {
 	gamePostprocess();
 }
 
-void gameInitGsDestroy(void) {
+static void gameInitGsDestroy(void) {
 
 }
 

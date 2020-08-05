@@ -90,7 +90,7 @@ void gamePostprocess(void) {
 	}
 }
 
-void gameGsCreate(void) {
+static void gameGsCreate(void) {
 	s_pView = viewCreate(0,
 		TAG_VIEW_COPLIST_MODE, COPPER_MODE_BLOCK,
 		TAG_VIEW_GLOBAL_CLUT, 1,
@@ -142,13 +142,13 @@ void gameGsCreate(void) {
 	viewLoad(s_pView);
 }
 
-void gameGsLoop(void) {
+static void gameGsLoop(void) {
 	// If game reaches this code then init/play/summary state has popped.
 	// Go to menu.
 	stateChange(g_pStateMachineGame, &g_sStateMenu);
 }
 
-void gameGsDestroy(void) {
+static void gameGsDestroy(void) {
 	viewLoad(0);
 	systemUse();
 

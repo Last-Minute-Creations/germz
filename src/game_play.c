@@ -58,13 +58,13 @@ void displayUpdateHud(void) {
 
 //-------------------------------------------------------------------- GAMESTATE
 
-void gamePlayGsCreate(void) {
+static void gamePlayGsCreate(void) {
 	s_isEven = 0;
 	s_eCurrPlayer = 1;
 	blobAnimReset();
 }
 
-void gamePlayGsLoop(void) {
+static void gamePlayGsLoop(void) {
 	if(keyUse(KEY_F1)) {
 		// Ensure that player pushes off that button so it won't bug editor
 		while(keyCheck(KEY_F1)) {
@@ -90,7 +90,7 @@ void gamePlayGsLoop(void) {
 	gamePostprocess();
 }
 
-void gamePlayGsDestroy(void) {
+static void gamePlayGsDestroy(void) {
 }
 
 tState g_sStateGamePlay = {

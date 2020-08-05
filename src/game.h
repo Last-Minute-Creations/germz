@@ -26,12 +26,6 @@ void gameInitMap(void);
 
 //------------------------------------------------------------------------ UTILS
 
-void gameGsCreate(void);
-
-void gameGsLoop(void);
-
-void gameGsDestroy(void);
-
 UBYTE gamePreprocess(void);
 
 void gamePostprocess(void);

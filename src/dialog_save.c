@@ -28,7 +28,7 @@ static tButton *s_pButtonSave, *s_pButtonCancel;
 
 static char s_szFileName[30] = "";
 
-void dialogSaveGsCreate(void) {
+static void dialogSaveGsCreate(void) {
 	s_eCurrentInput = 0;
 	UWORD uwDlgWidth = 256;
 	UWORD uwDlgHeight = 128;
@@ -72,7 +72,7 @@ void dialogSaveGsCreate(void) {
 	inputSetFocus(s_pInputs[s_eCurrentInput]);
 }
 
-void dialogSaveGsLoop(void) {
+static void dialogSaveGsLoop(void) {
 	gamePreprocess();
 
 	tDirection eDir = gameEditorGetSteerDir();
@@ -148,7 +148,7 @@ void dialogSaveGsLoop(void) {
 	}
 }
 
-void dialogSaveGsDestroy(void) {
+static void dialogSaveGsDestroy(void) {
 	buttonListDestroy();
 	for(tSaveInput eInput = 0; eInput < SAVE_INPUT_COUNT; ++eInput) {
 		inputDestroy(s_pInputs[eInput]);

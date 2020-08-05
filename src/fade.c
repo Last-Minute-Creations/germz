@@ -66,10 +66,10 @@ tFadeState fadeProcess(tFade *pFade) {
 		viewUpdateCLUT(pFade->pView);
 
 		if(pFade->ubCnt >= pFade->ubCntEnd) {
+			pFade->eState = FADE_STATE_EVENT_FIRED;
 			if(pFade->cbOnDone) {
 				pFade->cbOnDone();
 			}
-			pFade->eState = FADE_STATE_EVENT_FIRED;
 		}
 	}
 	else {

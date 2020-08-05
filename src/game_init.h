@@ -5,10 +5,4 @@
 #ifndef _GERMZ_GAME_INIT_H_
 #define _GERMZ_GAME_INIT_H_
 
-void gameInitGsCreate(void);
-
-void gameInitGsLoop(void);
-
-void gameInitGsDestroy(void);
-
 #endif // _GERMZ_GAME_INIT_H_
