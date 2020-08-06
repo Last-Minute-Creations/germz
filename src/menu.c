@@ -313,13 +313,13 @@ static void menuInitialDraw(void) {
 	char szVersion[15];
 	sprintf(szVersion, "v.%d.%d.%d", BUILD_YEAR, BUILD_MONTH, BUILD_DAY);
 	fontFillTextBitMap(s_pFont, s_pTextBitmap, szVersion);
-	fontDrawTextBitMap(s_pBfr->pBack, s_pTextBitmap, 320/2, 256 - 50, 18, FONT_HCENTER | FONT_COOKIE);
+	fontDrawTextBitMap(s_pBfr->pBack, s_pTextBitmap, 320/2, 256 - 35, 18, FONT_HCENTER | FONT_COOKIE);
 
 	fontFillTextBitMap(s_pFont, s_pTextBitmap, "A game by Last Minute Creations");
-	fontDrawTextBitMap(s_pBfr->pBack, s_pTextBitmap, 320/2, 256 - 30, 18, FONT_HCENTER | FONT_COOKIE);
+	fontDrawTextBitMap(s_pBfr->pBack, s_pTextBitmap, 320/2, 256 - 20, 17, FONT_HCENTER | FONT_COOKIE);
 
 	fontFillTextBitMap(s_pFont, s_pTextBitmap, "lastminutecreations.itch.io/germz");
-	fontDrawTextBitMap(s_pBfr->pBack, s_pTextBitmap, 320/2, 256 - 10, 17, FONT_HCENTER | FONT_COOKIE);
+	fontDrawTextBitMap(s_pBfr->pBack, s_pTextBitmap, 320/2, 256 - 10, 18, FONT_HCENTER | FONT_COOKIE);
 }
 
 static void menuGsResume(void) {
@@ -470,20 +470,19 @@ static const char *s_pCreditsLines[] = {
 	"  Graphics: Softiron",
 	"  Sound & Music: Luc3k",
 	"  Code: KaiN",
-	"  Alpha tests: Sordan, Renton, Tomu\x85",
+	"Alpha tests: Sordan, Renton, Tomu\x85",
 	"",
 	"This was supposed to be a little entry for Revision 2020,",
 	"but we weren't able to finish it in time due to audio playback issues.",
 	"",
-	"Preview released on 2020.04.26 Retrinizacja 3.9 zoom meeting.",
+	"Preview released on 2020.04.25 Retronizacja 3.9 zoom meeting.",
 	"",
 	"GermZ source code is available on:",
 	"  github.com/Last-Minute-Creations/germz",
 	"This game uses following software:",
-	"- Amiga C Engine, licensed under MPL2 (github.com/AmigaPorts/ACE)",
-	"- jsmn, licensed under MIT license (github.com/zserge/jsmn)",
-	"- UTF-8 parser, licensed under MIT license",
-	"  (bjoern.hoehrmann.de/utf-8/decoder/dfa)",
+	"- Amiga C Engine, MPL2 license (github.com/AmigaPorts/ACE)",
+	"- jsmn, MIT license (github.com/zserge/jsmn)",
+	"- UTF-8 parser, MIT license (bjoern.hoehrmann.de/utf-8/decoder/dfa)",
 	"See links for license details, sorry for not printing them here!",
 	"",
 	"Thanks for playing!",
