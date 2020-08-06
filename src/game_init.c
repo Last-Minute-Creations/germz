@@ -83,7 +83,6 @@ static void gameInitGsCreate(void) {
 	gameInitCursorBobs();
 	gameInitMap();
 	bobNewReallocateBgBuffers();
-	fadeSet(gameGetFade(), FADE_STATE_IN, 50, 0);
 }
 
 static void gameInitGsLoop(void) {

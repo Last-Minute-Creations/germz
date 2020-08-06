@@ -50,6 +50,7 @@ void fadeSet(
 }
 
 tFadeState fadeProcess(tFade *pFade) {
+	tFadeState eState = pFade->eState;
 	if(pFade->eState != FADE_STATE_IDLE && pFade->eState != FADE_STATE_EVENT_FIRED) {
 		++pFade->ubCnt;
 
@@ -67,6 +68,8 @@ tFadeState fadeProcess(tFade *pFade) {
 
 		if(pFade->ubCnt >= pFade->ubCntEnd) {
 			pFade->eState = FADE_STATE_EVENT_FIRED;
+			// Save state for return incase fade object gets destroyed in fade cb
+			eState = pFade->eState;
 			if(pFade->cbOnDone) {
 				pFade->cbOnDone();
 			}
@@ -74,6 +77,7 @@ tFadeState fadeProcess(tFade *pFade) {
 	}
 	else {
 		pFade->eState = FADE_STATE_IDLE;
+		eState = pFade->eState;
 	}
-	return pFade->eState;
+	return eState;
 }

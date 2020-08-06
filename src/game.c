@@ -114,6 +114,7 @@ static void gameGsCreate(void) {
 	paletteLoad("data/germz.plt", pPalette, 32);
 	s_uwColorBg = pPalette[0];
 	s_pFade = fadeCreate(s_pView, pPalette, 32);
+	fadeSet(gameGetFade(), FADE_STATE_IN, 50, 0);
 
 	// Load settings from menu
 	for(UBYTE i = 0; i < 4; ++i) {

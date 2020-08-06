@@ -191,6 +191,7 @@ static void gameEditorGsLoop(void) {
 		return;
 	}
 
+	fadeProcess(gameGetFade());
 	if(!gamePreprocess()) {
 		return;
 	}
