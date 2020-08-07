@@ -177,24 +177,20 @@ UBYTE playerProcess(void) {
 			}
 		}
 
-		UBYTE ubField;
-		for(ubField = 0; ubField < PLAYER_COUNT_MAX - 1; ++ubField) {
-			if(
-					s_pCursorFields[ubField].sPosTile.ubX == 0 &&
-					s_pCursorFields[ubField].sPosTile.ubY == 0
-			) {
-				s_pCursorFields[ubField].sPosTile.ubX = pPlayer->pNodeCursor->sPosTile.ubX;
-				s_pCursorFields[ubField].sPosTile.ubY = pPlayer->pNodeCursor->sPosTile.ubY;
+		tCursorField *pField;
+		for(
+			pField = &s_pCursorFields[0];
+			pField < &s_pCursorFields[PLAYER_COUNT_MAX - 1]; ++pField
+		) {
+			if(pField->sPosTile.uwYX == 0) {
+				pField->sPosTile.uwYX = pPlayer->pNodeCursor->sPosTile.uwYX;
 				break;
 			}
-			else if(
-				s_pCursorFields[ubField].sPosTile.ubX == pPlayer->pNodeCursor->sPosTile.ubX &&
-				s_pCursorFields[ubField].sPosTile.ubY == pPlayer->pNodeCursor->sPosTile.ubY
-			) {
+			else if(pField->sPosTile.uwYX == pPlayer->pNodeCursor->sPosTile.uwYX) {
 				break;
 			}
 		}
-		s_pCursorFields[ubField].pBobs[s_pCursorFields[ubField].ubCursorCount++] = pPlayer->pBobCursor;
+		pField->pBobs[pField->ubCursorCount++] = pPlayer->pBobCursor;
 	}
 	return ubAliveCount;
 }
