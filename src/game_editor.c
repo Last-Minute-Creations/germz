@@ -42,17 +42,17 @@ static tBobNew s_sBobBtnTile, s_sBobLedTile, s_sBobBtnFn, s_sBobLedColor;
 static UBYTE s_ubCurrentColor;
 static UBYTE s_ubTileDrawCount, s_ubPaletteDrawCount;
 
-static void editorDrawMapTileAt(UBYTE ubTileX, UBYTE ubTileY) {
+static void editorDrawMapTileAt(tUbCoordYX sPosTile) {
 	const UBYTE ubFrame = BLOB_FRAME_COUNT - 1;
 	blitRect(
-		gameGetBackBuffer(), ubTileX * MAP_TILE_SIZE, ubTileY * MAP_TILE_SIZE,
+		gameGetBackBuffer(), sPosTile.ubX * MAP_TILE_SIZE, sPosTile.ubY * MAP_TILE_SIZE,
 		16, 16, 0
 	);
 	gameDrawTileAt(
 		TILE_EDITOR_BLANK,
-		ubTileX * MAP_TILE_SIZE, ubTileY * MAP_TILE_SIZE, ubFrame
+		sPosTile.ubX * MAP_TILE_SIZE, sPosTile.ubY * MAP_TILE_SIZE, ubFrame
 	);
-	gameDrawMapTileAt(ubTileX, ubTileY, ubFrame);
+	gameDrawMapTileAt(sPosTile, ubFrame);
 }
 
 static void setPaletteBlobColor(UBYTE ubColor) {
@@ -70,7 +70,8 @@ static void editorInitialDraw(void) {
 
 	for(UBYTE x = 0; x < MAP_SIZE; ++x) {
 		for(UBYTE y = 0; y < MAP_SIZE; ++y) {
-			editorDrawMapTileAt(x, y);
+			tUbCoordYX sPos = {.ubX = x, .ubY = y};
+			editorDrawMapTileAt(sPos);
 		}
 	}
 
@@ -228,7 +229,8 @@ static void gameEditorGsLoop(void) {
 				if(tileIsLink(g_sMapData.pTiles[ubX][ubY])) {
 					mapDataRecalculateLinkTileAt(&g_sMapData, ubX, ubY);
 				}
-				editorDrawMapTileAt(ubX, ubY);
+				tUbCoordYX sPos = {.ubX = ubX, .ubY = ubY};
+				editorDrawMapTileAt(sPos);
 			}
 		}
 	}

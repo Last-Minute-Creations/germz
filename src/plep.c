@@ -191,8 +191,8 @@ void plepSpawn(tPlep *pPlep, WORD wCharges, tDirection eDir) {
 	pPlep->pDestination = pPlep->pPlayer->pNodeCursor;
 	pPlep->isActive = 1;
 	pPlep->wCharges = wCharges;
-	pPlep->sBob.sPos.uwX = pSrc->ubTileX * MAP_TILE_SIZE;
-	pPlep->sBob.sPos.uwY = pSrc->ubTileY * MAP_TILE_SIZE;
+	pPlep->sBob.sPos.uwX = pSrc->sPosTile.ubX * MAP_TILE_SIZE;
+	pPlep->sBob.sPos.uwY = pSrc->sPosTile.ubY * MAP_TILE_SIZE;
 	pPlep->eDir = eDir;
 
 	// Init anim
@@ -201,8 +201,8 @@ void plepSpawn(tPlep *pPlep, WORD wCharges, tDirection eDir) {
 	pPlep->sBob.pMask = s_pBmPlepMasks[pPlep->eDir];
 	pPlep->ubAnimFrame = s_pAnimFrameStart[pPlep->eAnim];
 	pPlep->ubAnimTick = 0;
-	pPlep->sAnimAnchor.uwX = pSrc->ubTileX * MAP_TILE_SIZE;
-	pPlep->sAnimAnchor.uwY = pSrc->ubTileY * MAP_TILE_SIZE;
+	pPlep->sAnimAnchor.uwX = pSrc->sPosTile.ubX * MAP_TILE_SIZE;
+	pPlep->sAnimAnchor.uwY = pSrc->sPosTile.ubY * MAP_TILE_SIZE;
 	plepUpdateAnimFrame(pPlep);
 
 	bobNewSetBitMapOffset(&pPlep->sBob, 0);

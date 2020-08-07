@@ -12,16 +12,25 @@
 
 //------------------------------------------------------------------------ TYPES
 
+typedef struct _tCursorField {
+	tUbCoordYX sPosTile;
+	UBYTE ubCurrentCursor;
+	UBYTE ubCursorCount;
+	UBYTE ubFrameCounter;
+	tBobNew *pBobs[PLAYER_COUNT_MAX];
+} tCursorField;
+
 //----------------------------------------------------------------- PRIVATE VARS
 
 tPlayer s_pPlayers[PLAYER_COUNT_MAX];
+static tCursorField s_pCursorFields[4];
 
 //------------------------------------------------------------------ PRIVATE FNS
 
 static void playerSetCursorPos(tPlayer *pPlayer, tNode *pNode) {
 		pPlayer->pNodeCursor = pNode;
-		pPlayer->pBobCursor->sPos.uwX = pNode->ubTileX * MAP_TILE_SIZE;
-		pPlayer->pBobCursor->sPos.uwY = pNode->ubTileY * MAP_TILE_SIZE;
+		pPlayer->pBobCursor->sPos.uwX = pNode->sPosTile.ubX * MAP_TILE_SIZE;
+		pPlayer->pBobCursor->sPos.uwY = pNode->sPosTile.ubY * MAP_TILE_SIZE;
 }
 
 static void playerTryMoveSelectionFromInDir(
@@ -52,8 +61,8 @@ static void playerSpawnPlep(tPlayer *pPlayer) {
 			logWrite(
 				"Spawned plep %hhu on player %d: blob %hhu,%hhu -> %hhu,%hhu\n",
 				i, playerToIdx(pPlayer),
-				pPlayer->pNodePlepSrc->ubTileX, pPlayer->pNodePlepSrc->ubTileY,
-				pPlep->pDestination->ubTileX, pPlep->pDestination->ubTileY
+				pPlayer->pNodePlepSrc->sPosTile.ubX, pPlayer->pNodePlepSrc->sPosTile.ubY,
+				pPlep->pDestination->sPosTile.ubX, pPlep->pDestination->sPosTile.ubY
 			);
 			break;
 		}
@@ -80,7 +89,7 @@ void playerReset(tPlayerIdx eIdx, tNode *pStartNode) {
 	}
 	logWrite(
 		"Player %d start pos: %hhu,%hhu\n",
-		eIdx, pStartNode->ubTileX, pStartNode->ubTileY
+		eIdx, pStartNode->sPosTile.ubX, pStartNode->sPosTile.ubY
 	);
 	playerSetCursorPos(pPlayer, pStartNode);
 	pPlayer->isSelectingDestination = 0;
@@ -124,6 +133,12 @@ tPlayer *playerFromIdx(tPlayerIdx eIdx) {
 }
 
 UBYTE playerProcess(void) {
+	for(UBYTE i = 0; i < PLAYER_COUNT_MAX; ++i) {
+		s_pCursorFields[i].ubCursorCount = 0;
+		s_pCursorFields[i].sPosTile.ubX = 0;
+		s_pCursorFields[i].sPosTile.ubY = 0;
+	}
+
 	UBYTE ubAliveCount = 0;
 	for(UBYTE i = 0; i < PLAYER_COUNT_MAX; ++i) {
 		tPlayer *pPlayer = &s_pPlayers[i];
@@ -131,6 +146,7 @@ UBYTE playerProcess(void) {
 			continue;
 		}
 		++ubAliveCount;
+
 		tDirection eDir = steerProcess(pPlayer->pSteer);
 		if(pPlayer->isSelectingDestination) {
 			if(eDir == DIRECTION_FIRE) {
@@ -160,7 +176,25 @@ UBYTE playerProcess(void) {
 				plepProcess(&pPlayer->pPleps[i]);
 			}
 		}
-		bobNewPush(pPlayer->pBobCursor);
+
+		UBYTE ubField;
+		for(ubField = 0; ubField < PLAYER_COUNT_MAX - 1; ++ubField) {
+			if(
+					s_pCursorFields[ubField].sPosTile.ubX == 0 &&
+					s_pCursorFields[ubField].sPosTile.ubY == 0
+			) {
+				s_pCursorFields[ubField].sPosTile.ubX = pPlayer->pNodeCursor->sPosTile.ubX;
+				s_pCursorFields[ubField].sPosTile.ubY = pPlayer->pNodeCursor->sPosTile.ubY;
+				break;
+			}
+			else if(
+				s_pCursorFields[ubField].sPosTile.ubX == pPlayer->pNodeCursor->sPosTile.ubX &&
+				s_pCursorFields[ubField].sPosTile.ubY == pPlayer->pNodeCursor->sPosTile.ubY
+			) {
+				break;
+			}
+		}
+		s_pCursorFields[ubField].pBobs[s_pCursorFields[ubField].ubCursorCount++] = pPlayer->pBobCursor;
 	}
 	return ubAliveCount;
 }
@@ -188,5 +222,22 @@ void playerUpdateDead(tPlayer *pPlayer) {
 void playerAllDead(void) {
 	for(UBYTE i = 0; i < PLAYER_COUNT_MAX; ++i) {
 		s_pPlayers[i].isDead = 1;
+	}
+}
+
+void playerPushCursors(void) {
+	for(UBYTE i = 0; i < 4; ++i) {
+		tCursorField *pField = &s_pCursorFields[i];
+		if(pField->ubCursorCount) {
+			UBYTE ubTickLimit = 40 / pField->ubCursorCount;
+			if(++pField->ubFrameCounter >= ubTickLimit) {
+				++pField->ubCurrentCursor;
+				pField->ubFrameCounter = 0;
+			}
+			if(pField->ubCurrentCursor >= pField->ubCursorCount) {
+				pField->ubCurrentCursor = 0;
+			}
+			bobNewPush(pField->pBobs[pField->ubCurrentCursor]);
+		}
 	}
 }

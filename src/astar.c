@@ -60,8 +60,8 @@ UBYTE astarProcess(tAstarData *pNav) {
 				if(uwCost < pNav->pCostSoFar[pNextNode->ubIdx]) {
 					pNav->pCostSoFar[pNextNode->ubIdx] = uwCost;
 					UWORD uwPriority = uwCost
-						+ ABS(pNextNode->ubTileX - pNav->pNodeDst->ubTileX)
-						+ ABS(pNextNode->ubTileY - pNav->pNodeDst->ubTileY);
+						+ ABS(pNextNode->sPosTile.ubX - pNav->pNodeDst->sPosTile.ubX)
+						+ ABS(pNextNode->sPosTile.ubY - pNav->pNodeDst->sPosTile.ubY);
 					heapPush(pNav->pFrontier, pNextNode, uwPriority);
 					pNav->pCameFrom[pNextNode->ubIdx] = pNav->pNodeCurr;
 				}

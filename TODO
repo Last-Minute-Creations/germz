@@ -26,6 +26,7 @@ Done:
 	✔ ptplayer in game @done(20-08-04 17:00)
 	✔ sound effects @done(20-08-04 17:00)
 	✔ Credits in separate screen in menu @done(20-08-05 18:10)
+	✔ cursors should blink or something so that overlapping will be visible @done(20-08-07 18:21)
 
 Now:
 	☐ Map save/load to/from file
@@ -33,16 +34,15 @@ Now:
 		✔ Remember last saved/load file name and use it for default selection @done(20-06-21 08:03)
 		✔ convert links to proper orientation @done(20-06-21 10:29)
 		✔ don't allow WSAD in editor - always use arrows and joy1 presets @done(20-06-21 11:32)
+		✔ display map preview in load dialog @done(20-08-06 17:51)
 		☐ Ask for overwrite
 		☐ Ask for saving unsaved progress on load
 		☐ animation while loading preview
 		☐ animation while saving
 		☐ animation while loading
-		☐ display map preview in load dialog
 	☐ Reduce mem usage by AI
 	☐ fix ptplayer on higher cpu freq
 	☐ win/lose screen
-	☐ cursors should blink or something so that overlapping will be visible
 	☐ display in visible menu part how keyboard layouts have action button bound (how to play)
 	☐ fade in/out in game
 	☐ fix performance on 7MHz

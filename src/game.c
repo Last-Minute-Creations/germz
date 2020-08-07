@@ -213,9 +213,9 @@ void gameDrawTileAt(tTile eTile, UWORD uwX, UWORD uwY, UBYTE ubFrame) {
 	}
 }
 
-void gameDrawMapTileAt(UBYTE ubTileX, UBYTE ubTileY, UBYTE ubFrame) {
-	tTile eTile = g_sMapData.pTiles[ubTileX][ubTileY];
-	gameDrawTileAt(eTile, ubTileX * MAP_TILE_SIZE, ubTileY * MAP_TILE_SIZE, ubFrame);
+void gameDrawMapTileAt(tUbCoordYX sPosTile, UBYTE ubFrame) {
+	tTile eTile = g_sMapData.pTiles[sPosTile.ubX][sPosTile.ubY];
+	gameDrawTileAt(eTile, sPosTile.ubX * MAP_TILE_SIZE, sPosTile.ubY * MAP_TILE_SIZE, ubFrame);
 }
 
 void gameDrawBlobAt(tTile eTile, UBYTE ubFrame, UWORD uwX, UWORD uwY) {

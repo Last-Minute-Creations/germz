@@ -34,7 +34,7 @@ tSteer *gameGetSteerForPlayer(UBYTE ubPlayer);
 
 void gameDrawBlobAt(tTile eTile, UBYTE ubFrame, UWORD uwX, UWORD uwY);
 
-void gameDrawMapTileAt(UBYTE ubTileX, UBYTE ubTileY, UBYTE ubFrame);
+void gameDrawMapTileAt(tUbCoordYX sPosTile, UBYTE ubFrame);
 
 void gameDrawTileAt(tTile eTile, UWORD uwX, UWORD uwY, UBYTE ubFrame);
 

@@ -16,8 +16,8 @@ static tNode *nodeAdd(UBYTE ubX, UBYTE ubY, tTile eTile) {
 		return 0;
 	}
 	tNode *pNode = &g_sMap.pNodes[g_sMap.uwNodeCount];
-	pNode->ubTileX = ubX;
-	pNode->ubTileY = ubY;
+	pNode->sPosTile.ubX = ubX;
+	pNode->sPosTile.ubY = ubY;
 	for(UBYTE i = 4; i--;) {
 		pNode->pNeighbors[i] = 0;
 	}
@@ -50,8 +50,8 @@ static void nodeFindNeighbor(tNode *pNode, tDirection eDir) {
 	};
 
 	// Find next blob in line or give up
-	BYTE x = pNode->ubTileX;
-	BYTE y = pNode->ubTileY;
+	BYTE x = pNode->sPosTile.ubX;
+	BYTE y = pNode->sPosTile.ubY;
 	do {
 		x += pDeltas[eDir].bX;
 		y += pDeltas[eDir].bY;
@@ -75,7 +75,7 @@ static void nodeCalculateNeighbors(void) {
 	for(UBYTE i = 0; i < g_sMap.uwNodeCount; ++i) {
 		logWrite(
 			"Searching for neighbors for node %p (%hhu,%hhu)\n",
-			&g_sMap.pNodes[i], g_sMap.pNodes[i].ubTileX, g_sMap.pNodes[i].ubTileY
+			&g_sMap.pNodes[i], g_sMap.pNodes[i].sPosTile.ubX, g_sMap.pNodes[i].sPosTile.ubY
 		);
 		for(tDirection eDir = 0; eDir < DIRECTION_FIRE; ++eDir) {
 			if(!g_sMap.pNodes[i].pNeighbors[eDir]) {
@@ -98,7 +98,7 @@ void mapInitFromMapData(void) {
 				tPlayerIdx ePlayerIdx = playerToIdx(playerFromTile(eTile));
 				if(ePlayerIdx != PLAYER_NONE) {
 					g_sMap.pPlayerStartNodes[ePlayerIdx] = pNode;
-					logWrite("Player %d start: %hhu,%hhu\n", ePlayerIdx, pNode->ubTileX, pNode->ubTileY);
+					logWrite("Player %d start: %hhu,%hhu\n", ePlayerIdx, pNode->sPosTile.ubX, pNode->sPosTile.ubY);
 				}
 			}
 		}

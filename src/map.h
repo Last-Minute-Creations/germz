@@ -13,8 +13,7 @@
 
 typedef struct _tNode {
 	UBYTE ubIdx;
-	UBYTE ubTileX;
-	UBYTE ubTileY;
+	tUbCoordYX sPosTile;
 	struct _tPlayer *pPlayer;
 	struct _tNode *pNeighbors[DIRECTION_COUNT - 1];
 	WORD wCharges;

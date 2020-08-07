@@ -73,7 +73,7 @@ static tDirection aiProcessPlanningAggressive(tAi *pAi) {
 				// logWrite(
 				// 	"aggro: cursor %p, getting to %p to fire into %p (%hhu,%hhu)\n",
 				// 	pPlayer->pNodeCursor, pAi->pTargetSrc, pAi->pTarget,
-				// 	pAi->pTarget->ubTileX, pAi->pTarget->ubTileY
+				// 	pAi->pTarget->sPosTile.ubX, pAi->pTarget->sPosTile.ubY
 				// );
 				pAi->eState = AI_STATE_ROUTING;
 			}
@@ -100,7 +100,7 @@ static tDirection aiProcessPlanningDefensive(tAi *pAi) {
 					// Colliding with enemy - skip node entirely
 					// logWrite(
 					// 	"def: skipping node %p (%hhu,%hhu) since it's in border\n",
-					// 	pNode, pNode->ubTileX, pNode->ubTileY
+					// 	pNode, pNode->sPosTile.ubX, pNode->sPosTile.ubY
 					// );
 					isNextNode = 1;
 				}
@@ -147,8 +147,8 @@ static tDirection aiProcessPlanningDefensive(tAi *pAi) {
 				// logWrite(
 				// 	"def: cursor %p, getting to %p (%hhu,%hhu) to fire into %p (%hhu,%hhu)\n",
 				// 	pPlayer->pNodeCursor,
-				// 	pAi->pTargetSrc, pAi->pTargetSrc->ubTileX, pAi->pTargetSrc->ubTileY,
-				// 	pAi->pTarget, pAi->pTarget->ubTileX, pAi->pTarget->ubTileY
+				// 	pAi->pTargetSrc, pAi->pTargetSrc->sPosTile.ubX, pAi->pTargetSrc->sPosTile.ubY,
+				// 	pAi->pTarget, pAi->pTarget->sPosTile.ubX, pAi->pTarget->sPosTile.ubY
 				// );
 				pAi->eState = AI_STATE_ROUTING;
 			}
@@ -170,8 +170,8 @@ static tDirection aiProcessRouting(tAi *pAi) {
 			// for(UBYTE i = s_pAstar[pAi->ubPlayerIdx]->sRoute.bNodeCount; i--;) {
 			// 	logWrite(
 			// 		"-> %hhu@%p (%hhu,%hhu)", i, s_pAstar[pAi->ubPlayerIdx]->sRoute.pNodes[i],
-			// 		s_pAstar[pAi->ubPlayerIdx]->sRoute.pNodes[i]->ubTileX,
-			// 		s_pAstar[pAi->ubPlayerIdx]->sRoute.pNodes[i]->ubTileY
+			// 		s_pAstar[pAi->ubPlayerIdx]->sRoute.pNodes[i]->sPosTile.ubX,
+			// 		s_pAstar[pAi->ubPlayerIdx]->sRoute.pNodes[i]->sPosTile.ubY
 			// 	);
 			// }
 			// logWrite("\n");
@@ -216,8 +216,8 @@ static tDirection aiProcessGettingToSourceBlob(tAi *pAi) {
 		const tNode *pNode = pNav->sRoute.pNodes[pNav->sRoute.bCurrNode];
 		// logWrite(
 		// 	"We're at %p: %hhu,%hhu, next route node: %p: %hhu,%hhu\n",
-		// 	pPlayer->pNodeCursor, pPlayer->pNodeCursor->ubTileX, pPlayer->pNodeCursor->ubTileY,
-		// 	pNode, pNode->ubTileX, pNode->ubTileY
+		// 	pPlayer->pNodeCursor, pPlayer->pNodeCursor->sPosTile.ubX, pPlayer->pNodeCursor->sPosTile.ubY,
+		// 	pNode, pNode->sPosTile.ubX, pNode->sPosTile.ubY
 		// );
 		if(pNode == pPlayer->pNodeCursor) {
 			// We're here, skip
@@ -252,8 +252,8 @@ static tDirection aiProcessTargetingTarget(tAi *pAi) {
 		if(++pAi->eNeighborIdx >= 4) {
 			logWrite(
 				"ERR: AI lost target node! While checking if target src %p (%hhu,%hhu) neighbors with target %p (%hhu,%hhu)\n",
-				pAi->pTargetSrc, pAi->pTargetSrc->ubTileX, pAi->pTargetSrc->ubTileY,
-				pAi->pTarget, pAi->pTarget->ubTileX, pAi->pTarget->ubTileY
+				pAi->pTargetSrc, pAi->pTargetSrc->sPosTile.ubX, pAi->pTargetSrc->sPosTile.ubY,
+				pAi->pTarget, pAi->pTarget->sPosTile.ubX, pAi->pTarget->sPosTile.ubY
 			);
 			logPushIndent();
 			for(UBYTE i = 0; i < 4; ++i) {

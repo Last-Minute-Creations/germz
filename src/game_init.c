@@ -25,7 +25,8 @@ static UBYTE initialAnim(void) {
 			if(tileIsNode(eTile)) {
 				isDrawnAnyBlob = 1;
 			}
-			gameDrawMapTileAt(ubX, ubY, s_ubFrame);
+			tUbCoordYX sPos = {.ubX = ubX, .ubY = ubY};
+			gameDrawMapTileAt(sPos, s_ubFrame);
 		}
 		if(!isDrawnAnyBlob || ++s_ubFrame >= BLOB_FRAME_COUNT) {
 			s_ubFrame = 0;

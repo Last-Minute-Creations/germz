@@ -56,4 +56,6 @@ void playerUpdateDead(tPlayer *pPlayer);
 
 void playerAllDead(void);
 
+void playerPushCursors(void);
+
 #endif // _GERMZ_PLAYER_H_

@@ -80,6 +80,7 @@ static void gamePlayGsLoop(void) {
 	displayUpdateHud();
 	blitWait();
 	UBYTE ubAliveCount = playerProcess();
+	playerPushCursors();
 	bobNewPushingDone();
 	mapProcessNodes();
 
