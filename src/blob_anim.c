@@ -13,7 +13,7 @@
 typedef struct _tQueueElement {
 	tNode *pNode;
 	UBYTE isDrawnOnce;
-	UBYTE ubFrame;
+	BYTE bFrame;
 } tQueueElement;
 
 typedef struct _tQueue {
@@ -26,10 +26,11 @@ static tQueue s_sQueue;
 static void advanceFrameForNode(tQueueElement *pElement) {
 	if(pElement->isDrawnOnce) {
 		pElement->isDrawnOnce = 0;
-		if(++pElement->ubFrame >= BLOB_FRAME_COUNT) {
-			// Sanity check
+		if(++pElement->bFrame >= BLOB_FRAME_COUNT) {
+			// The element which ends right now should always be a node
+			// at the beginning of the queue.
 			if(pElement != s_sQueue.pBeg) {
-				logWrite("ERR: Queue move not on begin of queue");
+				logWrite("ERR: Queue element delete not on beginning of queue");
 			}
 
 			if(++s_sQueue.pBeg >= s_sQueue.pWrap) {
@@ -52,10 +53,12 @@ void blobAnimQueueProcess(void) {
 	tQueueElement *pElement = s_sQueue.pBeg;
 	while(pElement != s_sQueue.pEnd) {
 		const tNode *pNode = pElement->pNode;
-		gameDrawBlobAt(
-			playerToTile(pNode->pPlayer), pElement->ubFrame,
-			pNode->sPosTile.ubX * MAP_TILE_SIZE, pNode->sPosTile.ubY * MAP_TILE_SIZE
-		);
+		if(pElement->bFrame >= 0) {
+			gameDrawBlobAt(
+				playerToTile(pNode->pPlayer), pElement->bFrame,
+				pNode->sPosTile.ubX * MAP_TILE_SIZE, pNode->sPosTile.ubY * MAP_TILE_SIZE
+			);
+		}
 		advanceFrameForNode(pElement);
 		if(++pElement >= s_sQueue.pWrap) {
 			pElement = &s_sQueue.pElements[0];
@@ -66,7 +69,7 @@ void blobAnimQueueProcess(void) {
 void blobAnimAddToQueue(tNode *pNode) {
 	tQueueElement *pElement = s_sQueue.pEnd;
 	pElement->pNode = pNode;
-	pElement->ubFrame = 0;
+	pElement->bFrame = -4;
 	pElement->isDrawnOnce = 0;
 	if(++s_sQueue.pEnd >= s_sQueue.pWrap) {
 		s_sQueue.pEnd = &s_sQueue.pElements[0];
