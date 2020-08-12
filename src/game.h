@@ -46,4 +46,6 @@ tBobNew *gameGetCursorBob(UBYTE ubIdx);
 
 tFade *gameGetFade(void);
 
+void gameQuit(void);
+
 #endif // _GERMZ_GAME_H_

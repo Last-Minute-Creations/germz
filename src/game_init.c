@@ -87,11 +87,10 @@ static void gameInitGsCreate(void) {
 }
 
 static void gameInitGsLoop(void) {
-	tFadeState eState = fadeProcess(gameGetFade());
 	if(!gamePreprocess()) {
 		return;
 	}
-	if(initialAnim() && eState == FADE_STATE_IDLE) {
+	if(initialAnim() && gameGetFade()->eState == FADE_STATE_IDLE) {
 		stateChange(g_pStateMachineGame, &g_sStateGamePlay);
 		return;
 	}

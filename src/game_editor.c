@@ -154,8 +154,7 @@ static void onSave(void) {
 
 static void onQuit(void) {
 	// TODO: confirm exit
-	statePop(g_pStateMachineGame);
-	return;
+	gameQuit();
 }
 
 static const tCbFn s_pFnCallbacks[] = {
@@ -192,7 +191,6 @@ static void gameEditorGsLoop(void) {
 		return;
 	}
 
-	fadeProcess(gameGetFade());
 	if(!gamePreprocess()) {
 		return;
 	}

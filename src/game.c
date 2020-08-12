@@ -25,6 +25,7 @@ static tVPort *s_pVp;
 static tSimpleBufferManager *s_pBfr;
 static tBobNew s_pCursorBobs[4];
 static tFade *s_pFade;
+static UBYTE s_isQuitting;
 
 //------------------------------------------------------------------------ DEBUG
 
@@ -55,12 +56,27 @@ void gameDumpFrame(void) {
 	s_isDump = 1;
 }
 
+static void onGameFadeOut(void) {
+	statePop(g_pStateMachineGame);
+}
+
+void gameQuit(void) {
+	s_isQuitting = 1;
+	fadeSet(s_pFade, FADE_STATE_OUT, 50, onGameFadeOut);
+}
+
 //-------------------------------------------------------------------- GAMESTATE
 
 UBYTE gamePreprocess(void) {
 	gameDebugColor(0x00F);
+	fadeProcess(s_pFade);
 	if(keyUse(KEY_ESCAPE)) {
-		statePop(g_pStateMachineGame);
+		gameQuit();
+		return 0;
+	}
+	else if(s_isQuitting) {
+		// Already quitting - inform upper state to not do anything and wait
+		// for fade end
 		return 0;
 	}
 	bobNewBegin(s_pBfr->pBack);
@@ -114,7 +130,7 @@ static void gameGsCreate(void) {
 	paletteLoad("data/germz.plt", pPalette, 32);
 	s_uwColorBg = pPalette[0];
 	s_pFade = fadeCreate(s_pView, pPalette, 32);
-	fadeSet(gameGetFade(), FADE_STATE_IN, 50, 0);
+	fadeSet(s_pFade, FADE_STATE_IN, 50, 0);
 
 	// Load settings from menu
 	for(UBYTE i = 0; i < 4; ++i) {
@@ -124,6 +140,7 @@ static void gameGsCreate(void) {
 	gameAssetsCreate();
 	playerCreate();
 	aiCreate(&g_sMap);
+	s_isQuitting = 0;
 
 	bobNewManagerCreate(s_pBfr->pFront, s_pBfr->pBack, s_pBfr->uBfrBounds.uwY);
 
