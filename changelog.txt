@@ -1,3 +1,14 @@
+20.8.14
+- fixed garbled ingame tiles and gui input bug
+- added "9" button to editor
+- mod playback now works for whole game
+- added LMC logo audio effect
+- added in-game sound effects
+- added map preview in map loading in editor
+- added credits screen
+- added blinking of cursors when overlapping in game
+- timing tweaks to node takeover animations
+
 20.6.21
 - added save/load in map editor
 - added fade-in and fade-out
