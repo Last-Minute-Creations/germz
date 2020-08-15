@@ -50,6 +50,8 @@ Now:
 	☐ fix plep anim rotations
 	☐ Editor should check whether there are no holes in spawn point placements (e.g. player 1, 2, 4, but no 3)
 	☐ Import/export to/from editor by typing in code
+	☐ Add submenu with map selection
+	☐ Crash when skipping LMC logo and sfx is still playing
 
 Later:
 	☐ EKG
