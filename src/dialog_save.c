@@ -75,8 +75,12 @@ static void dialogSaveGsCreate(void) {
 static void dialogSaveGsLoop(void) {
 	gamePreprocess();
 
+	UBYTE isTab = keyUse(KEY_TAB);
 	tDirection eDir = gameEditorGetSteerDir();
-	if(eDir == DIRECTION_UP) {
+	if(
+		eDir == DIRECTION_UP ||
+		(isTab && (keyCheck(KEY_LSHIFT) || keyCheck(KEY_RSHIFT)))
+	) {
 		if(s_eCurrentInput) {
 			if(s_eCurrentInput == SAVE_INPUT_COUNT) {
 				// Focus out of button
@@ -90,7 +94,10 @@ static void dialogSaveGsLoop(void) {
 			inputSetFocus(s_pInputs[s_eCurrentInput]);
 		}
 	}
-	else if(eDir == DIRECTION_DOWN) {
+	else if(
+		eDir == DIRECTION_DOWN ||
+		(isTab && !keyCheck(KEY_LSHIFT) && !keyCheck(KEY_RSHIFT))
+	) {
 		if(s_eCurrentInput < SAVE_INPUT_COUNT) {
 			inputLoseFocus(s_pInputs[s_eCurrentInput]);
 			++s_eCurrentInput;

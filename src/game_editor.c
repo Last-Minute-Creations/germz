@@ -33,7 +33,10 @@ typedef void (*tCbFn)(void);
 static tEditorPlayer s_sPlayer;
 static tDialogResult s_eDialogResult;
 
-static tTile s_pMenuTiles[] = {TILE_BLOB_P1, TILE_PATH_X1, TILE_BLANK};
+static tTile s_pMenuTiles[] = {
+	TILE_BLOB_P1, TILE_PATH_X1, TILE_BLANK, TILE_BLANK, TILE_BLANK, TILE_BLANK,
+	TILE_BLANK, TILE_BLANK, TILE_BLANK
+};
 static const UBYTE s_ubMenuPosCount = sizeof(s_pMenuTiles) / sizeof(s_pMenuTiles[0]);
 
 static tBitMap *s_pBtnSmall, *s_pBtnSmallMask, *s_pBtnBig, *s_pBtnBigMask;
