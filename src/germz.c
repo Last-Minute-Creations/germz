@@ -21,7 +21,6 @@ void genericCreate(void) {
 	s_pMod = ptplayerModCreate("data/germz2-25.mod");
 	ptplayerLoadMod(s_pMod, 0, 0);
 	statePush(g_pStateMachineGame, &g_sStateLogo);
-	ptplayerEnableMusic(1);
 }
 
 void genericProcess(void) {

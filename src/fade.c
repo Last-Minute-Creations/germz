@@ -4,6 +4,7 @@
 
 #include "fade.h"
 #include <ace/utils/palette.h>
+#include <ace/utils/ptplayer.h>
 
 tFade *fadeCreate(tView *pView, UWORD *pPalette, UBYTE ubColorCount) {
 	logBlockBegin(
@@ -58,13 +59,16 @@ tFadeState fadeProcess(tFade *pFade) {
 		if(pFade->eState == FADE_STATE_OUT) {
 			ubCnt = pFade->ubCntEnd - pFade->ubCnt;
 		}
-		UBYTE ubRatio = (15 * ubCnt) / pFade->ubCntEnd;
 
+		UBYTE ubRatio = (15 * ubCnt) / pFade->ubCntEnd;
 		paletteDim(
 			pFade->pPaletteRef, pFade->pView->pFirstVPort->pPalette,
 			pFade->ubColorCount, ubRatio
 		);
 		viewUpdateCLUT(pFade->pView);
+
+		UBYTE ubVolume = (64 * ubCnt) / pFade->ubCntEnd;
+		ptplayerSetMasterVolume(ubVolume);
 
 		if(pFade->ubCnt >= pFade->ubCntEnd) {
 			pFade->eState = FADE_STATE_EVENT_FIRED;

@@ -70,13 +70,13 @@ void gameQuit(void) {
 UBYTE gamePreprocess(void) {
 	gameDebugColor(0x00F);
 	fadeProcess(s_pFade);
-	if(keyUse(KEY_ESCAPE)) {
-		gameQuit();
-		return 0;
-	}
-	else if(s_isQuitting) {
+	if(s_isQuitting) {
 		// Already quitting - inform upper state to not do anything and wait
 		// for fade end
+		return 0;
+	}
+	else if(keyUse(KEY_ESCAPE)) {
+		gameQuit();
 		return 0;
 	}
 	bobNewBegin(s_pBfr->pBack);

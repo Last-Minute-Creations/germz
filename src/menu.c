@@ -360,6 +360,7 @@ static void menuGsCreate(void) {
 	menuInitialDraw();
 	fadeSet(s_pFadeMenu, FADE_STATE_IN, 50, 0);
 	viewLoad(s_pView);
+	ptplayerEnableMusic(1);
 }
 
 static void menuGsLoop(void) {
