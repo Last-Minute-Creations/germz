@@ -1,3 +1,10 @@
+20.8.16
+- fixed losing buffer sync between bob management and display manager
+- always use 3rd channel for sfx in game
+- removed Revision stuff from credits
+- music playback starts from main menu, fading affects music volume
+- added TAB / shift+TAB navigation in editor save dialog
+
 20.8.14
 - fixed garbled ingame tiles and gui input bug
 - added "9" button to editor
