@@ -73,7 +73,9 @@ static void dialogSaveGsCreate(void) {
 }
 
 static void dialogSaveGsLoop(void) {
-	gamePreprocess();
+	if(!gamePreprocess()) {
+		return;
+	}
 
 	UBYTE isTab = keyUse(KEY_TAB);
 	tDirection eDir = gameEditorGetSteerDir();

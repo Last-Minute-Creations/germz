@@ -59,9 +59,14 @@ static void bobNewDeallocBuffers(void) {
 
 void bobNewManagerReset(void) {
 	bobNewDeallocBuffers();
+
+	// Don't reset s_ubBufferCurr - we still may need to keep track which buffer
+	// is in the front and which in the back
+	// E.g. multiple states in single buffer manager:
+	// fade-out, reset bobs, fade-in, start display
+
 	s_uwBgBufferLength = 0;
 	s_isPushingDone = 0;
-	s_ubBufferCurr = 0;
 	s_ubBobsPushed = 0;
 	s_ubBobsSaved = 0;
 	s_ubBobsDrawn = 0;
@@ -265,14 +270,14 @@ UBYTE bobNewProcessNext(void) {
 static void bobNewCheckGood(const tBitMap *pBack) {
 #if defined(ACE_DEBUG)
 	if(s_pQueues[s_ubBufferCurr].pDst != pBack) {
-		if(s_pQueues[!s_ubBufferCurr].pDst == pBack) {
-			logWrite("ERR: Wrong bob buffer as curr!\n");
-			s_ubBufferCurr = !s_ubBufferCurr;
-		}
 		logWrite(
 			"ERR: bobNew manager operates on wrong buffer! Current: %p, Other: %p, Game: %p\n",
 			s_pQueues[s_ubBufferCurr].pDst, s_pQueues[!s_ubBufferCurr].pDst, pBack
 		);
+		if(s_pQueues[!s_ubBufferCurr].pDst == pBack) {
+			logWrite("ERR: Wrong bob buffer as curr!\n");
+			s_ubBufferCurr = !s_ubBufferCurr;
+		}
 	}
 #endif
 }
