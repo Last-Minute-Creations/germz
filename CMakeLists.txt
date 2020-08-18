@@ -159,8 +159,7 @@ extractBitmaps(TARGET ${GERMZ_EXECUTABLE} SOURCE 	${RES_DIR}/editor_gfx.png
 		${GEN_DIR}/editor_hud.png   0 176 64 256
 		${GEN_DIR}/game_hud.png     0 433 64  64
 		# Game bg
-		${GEN_DIR}/game_bg/0.png 0 498 64 64
-		${GEN_DIR}/game_bg/1.png 0 563 64 64
+		${GEN_DIR}/game_bg.png 0 498 64 64
 )
 
 # Pleps
@@ -251,10 +250,6 @@ convertTileset(
 	TARGET ${GERMZ_EXECUTABLE} SIZE 32 HEIGHT 10 TILES 0.png 1.png 2.png 3.png 4.png
 	SOURCE ${GEN_DIR}/led_big DESTINATION ${GEN_DIR}/led_big.png
 )
-convertTileset(
-	TARGET ${GERMZ_EXECUTABLE} SIZE 64 TILES 0.png 1.png
-	SOURCE ${GEN_DIR}/game_bg DESTINATION ${GEN_DIR}/game_bg.png
-)
 set(DIRS "up;down;left;right")
 foreach(player RANGE 3)
 	foreach(dir ${DIRS})
@@ -308,7 +303,7 @@ convertBitmaps(
 		${GEN_DIR}/plep3_up.png ${GEN_DIR}/plep3_down.png
 		${GEN_DIR}/editor_hud.png ${GEN_DIR}/game_bg.png
 		${RES_DIR}/menu_main.png ${RES_DIR}/menu_sub.png
-		${RES_DIR}/lmc.png ${RES_DIR}/ace.png
+		${RES_DIR}/lmc.png ${RES_DIR}/ace.png ${GEN_DIR}/game_bg.png
 	DESTINATIONS
 		${DATA_DIR}/blob1.bm ${DATA_DIR}/blob2.bm ${DATA_DIR}/blob3.bm
 		${DATA_DIR}/blob4.bm ${DATA_DIR}/game_hud.bm
@@ -320,7 +315,7 @@ convertBitmaps(
 		${DATA_DIR}/plep3_up.bm ${DATA_DIR}/plep3_down.bm
 		${DATA_DIR}/editor_hud.bm ${DATA_DIR}/game_bg.bm
 		${DATA_DIR}/menu_main.bm ${DATA_DIR}/menu_sub.bm
-		${DATA_DIR}/lmc.bm ${DATA_DIR}/ace.bm
+		${DATA_DIR}/lmc.bm ${DATA_DIR}/ace.bm ${DATA_DIR}/game_bg.bm
 )
 
 convertAudio(

@@ -70,10 +70,10 @@ static void gameInitGsCreate(void) {
 	// Draw tiled bg on back buffer
 	for(UBYTE x = 0; x < 256 / 64; ++x) {
 		for(UBYTE y = 0; y < 256 / 64; ++y) {
-			if(x == 0 && y < 2) {
+			if(x == 0 && y == 0) {
 				continue;
 			}
-			UBYTE ubSrcY = ((x + y) & 1) ? 64 : 0;
+			UBYTE ubSrcY = 0;
 			blitCopyAligned(pDisplay, 0, ubSrcY, pDisplay, x * 64, y * 64, 64, 64);
 		}
 	}
