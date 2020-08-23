@@ -28,7 +28,7 @@ void gameAssetsDestroy(void);
 extern tBitMap *g_pBmBlobs[TILE_BLOB_COUNT], *g_pBmBlobMask;
 extern tBitMap *g_pCursors, *g_pCursorsMask;
 extern tBitMap *g_pBmLinks, *g_pBmLinksMask;
-extern tFont *g_pFont;
+extern tFont *g_pFont, *g_pFontBig;
 extern tTextBitMap *g_pTextBitmap;
 extern tPtplayerSfx *g_pSfxPlep1, *g_pSfxPlep2;
 

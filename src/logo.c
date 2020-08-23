@@ -131,7 +131,7 @@ void lmcFadeIn(void) {
 		blitCopy(
 			pLogo, 0, 0, s_pBfr->pBack,
 			(s_pVp->uwWidth - LOGO_WIDTH) / 2, (s_pVp->uwHeight - LOGO_HEIGHT) / 2,
-			LOGO_WIDTH, LOGO_HEIGHT, MINTERM_COOKIE, 0xFF
+			LOGO_WIDTH, LOGO_HEIGHT, MINTERM_COOKIE
 		);
 
 		systemUse();

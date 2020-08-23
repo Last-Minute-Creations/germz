@@ -309,6 +309,7 @@ void bobNewBegin(tBitMap *pBuffer) {
 				pBob->pOldPositions[s_ubBufferCurr].uwX / 8
 			);
 			ULONG ulD = (ULONG)(pQueue->pDst->Planes[0]) + ulDstOffs;
+			blitWait();
 			g_pCustom->bltdmod = pBob->_wModuloUndrawSave;
 			g_pCustom->bltdpt = (APTR)ulD;
 			UWORD uwPartHeight = s_uwAvailHeight - (pBob->pOldPositions[s_ubBufferCurr].uwY & (s_uwAvailHeight-1));
@@ -328,7 +329,6 @@ void bobNewBegin(tBitMap *pBuffer) {
 			UWORD uwBlitWords = (pBob->uwWidth+15) / 16 + 1;
 			uwDrawnHeight += uwBlitWords * pBob->uwHeight;
 #endif
-			blitWait();
 		}
 	}
 #ifdef GAME_DEBUG

@@ -57,7 +57,7 @@ static void playerSpawnPlep(tPlayer *pPlayer) {
 			plepSpawn(pPlep, wPlepCharges, pPlayer->eLastDir);
 			pPlayer->eLastDir = DIRECTION_COUNT;
 			pPlayer->pNodePlepSrc->wCharges -= wPlepCharges;
-			ptplayerSfxPlay(g_pSfxPlep2, 3, 64, 2);
+			// ptplayerSfxPlay(g_pSfxPlep2, 3, 64, 2);
 			logWrite(
 				"Spawned plep %hhu on player %d: blob %hhu,%hhu -> %hhu,%hhu\n",
 				i, playerToIdx(pPlayer),
@@ -135,8 +135,7 @@ tPlayer *playerFromIdx(tPlayerIdx eIdx) {
 UBYTE playerProcess(void) {
 	for(UBYTE i = 0; i < PLAYER_COUNT_MAX; ++i) {
 		s_pCursorFields[i].ubCursorCount = 0;
-		s_pCursorFields[i].sPosTile.ubX = 0;
-		s_pCursorFields[i].sPosTile.ubY = 0;
+		s_pCursorFields[i].sPosTile.uwYX = 0;
 	}
 
 	UBYTE ubAliveCount = 0;
@@ -163,7 +162,7 @@ UBYTE playerProcess(void) {
 				if(pPlayer->pNodeCursor->pPlayer == pPlayer) {
 					pPlayer->pNodePlepSrc = pPlayer->pNodeCursor;
 					pPlayer->isSelectingDestination = 1;
-					ptplayerSfxPlay(g_pSfxPlep1, 3, 64, 1);
+					// ptplayerSfxPlay(g_pSfxPlep1, 3, 64, 1);
 				}
 			}
 			else {
@@ -221,16 +220,26 @@ void playerAllDead(void) {
 	}
 }
 
+#define CURSOR_TICK_MAX 40
+
 void playerPushCursors(void) {
-	for(UBYTE i = 0; i < 4; ++i) {
-		tCursorField *pField = &s_pCursorFields[i];
+	static const UBYTE pTickLimitsDivided[] = {
+		CURSOR_TICK_MAX, CURSOR_TICK_MAX / 1, CURSOR_TICK_MAX / 2,
+		CURSOR_TICK_MAX / 3, CURSOR_TICK_MAX / 4
+	};
+	for(
+		tCursorField *pField = &s_pCursorFields[0];
+		pField < &s_pCursorFields[4]; ++pField
+	) {
 		if(pField->ubCursorCount) {
-			UBYTE ubTickLimit = 40 / pField->ubCursorCount;
+			UBYTE ubTickLimit = pTickLimitsDivided[pField->ubCursorCount];
 			if(++pField->ubFrameCounter >= ubTickLimit) {
 				++pField->ubCurrentCursor;
 				pField->ubFrameCounter = 0;
 			}
 			if(pField->ubCurrentCursor >= pField->ubCursorCount) {
+				// Last cursor on field is drawn - restart displaying
+				// This may also be the case when one of cursors leaves the area
 				pField->ubCurrentCursor = 0;
 			}
 			bobNewPush(pField->pBobs[pField->ubCurrentCursor]);

@@ -15,7 +15,7 @@ extern "C" {
 static inline void guiDraw3dBorder(
 	tBitMap *pBfr, UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwHeight
 ) {
-	tGuiConfig *pCfg = guiGetConfig();
+	const tGuiConfig *pCfg = guiGetConfig();
 	// Draw border
 	blitRect(pBfr, uwX, uwY, uwWidth, 1, pCfg->ubColorLight);
 	blitRect(pBfr, uwX, uwY, 1, uwHeight, pCfg->ubColorLight);

@@ -19,6 +19,7 @@
 #include "game_play.h"
 #include "game_summary.h"
 #include "germz.h"
+#include <bartman/gcc8_c_support.h>
 
 static tView *s_pView;
 static tVPort *s_pVp;
@@ -33,17 +34,6 @@ static UBYTE s_isEditor = 0;
 static UBYTE s_isDebug = 0;
 static UBYTE s_isDump = 0;
 static tSteer s_pSteers[4];
-static UWORD s_uwColorBg;
-
-void gameToggleDebug(void) {
-	s_isDebug = !s_isDebug;
-}
-
-void gameDebugColor(UWORD uwColor) {
-	if(s_isDebug) {
-		g_pCustom->color[0] = uwColor;
-	}
-}
 
 void gameLag(void) {
 	vPortWaitForEnd(s_pVp);
@@ -68,7 +58,6 @@ void gameQuit(void) {
 //-------------------------------------------------------------------- GAMESTATE
 
 UBYTE gamePreprocess(void) {
-	gameDebugColor(0x00F);
 	fadeProcess(s_pFade);
 	if(s_isQuitting) {
 		// Already quitting - inform upper state to not do anything and wait
@@ -85,11 +74,11 @@ UBYTE gamePreprocess(void) {
 
 void gamePostprocess(void) {
 	bobNewEnd();
-	gameDebugColor(0xFF0);
 	viewProcessManagers(s_pView);
 	copProcessBlocks();
-	gameDebugColor(s_uwColorBg);
-	vPortWaitForEnd(s_pVp);
+	debug_start_idle();
+	vPortWaitUntilEnd(s_pVp);
+	debug_stop_idle();
 	if(s_isDump) {
 		s_isDump = 0;
 		static char szPath[30];
@@ -98,17 +87,17 @@ void gamePostprocess(void) {
 		bitmapSaveBmp(s_pBfr->pFront, s_pVp->pPalette, szPath);
 	}
 
-	if(keyUse(KEY_C)) {
-		gameToggleDebug();
-	}
 	if(keyCheck(KEY_B)) {
 		gameLag();
 	}
 }
 
 static void gameGsCreate(void) {
+	UWORD uwCopListLength = simpleBufferGetRawCopperlistInstructionCount(5) + 2;
+
 	s_pView = viewCreate(0,
-		TAG_VIEW_COPLIST_MODE, COPPER_MODE_BLOCK,
+		TAG_VIEW_COPLIST_MODE, COPPER_MODE_RAW,
+		TAG_VIEW_COPLIST_RAW_COUNT, uwCopListLength,
 		TAG_VIEW_GLOBAL_CLUT, 1,
 		TAG_END
 	);
@@ -122,13 +111,13 @@ static void gameGsCreate(void) {
 	s_pBfr = simpleBufferCreate(0,
 		TAG_SIMPLEBUFFER_VPORT, s_pVp,
 		TAG_SIMPLEBUFFER_BITMAP_FLAGS, BMF_CLEAR | BMF_INTERLEAVED,
+		TAG_SIMPLEBUFFER_COPLIST_OFFSET, 0,
 		TAG_SIMPLEBUFFER_IS_DBLBUF, 1,
 		TAG_END
 	);
 
 	UWORD pPalette[32];
 	paletteLoad("data/germz.plt", pPalette, 32);
-	s_uwColorBg = pPalette[0];
 	s_pFade = fadeCreate(s_pView, pPalette, 32);
 	fadeSet(s_pFade, FADE_STATE_IN, 50, 0);
 

@@ -26,7 +26,7 @@ tBitMap *dialogCreate(
 	s_pBmFirst = pBack;
 	blitCopy(
 		s_pBmFirst, s_uwOffsX, s_uwOffsY, s_pBmDialogBgFirst, 0, 0,
-		s_uwWidth, s_uwHeight, MINTERM_COOKIE, 0xFF
+		s_uwWidth, s_uwHeight, MINTERM_COOKIE
 	);
 
 	if(pFront != pBack) {
@@ -34,7 +34,7 @@ tBitMap *dialogCreate(
 		s_pBmDialogBgSecond = bitmapCreate(s_uwWidth, s_uwHeight, pBack->Depth, ubFlags);
 		blitCopy(
 			s_pBmSecond, s_uwOffsX, s_uwOffsY, s_pBmDialogBgSecond, 0, 0,
-			s_uwWidth, s_uwHeight, MINTERM_COOKIE, 0xFF
+			s_uwWidth, s_uwHeight, MINTERM_COOKIE
 		);
 	}
 	else {
@@ -46,12 +46,12 @@ tBitMap *dialogCreate(
 void dialogDestroy(void) {
 	blitCopy(
 		s_pBmDialogBgFirst, 0, 0, s_pBmFirst, s_uwOffsX, s_uwOffsY,
-		s_uwWidth, s_uwHeight, MINTERM_COOKIE, 0xFF
+		s_uwWidth, s_uwHeight, MINTERM_COOKIE
 	);
 	if(s_pBmSecond) {
 		blitCopy(
 			s_pBmDialogBgSecond, 0, 0, s_pBmSecond, s_uwOffsX, s_uwOffsY,
-			s_uwWidth, s_uwHeight, MINTERM_COOKIE, 0xFF
+			s_uwWidth, s_uwHeight, MINTERM_COOKIE
 		);
 		bitmapDestroy(s_pBmDialogBgSecond);
 	}
@@ -65,6 +65,6 @@ void dialogProcess(tBitMap *pBack) {
 	// Copy current dialog bitmap contents to backbuffer
 	blitCopy(
 		s_pBmDialog, 0, 0, pBack, s_uwOffsX, s_uwOffsY,
-		s_uwWidth, s_uwHeight, MINTERM_COOKIE, 0xFF
+		s_uwWidth, s_uwHeight, MINTERM_COOKIE
 	);
 }

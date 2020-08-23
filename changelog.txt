@@ -1,3 +1,9 @@
+20.8.23
+- removed debug colors
+- switched game display to raw coplist
+- use big font in menu and game
+- optimized hud display
+
 20.8.16
 - fixed losing buffer sync between bob management and display manager
 - always use 3rd channel for sfx in game

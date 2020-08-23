@@ -89,10 +89,10 @@ static void gameEditorGsCreate(void) {
 	systemUse();
 
 	tGuiConfig *pConfig = guiGetConfig();
-	pConfig->ubColorLight = 16;
-	pConfig->ubColorDark = 19;
-	pConfig->ubColorFill = 18;
-	pConfig->ubColorText = 17;
+	pConfig->ubColorLight = 18;
+	pConfig->ubColorDark = 21;
+	pConfig->ubColorFill = 20;
+	pConfig->ubColorText = 19;
 
 	s_pBtnSmall = bitmapCreateFromFile("data/btn_small.bm", 0);
 	s_pBtnSmallMask = bitmapCreateFromFile("data/btn_small_mask.bm", 0);

@@ -24,7 +24,7 @@ static void listCtlDrawEntry(tListCtl *pCtl, UWORD uwIdx) {
 		uwFirstVisible + (pCtl->sRect.uwHeight - 4) / pCtl->ubEntryHeight
 	);
 	if(uwIdx >= uwFirstVisible && uwIdx <= uwLastVisible) {
-		tGuiConfig *pCfg = guiGetConfig();
+		const tGuiConfig *pCfg = guiGetConfig();
 		blitRect(
 			pCtl->pBfr, pCtl->sRect.uwX+2, pCtl->sRect.uwY+2 + uwIdx* pCtl->ubEntryHeight,
 			pCtl->sRect.uwWidth - LISTCTL_BTN_WIDTH - 2 - 2 - 1, pCtl->ubEntryHeight,
@@ -145,7 +145,7 @@ void listCtlDraw(tListCtl *pCtl) {
 	);
 
 	// Draw scroll bar
-	tGuiConfig *pCfg = guiGetConfig();
+	const tGuiConfig *pCfg = guiGetConfig();
 	blitRect(
 		pCtl->pBfr,
 		pCtl->sRect.uwX + pCtl->sRect.uwWidth - LISTCTL_BTN_WIDTH - 2,

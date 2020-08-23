@@ -335,6 +335,11 @@ convertAudio(
 	STRICT DESTINATION ${DATA_DIR}/sfx/plep2.sfx
 )
 
+convertFont(
+	TARGET ${GERMZ_EXECUTABLE} FIRST_CHAR 32
+	SOURCE ${RES_DIR}/germz_font.png DESTINATION ${DATA_DIR}/germz.fnt
+)
+
 # Copy MODs and maps
 file(
 	COPY ${RES_DIR}/germz2-25.mod ${RES_DIR}/maps ${RES_DIR}/uni54.fnt

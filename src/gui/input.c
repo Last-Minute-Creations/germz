@@ -83,7 +83,7 @@ tInput *inputCreate(
 
 	// Initial draw
 	UWORD uwHeight = inputGetHeight(pInput);
-	tGuiConfig *pConfig = guiGetConfig();
+	const tGuiConfig *pConfig = guiGetConfig();
 	if(szLabel) {
 		fontFillTextBitMap(pFont, pInput->pTextBitMap, szLabel);
 		fontDrawTextBitMap(

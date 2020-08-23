@@ -17,10 +17,10 @@
 #include "fade.h"
 #include "germz.h"
 
-#define MENU_COLOR_ACTIVE 16
-#define MENU_COLOR_INACTIVE 17
-#define MENU_COLOR_SHADOW 19
-#define MENU_COLOR_ERROR 9
+#define MENU_COLOR_ACTIVE 18
+#define MENU_COLOR_INACTIVE 19
+#define MENU_COLOR_SHADOW 21
+#define MENU_COLOR_ERROR 11
 
 typedef enum _tPlayerSteer {
 	PLAYER_STEER_JOY_1,
@@ -40,18 +40,18 @@ static UBYTE s_pPlayerSteers[4] = {
 };
 
 static const char *s_pMenuEnumSteer[] = {
-	"Joy 1", "Joy 2", "Joy 3", "Joy 4", "WSAD", "Arrows", "CPU", "Idle", "Off"
+	"JOY 1", "JOY 2", "JOY 3", "JOY 4", "WSAD", "ARROWS", "CPU", "IDLE", "OFF"
 };
 
 static const char *s_pMenuCaptions[] = {
-	"Infect",
-	"Player 1",
-	"Player 2",
-	"Player 3",
-	"Player 4",
-	"Editor",
-	"Credits",
-	"Cure"
+	"INFECT",
+	"PLAYER 1",
+	"PLAYER 2",
+	"PLAYER 3",
+	"PLAYER 4",
+	"EDITOR",
+	"CREDITS",
+	"CURE"
 };
 
 static tView *s_pView;
@@ -123,10 +123,7 @@ static tOption s_pOptions[] = {
 
 static void menuDrawPos(UBYTE ubPos, UWORD uwOffsTop) {
 	UWORD uwOffsY = uwOffsTop + ubPos * (s_pFont->uwHeight + 2);
-	blitCopy(
-		s_pBg, 64, uwOffsY, s_pBfr->pBack, 64, uwOffsY,
-		320 - (2 * 64), s_pFont->uwHeight + 1, MINTERM_COPY, 0xFF
-	);
+	const UWORD uwOffsX = 120;
 
 	char szBfr[50];
 	const char *szText = 0;
@@ -150,10 +147,16 @@ static void menuDrawPos(UBYTE ubPos, UWORD uwOffsTop) {
 	}
 	if(szText != 0) {
 		fontFillTextBitMap(s_pFont, s_pTextBitmap, szText);
-		fontDrawTextBitMap(s_pBfr->pBack, s_pTextBitmap, 139, uwOffsY + 1,
+		const UWORD uwBlitBgOffsX = uwOffsX & 0xFFF0;
+		const UWORD uwBlitBgWidth = 320 - uwBlitBgOffsX;
+		blitCopyAligned(
+			s_pBg, uwBlitBgOffsX, uwOffsY, s_pBfr->pBack, uwBlitBgOffsX, uwOffsY,
+			uwBlitBgWidth, s_pFont->uwHeight
+		);
+		fontDrawTextBitMap(s_pBfr->pBack, s_pTextBitmap, uwOffsX, uwOffsY + 1,
 			MENU_COLOR_SHADOW, FONT_COOKIE
 		);
-		fontDrawTextBitMap(s_pBfr->pBack, s_pTextBitmap, 139, uwOffsY,
+		fontDrawTextBitMap(s_pBfr->pBack, s_pTextBitmap, uwOffsX, uwOffsY,
 			(ubPos == s_ubActivePos) ? MENU_COLOR_ACTIVE : MENU_COLOR_INACTIVE,
 			FONT_COOKIE
 		);
@@ -227,7 +230,7 @@ static void menuErrorMsg(const char *szMsg) {
 	UBYTE ubLineHeight = s_pFont->uwHeight + 1;
 	blitCopy(
 		s_pBg, 0, uwOffsY, s_pBfr->pBack, 0, uwOffsY, 320, 2 * ubLineHeight,
-		MINTERM_COPY, 0xFF
+		MINTERM_COPY
 	);
 
 	while(szLineStart) {
@@ -304,22 +307,25 @@ static void onCredits(void) {
 }
 
 static void menuInitialDraw(void) {
-	blitCopy(s_pBg, 0, 0, s_pBfr->pBack, 0, 0, 320, 128, MINTERM_COPY, 0xFF);
-	blitCopy(s_pBg, 0, 128, s_pBfr->pBack, 0, 128, 320, 128, MINTERM_COPY, 0xFF);
+	blitCopy(s_pBg, 0, 0, s_pBfr->pBack, 0, 0, 320, 128, MINTERM_COPY);
+	blitCopy(s_pBg, 0, 128, s_pBfr->pBack, 0, 128, 320, 128, MINTERM_COPY);
 	for(UBYTE ubMenuPos = 0; ubMenuPos < MENU_POS_COUNT; ++ubMenuPos) {
 		s_pOptions[ubMenuPos].isDirty = 1;
 	}
 
 	char szVersion[15];
-	sprintf(szVersion, "v.%d.%d.%d", BUILD_YEAR, BUILD_MONTH, BUILD_DAY);
+	sprintf(szVersion, "V.%d.%d.%d", BUILD_YEAR, BUILD_MONTH, BUILD_DAY);
 	fontFillTextBitMap(s_pFont, s_pTextBitmap, szVersion);
-	fontDrawTextBitMap(s_pBfr->pBack, s_pTextBitmap, 320/2, 256 - 35, 18, FONT_HCENTER | FONT_COOKIE);
+	fontDrawTextBitMap(
+		s_pBfr->pBack, s_pTextBitmap, 320, 0, MENU_COLOR_INACTIVE,
+		FONT_RIGHT | FONT_COOKIE
+	);
 
-	fontFillTextBitMap(s_pFont, s_pTextBitmap, "A game by Last Minute Creations");
-	fontDrawTextBitMap(s_pBfr->pBack, s_pTextBitmap, 320/2, 256 - 20, 17, FONT_HCENTER | FONT_COOKIE);
+	// fontFillTextBitMap(s_pFont, s_pTextBitmap, "A game by Last Minute Creations");
+	// fontDrawTextBitMap(s_pBfr->pBack, s_pTextBitmap, 320/2, 256 - 20, 17, FONT_HCENTER | FONT_COOKIE);
 
-	fontFillTextBitMap(s_pFont, s_pTextBitmap, "lastminutecreations.itch.io/germz");
-	fontDrawTextBitMap(s_pBfr->pBack, s_pTextBitmap, 320/2, 256 - 10, 18, FONT_HCENTER | FONT_COOKIE);
+	// fontFillTextBitMap(s_pFont, s_pTextBitmap, "lastminutecreations.itch.io/germz");
+	// fontDrawTextBitMap(s_pBfr->pBack, s_pTextBitmap, 320/2, 256 - 10, 18, FONT_HCENTER | FONT_COOKIE);
 }
 
 static void menuGsResume(void) {
@@ -353,7 +359,7 @@ static void menuGsCreate(void) {
 	paletteLoad("data/germz.plt", pPalette, 32);
 	s_pFadeMenu = fadeCreate(s_pView, pPalette, 32);
 
-	s_pFont = fontCreate("data/uni54.fnt");
+	s_pFont = fontCreate("data/germz.fnt");
 	s_pTextBitmap = fontCreateTextBitMap(320, s_pFont->uwHeight);
 	systemUnuse();
 
@@ -492,8 +498,8 @@ static void onCreditsFadeout(void) {
 }
 
 static void creditsGsCreate(void) {
-	blitCopy(s_pBgSub, 0, 0, s_pBfr->pBack, 0, 0, 320, 128, MINTERM_COPY, 0xFF);
-	blitCopy(s_pBgSub, 0, 128, s_pBfr->pBack, 0, 128, 320, 128, MINTERM_COPY, 0xFF);
+	blitCopy(s_pBgSub, 0, 0, s_pBfr->pBack, 0, 0, 320, 128, MINTERM_COPY);
+	blitCopy(s_pBgSub, 0, 128, s_pBfr->pBack, 0, 128, 320, 128, MINTERM_COPY);
 
 	UBYTE ubLineWidth = s_pFont->uwHeight + 1;
 	UWORD uwOffsY = 0;
