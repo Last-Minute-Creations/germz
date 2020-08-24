@@ -111,8 +111,8 @@ static void gameEditorGsCreate(void) {
 	gameInitCursorBobs();
 	bobNewReallocateBgBuffers();
 
-	s_sBobLedTile.sPos.uwX = HUD_OFFS_X + 26;
-	s_sBobLedTile.sPos.uwY = 9;
+	s_sBobLedTile.sPos.uwX = HUD_OFFS_X + 27;
+	s_sBobLedTile.sPos.uwY = 10;
 
 	s_sBobLedColor.sPos.uwX = HUD_OFFS_X + 5;
 	s_sBobLedColor.sPos.uwY = 164;
@@ -207,8 +207,8 @@ static void gameEditorGsLoop(void) {
 		}
 	}
 	if(ubTileBtnPressed != s_ubMenuPosCount) {
-		s_sBobLedTile.sPos.uwY = 9 + ubTileBtnPressed * 17;
-		s_sBobBtnTile.sPos.uwY = 9 + ubTileBtnPressed * 17;
+		s_sBobLedTile.sPos.uwY = 10 + ubTileBtnPressed * 17;
+		s_sBobBtnTile.sPos.uwY = 10 + ubTileBtnPressed * 17;
 		bobNewSetBitMapOffset(&s_sBobBtnTile, ubTileBtnPressed * 10);
 		s_sPlayer.ubPaletteOption = ubTileBtnPressed;
 	}
