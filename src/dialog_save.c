@@ -79,10 +79,7 @@ static void dialogSaveGsLoop(void) {
 
 	UBYTE isTab = keyUse(KEY_TAB);
 	tDirection eDir = gameEditorGetSteerDir();
-	if(
-		eDir == DIRECTION_UP ||
-		(isTab && (keyCheck(KEY_LSHIFT) || keyCheck(KEY_RSHIFT)))
-	) {
+	if(eDir == DIRECTION_UP || (isTab && keyCheck(KEY_LSHIFT))) {
 		if(s_eCurrentInput) {
 			if(s_eCurrentInput == SAVE_INPUT_COUNT) {
 				// Focus out of button
@@ -96,10 +93,7 @@ static void dialogSaveGsLoop(void) {
 			inputSetFocus(s_pInputs[s_eCurrentInput]);
 		}
 	}
-	else if(
-		eDir == DIRECTION_DOWN ||
-		(isTab && !keyCheck(KEY_LSHIFT) && !keyCheck(KEY_RSHIFT))
-	) {
+	else if(eDir == DIRECTION_DOWN || (isTab && !keyCheck(KEY_LSHIFT))) {
 		if(s_eCurrentInput < SAVE_INPUT_COUNT) {
 			inputLoseFocus(s_pInputs[s_eCurrentInput]);
 			++s_eCurrentInput;
@@ -128,7 +122,7 @@ static void dialogSaveGsLoop(void) {
 
 	gamePostprocess();
 
-	if(eDir == DIRECTION_FIRE) {
+	if(eDir == DIRECTION_FIRE || keyUse(KEY_RETURN) || keyUse(KEY_NUMENTER)) {
 		if(buttonGetSelected() == s_pButtonSave) {
 			if(!strlen(g_sMapData.szName)) {
 				// TODO: ERR

@@ -184,7 +184,7 @@ static void dialogLoadGsLoop(void) {
 		clearMapInfo(s_pBmDialog);
 		s_ullChangeTimer = timerGet();
 	}
-	else if(eDir == DIRECTION_FIRE) {
+	else if(eDir == DIRECTION_FIRE || keyUse(KEY_RETURN) || keyUse(KEY_NUMENTER)) {
 		// No clicking the button - code is shorter that way
 		if(!s_isMapInfoRefreshed) {
 			updateMapInfo(s_pBmDialog);
