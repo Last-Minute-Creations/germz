@@ -5,7 +5,7 @@
 #include "blob_anim.h"
 #include "map.h"
 #include "game.h"
-#include "game_assets.h"
+#include "assets.h"
 #include "player.h"
 
 #define QUEUE_ELEMENTS_MAX 10

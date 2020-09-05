@@ -9,18 +9,18 @@
 #include <ace/utils/ptplayer.h>
 #include "germz.h"
 #include "logo.h"
+#include "assets.h"
 
 tStateManager *g_pStateMachineGame;
-static tPtplayerMod *s_pMod;
 
 void genericCreate(void) {
 	g_pStateMachineGame = stateManagerCreate();
 	keyCreate();
 	joyOpen();
 	ptplayerCreate(1);
-	s_pMod = ptplayerModCreate("data/germz2-25.mod");
-	ptplayerLoadMod(s_pMod, 0, 0);
-	statePush(g_pStateMachineGame, &g_sStateLogo);
+	assetsGlobalCreate();
+	ptplayerLoadMod(g_pMod, 0, 0);
+	statePush(g_pStateMachineGame, &g_sStateMenu);
 }
 
 void genericProcess(void) {
@@ -31,8 +31,8 @@ void genericProcess(void) {
 }
 
 void genericDestroy(void) {
-	ptplayerModDestroy(s_pMod);
 	ptplayerDestroy();
+	assetsGlobalDestroy();
 	keyDestroy();
 	joyClose();
 	stateManagerDestroy(g_pStateMachineGame);

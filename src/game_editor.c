@@ -7,7 +7,7 @@
 #include <ace/managers/system.h>
 #include <ace/managers/key.h>
 #include <gui/config.h>
-#include "game_assets.h"
+#include "assets.h"
 #include "dialog_load.h"
 #include "dialog_save.h"
 #include "game.h"
@@ -87,12 +87,6 @@ static void editorInitialDraw(void) {
 
 static void gameEditorGsCreate(void) {
 	systemUse();
-
-	tGuiConfig *pConfig = guiGetConfig();
-	pConfig->ubColorLight = 18;
-	pConfig->ubColorDark = 21;
-	pConfig->ubColorFill = 20;
-	pConfig->ubColorText = 19;
 
 	s_pBtnSmall = bitmapCreateFromFile("data/btn_small.bm", 0);
 	s_pBtnSmallMask = bitmapCreateFromFile("data/btn_small_mask.bm", 0);

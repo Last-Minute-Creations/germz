@@ -11,7 +11,7 @@
 #include "gui/config.h"
 #include "game_editor.h"
 #include "game.h"
-#include "game_assets.h"
+#include "assets.h"
 #include "germz.h"
 
 typedef enum _tSaveInput {
@@ -37,20 +37,20 @@ static void dialogSaveGsCreate(void) {
 	s_pBmDialog = dialogCreate(
 		uwDlgWidth, uwDlgHeight, gameGetBackBuffer(), gameGetFrontBuffer()
 	);
-	buttonListCreate(2, s_pBmDialog, g_pFont, g_pTextBitmap);
+	buttonListCreate(2, s_pBmDialog, g_pFontSmall, g_pTextBitmap);
 	s_pInputs[SAVE_INPUT_TITLE] = inputCreate(
-		s_pBmDialog, g_pFont, g_pTextBitmap, 3 + 50, 3, 100,
+		s_pBmDialog, g_pFontSmall, g_pTextBitmap, 3 + 50, 3, 100,
 		sizeof(g_sMapData.szName), "Title", g_sMapData.szName
 	);
 	s_pInputs[SAVE_INPUT_AUTHOR] = inputCreate(
-		s_pBmDialog, g_pFont, g_pTextBitmap, 3 + 50, 3+20, 100,
+		s_pBmDialog, g_pFontSmall, g_pTextBitmap, 3 + 50, 3+20, 100,
 		sizeof(g_sMapData.szAuthor), "Author", g_sMapData.szAuthor
 	);
 	s_pInputs[SAVE_INPUT_FILENAME] = inputCreate(
-		s_pBmDialog, g_pFont, g_pTextBitmap, 3 + 50, 3+40, 100,
+		s_pBmDialog, g_pFontSmall, g_pTextBitmap, 3 + 50, 3+40, 100,
 		sizeof(s_szFileName), "File name", s_szFileName
 	);
-	fontFillTextBitMap(g_pFont, g_pTextBitmap, ".json");
+	fontFillTextBitMap(g_pFontSmall, g_pTextBitmap, ".json");
 	fontDrawTextBitMap(
 		s_pBmDialog, g_pTextBitmap,
 		s_pInputs[SAVE_INPUT_FILENAME]->sPos.uwX + s_pInputs[SAVE_INPUT_FILENAME]->uwWidth + 2,

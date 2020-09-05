@@ -139,6 +139,12 @@ void listCtlRemoveEntry(tListCtl *pCtl, UWORD uwIdx) {
 }
 
 void listCtlDraw(tListCtl *pCtl) {
+	// Fill background with bg color
+	blitRect(
+		pCtl->pBfr, pCtl->sRect.uwX, pCtl->sRect.uwY,
+		pCtl->sRect.uwWidth, pCtl->sRect.uwHeight, 0
+	);
+
 	guiDraw3dBorder(
 		pCtl->pBfr, pCtl->sRect.uwX, pCtl->sRect.uwY,
 		pCtl->sRect.uwWidth, pCtl->sRect.uwHeight

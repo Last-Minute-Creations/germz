@@ -4,7 +4,7 @@
 
 #include "player.h"
 #include "game.h"
-#include "game_assets.h"
+#include "assets.h"
 
 //---------------------------------------------------------------------- DEFINES
 

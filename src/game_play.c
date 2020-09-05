@@ -8,7 +8,7 @@
 #include <ace/utils/font.h>
 #include <ace/utils/string.h>
 #include "game.h"
-#include "game_assets.h"
+#include "assets.h"
 #include "game_summary.h"
 #include "game_editor.h"
 #include "player.h"

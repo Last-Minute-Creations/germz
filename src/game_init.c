@@ -6,7 +6,7 @@
 #include <ace/managers/game.h>
 #include <ace/managers/system.h>
 #include "game.h"
-#include "game_assets.h"
+#include "assets.h"
 #include "game_play.h"
 #include "map.h"
 #include "fade.h"

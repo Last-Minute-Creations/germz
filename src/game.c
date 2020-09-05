@@ -13,7 +13,7 @@
 #include "menu.h"
 #include "ai.h"
 #include "player.h"
-#include "game_assets.h"
+#include "assets.h"
 #include "game_init.h"
 #include "game_editor.h"
 #include "game_play.h"
@@ -65,6 +65,8 @@ UBYTE gamePreprocess(void) {
 		return 0;
 	}
 	else if(keyUse(KEY_ESCAPE)) {
+		// TODO: if pause is triggered and text is written, be sure to restart HUD
+		// state machine 'cuz it uses global textbitmap
 		gameQuit();
 		return 0;
 	}
@@ -126,7 +128,7 @@ static void gameGsCreate(void) {
 		s_pSteers[i] = menuGetSteerForPlayer(i);
 	}
 
-	gameAssetsCreate();
+	assetsGameCreate();
 	playerCreate();
 	aiCreate(&g_sMap);
 	s_isQuitting = 0;
@@ -159,7 +161,7 @@ static void gameGsDestroy(void) {
 	viewLoad(0);
 	systemUse();
 
-	gameAssetsDestroy();
+	assetsGameDestroy();
 	playerDestroy();
 	bobNewManagerDestroy();
 	aiDestroy();
