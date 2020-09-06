@@ -41,7 +41,7 @@ void menuListInit(
 
 void menuListDraw(void) {
 	for(UBYTE ubMenuPos = 0; ubMenuPos < s_ubOptionCount; ++ubMenuPos) {
-		if(!s_pOptions[ubMenuPos].isHidden && s_pOptions[ubMenuPos].eDirty) {
+		if(s_pOptions[ubMenuPos].eDirty) {
 			menuListDrawPos(ubMenuPos);
 			s_pOptions[ubMenuPos].eDirty = 0;
 		}
@@ -71,16 +71,16 @@ void menuListDrawPos(UBYTE ubPos) {
 	else if(s_pOptions[ubPos].eOptionType == MENU_LIST_OPTION_TYPE_CALLBACK) {
 		szText = s_pOptionCaptions[ubPos];
 	}
-	if(szText != 0) {
+	if(s_pOptions[ubPos].eDirty == MENU_LIST_DIRTY_VAL_CHANGE) {
+		const UWORD uwBlitBgOffsX = s_uwX & 0xFFF0;
+		const UWORD uwBlitBgWidth = 320 - uwBlitBgOffsX;
+		blitCopyAligned(
+			s_pBmBg, uwBlitBgOffsX, uwPosY, s_pBmBuffer, uwBlitBgOffsX, uwPosY,
+			uwBlitBgWidth, s_pFont->uwHeight
+		);
+	}
+	if(!s_pOptions[ubPos].isHidden && szText != 0) {
 		fontFillTextBitMap(s_pFont, s_pTextBitmap, szText);
-		if(s_pOptions[ubPos].eDirty == MENU_LIST_DIRTY_VAL_CHANGE) {
-			const UWORD uwBlitBgOffsX = s_uwX & 0xFFF0;
-			const UWORD uwBlitBgWidth = 320 - uwBlitBgOffsX;
-			blitCopyAligned(
-				s_pBmBg, uwBlitBgOffsX, uwPosY, s_pBmBuffer, uwBlitBgOffsX, uwPosY,
-				uwBlitBgWidth, s_pFont->uwHeight
-			);
-		}
 		fontDrawTextBitMap(s_pBmBuffer, s_pTextBitmap, s_uwX, uwPosY + 1,
 			s_ubColorShadow, FONT_COOKIE
 		);
@@ -135,4 +135,12 @@ UBYTE menuListEnter(void) {
 		return 1;
 	}
 	return 0;
+}
+
+void menuListHide(UBYTE ubPos, UBYTE isHidden) {
+	UBYTE wasHidden = s_pOptions[ubPos].isHidden;
+	s_pOptions[ubPos].isHidden = isHidden;
+	if(wasHidden != isHidden) {
+		s_pOptions[ubPos].eDirty = MENU_LIST_DIRTY_VAL_CHANGE;
+	}
 }

@@ -14,8 +14,13 @@ tListCtl *mapListCreateCtl(
 	tBitMap *s_pBg, UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwHeight
 );
 
-void mapListDrawPreview(
-	const tMapData *pMapData, tBitMap *pBmDest, UWORD uwX, UWORD uwY
+void updateMapInfo(
+	const tListCtl *pCtrl, const tBitMap *pBmBg, tBitMap *pBmBuffer,
+	tMapData *pMapData, UBYTE ubMapPreviewTileSize
+);
+
+void clearMapInfo(
+	const tListCtl *pCtrl, const tBitMap *pBmBg, tBitMap *pBmBuffer
 );
 
 #endif // _GERMZ_MAP_LIST_H_

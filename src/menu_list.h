@@ -56,4 +56,6 @@ UBYTE menuListToggle(BYTE bDelta);
 
 UBYTE menuListEnter(void);
 
+void menuListHide(UBYTE ubPos, UBYTE isHidden);
+
 #endif // _GERMZ_MENU_LIST_H_

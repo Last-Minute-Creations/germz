@@ -139,12 +139,6 @@ static void gameGsCreate(void) {
 		statePush(g_pStateMachineGame, &g_sStateEditor);
 	}
 	else {
-		// Are we here from menu? If so, load map
-		if(!mapDataInitFromFile(&g_sMapData, "data/maps/map1.json")) {
-			logWrite("MAP CREATE FAIL\n");
-			// FIXME: handle it cleanly - it will crash for now
-			return;
-		}
 		statePush(g_pStateMachineGame, &g_sStateGameInit);
 	}
 	systemUnuse();
@@ -185,8 +179,12 @@ void gameInitMap(void) {
 	// Now that map is reset, reset players with known start locations
 	// First assume that all are dead, then init only those who really play
 	playerAllDead();
-	for(UBYTE i = 0; i < g_sMapData.ubPlayerCount; ++i) {
-		playerReset(i, g_sMap.pPlayerStartNodes[i]);
+	UBYTE ubMask = g_sMapData.ubPlayerMask;
+	for(UBYTE i = 0; i < 4; ++i) {
+		if(ubMask & 1) {
+			playerReset(i, g_sMap.pPlayerStartNodes[i]);
+		}
+		ubMask >>= 1;
 	}
 
 	// Now that players are reset, update node counts for all of them

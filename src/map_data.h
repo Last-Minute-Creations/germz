@@ -38,7 +38,7 @@ typedef enum _tTile {
 typedef struct _tMapData {
 	char szName[MAP_NAME_MAX];
 	char szAuthor[MAP_AUTHOR_MAX];
-	UBYTE ubPlayerCount;
+	UBYTE ubPlayerMask;
 	tTile pTiles[MAP_SIZE][MAP_SIZE];
 } tMapData;
 

@@ -1,3 +1,7 @@
+20.9.6
+- in-game hud scanlines
+- added "infect" submenu for map/player select
+
 20.8.23
 - removed debug colors
 - switched game display to raw coplist

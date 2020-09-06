@@ -19,6 +19,7 @@
 #include "assets.h"
 #include "map_list.h"
 #include "menu_list.h"
+#include "gui/button.h"
 
 #define MENU_COLOR_ACTIVE 18
 #define MENU_COLOR_INACTIVE 19
@@ -77,7 +78,12 @@ static tOption s_pOptions[] = {
 
 //------------------------------------------------------------------ PRIVATE FNS
 
-static void onFadeoutStart(void) {
+static void onFadeoutGameStart(void) {
+	stateChange(g_pStateMachineGame, &g_sStateGame);
+}
+
+static void onFadeoutEditorStart(void) {
+	statePop(g_pStateMachineGame); // Pop from map select to main menu
 	stateChange(g_pStateMachineGame, &g_sStateGame);
 }
 
@@ -122,42 +128,47 @@ static void menuErrorMsg(const char *szMsg) {
 	}
 }
 
-static void startGame(UBYTE isEditor) {
-	UBYTE pSteerToPlayer[PLAYER_STEER_AI] = {0};
-	for(UBYTE i = 0; i < 4; ++i) {
-		if((
-			s_pPlayerSteers[i] == PLAYER_STEER_JOY_3 ||
-			s_pPlayerSteers[i] == PLAYER_STEER_JOY_4
-		) && !joyEnableParallel()) {
-			menuErrorMsg(
-				"Can't open parallel port for joystick adapter\n"
-				"Joy 3 & 4 are not usable!"
-			);
-			return;
-		}
-
-		if(s_pPlayerSteers[i] < PLAYER_STEER_AI) {
-			if(!pSteerToPlayer[s_pPlayerSteers[i]]) {
-				pSteerToPlayer[s_pPlayerSteers[i]] = 1;
-			}
-			else {
-				char szMsg[80];
-				sprintf(
-					szMsg, "Controller %s is bound to more than 1 player",
-					s_pMenuEnumSteer[s_pPlayerSteers[i]]
+static void startGame(UBYTE isEditor, UBYTE ubPlayerMask) {
+	gameSetEditor(isEditor);
+	if(isEditor) {
+		fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, onFadeoutGameStart);
+	}
+	else {
+		UBYTE pSteerToPlayer[PLAYER_STEER_AI] = {0};
+		for(UBYTE i = 0; i < 4; ++i) {
+			if((
+				s_pPlayerSteers[i] == PLAYER_STEER_JOY_3 ||
+				s_pPlayerSteers[i] == PLAYER_STEER_JOY_4
+			) && !joyEnableParallel()) {
+				menuErrorMsg(
+					"Can't open parallel port for joystick adapter\n"
+					"Joy 3 & 4 are not usable!"
 				);
-				menuErrorMsg(szMsg);
 				return;
 			}
+
+			if(s_pPlayerSteers[i] < PLAYER_STEER_AI && BTST(ubPlayerMask, i)) {
+				if(!pSteerToPlayer[s_pPlayerSteers[i]]) {
+					pSteerToPlayer[s_pPlayerSteers[i]] = 1;
+				}
+				else {
+					char szMsg[80];
+					sprintf(
+						szMsg, "Controller %s is bound to more than 1 player",
+						s_pMenuEnumSteer[s_pPlayerSteers[i]]
+					);
+					menuErrorMsg(szMsg);
+					return;
+				}
+			}
 		}
+		fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, onFadeoutEditorStart);
 	}
-	gameSetEditor(isEditor);
-	fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, onFadeoutStart);
 }
 
 static void onEditor(void) {
 	mapDataClear(&g_sMapData);
-	startGame(1);
+	startGame(1, 1);
 }
 
 static void onFadeoutToCredits(void) {
@@ -349,12 +360,16 @@ static void onSubmenuFadeout(void) {
 
 //----------------------------------------------------------------------- INFECT
 
+static ULONG s_ullChangeTimer;
+
+static void infectGsLoopMapSelect(void);
+
 static void onStart(void) {
-	startGame(0);
+	startGame(0, g_sMapData.ubPlayerMask);
 }
 
 static void onMap(void) {
-
+	g_sStateInfect.cbLoop = infectGsLoopMapSelect;
 }
 
 static void onBack(void) {
@@ -396,28 +411,81 @@ static tOption s_pOptionsInfect[] = {
 
 static tListCtl *s_pMapList;
 
+static void menuUpdateMapInfo(void) {
+	updateMapInfo(s_pMapList, s_pBgSub, s_pBfr->pBack, &g_sMapData, 6);
+	for(UBYTE i = 0; i < 4; ++i) {
+		menuListHide(2 + i, !BTST(g_sMapData.ubPlayerMask, i));
+	}
+	menuListDraw();
+}
+
 static void infectGsCreate(void) {
 	blitCopy(s_pBgSub, 0, 0, s_pBfr->pBack, 0, 0, 320, 128, MINTERM_COPY);
 	blitCopy(s_pBgSub, 0, 128, s_pBfr->pBack, 0, 128, 320, 128, MINTERM_COPY);
+
 	menuListInit(
 		s_pOptionsInfect, s_pMenuInfectCaptions, INFECT_MENU_POS_COUNT,
 		g_pFontBig, g_pTextBitmap, s_pBgSub, s_pBfr->pBack, 80, 140,
 		MENU_COLOR_ACTIVE, MENU_COLOR_INACTIVE, MENU_COLOR_SHADOW
 	);
 
+	buttonListCreate(5, s_pBfr->pBack, g_pFontSmall, g_pTextBitmap);
 	s_pMapList = mapListCreateCtl(s_pBfr->pBack, 5, 5, 160, 128);
 	listCtlDraw(s_pMapList);
-	mapListDrawPreview(
-		&g_sMapData, s_pBfr->pBack, 165 + ((320 - 165) - 16 * 4) / 2, 50
-	);
+	buttonDrawAll();
 
 	fadeSet(s_pFadeMenu, FADE_STATE_IN, 50, 0);
 
 	s_cbOnEscape = onSubmenuFadeout;
+	menuUpdateMapInfo();
+	s_ullChangeTimer = timerGet();
+}
+
+static void infectGsLoopMapSelect(void) {
+	UBYTE isMapSelected = 0;
+	UBYTE isEnabled34 = joyIsParallelEnabled();
+
+	if(
+		keyUse(KEY_UP) || keyUse(KEY_W) ||
+		joyUse(JOY1_UP) || joyUse(JOY2_UP) ||
+		(isEnabled34 && (joyUse(JOY3_UP) || joyUse(JOY4_UP)))
+	) {
+		listCtlSelectPrev(s_pMapList);
+		clearMapInfo(s_pMapList, s_pBgSub, s_pBfr->pBack);
+		s_ullChangeTimer = timerGet();
+	}
+	else if(
+		keyUse(KEY_DOWN) || keyUse(KEY_S) ||
+		joyUse(JOY1_DOWN) || joyUse(JOY2_DOWN) ||
+		(isEnabled34 && (joyUse(JOY3_DOWN) || joyUse(JOY4_DOWN)))
+	) {
+		listCtlSelectNext(s_pMapList);
+		clearMapInfo(s_pMapList, s_pBgSub, s_pBfr->pBack);
+		s_ullChangeTimer = timerGet();
+	}
+	else if(
+		keyUse(KEY_RETURN) || keyUse(KEY_LSHIFT) || keyUse(KEY_RSHIFT) ||
+		joyUse(JOY1_FIRE) || joyUse(JOY2_FIRE) ||
+		(isEnabled34 && (joyUse(JOY3_FIRE) || joyUse(JOY4_FIRE)))
+	) {
+		menuUpdateMapInfo();
+		isMapSelected = 1;
+	}
+
+	if(timerGetDelta(s_ullChangeTimer, timerGet()) >= 25) {
+		menuUpdateMapInfo();
+		s_ullChangeTimer = timerGet();
+	}
+
+	if(isMapSelected || keyUse(KEY_ESCAPE)) {
+		g_sStateInfect.cbLoop = menuGsLoop;
+	}
 }
 
 static void infectGsDestroy(void) {
 	listCtlDestroy(s_pMapList);
+	buttonListDestroy();
+	s_cbOnEscape = onFadeoutExit;
 }
 
 //---------------------------------------------------------------------- CREDITS

@@ -18,62 +18,8 @@
 
 static tListCtl *s_pCtrl;
 static tMapData *s_pPreview;
-static const char *s_szFilePrev;
 static tBitMap *s_pBmDialog;
 static ULONG s_ullChangeTimer;
-static UBYTE s_isMapInfoRefreshed;
-
-static void clearMapInfo(tBitMap *pBmDialog) {
-	const UWORD uwOffsX = s_pCtrl->sRect.uwWidth + 3;
-	UWORD uwOffsY = 3;
-	const UBYTE ubRowWidth = 100;
-	const UBYTE ubRowHeight = g_pFontSmall->uwHeight + 2;
-
-	blitRect(pBmDialog, uwOffsX, uwOffsY, ubRowWidth, ubRowHeight, 0);
-	fontFillTextBitMap(g_pFontSmall, g_pTextBitmap, "Loading map...");
-	fontDrawTextBitMap(pBmDialog, g_pTextBitmap, uwOffsX, uwOffsY, 19, FONT_COOKIE);
-
-	uwOffsY += ubRowHeight;
-	blitRect(pBmDialog, uwOffsX, uwOffsY, ubRowWidth, ubRowHeight, 0);
-
-	s_isMapInfoRefreshed = 0;
-}
-
-static void updateMapInfo(tBitMap *pBmDialog) {
-	const char *szFile = listCtlGetSelection(s_pCtrl);
-	if(szFile == s_szFilePrev) {
-		return;
-	}
-
-	char szPath[MAP_FILENAME_MAX];
-	sprintf(szPath, "data/maps/%s.json", szFile);
-	mapDataInitFromFile(s_pPreview, szPath);
-
-	UWORD uwOffsX = s_pCtrl->sRect.uwWidth + 3;
-	UWORD uwOffsY = 3;
-	const UBYTE ubRowWidth = 100;
-	const UBYTE ubRowHeight = g_pFontSmall->uwHeight + 2;
-
-	char szLine[10 + MAX(MAP_NAME_MAX, MAP_AUTHOR_MAX)];
-	blitRect(pBmDialog, uwOffsX, uwOffsY, ubRowWidth, ubRowHeight, 0);
-	sprintf(szLine, "Title: %s", s_pPreview->szName);
-	fontFillTextBitMap(g_pFontSmall, g_pTextBitmap, szLine);
-	fontDrawTextBitMap(pBmDialog, g_pTextBitmap, uwOffsX, uwOffsY, 19, FONT_COOKIE);
-
-	uwOffsY += ubRowHeight;
-	blitRect(pBmDialog, uwOffsX, uwOffsY, ubRowWidth, ubRowHeight, 0);
-	sprintf(szLine, "Author: %s", s_pPreview->szAuthor);
-	fontFillTextBitMap(g_pFontSmall, g_pTextBitmap, szLine);
-	fontDrawTextBitMap(pBmDialog, g_pTextBitmap, uwOffsX, uwOffsY, 19, FONT_COOKIE);
-	uwOffsY += ubRowHeight;
-
-	// Draw map
-	uwOffsX += (((256 - uwOffsX) - 66) / 2);
-	mapListDrawPreview(s_pPreview, pBmDialog, uwOffsX, uwOffsY);
-
-	s_isMapInfoRefreshed = 1;
-	s_szFilePrev = szFile;
-}
 
 static void dialogLoadGsCreate(void) {
 	UWORD uwDlgWidth = 256;
@@ -82,8 +28,6 @@ static void dialogLoadGsCreate(void) {
 		uwDlgWidth, uwDlgHeight, gameGetBackBuffer(), gameGetFrontBuffer()
 	);
 	s_pPreview = memAllocFast(sizeof(*s_pPreview));
-	s_szFilePrev = 0;
-	s_isMapInfoRefreshed = 0;
 
 	// Initial draw
 	UBYTE ubPad = 1;
@@ -96,7 +40,7 @@ static void dialogLoadGsCreate(void) {
 		statePop(g_pStateMachineGame);
 	}
 
-	updateMapInfo(s_pBmDialog);
+	updateMapInfo(s_pCtrl, 0, s_pBmDialog, s_pPreview, 4);
 	s_ullChangeTimer = timerGet();
 
 	const UWORD uwBtnWidth = 50;
@@ -120,26 +64,24 @@ static void dialogLoadGsLoop(void) {
 	tDirection eDir = gameEditorGetSteerDir();
 	if(eDir == DIRECTION_UP) {
 		listCtlSelectPrev(s_pCtrl);
-		clearMapInfo(s_pBmDialog);
+		clearMapInfo(s_pCtrl, 0, s_pBmDialog);
 		s_ullChangeTimer = timerGet();
 	}
 	else if(eDir == DIRECTION_DOWN) {
 		listCtlSelectNext(s_pCtrl);
-		clearMapInfo(s_pBmDialog);
+		clearMapInfo(s_pCtrl, 0, s_pBmDialog);
 		s_ullChangeTimer = timerGet();
 	}
 	else if(eDir == DIRECTION_FIRE || keyUse(KEY_RETURN) || keyUse(KEY_NUMENTER)) {
-		// No clicking the button - code is shorter that way
-		if(!s_isMapInfoRefreshed) {
-			updateMapInfo(s_pBmDialog);
-		}
+		// No processing via the OK button callback - code is shorter that way
+		updateMapInfo(s_pCtrl, 0, s_pBmDialog, s_pPreview, 4);
 		memcpy(&g_sMapData, s_pPreview, sizeof(g_sMapData));
 		dialogSaveSetSaveName(listCtlGetSelection(s_pCtrl));
 		isMapSelected = 1;
 	}
 
 	if(timerGetDelta(s_ullChangeTimer, timerGet()) >= 25) {
-		updateMapInfo(s_pBmDialog);
+		updateMapInfo(s_pCtrl, 0, s_pBmDialog, s_pPreview, 4);
 		s_ullChangeTimer = timerGet();
 	}
 

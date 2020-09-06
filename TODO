@@ -32,6 +32,7 @@ Done:
 	✔ fix performance on 7MHz @done(20-08-23 15:37)
 	✔ hud scanlines @done(20-08-23 15:37)
 	✘ Editor should check whether there are no holes in spawn point placements (e.g. player 1, 2, 4, but no 3) @cancelled(20-08-25 13:28)
+	✔ "Infect" submenu with map select and player controls config @done(20-09-06 14:46)
 
 Now:
 	☐ Map save/load to/from file
@@ -45,7 +46,6 @@ Now:
 		☐ animation while loading preview
 		☐ animation while saving
 		☐ animation while loading
-	☐ "Infect" submenu with map select and player controls config
 	☐ Reduce mem usage by AI
 	☐ fix ptplayer on higher cpu freq
 	☐ win/lose screen
