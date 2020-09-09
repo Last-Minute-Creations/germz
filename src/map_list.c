@@ -104,13 +104,13 @@ tListCtl *mapListCreateCtl(tBitMap *pBg, UWORD uwX, UWORD uwY, UWORD uwWidth, UW
 	return pCtrl;
 }
 
-void updateMapInfo(
+UBYTE updateMapInfo(
 	const tListCtl *pCtrl, const tBitMap *pBmBg, tBitMap *pBmBuffer,
 	tMapData *pMapData, UBYTE ubMapPreviewTileSize
 ) {
 	const char *szFile = listCtlGetSelection(pCtrl);
 	if(szFile == s_szFilePrev && s_isMapInfoRefreshed) {
-		return;
+		return 0;
 	}
 
 	char szPath[MAP_FILENAME_MAX];
@@ -142,6 +142,7 @@ void updateMapInfo(
 
 	s_isMapInfoRefreshed = 1;
 	s_szFilePrev = szFile;
+	return 1;
 }
 
 void clearMapInfo(

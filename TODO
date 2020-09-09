@@ -33,6 +33,10 @@ Done:
 	✔ hud scanlines @done(20-08-23 15:37)
 	✘ Editor should check whether there are no holes in spawn point placements (e.g. player 1, 2, 4, but no 3) @cancelled(20-08-25 13:28)
 	✔ "Infect" submenu with map select and player controls config @done(20-09-06 14:46)
+	✔ In infect, players shouldn't leave empty space in menu @done(20-09-09 18:55)
+	✔ In infect, players on list should be coloured @done(20-09-09 18:55)
+	✔ Loading maps don't work when recently saved in editor @done(20-09-09 19:07)
+	✔ In editor, continuously holding the direction button should allow moving across more fields @done(20-09-09 20:14)
 
 Now:
 	☐ Map save/load to/from file
@@ -46,6 +50,7 @@ Now:
 		☐ animation while loading preview
 		☐ animation while saving
 		☐ animation while loading
+	☐ In editor, disable auto fill filename on save
 	☐ Reduce mem usage by AI
 	☐ fix ptplayer on higher cpu freq
 	☐ win/lose screen

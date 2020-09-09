@@ -43,6 +43,19 @@ static UBYTE s_pPlayerSteers[4] = {
 	PLAYER_STEER_KEY_WSAD, PLAYER_STEER_KEY_ARROWS
 };
 
+static const tMenuListStyle s_sMenuStyleDefault = {
+	.ubColorActive = MENU_COLOR_ACTIVE,
+	.ubColorInactive = MENU_COLOR_INACTIVE,
+	.ubColorShadow = MENU_COLOR_SHADOW
+};
+
+static const tMenuListStyle s_pMenuStylePlayers[4] = {
+	{.ubColorActive = 10, .ubColorInactive = 11, .ubColorShadow = 13},
+	{.ubColorActive = 14, .ubColorInactive = 15, .ubColorShadow = 17},
+	{.ubColorActive = 18, .ubColorInactive = 19, .ubColorShadow = 21},
+	{.ubColorActive = 22, .ubColorInactive = 23, .ubColorShadow = 25}
+};
+
 static const char *s_pMenuEnumSteer[] = {
 	"JOY 1", "JOY 2", "JOY 3", "JOY 4", "WSAD", "ARROWS", "CPU", "IDLE", "OFF"
 };
@@ -190,10 +203,11 @@ static void onCredits(void) {
 static void menuInitialDraw(void) {
 	blitCopy(s_pBg, 0, 0, s_pBfr->pBack, 0, 0, 320, 128, MINTERM_COPY);
 	blitCopy(s_pBg, 0, 128, s_pBfr->pBack, 0, 128, 320, 128, MINTERM_COPY);
+
 	menuListInit(
 		s_pOptions, s_pMenuCaptions, MENU_POS_COUNT,
 		g_pFontBig, g_pTextBitmap, s_pBg, s_pBfr->pBack, 120, 100,
-		MENU_COLOR_ACTIVE, MENU_COLOR_INACTIVE, MENU_COLOR_SHADOW
+		&s_sMenuStyleDefault
 	);
 
 	char szVersion[15];
@@ -376,58 +390,69 @@ static void onBack(void) {
 	fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, onSubmenuFadeout);
 }
 
-static const char *s_pMenuInfectCaptions[] = {
-	"START",
-	"SELECT MAP",
-	"PLAYER 1",
-	"PLAYER 2",
-	"PLAYER 3",
-	"PLAYER 4",
-	"BACK"
-};
+#define INFECT_MENU_OPTION_MAX 7
 
-static tOption s_pOptionsInfect[] = {
-	{MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onStart}},
-	{MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onMap}},
-	{MENU_LIST_OPTION_TYPE_UINT8, .isHidden = 0, .sOptUb = {
-		.pVar = &s_pPlayerSteers[0], .ubMax = PLAYER_STEER_IDLE, .isCyclic = 1,
-		.ubDefault = PLAYER_STEER_JOY_1, .pEnumLabels = s_pMenuEnumSteer
-	}},
-	{MENU_LIST_OPTION_TYPE_UINT8, .isHidden = 0, .sOptUb = {
-		.pVar = &s_pPlayerSteers[1], .ubMax = PLAYER_STEER_IDLE, .isCyclic = 1,
-		.ubDefault = PLAYER_STEER_JOY_2, .pEnumLabels = s_pMenuEnumSteer
-	}},
-	{MENU_LIST_OPTION_TYPE_UINT8, .isHidden = 0, .sOptUb = {
-		.pVar = &s_pPlayerSteers[2], .ubMax = PLAYER_STEER_IDLE, .isCyclic = 1,
-		.ubDefault = PLAYER_STEER_OFF, .pEnumLabels = s_pMenuEnumSteer
-	}},
-	{MENU_LIST_OPTION_TYPE_UINT8, .isHidden = 0, .sOptUb = {
-		.pVar = &s_pPlayerSteers[3], .ubMax = PLAYER_STEER_IDLE, .isCyclic = 1,
-		.ubDefault = PLAYER_STEER_OFF, .pEnumLabels = s_pMenuEnumSteer
-	}},
-	{MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onBack}},
-};
-#define INFECT_MENU_POS_COUNT (sizeof(s_pOptionsInfect) / sizeof(s_pOptionsInfect[0]))
+static const char *s_pMenuInfectCaptions[INFECT_MENU_OPTION_MAX];
+static tOption s_pOptionsInfect[INFECT_MENU_OPTION_MAX];
+static UBYTE s_ubInfectOptionCount;
 
 static tListCtl *s_pMapList;
 
-static void menuUpdateMapInfo(void) {
-	updateMapInfo(s_pMapList, s_pBgSub, s_pBfr->pBack, &g_sMapData, 6);
+static void infectRegenMenuList(UBYTE ubPlayerMask) {
+	static const char *pPlayerLabels[] = {
+		"PLAYER 1", "PLAYER 2", "PLAYER 3", "PLAYER 4"
+	};
+
+	s_ubInfectOptionCount = 0;
+	s_pOptionsInfect[s_ubInfectOptionCount] = (tOption){
+		MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onStart}
+	};
+	s_pMenuInfectCaptions[s_ubInfectOptionCount++] = "START";
+
+	s_pOptionsInfect[s_ubInfectOptionCount] = (tOption){
+		MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onMap}
+	};
+	s_pMenuInfectCaptions[s_ubInfectOptionCount++] = "SELECT MAP";
+
 	for(UBYTE i = 0; i < 4; ++i) {
-		menuListHide(2 + i, !BTST(g_sMapData.ubPlayerMask, i));
+		if(BTST(g_sMapData.ubPlayerMask, i)) {
+			s_pOptionsInfect[s_ubInfectOptionCount] = (tOption){
+				MENU_LIST_OPTION_TYPE_UINT8, .isHidden = 0, .sOptUb = {
+				.pVar = &s_pPlayerSteers[i], .ubMax = PLAYER_STEER_IDLE, .isCyclic = 1,
+				.ubDefault = PLAYER_STEER_JOY_1, .pEnumLabels = s_pMenuEnumSteer
+			}, .pStyle = &s_pMenuStylePlayers[i]};
+			s_pMenuInfectCaptions[s_ubInfectOptionCount++] = pPlayerLabels[i];
+		}
 	}
-	menuListDraw();
+
+	s_pOptionsInfect[s_ubInfectOptionCount] = (tOption){
+		MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onBack}
+	};
+	s_pMenuInfectCaptions[s_ubInfectOptionCount++] = "BACK";
+}
+
+static void menuUpdateMapInfo(UBYTE isUndraw, UBYTE isForce) {
+	if(updateMapInfo(
+		s_pMapList, s_pBgSub, s_pBfr->pBack, &g_sMapData, 6
+	) || isForce) {
+		if(isUndraw) {
+			menuListUndraw();
+		}
+		infectRegenMenuList(g_sMapData.ubPlayerMask);
+		UBYTE ubActive = menuListGetActive();
+		menuListInit(
+			s_pOptionsInfect, s_pMenuInfectCaptions, s_ubInfectOptionCount,
+			g_pFontBig, g_pTextBitmap, s_pBgSub, s_pBfr->pBack, 80, 140,
+			&s_sMenuStyleDefault
+		);
+		menuListSetActive(ubActive);
+		menuListDraw();
+	}
 }
 
 static void infectGsCreate(void) {
 	blitCopy(s_pBgSub, 0, 0, s_pBfr->pBack, 0, 0, 320, 128, MINTERM_COPY);
 	blitCopy(s_pBgSub, 0, 128, s_pBfr->pBack, 0, 128, 320, 128, MINTERM_COPY);
-
-	menuListInit(
-		s_pOptionsInfect, s_pMenuInfectCaptions, INFECT_MENU_POS_COUNT,
-		g_pFontBig, g_pTextBitmap, s_pBgSub, s_pBfr->pBack, 80, 140,
-		MENU_COLOR_ACTIVE, MENU_COLOR_INACTIVE, MENU_COLOR_SHADOW
-	);
 
 	buttonListCreate(5, s_pBfr->pBack, g_pFontSmall, g_pTextBitmap);
 	s_pMapList = mapListCreateCtl(s_pBfr->pBack, 5, 5, 160, 128);
@@ -437,7 +462,7 @@ static void infectGsCreate(void) {
 	fadeSet(s_pFadeMenu, FADE_STATE_IN, 50, 0);
 
 	s_cbOnEscape = onSubmenuFadeout;
-	menuUpdateMapInfo();
+	menuUpdateMapInfo(0, 1);
 	s_ullChangeTimer = timerGet();
 }
 
@@ -468,12 +493,12 @@ static void infectGsLoopMapSelect(void) {
 		joyUse(JOY1_FIRE) || joyUse(JOY2_FIRE) ||
 		(isEnabled34 && (joyUse(JOY3_FIRE) || joyUse(JOY4_FIRE)))
 	) {
-		menuUpdateMapInfo();
+		menuUpdateMapInfo(1, 0);
 		isMapSelected = 1;
 	}
 
 	if(timerGetDelta(s_ullChangeTimer, timerGet()) >= 25) {
-		menuUpdateMapInfo();
+		menuUpdateMapInfo(1, 0);
 		s_ullChangeTimer = timerGet();
 	}
 

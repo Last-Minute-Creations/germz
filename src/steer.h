@@ -25,6 +25,7 @@ typedef struct _tSteer {
 		tKeymap eKeymap; ///< for keyboard steer
 		tAi sAi;
 	};
+	ULONG ulTimer;
 } tSteer;
 
 tSteer steerInitJoy(UBYTE ubJoy);

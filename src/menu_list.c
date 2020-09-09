@@ -6,19 +6,19 @@
 
 static UBYTE s_ubActiveOption;
 static UBYTE s_ubOptionCount;
-tOption *s_pOptions;
-const char **s_pOptionCaptions;
-tBitMap *s_pBmBg, *s_pBmBuffer;
-tFont *s_pFont;
-tTextBitMap *s_pTextBitmap;
-UBYTE s_ubColorActive, s_ubColorInactive, s_ubColorShadow;
-UWORD s_uwX, s_uwY;
+static tOption *s_pOptions;
+static const char **s_pOptionCaptions;
+static tBitMap *s_pBmBg, *s_pBmBuffer;
+static tFont *s_pFont;
+static tTextBitMap *s_pTextBitmap;
+static UWORD s_uwX, s_uwY;
+static const tMenuListStyle *s_pStyle;
 
 void menuListInit(
 	tOption *pOptions, const char **pOptionCaptions,
 	UBYTE ubOptionCount, tFont *pFont, tTextBitMap *pTextBitmap,
 	tBitMap *pBmBg, tBitMap *pBmBuffer, UWORD uwX, UWORD uwY,
-	UBYTE ubColorActive, UBYTE ubColorInactive, UBYTE ubColorShadow
+	const tMenuListStyle *pStyle
 ) {
 	s_pOptions = pOptions;
 	s_ubOptionCount = ubOptionCount;
@@ -28,9 +28,7 @@ void menuListInit(
 	s_pBmBg = pBmBg;
 	s_pBmBuffer = pBmBuffer;
 	s_pTextBitmap = pTextBitmap;
-	s_ubColorActive = ubColorActive;
-	s_ubColorInactive = ubColorInactive;
-	s_ubColorShadow = ubColorShadow;
+	s_pStyle = pStyle;
 	s_uwX = uwX;
 	s_uwY = uwY;
 
@@ -48,44 +46,55 @@ void menuListDraw(void) {
 	}
 }
 
+void menuListUndrawPos(UBYTE ubPos) {
+	UWORD uwPosY = s_uwY + ubPos * (s_pFont->uwHeight + 1);
+	const UWORD uwBlitBgOffsX = s_uwX & 0xFFF0;
+	const UWORD uwBlitBgWidth = 320 - uwBlitBgOffsX;
+	blitCopyAligned(
+		s_pBmBg, uwBlitBgOffsX, uwPosY, s_pBmBuffer, uwBlitBgOffsX, uwPosY,
+		uwBlitBgWidth, s_pFont->uwHeight
+	);
+}
+
 void menuListDrawPos(UBYTE ubPos) {
 	UWORD uwPosY = s_uwY + ubPos * (s_pFont->uwHeight + 1);
 
 	char szBfr[50];
 	const char *szText = 0;
-	if(s_pOptions[ubPos].eOptionType == MENU_LIST_OPTION_TYPE_UINT8) {
-		if(s_pOptions[ubPos].sOptUb.pEnumLabels) {
+	const tOption *pOption = &s_pOptions[ubPos];
+	if(pOption->eOptionType == MENU_LIST_OPTION_TYPE_UINT8) {
+		if(pOption->sOptUb.pEnumLabels) {
 			sprintf(
 				szBfr, "%s: %s", s_pOptionCaptions[ubPos],
-				s_pOptions[ubPos].sOptUb.pEnumLabels[*s_pOptions[ubPos].sOptUb.pVar]
+				pOption->sOptUb.pEnumLabels[*pOption->sOptUb.pVar]
 			);
 		}
 		else {
 			sprintf(
 				szBfr, "%s: %hhu", s_pOptionCaptions[ubPos],
-				*s_pOptions[ubPos].sOptUb.pVar
+				*pOption->sOptUb.pVar
 			);
 		}
 		szText = szBfr;
 	}
-	else if(s_pOptions[ubPos].eOptionType == MENU_LIST_OPTION_TYPE_CALLBACK) {
+	else if(pOption->eOptionType == MENU_LIST_OPTION_TYPE_CALLBACK) {
 		szText = s_pOptionCaptions[ubPos];
 	}
-	if(s_pOptions[ubPos].eDirty == MENU_LIST_DIRTY_VAL_CHANGE) {
-		const UWORD uwBlitBgOffsX = s_uwX & 0xFFF0;
-		const UWORD uwBlitBgWidth = 320 - uwBlitBgOffsX;
-		blitCopyAligned(
-			s_pBmBg, uwBlitBgOffsX, uwPosY, s_pBmBuffer, uwBlitBgOffsX, uwPosY,
-			uwBlitBgWidth, s_pFont->uwHeight
-		);
+	if(pOption->eDirty == MENU_LIST_DIRTY_VAL_CHANGE) {
+		menuListUndrawPos(ubPos);
 	}
-	if(!s_pOptions[ubPos].isHidden && szText != 0) {
+	if(!pOption->isHidden && szText != 0) {
+		const tMenuListStyle *pStyle = pOption->pStyle;
+		if(!pStyle) {
+			pStyle = s_pStyle;
+		}
 		fontFillTextBitMap(s_pFont, s_pTextBitmap, szText);
-		fontDrawTextBitMap(s_pBmBuffer, s_pTextBitmap, s_uwX, uwPosY + 1,
-			s_ubColorShadow, FONT_COOKIE
+		fontDrawTextBitMap(
+			s_pBmBuffer, s_pTextBitmap, s_uwX, uwPosY + 1,
+			pStyle->ubColorShadow, FONT_COOKIE
 		);
 		fontDrawTextBitMap(s_pBmBuffer, s_pTextBitmap, s_uwX, uwPosY,
-			(ubPos == s_ubActiveOption) ? s_ubColorActive : s_ubColorInactive,
+			(ubPos == s_ubActiveOption) ? pStyle->ubColorActive : pStyle->ubColorInactive,
 			FONT_COOKIE
 		);
 	}
@@ -105,9 +114,7 @@ UBYTE menuListNavigate(BYTE bDir) {
 	}
 
 	// Update active pos and mark as dirty
-	s_pOptions[s_ubActiveOption].eDirty = MENU_LIST_DIRTY_SELECTION;
-	s_pOptions[wNewPos].eDirty = MENU_LIST_DIRTY_SELECTION;
-	s_ubActiveOption = wNewPos;
+	menuListSetActive(wNewPos);
 	return 1;
 }
 
@@ -137,10 +144,26 @@ UBYTE menuListEnter(void) {
 	return 0;
 }
 
-void menuListHide(UBYTE ubPos, UBYTE isHidden) {
+void menuListHidePos(UBYTE ubPos, UBYTE isHidden) {
 	UBYTE wasHidden = s_pOptions[ubPos].isHidden;
 	s_pOptions[ubPos].isHidden = isHidden;
 	if(wasHidden != isHidden) {
 		s_pOptions[ubPos].eDirty = MENU_LIST_DIRTY_VAL_CHANGE;
 	}
+}
+
+void menuListUndraw(void) {
+	for(UBYTE i = 0; i < s_ubOptionCount; ++i) {
+		menuListUndrawPos(i);
+	}
+}
+
+UBYTE menuListGetActive(void) {
+	return s_ubActiveOption;
+}
+
+void menuListSetActive(UBYTE ubNewPos) {
+	s_pOptions[s_ubActiveOption].eDirty = MENU_LIST_DIRTY_SELECTION;
+	s_pOptions[ubNewPos].eDirty = MENU_LIST_DIRTY_SELECTION;
+	s_ubActiveOption = ubNewPos;
 }

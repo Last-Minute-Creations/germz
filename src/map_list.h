@@ -14,7 +14,7 @@ tListCtl *mapListCreateCtl(
 	tBitMap *s_pBg, UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwHeight
 );
 
-void updateMapInfo(
+UBYTE updateMapInfo(
 	const tListCtl *pCtrl, const tBitMap *pBmBg, tBitMap *pBmBuffer,
 	tMapData *pMapData, UBYTE ubMapPreviewTileSize
 );

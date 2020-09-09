@@ -32,6 +32,7 @@ typedef void (*tCbFn)(void);
 
 static tEditorPlayer s_sPlayer;
 static tDialogResult s_eDialogResult;
+static tSteer s_sSteerKey, s_sSteerJoy;
 
 static tTile s_pMenuTiles[] = {
 	TILE_BLOB_P1, TILE_PATH_X1, TILE_BLANK, TILE_BLANK, TILE_BLANK, TILE_BLANK,
@@ -115,6 +116,9 @@ static void gameEditorGsCreate(void) {
 	s_sBobBtnFn.sPos.uwX = HUD_OFFS_X + 29;
 
 	systemUnuse();
+
+	s_sSteerKey = steerInitKey(KEYMAP_ARROWS);
+	s_sSteerJoy = steerInitJoy(JOY1);
 
 	s_sPlayer.ubPaletteOption = 0;
 	s_sPlayer.ubX = 0;
@@ -302,11 +306,9 @@ static void gameEditorGsDestroy(void) {
 }
 
 tDirection gameEditorGetSteerDir(void) {
-	tSteer sSteer = steerInitKey(KEYMAP_ARROWS);
-	tDirection eDir = steerProcess(&sSteer);
+	tDirection eDir = steerProcess(&s_sSteerKey);
 	if(eDir == DIRECTION_COUNT) {
-		sSteer = steerInitJoy(JOY1);
-		eDir = steerProcess(&sSteer);
+		eDir = steerProcess(&s_sSteerJoy);
 	}
 	return eDir;
 }

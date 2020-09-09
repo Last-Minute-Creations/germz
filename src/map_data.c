@@ -37,11 +37,10 @@ UBYTE mapDataInitFromFile(tMapData *pMapData, const char *szPath) {
 
 	UWORD uwTokName = jsonGetDom(pJson, "name");
 	UWORD uwTokAuthor = jsonGetDom(pJson, "author");
-	UWORD uwTokPlayers = jsonGetDom(pJson, "players");
 	UWORD uwTokTiles = jsonGetDom(pJson, "tiles");
 	UBYTE isOk = 0;
 
-	if(!uwTokName || !uwTokAuthor || !uwTokPlayers || !uwTokTiles) {
+	if(!uwTokName || !uwTokAuthor || !uwTokTiles) {
 		logWrite("ERR: couldn't find all tokens\n");
 		goto end;
 	}

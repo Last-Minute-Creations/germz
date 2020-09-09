@@ -18,6 +18,12 @@ typedef enum _tMenuListDirty {
 	MENU_LIST_DIRTY_SELECTION = 2,
 } tMenuListDirty;
 
+typedef struct _tMenuListStyle {
+	UBYTE ubColorActive;
+	UBYTE ubColorInactive;
+	UBYTE ubColorShadow;
+} tMenuListStyle;
+
 typedef void (*tOptionSelectCb)(void);
 
 // All options are uint8_t, enums or numbers
@@ -25,6 +31,7 @@ typedef struct _tOption {
 	tMenuListOptionType eOptionType;
 	UBYTE isHidden;
 	tMenuListDirty eDirty;
+	const tMenuListStyle *pStyle;
 	union {
 		struct {
 			UBYTE *pVar;
@@ -43,12 +50,16 @@ void menuListInit(
 	tOption *pOptions, const char **pOptionCaptions,
 	UBYTE ubOptionCount, tFont *pFont, tTextBitMap *pTextBitmap,
 	tBitMap *pBmBg, tBitMap *pBmBuffer, UWORD uwX, UWORD uwY,
-	UBYTE ubColorActive, UBYTE ubColorInactive, UBYTE ubColorShadow
+	const tMenuListStyle *pStyle
 );
 
 void menuListDraw(void);
 
+void menuListUndraw(void);
+
 void menuListDrawPos(UBYTE ubPos);
+
+void menuListUndrawPos(UBYTE ubPos);
 
 UBYTE menuListNavigate(BYTE bDir);
 
@@ -56,6 +67,10 @@ UBYTE menuListToggle(BYTE bDelta);
 
 UBYTE menuListEnter(void);
 
-void menuListHide(UBYTE ubPos, UBYTE isHidden);
+void menuListHidePos(UBYTE ubPos, UBYTE isHidden);
+
+UBYTE menuListGetActive(void);
+
+void menuListSetActive(UBYTE ubPos);
 
 #endif // _GERMZ_MENU_LIST_H_
