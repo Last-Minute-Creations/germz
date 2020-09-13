@@ -7,23 +7,30 @@
 #include <ace/managers/log.h>
 
 tAstarData *astarCreate(void) {
-	tAstarData *pNav = memAllocFast(sizeof(tAstarData));
+	tAstarData *pNav = memAllocFast(sizeof(*pNav));
+	pNav->uwNodesMax = MAP_NODES_MAX;
 	pNav->pFrontier = heapCreate(MAP_NODES_MAX);
 	pNav->ubState = ASTAR_STATE_OFF;
 	return pNav;
+}
+
+void astarSetMaxNodes(tAstarData *pNav, UWORD uwNodesMax) {
+	pNav->uwNodesMax = uwNodesMax;
 }
 
 void astarDestroy(tAstarData *pNav) {
 	// GCC -O2 heisenbug - hangs if ommited logBlockBegin/End here
 	logBlockBegin("astarDestroy(pNav: %p)", pNav);
 	heapDestroy(pNav->pFrontier);
-	memFree(pNav, sizeof(tAstarData));
+	memFree(pNav, sizeof(*pNav));
 	logBlockEnd("astarDestroy()");
 }
 
 void astarStart(tAstarData *pNav, const tNode *pNodeSrc, const tNode *pNodeDst) {
-	memset(pNav->pCostSoFar, 0xFF, sizeof(UWORD) * MAP_NODES_MAX);
-	memset(pNav->pCameFrom, 0, sizeof(tNode*) * MAP_NODES_MAX);
+	for(UWORD i = pNav->uwNodesMax; i--;) {
+		pNav->pCostSoFar[i] = 0xFFFF;
+		pNav->pCameFrom[i] = 0;
+	}
 	pNav->pCostSoFar[pNodeSrc->ubIdx] = 0;
 	pNav->pNodeDst = pNodeDst;
 	heapPush(pNav->pFrontier, pNodeSrc, 0);
@@ -33,8 +40,8 @@ void astarStart(tAstarData *pNav, const tNode *pNodeSrc, const tNode *pNodeDst) 
 
 UBYTE astarProcess(tAstarData *pNav) {
 	if(pNav->ubState == ASTAR_STATE_LOOPING) {
-		const ULONG ulMaxTime = 2500; // PAL: 1 = 0.4us => 10000 = 4ms => 2500 = 1ms
-		ULONG ulStart = timerGetPrec();
+		const ULONG ulMaxTime = 1250; // PAL: 1 = 0.4us => 10000 = 4ms => 2500 = 1ms
+		ULONG ulStart = timerGetPrec(), ulDelta;
 		do {
 			if(pNav->ubCurrNeighborIdx >= 4) {
 				// All neightbors checked - get next node on frontier to process
@@ -71,7 +78,9 @@ UBYTE astarProcess(tAstarData *pNav) {
 				}
 			}
 			++pNav->ubCurrNeighborIdx;
-		} while(timerGetDelta(ulStart, timerGetPrec()) <= ulMaxTime);
+			ULONG ulNow = timerGetPrec();
+			ulDelta = timerGetDelta(ulStart, ulNow);
+		} while(ulDelta <= ulMaxTime);
 	}
 	else {
 		// ASTAR_STATE_DONE

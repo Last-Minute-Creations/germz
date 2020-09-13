@@ -37,6 +37,8 @@ void aiCreate(const tMap *pMap);
 
 void aiDestroy(void);
 
+void aiSetNodeCount(void);
+
 void aiReset(tAi *pAi);
 
 tDirection aiProcess(tAi *pAi);

@@ -297,6 +297,12 @@ void aiCreate(const tMap *pMap) {
 	s_pMap = pMap;
 }
 
+void aiSetNodeCount(void) {
+	for(UBYTE i = 0; i < 4; ++i) {
+		astarSetMaxNodes(s_pAstar[i], s_pMap->uwNodeCount);
+	}
+}
+
 void aiDestroy(void) {
 	for(UBYTE i = 0; i < 4; ++i) {
 		astarDestroy(s_pAstar[i]);

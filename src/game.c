@@ -175,8 +175,9 @@ void gameInitMap(void) {
 	systemUse();
 	// Reset map
 	mapInitFromMapData();
+	aiSetNodeCount();
 
-	// Now that map is reset, reset players with known start locations
+	// Now that map is initialized, reset players with known start locations
 	// First assume that all are dead, then init only those who really play
 	playerAllDead();
 	UBYTE ubMask = g_sMapData.ubPlayerMask;
@@ -187,7 +188,7 @@ void gameInitMap(void) {
 		ubMask >>= 1;
 	}
 
-	// Now that players are reset, update node counts for all of them
+	// Now that players are initialized, update node counts for all of them
 	mapUpdateNodeCountForPlayers();
 	systemUnuse();
 }

@@ -34,6 +34,7 @@ typedef struct {
 	const tNode *pCameFrom[MAP_NODES_MAX];
 	const tNode *pNodeDst;
 	const tNode *pNodeCurr;
+	UWORD uwNodesMax;
 	tRoute sRoute;
 } tAstarData;
 
@@ -48,6 +49,15 @@ tAstarData *astarCreate(void);
  * @param pNav A* data structure to be freed.
  */
 void astarDestroy(tAstarData *pNav);
+
+/**
+ * @brief Set the upper bound for A* arrays.
+ * Setting to low values speeds up clearing arrays.
+ *
+ * @param pNav
+ * @param uwNodesMax
+ */
+void astarSetMaxNodes(tAstarData *pNav, UWORD uwNodesMax);
 
 /**
  * Prepares A* initial conditions.
