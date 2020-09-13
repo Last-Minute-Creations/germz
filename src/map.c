@@ -98,7 +98,10 @@ void mapInitFromMapData(void) {
 				tPlayerIdx ePlayerIdx = playerToIdx(playerFromTile(eTile));
 				if(ePlayerIdx != PLAYER_NONE) {
 					g_sMap.pPlayerStartNodes[ePlayerIdx] = pNode;
-					logWrite("Player %d start: %hhu,%hhu\n", ePlayerIdx, pNode->sPosTile.ubX, pNode->sPosTile.ubY);
+					logWrite(
+						"Player %d start: %hhu,%hhu\n",
+						ePlayerIdx, pNode->sPosTile.ubX, pNode->sPosTile.ubY
+					);
 				}
 			}
 		}
