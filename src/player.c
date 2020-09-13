@@ -57,7 +57,7 @@ static void playerSpawnPlep(tPlayer *pPlayer) {
 			plepSpawn(pPlep, wPlepCharges, pPlayer->eLastDir);
 			pPlayer->eLastDir = DIRECTION_COUNT;
 			pPlayer->pNodePlepSrc->wCharges -= wPlepCharges;
-			// ptplayerSfxPlay(g_pSfxPlep2, 3, 64, 2);
+			ptplayerSfxPlay(g_pSfxPlep2, 3, 64, 2);
 			logWrite(
 				"Spawned plep %hhu on player %d: blob %hhu,%hhu -> %hhu,%hhu\n",
 				i, playerToIdx(pPlayer),
@@ -162,7 +162,7 @@ UBYTE playerProcess(void) {
 				if(pPlayer->pNodeCursor->pPlayer == pPlayer) {
 					pPlayer->pNodePlepSrc = pPlayer->pNodeCursor;
 					pPlayer->isSelectingDestination = 1;
-					// ptplayerSfxPlay(g_pSfxPlep1, 3, 64, 1);
+					ptplayerSfxPlay(g_pSfxPlep1, 3, 64, 1);
 				}
 			}
 			else {
