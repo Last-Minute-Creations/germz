@@ -1,3 +1,9 @@
+20.9.13
+- speedup of ai pathfinding
+- re-enabled sfx due to ptplayer performance improvements
+- fixed ai going over its memory bounds
+- fixed garbage being appended in text inputs
+
 20.9.6
 - in-game hud scanlines
 - added "infect" submenu for map/player select
