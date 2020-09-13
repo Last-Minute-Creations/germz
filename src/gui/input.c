@@ -128,7 +128,11 @@ void inputProcess(tInput *pInput) {
 			(wInput >= 'a' && wInput <= 'z') ||
 			(wInput >= '0' && wInput <= '9')
 		) {
-			if(pInput->uwValueLength < pInput->uwMaxChars) {
+			if(pInput->uwValueLength < pInput->uwMaxChars - 1) {
+				if(pInput->szValue[pInput->uwValueLength] == '\0') {
+					// Move null terminator one char further if editing end of string
+					pInput->szValue[pInput->uwValueLength + 1] = '\0';
+				}
 				pInput->szValue[pInput->uwValueLength] = wInput;
 				++pInput->uwValueLength;
 			}
