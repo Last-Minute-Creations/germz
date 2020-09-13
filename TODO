@@ -38,6 +38,7 @@ Done:
 	✔ Loading maps don't work when recently saved in editor @done(20-09-09 19:07)
 	✔ In editor, continuously holding the direction button should allow moving across more fields @done(20-09-09 20:14)
 	✔ In editor, disable or fix auto fill filename on save @done(20-09-13 16:44)
+	✔ After killing player his hud may still be visible (blinking) @done(20-09-13 17:34)
 
 Now:
 	☐ Map save/load to/from file
@@ -52,7 +53,6 @@ Now:
 		☐ animation while saving
 		☐ animation while loading
 	☐ Reduce mem usage by AI
-	☐ After killing player his hud may still be visible (blinking)
 	☐ Improve AI performance
 	☐ Sometimes after starting game again pleps are blinking
 	☐ fix ptplayer on higher cpu freq

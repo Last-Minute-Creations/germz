@@ -23,7 +23,8 @@ typedef enum _tHudState {
 	HUD_STATE_PLEPS_DRAW,
 	HUD_STATE_GRABBED_PLEPS_PREPARE,
 	HUD_STATE_GRABBED_PLEPS_DRAW,
-	HUD_STATE_NEXT_PLAYER
+	HUD_STATE_NEXT_PLAYER,
+	HUD_STATE_RIP_UNDRAW
 } tHudState;
 
 static UBYTE s_isHudDrawnOnce;
@@ -57,23 +58,17 @@ static void updateHud(void) {
 	s_sBmHudAlias.Planes[2] = pDisplay->Planes[4];
 
 	tHudState eNextState = s_eHudState;
-	if(pPlayer->isDead) {
-		if(!s_pHudPlayersWereDead[s_eHudCurrPlayer]) {
-			if(s_isHudDrawnOnce) {
-				// This is second pass - don't go here anymore
-				s_pHudPlayersWereDead[s_eHudCurrPlayer] = 1;
+	switch(s_eHudState) {
+		case HUD_STATE_PLEPS_PREPARE:
+			if(pPlayer->isDead) {
+				if(!s_pHudPlayersWereDead[s_eHudCurrPlayer]) {
+					eNextState = HUD_STATE_RIP_UNDRAW;
+				}
+				else {
+					eNextState = HUD_STATE_NEXT_PLAYER;
+				}
 			}
-			// Erase whole HUD
-			blitRect(
-				&s_sBmHudAlias, uwMonitorX, uwMonitorY,
-				32, HUD_GRABBED_OFFS_Y + g_pFontBig->uwHeight, HUD_ALIAS_BG
-			);
-		}
-		eNextState = HUD_STATE_NEXT_PLAYER;
-	}
-	else {
-		switch(s_eHudState) {
-			case HUD_STATE_PLEPS_PREPARE:
+			else {
 				if(pPlayer->pNodeCursor) {
 					char szBfr[6];
 					stringDecimalFromULong(pPlayer->pNodeCursor->wCharges, szBfr);
@@ -85,49 +80,60 @@ static void updateHud(void) {
 				}
 				s_isHudDrawnOnce = 1; // prevent processing falling here in another frame
 				eNextState = HUD_STATE_PLEPS_DRAW;
-				break;
-			case HUD_STATE_PLEPS_DRAW:
-				blitRect(
-					&s_sBmHudAlias, uwMonitorX, uwMonitorY,
-					32, g_pTextBitmap->uwActualHeight, HUD_ALIAS_BG
+			}
+			break;
+		case HUD_STATE_PLEPS_DRAW:
+			blitRect(
+				&s_sBmHudAlias, uwMonitorX, uwMonitorY,
+				32, g_pTextBitmap->uwActualHeight, HUD_ALIAS_BG
+			);
+			if(s_isHudDrawCurrent) {
+				fontDrawTextBitMap(
+					&s_sBmHudAlias, g_pTextBitmap, uwMonitorX, uwMonitorY,
+					pPlayerColors[playerToIdx(pPlayer->pNodeCursor->pPlayer)], FONT_COOKIE
 				);
-				if(s_isHudDrawCurrent) {
-					fontDrawTextBitMap(
-						&s_sBmHudAlias, g_pTextBitmap, uwMonitorX, uwMonitorY,
-						pPlayerColors[playerToIdx(pPlayer->pNodeCursor->pPlayer)], FONT_COOKIE
-					);
-				}
-				eNextState = HUD_STATE_GRABBED_PLEPS_PREPARE;
-				break;
-			case HUD_STATE_GRABBED_PLEPS_PREPARE:
-				if(pPlayer->isSelectingDestination) {
-					char szBfr[6];
-					stringDecimalFromULong(pPlayer->pNodePlepSrc->wCharges / 2, szBfr);
-					fontFillTextBitMap(g_pFontBig, g_pTextBitmap, szBfr);
-					s_isHudDrawCurrent = 1;
-				}
-				else {
-					s_isHudDrawCurrent = 0; // just clear display in next state
-				}
-				s_isHudDrawnOnce = 1; // prevent processing falling here in another frame
-				eNextState = HUD_STATE_GRABBED_PLEPS_DRAW;
-				break;
-			case HUD_STATE_GRABBED_PLEPS_DRAW:
-				blitRect(
-					&s_sBmHudAlias, uwMonitorX, uwMonitorY + HUD_GRABBED_OFFS_Y,
-					32, g_pTextBitmap->uwActualHeight, HUD_ALIAS_BG
+			}
+			eNextState = HUD_STATE_GRABBED_PLEPS_PREPARE;
+			break;
+		case HUD_STATE_GRABBED_PLEPS_PREPARE:
+			if(pPlayer->isSelectingDestination) {
+				char szBfr[6];
+				stringDecimalFromULong(pPlayer->pNodePlepSrc->wCharges / 2, szBfr);
+				fontFillTextBitMap(g_pFontBig, g_pTextBitmap, szBfr);
+				s_isHudDrawCurrent = 1;
+			}
+			else {
+				s_isHudDrawCurrent = 0; // just clear display in next state
+			}
+			s_isHudDrawnOnce = 1; // prevent processing falling here in another frame
+			eNextState = HUD_STATE_GRABBED_PLEPS_DRAW;
+			break;
+		case HUD_STATE_GRABBED_PLEPS_DRAW:
+			blitRect(
+				&s_sBmHudAlias, uwMonitorX, uwMonitorY + HUD_GRABBED_OFFS_Y,
+				32, g_pTextBitmap->uwActualHeight, HUD_ALIAS_BG
+			);
+			if(s_isHudDrawCurrent) {
+				fontDrawTextBitMap(
+					&s_sBmHudAlias, g_pTextBitmap, uwMonitorX, uwMonitorY + HUD_GRABBED_OFFS_Y,
+					pPlayerColors[s_eHudCurrPlayer], FONT_COOKIE
 				);
-				if(s_isHudDrawCurrent) {
-					fontDrawTextBitMap(
-						&s_sBmHudAlias, g_pTextBitmap, uwMonitorX, uwMonitorY + HUD_GRABBED_OFFS_Y,
-						pPlayerColors[s_eHudCurrPlayer], FONT_COOKIE
-					);
-				}
-				eNextState = HUD_STATE_NEXT_PLAYER;
-				break;
-			default:
-				break;
-		}
+			}
+			eNextState = HUD_STATE_NEXT_PLAYER;
+			break;
+		case HUD_STATE_RIP_UNDRAW:
+			// Go here only once
+			s_pHudPlayersWereDead[s_eHudCurrPlayer] = 1;
+
+			// Erase whole HUD
+			blitRect(
+				&s_sBmHudAlias, uwMonitorX, uwMonitorY,
+				32, HUD_GRABBED_OFFS_Y + g_pFontBig->uwHeight, HUD_ALIAS_BG
+			);
+			eNextState = HUD_STATE_NEXT_PLAYER;
+			break;
+		default:
+			break;
 	}
 
 	if(!s_isHudDrawnOnce) {
