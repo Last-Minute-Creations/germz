@@ -52,6 +52,9 @@ Now:
 		☐ animation while loading
 	☐ In editor, disable auto fill filename on save
 	☐ Reduce mem usage by AI
+	☐ After killing player his hud may still be visible (blinking)
+	☐ Improve AI performance
+	☐ Sometimes after starting game again pleps are blinking
 	☐ fix ptplayer on higher cpu freq
 	☐ win/lose screen
 	☐ display in visible menu part how keyboard layouts have action button bound (how to play)

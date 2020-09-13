@@ -6,7 +6,7 @@ tHeap *heapCreate(UWORD uwMaxEntries) {
 	tHeap *pHeap = memAllocFast(sizeof(tHeap));
 	pHeap->uwMaxEntries = uwMaxEntries;
 	pHeap->uwCount = 0;
-	pHeap->pEntries = memAllocFastClear(uwMaxEntries * sizeof(tHeapEntry));
+	pHeap->pEntries = memAllocFastClear(uwMaxEntries * sizeof(pHeap->pEntries[0]));
 	return pHeap;
 }
 
@@ -23,6 +23,7 @@ void heapPush(tHeap *pHeap, const void *pData, UWORD uwPriority) {
 		logWrite(
 			"ERR: too many entries: %hu > %hu\n", pHeap->uwCount, pHeap->uwMaxEntries
 		);
+		while(1) {}
 	}
 
 	// Add the element to the bottom level of the heap.

@@ -28,7 +28,7 @@ typedef struct _tRoute {
 
 typedef struct {
 	UBYTE ubState; ///< See ASTAR_STATE_* defines
-	UBYTE ubCurrNeighbourIdx;
+	UBYTE ubCurrNeighborIdx;
 	UWORD pCostSoFar[MAP_NODES_MAX];
 	tHeap *pFrontier;
 	const tNode *pCameFrom[MAP_NODES_MAX];

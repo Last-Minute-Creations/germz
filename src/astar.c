@@ -28,7 +28,7 @@ void astarStart(tAstarData *pNav, const tNode *pNodeSrc, const tNode *pNodeDst) 
 	pNav->pNodeDst = pNodeDst;
 	heapPush(pNav->pFrontier, pNodeSrc, 0);
 	pNav->ubState = ASTAR_STATE_LOOPING;
-	pNav->ubCurrNeighbourIdx = 4;
+	pNav->ubCurrNeighborIdx = 4;
 }
 
 UBYTE astarProcess(tAstarData *pNav) {
@@ -36,8 +36,8 @@ UBYTE astarProcess(tAstarData *pNav) {
 		const ULONG ulMaxTime = 2500; // PAL: 1 = 0.4us => 10000 = 4ms => 2500 = 1ms
 		ULONG ulStart = timerGetPrec();
 		do {
-			if(pNav->ubCurrNeighbourIdx >= 4) {
-				// Out of neighbors
+			if(pNav->ubCurrNeighborIdx >= 4) {
+				// All neightbors checked - get next node on frontier to process
 				if(!pNav->pFrontier->uwCount) {
 					// Out of nodes in frontier
 					// TODO What then?
@@ -51,22 +51,26 @@ UBYTE astarProcess(tAstarData *pNav) {
 					pNav->ubState = ASTAR_STATE_DONE;
 					return 0;
 				}
-				pNav->ubCurrNeighbourIdx = 0;
+				pNav->ubCurrNeighborIdx = 0;
 			}
 
-			tNode *pNextNode = pNav->pNodeCurr->pNeighbors[pNav->ubCurrNeighbourIdx];
-			if(pNextNode != pNav->pNodeCurr) {
+			tNode *pNextNode = pNav->pNodeCurr->pNeighbors[pNav->ubCurrNeighborIdx];
+			if(pNextNode != 0 && pNextNode != pNav->pNodeCurr) {
 				UWORD uwCost = pNav->pCostSoFar[pNav->pNodeCurr->ubIdx] + 1;
 				if(uwCost < pNav->pCostSoFar[pNextNode->ubIdx]) {
 					pNav->pCostSoFar[pNextNode->ubIdx] = uwCost;
-					UWORD uwPriority = uwCost
+					UWORD uwPriority = (
+						uwCost
 						+ ABS(pNextNode->sPosTile.ubX - pNav->pNodeDst->sPosTile.ubX)
-						+ ABS(pNextNode->sPosTile.ubY - pNav->pNodeDst->sPosTile.ubY);
+						+ ABS(pNextNode->sPosTile.ubY - pNav->pNodeDst->sPosTile.ubY)
+					);
+					// This doesn't replace old occurences of node on heap - other path
+					// may be better in the long run.
 					heapPush(pNav->pFrontier, pNextNode, uwPriority);
 					pNav->pCameFrom[pNextNode->ubIdx] = pNav->pNodeCurr;
 				}
 			}
-			++pNav->ubCurrNeighbourIdx;
+			++pNav->ubCurrNeighborIdx;
 		} while(timerGetDelta(ulStart, timerGetPrec()) <= ulMaxTime);
 	}
 	else {
