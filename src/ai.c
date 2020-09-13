@@ -273,6 +273,15 @@ static tDirection aiProcessConfirmingTarget(tAi *pAi) {
 }
 
 tDirection aiProcess(tAi *pAi) {
+	// Check if it's turn of AI for given player
+	if(++pAi->ubCnt >= 4) {
+		pAi->ubCnt = 0;
+	}
+	if(pAi->ubCnt != pAi->ubPlayerIdx) {
+		return DIRECTION_COUNT;
+	}
+
+	// It's its turn - process
 	switch(pAi->eState) {
 		case AI_STATE_PLANNING_AGGRESIVE:
 			return aiProcessPlanningAggressive(pAi);
@@ -286,8 +295,9 @@ tDirection aiProcess(tAi *pAi) {
 			return aiProcessTargetingTarget(pAi);
 		case AI_STATE_CONFIRMING_TARGET:
 			return aiProcessConfirmingTarget(pAi);
+		default:
+			return DIRECTION_COUNT;
 	}
-	return DIRECTION_COUNT;
 }
 
 void aiCreate(const tMap *pMap) {
@@ -309,8 +319,10 @@ void aiDestroy(void) {
 	}
 }
 
-void aiReset(tAi *pAi) {
-	logWrite("AI Reset for player %hhu\n", pAi->ubPlayerIdx);
+void aiInit(tAi *pAi, UBYTE ubPlayerIdx) {
+	logWrite("AI init for player %hhu\n", ubPlayerIdx);
+	pAi->ubPlayerIdx = ubPlayerIdx;
+	pAi->ubCnt = 0;
 	pAi->wasLastAggresive = 0;
 	pAi->eState = AI_STATE_PLANNING_DEFENSIVE;
 	aiTransitToPlanning(pAi);

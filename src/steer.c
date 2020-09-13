@@ -99,12 +99,9 @@ tSteer steerInitKey(tKeymap eKeymap) {
 
 tSteer steerInitAi(UBYTE ubPlayerIdx) {
 	tSteer sSteer = {
-		.cbProcess = onAi,
-		.sAi = {
-			.ubPlayerIdx = ubPlayerIdx,
-		}
+		.cbProcess = onAi
 	};
-	aiReset(&sSteer.sAi);
+	aiInit(&sSteer.sAi, ubPlayerIdx);
 	return sSteer;
 }
 

@@ -31,6 +31,7 @@ typedef struct _tAi {
 	const struct _tNode *pTargetCurrNode;
 	tAiState eState;
 	tDirection eNeighborIdx;
+	UBYTE ubCnt;
 } tAi;
 
 void aiCreate(const tMap *pMap);
@@ -39,7 +40,7 @@ void aiDestroy(void);
 
 void aiSetNodeCount(void);
 
-void aiReset(tAi *pAi);
+void aiInit(tAi *pAi, UBYTE ubPlayerIdx);
 
 tDirection aiProcess(tAi *pAi);
 
