@@ -30,9 +30,9 @@ static void dialogLoadGsCreate(void) {
 	s_pPreview = memAllocFast(sizeof(*s_pPreview));
 
 	// Initial draw
-	UBYTE ubPad = 1;
+	UBYTE ubPad = 3;
 	UWORD uwWidth = uwDlgWidth / 2;
-	UWORD uwHeight = uwDlgHeight - 2;
+	UWORD uwHeight = uwDlgHeight - 2 * ubPad;
 
 	buttonListCreate(5, s_pBmDialog, g_pFontSmall, g_pTextBitmap);
 	s_pCtrl = mapListCreateCtl(s_pBmDialog, ubPad, ubPad, uwWidth, uwHeight);

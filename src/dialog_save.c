@@ -5,6 +5,7 @@
 #include "dialog_save.h"
 #include <ace/managers/game.h>
 #include <ace/managers/key.h>
+#include <ace/managers/state.h>
 #include "gui/dialog.h"
 #include "gui/input.h"
 #include "gui/button.h"
@@ -13,6 +14,13 @@
 #include "game.h"
 #include "assets.h"
 #include "germz.h"
+
+#define FILE_PATH_PREFIX "data/maps/"
+#define FILE_PATH_EXTENSION ".json"
+#define FILE_PATH_SIZE ( \
+	sizeof(FILE_PATH_PREFIX) - 1 + sizeof(s_szFileName) + \
+	sizeof(FILE_PATH_EXTENSION) - 1 + 1 \
+)
 
 typedef enum _tSaveInput {
 	SAVE_INPUT_TITLE,
@@ -25,32 +33,36 @@ static tBitMap *s_pBmDialog;
 static tInput *s_pInputs[SAVE_INPUT_COUNT];
 static tSaveInput s_eCurrentInput;
 static tButton *s_pButtonSave, *s_pButtonCancel;
+static tStateManager *s_pDlgStateMachine;
 
 static char s_szFileName[30] = "";
+static char s_szFilePath[FILE_PATH_SIZE];
 
-static void dialogSaveGsCreate(void) {
-	s_eCurrentInput = 0;
-	UWORD uwDlgWidth = 256;
-	UWORD uwDlgHeight = 128;
+static tState s_sStateOverwrite, s_sStateSelect, s_sStateSaving;
 
+//----------------------------------------------------------------- STATE SELECT
+
+void dialogSaveSelectCreate(void) {
 	const tGuiConfig *pConfig = guiGetConfig();
-	s_pBmDialog = dialogCreate(
-		uwDlgWidth, uwDlgHeight, gameGetBackBuffer(), gameGetFrontBuffer()
-	);
+	dialogClear();
+
+	UBYTE ubPadX = 3;
+	UBYTE ubPadY = 10;
+
 	buttonListCreate(2, s_pBmDialog, g_pFontSmall, g_pTextBitmap);
 	s_pInputs[SAVE_INPUT_TITLE] = inputCreate(
-		s_pBmDialog, g_pFontSmall, g_pTextBitmap, 3 + 50, 3, 100,
+		s_pBmDialog, g_pFontSmall, g_pTextBitmap, ubPadX + 50, ubPadY, 100,
 		sizeof(g_sMapData.szName), "Title", g_sMapData.szName
 	);
 	s_pInputs[SAVE_INPUT_AUTHOR] = inputCreate(
-		s_pBmDialog, g_pFontSmall, g_pTextBitmap, 3 + 50, 3+20, 100,
+		s_pBmDialog, g_pFontSmall, g_pTextBitmap, ubPadX + 50, ubPadY + 20, 100,
 		sizeof(g_sMapData.szAuthor), "Author", g_sMapData.szAuthor
 	);
 	s_pInputs[SAVE_INPUT_FILENAME] = inputCreate(
-		s_pBmDialog, g_pFontSmall, g_pTextBitmap, 3 + 50, 3+40, 100,
+		s_pBmDialog, g_pFontSmall, g_pTextBitmap, ubPadX + 50, ubPadY + 40, 100,
 		sizeof(s_szFileName), "File name", s_szFileName
 	);
-	fontFillTextBitMap(g_pFontSmall, g_pTextBitmap, ".json");
+	fontFillTextBitMap(g_pFontSmall, g_pTextBitmap, FILE_PATH_EXTENSION);
 	fontDrawTextBitMap(
 		s_pBmDialog, g_pTextBitmap,
 		s_pInputs[SAVE_INPUT_FILENAME]->sPos.uwX + s_pInputs[SAVE_INPUT_FILENAME]->uwWidth + 2,
@@ -58,8 +70,11 @@ static void dialogSaveGsCreate(void) {
 		pConfig->ubColorText, FONT_COOKIE | FONT_VCENTER
 	);
 
+	s_eCurrentInput = 0;
 	UWORD uwBtnWidth = 50;
 	UWORD uwBtnHeight = 20;
+	UWORD uwDlgWidth = bitmapGetByteWidth(s_pBmDialog) * 8;
+	UWORD uwDlgHeight = s_pBmDialog->Rows;
 	s_pButtonSave = buttonAdd(
 		uwDlgWidth / 3 - uwBtnWidth / 2, uwDlgHeight - uwBtnHeight - 10,
 		uwBtnWidth, uwBtnHeight, "Save", 0, 0
@@ -72,11 +87,7 @@ static void dialogSaveGsCreate(void) {
 	inputSetFocus(s_pInputs[s_eCurrentInput]);
 }
 
-static void dialogSaveGsLoop(void) {
-	if(!gamePreprocess()) {
-		return;
-	}
-
+void dialogSaveSelectLoop(void) {
 	UBYTE isTab = keyUse(KEY_TAB);
 	tDirection eDir = gameEditorGetSteerDir();
 	if(eDir == DIRECTION_UP || (isTab && keyCheck(KEY_LSHIFT))) {
@@ -118,8 +129,8 @@ static void dialogSaveGsLoop(void) {
 	if(s_eCurrentInput < SAVE_INPUT_COUNT) {
 		inputProcess(s_pInputs[s_eCurrentInput]);
 	}
-	dialogProcess(gameGetBackBuffer());
 
+	dialogProcess(gameGetBackBuffer());
 	gamePostprocess();
 
 	if(eDir == DIRECTION_FIRE || keyUse(KEY_RETURN) || keyUse(KEY_NUMENTER)) {
@@ -134,12 +145,15 @@ static void dialogSaveGsLoop(void) {
 				// TODO: ERR
 			}
 			else {
-				char szPath[45];
-				strcpy(szPath, "data/maps/");
-				strcat(szPath, s_szFileName);
-				strcat(szPath, ".json");
-				mapDataSaveToFile(&g_sMapData, szPath);
-				statePop(g_pStateMachineGame);
+				strcpy(s_szFilePath, FILE_PATH_PREFIX);
+				strcat(s_szFilePath, s_szFileName);
+				strcat(s_szFilePath, FILE_PATH_EXTENSION);
+				if(fileExists(s_szFilePath)) {
+					stateChange(s_pDlgStateMachine, &s_sStateOverwrite);
+				}
+				else {
+					stateChange(s_pDlgStateMachine, &s_sStateSaving);
+				}
 			}
 		}
 		else if(buttonGetSelected() == s_pButtonCancel) {
@@ -151,11 +165,151 @@ static void dialogSaveGsLoop(void) {
 	}
 }
 
-static void dialogSaveGsDestroy(void) {
+void dialogSaveSelectDestroy(void) {
 	buttonListDestroy();
 	for(tSaveInput eInput = 0; eInput < SAVE_INPUT_COUNT; ++eInput) {
 		inputDestroy(s_pInputs[eInput]);
 	}
+}
+
+static tState s_sStateSelect = {
+	.cbCreate = dialogSaveSelectCreate, .cbLoop = dialogSaveSelectLoop,
+	.cbDestroy = dialogSaveSelectDestroy
+};
+
+//-------------------------------------------------------------- STATE OVERWRITE
+
+void dialogSaveOverwriteCreate(void) {
+	dialogClear();
+	buttonListCreate(2, s_pBmDialog, g_pFontSmall, g_pTextBitmap);
+	const tGuiConfig *pConfig = guiGetConfig();
+
+	UWORD uwDlgWidth = bitmapGetByteWidth(s_pBmDialog) * 8;
+	UWORD uwDlgHeight = s_pBmDialog->Rows;
+	UWORD uwBtnWidth = 50;
+	UWORD uwBtnHeight = 20;
+	UWORD uwBtnY = uwDlgHeight - uwBtnHeight - 10;
+
+	fontFillTextBitMap(g_pFontSmall, g_pTextBitmap, "File already exists");
+	fontDrawTextBitMap(
+		s_pBmDialog, g_pTextBitmap, uwDlgWidth / 2,
+		uwBtnY / 2 - g_pFontSmall->uwHeight,
+		pConfig->ubColorText, FONT_LAZY | FONT_CENTER
+	);
+
+	fontFillTextBitMap(g_pFontSmall, g_pTextBitmap, s_szFilePath);
+	fontDrawTextBitMap(
+		s_pBmDialog, g_pTextBitmap, uwDlgWidth / 2, uwBtnY / 2,
+		pConfig->ubColorText, FONT_LAZY | FONT_CENTER
+	);
+
+	fontFillTextBitMap(g_pFontSmall, g_pTextBitmap, "Do you want to overwrite?");
+	fontDrawTextBitMap(
+		s_pBmDialog, g_pTextBitmap, uwDlgWidth / 2,
+		uwBtnY / 2 + g_pFontSmall->uwHeight,
+		pConfig->ubColorText, FONT_LAZY | FONT_CENTER
+	);
+
+	s_pButtonSave = buttonAdd(
+		uwDlgWidth / 3 - uwBtnWidth / 2, uwDlgHeight - uwBtnHeight - 10,
+		uwBtnWidth, uwBtnHeight, "Yes", 0, 0
+	);
+	s_pButtonCancel = buttonAdd(
+		uwDlgWidth * 2 / 3 - uwBtnWidth / 2, uwDlgHeight - uwBtnHeight - 10,
+		uwBtnWidth, uwBtnHeight, "No", 0, 0
+	);
+	buttonSelect(s_pButtonCancel);
+	buttonDrawAll();
+}
+
+void dialogSaveOverwriteLoop(void) {
+	tDirection eDir = gameEditorGetSteerDir();
+	if(eDir == DIRECTION_LEFT && s_eCurrentInput == SAVE_INPUT_COUNT) {
+		buttonSelect(s_pButtonSave);
+		buttonDrawAll();
+	}
+	else if(eDir == DIRECTION_RIGHT && s_eCurrentInput == SAVE_INPUT_COUNT) {
+		buttonSelect(s_pButtonCancel);
+		buttonDrawAll();
+	}
+
+	dialogProcess(gameGetBackBuffer());
+	gamePostprocess();
+
+	if(eDir == DIRECTION_FIRE || keyUse(KEY_RETURN) || keyUse(KEY_NUMENTER)) {
+		if(buttonGetSelected() == s_pButtonSave) {
+			stateChange(s_pDlgStateMachine, &s_sStateSaving);
+		}
+		else if(buttonGetSelected() == s_pButtonCancel) {
+			stateChange(s_pDlgStateMachine, &s_sStateSelect);
+		}
+	}
+	else if(keyUse(KEY_ESCAPE)) {
+		stateChange(s_pDlgStateMachine, &s_sStateSelect);
+	}
+}
+
+void dialogSaveOverwriteDestroy(void) {
+	buttonListDestroy();
+}
+
+static tState s_sStateOverwrite = {
+	.cbCreate = dialogSaveOverwriteCreate, .cbLoop = dialogSaveOverwriteLoop,
+	.cbDestroy = dialogSaveOverwriteDestroy
+};
+
+//----------------------------------------------------------------- STATE SAVING
+
+static void dialogSaveSavingCreate(void) {
+	dialogClear();
+	const tGuiConfig *pConfig = guiGetConfig();
+
+	fontFillTextBitMap(
+		g_pFontSmall, g_pTextBitmap, "Saving map. Don't turn off the power..."
+	);
+	fontDrawTextBitMap(
+		s_pBmDialog, g_pTextBitmap,
+		(bitmapGetByteWidth(s_pBmDialog) * 8) / 2, s_pBmDialog->Rows / 2,
+		pConfig->ubColorText, FONT_LAZY | FONT_CENTER
+	);
+}
+
+void dialogSaveSavingLoop(void) {
+	dialogProcess(gameGetBackBuffer());
+	gamePostprocess();
+
+	mapDataSaveToFile(&g_sMapData, s_szFilePath);
+	statePop(g_pStateMachineGame);
+}
+
+static tState s_sStateSaving = {
+	.cbCreate = dialogSaveSavingCreate, .cbLoop = dialogSaveSavingLoop
+};
+
+//----------------------------------------------------------------------- DIALOG
+
+static void dialogSaveGsCreate(void) {
+	s_eCurrentInput = 0;
+	UWORD uwDlgWidth = 256;
+	UWORD uwDlgHeight = 128;
+
+	s_pBmDialog = dialogCreate(
+		uwDlgWidth, uwDlgHeight, gameGetBackBuffer(), gameGetFrontBuffer()
+	);
+
+	s_pDlgStateMachine = stateManagerCreate();
+	statePush(s_pDlgStateMachine, &s_sStateSelect);
+}
+
+static void dialogSaveGsLoop(void) {
+	if(!gamePreprocess()) {
+		return;
+	}
+	stateProcess(s_pDlgStateMachine);
+}
+
+static void dialogSaveGsDestroy(void) {
+	stateManagerDestroy(s_pDlgStateMachine);
 	dialogDestroy();
 }
 

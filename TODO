@@ -49,11 +49,11 @@ Now:
 		✔ convert links to proper orientation @done(20-06-21 10:29)
 		✔ don't allow WSAD in editor - always use arrows and joy1 presets @done(20-06-21 11:32)
 		✔ display map preview in load dialog @done(20-08-06 17:51)
-		☐ Ask for overwrite
+		✔ Ask for overwrite @done(20-09-14 18:55)
+		✔ info/anim while saving @done(20-09-14 18:55)
 		☐ Ask for saving unsaved progress on load
 		☐ animation while loading preview
-		☐ animation while saving
-		☐ animation while loading
+		☐ info/anim while loading
 	☐ Sometimes after starting game again pleps are blinking
 	☐ fix ptplayer on higher cpu freq
 	☐ win/lose screen

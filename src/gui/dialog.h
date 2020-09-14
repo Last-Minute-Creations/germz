@@ -21,6 +21,8 @@ void dialogDestroy(void);
 
 void dialogProcess(tBitMap *pBack);
 
+void dialogClear(void);
+
 #ifdef __cplusplus
 }
 #endif

@@ -5,6 +5,7 @@
 #include "dialog.h"
 #include <ace/managers/blit.h>
 #include <ace/managers/system.h>
+#include <gui/border.h>
 
 static tBitMap *s_pBmDialog, *s_pBmDialogBgFirst, *s_pBmDialogBgSecond;
 static tBitMap *s_pBmFirst, *s_pBmSecond; // For synchronizing save/restore
@@ -20,7 +21,8 @@ tBitMap *dialogCreate(
 
 	UBYTE ubFlags = (bitmapIsInterleaved(pBack) ? BMF_INTERLEAVED : 0);
 	systemUse();
-	s_pBmDialog = bitmapCreate(s_uwWidth, s_uwHeight, pBack->Depth, ubFlags | BMF_CLEAR);
+	s_pBmDialog = bitmapCreate(s_uwWidth, s_uwHeight, pBack->Depth, ubFlags);
+	dialogClear();
 	s_pBmDialogBgFirst = bitmapCreate(s_uwWidth, s_uwHeight, pBack->Depth, ubFlags);
 	systemUnuse();
 	s_pBmFirst = pBack;
@@ -67,4 +69,9 @@ void dialogProcess(tBitMap *pBack) {
 		s_pBmDialog, 0, 0, pBack, s_uwOffsX, s_uwOffsY,
 		s_uwWidth, s_uwHeight, MINTERM_COOKIE
 	);
+}
+
+void dialogClear(void) {
+	blitRect(s_pBmDialog, 0, 0, s_uwWidth, s_uwHeight, 0);
+	guiDraw3dBorder(s_pBmDialog, 0, 0, s_uwWidth, s_uwHeight);
 }
