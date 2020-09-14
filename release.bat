@@ -1,9 +1,9 @@
 @echo off
 mkdir game
-copy germz game
+copy build\germz.exe game
 REM copy germz.info game
-xcopy data game\data /e /i /h
+xcopy build\data game\data /e /i /h
 mkdir game\s
-echo germz > game\s\startup-sequence
-exe2adf germz -l "GermZ" -a "germz.adf" -0 -d game
+echo germz.exe > game\s\startup-sequence
+exe2adf data\germz.exe -l "GermZ" -a "germz.adf" -0 -d game
 rmdir game /s /q
