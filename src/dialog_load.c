@@ -76,7 +76,6 @@ static void dialogLoadGsLoop(void) {
 		// No processing via the OK button callback - code is shorter that way
 		updateMapInfo(s_pCtrl, 0, s_pBmDialog, s_pPreview, 4);
 		memcpy(&g_sMapData, s_pPreview, sizeof(g_sMapData));
-		dialogSaveSetSaveName(listCtlGetSelection(s_pCtrl));
 		isMapSelected = 1;
 	}
 

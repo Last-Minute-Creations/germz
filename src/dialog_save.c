@@ -18,14 +18,13 @@
 #define FILE_PATH_PREFIX "data/maps/"
 #define FILE_PATH_EXTENSION ".json"
 #define FILE_PATH_SIZE ( \
-	sizeof(FILE_PATH_PREFIX) - 1 + sizeof(s_szFileName) + \
+	sizeof(FILE_PATH_PREFIX) - 1 + sizeof(g_sMapData.szName) + \
 	sizeof(FILE_PATH_EXTENSION) - 1 + 1 \
 )
 
 typedef enum _tSaveInput {
 	SAVE_INPUT_TITLE,
 	SAVE_INPUT_AUTHOR,
-	SAVE_INPUT_FILENAME,
 	SAVE_INPUT_COUNT
 } tSaveInput;
 
@@ -35,7 +34,6 @@ static tSaveInput s_eCurrentInput;
 static tButton *s_pButtonSave, *s_pButtonCancel;
 static tStateManager *s_pDlgStateMachine;
 
-static char s_szFileName[30] = "";
 static char s_szFilePath[FILE_PATH_SIZE];
 
 static tState s_sStateOverwrite, s_sStateSelect, s_sStateSaving;
@@ -43,7 +41,6 @@ static tState s_sStateOverwrite, s_sStateSelect, s_sStateSaving;
 //----------------------------------------------------------------- STATE SELECT
 
 void dialogSaveSelectCreate(void) {
-	const tGuiConfig *pConfig = guiGetConfig();
 	dialogClear();
 
 	UBYTE ubPadX = 3;
@@ -57,17 +54,6 @@ void dialogSaveSelectCreate(void) {
 	s_pInputs[SAVE_INPUT_AUTHOR] = inputCreate(
 		s_pBmDialog, g_pFontSmall, g_pTextBitmap, ubPadX + 50, ubPadY + 20, 100,
 		sizeof(g_sMapData.szAuthor), "Author", g_sMapData.szAuthor
-	);
-	s_pInputs[SAVE_INPUT_FILENAME] = inputCreate(
-		s_pBmDialog, g_pFontSmall, g_pTextBitmap, ubPadX + 50, ubPadY + 40, 100,
-		sizeof(s_szFileName), "File name", s_szFileName
-	);
-	fontFillTextBitMap(g_pFontSmall, g_pTextBitmap, FILE_PATH_EXTENSION);
-	fontDrawTextBitMap(
-		s_pBmDialog, g_pTextBitmap,
-		s_pInputs[SAVE_INPUT_FILENAME]->sPos.uwX + s_pInputs[SAVE_INPUT_FILENAME]->uwWidth + 2,
-		s_pInputs[SAVE_INPUT_FILENAME]->sPos.uwY + inputGetHeight(s_pInputs[SAVE_INPUT_FILENAME]) / 2,
-		pConfig->ubColorText, FONT_COOKIE | FONT_VCENTER
 	);
 
 	s_eCurrentInput = 0;
@@ -141,12 +127,9 @@ void dialogSaveSelectLoop(void) {
 			else if(!strlen(g_sMapData.szAuthor)) {
 				// TODO: ERR
 			}
-			else if(!strlen(s_szFileName)) {
-				// TODO: ERR
-			}
 			else {
 				strcpy(s_szFilePath, FILE_PATH_PREFIX);
-				strcat(s_szFilePath, s_szFileName);
+				strcat(s_szFilePath, g_sMapData.szName);
 				strcat(s_szFilePath, FILE_PATH_EXTENSION);
 				if(fileExists(s_szFilePath)) {
 					stateChange(s_pDlgStateMachine, &s_sStateOverwrite);
@@ -315,10 +298,6 @@ static void dialogSaveGsDestroy(void) {
 
 void dialogSaveShow(void) {
 	statePush(g_pStateMachineGame, &g_sStateDialogSave);
-}
-
-void dialogSaveSetSaveName(const char *szName) {
-	strcpy(s_szFileName, szName);
 }
 
 tState g_sStateDialogSave = {
