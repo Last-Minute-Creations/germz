@@ -1,3 +1,8 @@
+20.9.14
+- added confirmation dialog before overwriting map in editor
+- fixed player HUD being displayed and blinking after defeat
+- slowed down AI a bit, resulting in significant performance gain
+
 20.9.13
 - speedup of ai pathfinding
 - re-enabled sfx due to ptplayer performance improvements
