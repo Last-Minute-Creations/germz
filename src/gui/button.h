@@ -40,6 +40,10 @@ void buttonDrawAll(void);
 
 void buttonSelect(tButton *pButton);
 
+void buttonSelectNext(void);
+
+void buttonSelectPrev(void);
+
 tButton *buttonGetSelected(void);
 
 UBYTE buttonListProcessMouseClick(UWORD uwX, UWORD uwY);

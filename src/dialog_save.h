@@ -5,7 +5,9 @@
 #ifndef _GERMZ_DIALOG_SAVE_H_
 #define _GERMZ_DIALOG_SAVE_H_
 
-void dialogSaveShow(void);
+#include <ace/types.h>
+
+void dialogSaveShow(UBYTE isQuitting);
 
 void dialogSaveSetSaveName(const char *szName);
 

@@ -51,7 +51,7 @@ Now:
 		✔ display map preview in load dialog @done(20-08-06 17:51)
 		✔ Ask for overwrite @done(20-09-14 18:55)
 		✔ info/anim while saving @done(20-09-14 18:55)
-		☐ Ask for saving unsaved progress on load
+		✔ Ask for saving unsaved progress on load @done(20-09-15 21:47)
 		☐ animation while loading preview
 		☐ info/anim while loading
 	☐ Sometimes after starting game again pleps are blinking

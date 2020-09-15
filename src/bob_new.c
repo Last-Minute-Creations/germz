@@ -88,6 +88,7 @@ void bobNewManagerCreate(
 	s_pQueues[1].pBg = 0;
 	s_ubMaxBobCount = 0;
 	bobNewManagerReset();
+	s_ubBufferCurr = 0;
 	s_uwAvailHeight = uwAvailHeight;
 
 	s_pQueues[0].pBg = 0;
@@ -271,8 +272,8 @@ static void bobNewCheckGood(const tBitMap *pBack) {
 #if defined(ACE_DEBUG)
 	if(s_pQueues[s_ubBufferCurr].pDst != pBack) {
 		logWrite(
-			"ERR: bobNew manager operates on wrong buffer! Current: %p, Other: %p, Game: %p\n",
-			s_pQueues[s_ubBufferCurr].pDst, s_pQueues[!s_ubBufferCurr].pDst, pBack
+			"ERR: bobNew manager operates on wrong buffer! Proper current: %p (%hhu), Other: %p, Arg: %p\n",
+			s_pQueues[s_ubBufferCurr].pDst, s_ubBufferCurr, s_pQueues[!s_ubBufferCurr].pDst, pBack
 		);
 		if(s_pQueues[!s_ubBufferCurr].pDst == pBack) {
 			logWrite("ERR: Wrong bob buffer as curr!\n");

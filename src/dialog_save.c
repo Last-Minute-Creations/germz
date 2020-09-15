@@ -32,13 +32,86 @@ typedef enum _tSaveInput {
 static tBitMap *s_pBmDialog;
 static tInput *s_pInputs[SAVE_INPUT_COUNT];
 static tSaveInput s_eCurrentInput;
-static tButton *s_pButtonSave, *s_pButtonCancel;
+static tButton *s_pButtonYes, *s_pButtonNo, *s_pButtonCancel;
 static tStateManager *s_pDlgStateMachine;
+static UBYTE s_isQuitting;
 
 static char s_szFileName[30] = "";
 static char s_szFilePath[FILE_PATH_SIZE];
 
 static tState s_sStateOverwrite, s_sStateSelect, s_sStateSaving;
+
+//----------------------------------------------------------------- STATE YES NO
+
+void dialogSaveYesNoCreate(const char **pMsgLines, UBYTE ubLineCount, UBYTE isCancel) {
+	UBYTE ubButtonCount = 2;
+	if(isCancel) {
+		++ubButtonCount;
+	}
+
+	dialogClear();
+	buttonListCreate(ubButtonCount, s_pBmDialog, g_pFontSmall, g_pTextBitmap);
+	const tGuiConfig *pConfig = guiGetConfig();
+
+	UWORD uwDlgWidth = bitmapGetByteWidth(s_pBmDialog) * 8;
+	UWORD uwDlgHeight = s_pBmDialog->Rows;
+	UWORD uwBtnWidth = 50;
+	UWORD uwBtnHeight = 20;
+	UWORD uwBtnY = uwDlgHeight - uwBtnHeight - 10;
+
+	for(UBYTE i = 0; i < ubLineCount; ++i) {
+		fontFillTextBitMap(g_pFontSmall, g_pTextBitmap, pMsgLines[i]);
+		fontDrawTextBitMap(
+			s_pBmDialog, g_pTextBitmap, uwDlgWidth / 2,
+			uwBtnY / 2 + g_pFontSmall->uwHeight * (i - (ubLineCount / 2)),
+			pConfig->ubColorText, FONT_LAZY | FONT_CENTER
+		);
+	}
+
+	s_pButtonYes = buttonAdd(
+		1 * uwDlgWidth / (ubButtonCount + 1) - uwBtnWidth / 2,
+		uwDlgHeight - uwBtnHeight - 10, uwBtnWidth, uwBtnHeight, "Yes", 0, 0
+	);
+	s_pButtonNo = buttonAdd(
+		2 * uwDlgWidth / (ubButtonCount + 1) - uwBtnWidth / 2,
+		uwDlgHeight - uwBtnHeight - 10, uwBtnWidth, uwBtnHeight, "No", 0, 0
+	);
+	if(isCancel) {
+		s_pButtonCancel = buttonAdd(
+			3 * uwDlgWidth / (ubButtonCount + 1) - uwBtnWidth / 2,
+			uwDlgHeight - uwBtnHeight - 10, uwBtnWidth, uwBtnHeight, "Cancel", 0, 0
+		);
+	}
+	buttonSelect(s_pButtonNo);
+	buttonDrawAll();
+}
+
+tButton *dialogSaveYesNoLoop(void) {
+	tDirection eDir = gameEditorGetSteerDir();
+	if(eDir == DIRECTION_LEFT) {
+		buttonSelectPrev();
+		buttonDrawAll();
+	}
+	else if(eDir == DIRECTION_RIGHT) {
+		buttonSelectNext();
+		buttonDrawAll();
+	}
+
+	dialogProcess(gameGetBackBuffer());
+	gamePostprocess();
+
+	if(eDir == DIRECTION_FIRE || keyUse(KEY_RETURN) || keyUse(KEY_NUMENTER)) {
+		return buttonGetSelected();
+	}
+	else if(keyUse(KEY_ESCAPE)) {
+		return s_pButtonCancel;
+	}
+	return 0;
+}
+
+void dialogSaveYesNoDestroy(void) {
+	buttonListDestroy();
+}
 
 //----------------------------------------------------------------- STATE SELECT
 
@@ -75,11 +148,11 @@ void dialogSaveSelectCreate(void) {
 	UWORD uwBtnHeight = 20;
 	UWORD uwDlgWidth = bitmapGetByteWidth(s_pBmDialog) * 8;
 	UWORD uwDlgHeight = s_pBmDialog->Rows;
-	s_pButtonSave = buttonAdd(
+	s_pButtonYes = buttonAdd(
 		uwDlgWidth / 3 - uwBtnWidth / 2, uwDlgHeight - uwBtnHeight - 10,
 		uwBtnWidth, uwBtnHeight, "Save", 0, 0
 	);
-	s_pButtonCancel = buttonAdd(
+	s_pButtonNo = buttonAdd(
 		uwDlgWidth * 2 / 3 - uwBtnWidth / 2, uwDlgHeight - uwBtnHeight - 10,
 		uwBtnWidth, uwBtnHeight, "Cancel", 0, 0
 	);
@@ -109,7 +182,7 @@ void dialogSaveSelectLoop(void) {
 			inputLoseFocus(s_pInputs[s_eCurrentInput]);
 			++s_eCurrentInput;
 			if(s_eCurrentInput == SAVE_INPUT_COUNT) {
-				buttonSelect(s_pButtonSave);
+				buttonSelect(s_pButtonYes);
 				buttonDrawAll();
 			}
 			else {
@@ -118,11 +191,11 @@ void dialogSaveSelectLoop(void) {
 		}
 	}
 	else if(eDir == DIRECTION_LEFT && s_eCurrentInput == SAVE_INPUT_COUNT) {
-		buttonSelect(s_pButtonSave);
+		buttonSelect(s_pButtonYes);
 		buttonDrawAll();
 	}
 	else if(eDir == DIRECTION_RIGHT && s_eCurrentInput == SAVE_INPUT_COUNT) {
-		buttonSelect(s_pButtonCancel);
+		buttonSelect(s_pButtonNo);
 		buttonDrawAll();
 	}
 
@@ -134,7 +207,7 @@ void dialogSaveSelectLoop(void) {
 	gamePostprocess();
 
 	if(eDir == DIRECTION_FIRE || keyUse(KEY_RETURN) || keyUse(KEY_NUMENTER)) {
-		if(buttonGetSelected() == s_pButtonSave) {
+		if(buttonGetSelected() == s_pButtonYes) {
 			if(!strlen(g_sMapData.szName)) {
 				// TODO: ERR
 			}
@@ -156,7 +229,7 @@ void dialogSaveSelectLoop(void) {
 				}
 			}
 		}
-		else if(buttonGetSelected() == s_pButtonCancel) {
+		else if(buttonGetSelected() == s_pButtonNo) {
 			statePop(g_pStateMachineGame);
 		}
 	}
@@ -180,82 +253,32 @@ static tState s_sStateSelect = {
 //-------------------------------------------------------------- STATE OVERWRITE
 
 void dialogSaveOverwriteCreate(void) {
-	dialogClear();
-	buttonListCreate(2, s_pBmDialog, g_pFontSmall, g_pTextBitmap);
-	const tGuiConfig *pConfig = guiGetConfig();
+	static const char *szMessages[] = {
+		"File already exists",
+		s_szFilePath,
+		"Do you want to overwrite?",
+	};
 
-	UWORD uwDlgWidth = bitmapGetByteWidth(s_pBmDialog) * 8;
-	UWORD uwDlgHeight = s_pBmDialog->Rows;
-	UWORD uwBtnWidth = 50;
-	UWORD uwBtnHeight = 20;
-	UWORD uwBtnY = uwDlgHeight - uwBtnHeight - 10;
-
-	fontFillTextBitMap(g_pFontSmall, g_pTextBitmap, "File already exists");
-	fontDrawTextBitMap(
-		s_pBmDialog, g_pTextBitmap, uwDlgWidth / 2,
-		uwBtnY / 2 - g_pFontSmall->uwHeight,
-		pConfig->ubColorText, FONT_LAZY | FONT_CENTER
+	dialogSaveYesNoCreate(
+		szMessages, sizeof(szMessages) / sizeof(szMessages[0]), 0
 	);
-
-	fontFillTextBitMap(g_pFontSmall, g_pTextBitmap, s_szFilePath);
-	fontDrawTextBitMap(
-		s_pBmDialog, g_pTextBitmap, uwDlgWidth / 2, uwBtnY / 2,
-		pConfig->ubColorText, FONT_LAZY | FONT_CENTER
-	);
-
-	fontFillTextBitMap(g_pFontSmall, g_pTextBitmap, "Do you want to overwrite?");
-	fontDrawTextBitMap(
-		s_pBmDialog, g_pTextBitmap, uwDlgWidth / 2,
-		uwBtnY / 2 + g_pFontSmall->uwHeight,
-		pConfig->ubColorText, FONT_LAZY | FONT_CENTER
-	);
-
-	s_pButtonSave = buttonAdd(
-		uwDlgWidth / 3 - uwBtnWidth / 2, uwDlgHeight - uwBtnHeight - 10,
-		uwBtnWidth, uwBtnHeight, "Yes", 0, 0
-	);
-	s_pButtonCancel = buttonAdd(
-		uwDlgWidth * 2 / 3 - uwBtnWidth / 2, uwDlgHeight - uwBtnHeight - 10,
-		uwBtnWidth, uwBtnHeight, "No", 0, 0
-	);
-	buttonSelect(s_pButtonCancel);
-	buttonDrawAll();
 }
 
 void dialogSaveOverwriteLoop(void) {
-	tDirection eDir = gameEditorGetSteerDir();
-	if(eDir == DIRECTION_LEFT && s_eCurrentInput == SAVE_INPUT_COUNT) {
-		buttonSelect(s_pButtonSave);
-		buttonDrawAll();
-	}
-	else if(eDir == DIRECTION_RIGHT && s_eCurrentInput == SAVE_INPUT_COUNT) {
-		buttonSelect(s_pButtonCancel);
-		buttonDrawAll();
-	}
-
-	dialogProcess(gameGetBackBuffer());
-	gamePostprocess();
-
-	if(eDir == DIRECTION_FIRE || keyUse(KEY_RETURN) || keyUse(KEY_NUMENTER)) {
-		if(buttonGetSelected() == s_pButtonSave) {
+	tButton *pButton = dialogSaveYesNoLoop();
+	if(pButton) {
+		if(pButton == s_pButtonYes) {
 			stateChange(s_pDlgStateMachine, &s_sStateSaving);
 		}
-		else if(buttonGetSelected() == s_pButtonCancel) {
+		else {
 			stateChange(s_pDlgStateMachine, &s_sStateSelect);
 		}
 	}
-	else if(keyUse(KEY_ESCAPE)) {
-		stateChange(s_pDlgStateMachine, &s_sStateSelect);
-	}
-}
-
-void dialogSaveOverwriteDestroy(void) {
-	buttonListDestroy();
 }
 
 static tState s_sStateOverwrite = {
 	.cbCreate = dialogSaveOverwriteCreate, .cbLoop = dialogSaveOverwriteLoop,
-	.cbDestroy = dialogSaveOverwriteDestroy
+	.cbDestroy = dialogSaveYesNoDestroy
 };
 
 //----------------------------------------------------------------- STATE SAVING
@@ -279,11 +302,50 @@ void dialogSaveSavingLoop(void) {
 	gamePostprocess();
 
 	mapDataSaveToFile(&g_sMapData, s_szFilePath);
-	statePop(g_pStateMachineGame);
+	if(s_isQuitting) {
+		statePop(g_pStateMachineGame);
+		gameQuit();
+	}
+	else {
+		statePop(g_pStateMachineGame);
+	}
 }
 
 static tState s_sStateSaving = {
 	.cbCreate = dialogSaveSavingCreate, .cbLoop = dialogSaveSavingLoop
+};
+
+//--------------------------------------------------------------------- QUITTING
+
+void dialogSaveConfirmQuitCreate(void) {
+	static const char *szMessages[] = {
+		"Save before quit?",
+	};
+
+	dialogSaveYesNoCreate(
+		szMessages, sizeof(szMessages) / sizeof(szMessages[0]), 1
+	);
+}
+
+void dialogSaveConfirmQuitLoop(void) {
+	tButton *pButton = dialogSaveYesNoLoop();
+	if(pButton) {
+		if(pButton == s_pButtonYes) {
+			stateChange(s_pDlgStateMachine, &s_sStateSelect);
+		}
+		else if(pButton == s_pButtonNo) {
+			statePop(g_pStateMachineGame); // Pop to game_editor
+			gameQuit();
+		}
+		else {
+			statePop(g_pStateMachineGame);
+		}
+	}
+}
+
+static tState s_sStateConfirmQuit = {
+	.cbCreate = dialogSaveConfirmQuitCreate, .cbLoop = dialogSaveConfirmQuitLoop,
+	.cbDestroy = dialogSaveYesNoDestroy
 };
 
 //----------------------------------------------------------------------- DIALOG
@@ -298,7 +360,12 @@ static void dialogSaveGsCreate(void) {
 	);
 
 	s_pDlgStateMachine = stateManagerCreate();
-	statePush(s_pDlgStateMachine, &s_sStateSelect);
+	if(s_isQuitting) {
+		statePush(s_pDlgStateMachine, &s_sStateConfirmQuit);
+	}
+	else {
+		statePush(s_pDlgStateMachine, &s_sStateSelect);
+	}
 }
 
 static void dialogSaveGsLoop(void) {
@@ -313,7 +380,8 @@ static void dialogSaveGsDestroy(void) {
 	dialogDestroy();
 }
 
-void dialogSaveShow(void) {
+void dialogSaveShow(UBYTE isQuitting) {
+	s_isQuitting = isQuitting;
 	statePush(g_pStateMachineGame, &g_sStateDialogSave);
 }
 

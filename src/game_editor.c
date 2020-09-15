@@ -148,14 +148,11 @@ static void onLoad(void) {
 }
 
 static void onSave(void) {
-	// TODO: Save
-	// dialogShow(DIALOG_SAVE);
-	dialogSaveShow();
+	dialogSaveShow(0);
 }
 
 static void onQuit(void) {
-	// TODO: confirm exit
-	gameQuit();
+	dialogSaveShow(1);
 }
 
 static const tCbFn s_pFnCallbacks[] = {

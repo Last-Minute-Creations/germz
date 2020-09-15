@@ -140,3 +140,16 @@ void buttonSelect(tButton *pButton) {
 tButton *buttonGetSelected(void) {
 	return s_pSelected;
 }
+
+void buttonSelectNext(void) {
+	tButton *pNext = s_pSelected + 1;
+	if(pNext != &s_pButtons[s_ubButtonCount]) {
+		s_pSelected = pNext;
+	}
+}
+
+void buttonSelectPrev(void) {
+	if(s_pSelected != &s_pButtons[0]) {
+		--s_pSelected;
+	}
+}
