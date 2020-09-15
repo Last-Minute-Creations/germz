@@ -18,6 +18,9 @@
 #define HUD_ALIAS_BG 0
 #define HUD_GRABBED_OFFS_Y 15
 
+// The widest digit is 11px wide, there may be 3 of them, each spaced with 1px
+#define HUD_UNDRAW_WIDTH ((11 + 1) * 3 - 1)
+
 typedef enum _tHudState {
 	HUD_STATE_PLEPS_PREPARE,
 	HUD_STATE_PLEPS_DRAW,
@@ -85,7 +88,7 @@ static void updateHud(void) {
 		case HUD_STATE_PLEPS_DRAW:
 			blitRect(
 				&s_sBmHudAlias, uwMonitorX, uwMonitorY,
-				32, g_pTextBitmap->uwActualHeight, HUD_ALIAS_BG
+				HUD_UNDRAW_WIDTH, g_pTextBitmap->uwActualHeight, HUD_ALIAS_BG
 			);
 			if(s_isHudDrawCurrent) {
 				fontDrawTextBitMap(
@@ -111,7 +114,7 @@ static void updateHud(void) {
 		case HUD_STATE_GRABBED_PLEPS_DRAW:
 			blitRect(
 				&s_sBmHudAlias, uwMonitorX, uwMonitorY + HUD_GRABBED_OFFS_Y,
-				32, g_pTextBitmap->uwActualHeight, HUD_ALIAS_BG
+				HUD_UNDRAW_WIDTH, g_pTextBitmap->uwActualHeight, HUD_ALIAS_BG
 			);
 			if(s_isHudDrawCurrent) {
 				fontDrawTextBitMap(

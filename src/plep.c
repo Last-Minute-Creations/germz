@@ -58,7 +58,7 @@ static UBYTE plepSinkInNode(tPlep *pPlep) {
 	else {
 		// logWrite("Power up! %hd %hd\n", pNode->wCharges, pPlep->wCharges);
 		// Power up blob with plep's charges
-		pNode->wCharges = pNode->wCharges + pPlep->wCharges;
+		pNode->wCharges = MIN(pNode->wCharges + pPlep->wCharges, 999);
 		return 1;
 	}
 
