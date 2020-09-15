@@ -1,3 +1,8 @@
+20.9.15
+- added confirmation dialog before exiting from editor
+- fixed hud redraw when dealing with big numbers
+- maximum charge on a single node is 999
+
 20.9.14
 - added confirmation dialog before overwriting map in editor
 - fixed player HUD being displayed and blinking after defeat
