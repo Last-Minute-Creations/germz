@@ -35,7 +35,7 @@ void assetsGlobalDestroy(void) {
 void assetsGameCreate(void) {
 	systemUse();
 	// Blob gfx
-	for(UBYTE i = 0; i < TILE_BLOB_COUNT; ++i) {
+	for(UBYTE i = 0; i < BLOB_COLOR_COUNT; ++i) {
 		char szName[15];
 		sprintf(szName, "data/blob%hhu.bm", i);
 		g_pBmBlobs[i] = bitmapCreateFromFile(szName, 0);
@@ -60,7 +60,7 @@ void assetsGameDestroy(void) {
 	systemUse();
 	logBlockBegin("gameAssetsDestroy()");
 	// Blob gfx
-	for(UBYTE i = 0; i < TILE_BLOB_COUNT; ++i) {
+	for(UBYTE i = 0; i < BLOB_COLOR_COUNT; ++i) {
 		bitmapDestroy(g_pBmBlobs[i]);
 	}
 	bitmapDestroy(g_pBmBlobMask);
@@ -87,7 +87,7 @@ tFont *g_pFontSmall, *g_pFontBig;
 tTextBitMap *g_pTextBitmap;
 
 // Game assets
-tBitMap *g_pBmBlobs[TILE_BLOB_COUNT], *g_pBmBlobMask;
+tBitMap *g_pBmBlobs[BLOB_COLOR_COUNT], *g_pBmBlobMask;
 tBitMap *g_pCursors, *g_pCursorsMask;
 tBitMap *g_pBmLinks, *g_pBmLinksMask;
 tPtplayerSfx *g_pSfxPlep1, *g_pSfxPlep2;

@@ -12,13 +12,14 @@
 #include "fade.h"
 #include "germz.h"
 
-static UBYTE s_isEven;
+static UBYTE s_isDrawnOnce;
 static UBYTE s_ubCurrY;
 static UBYTE s_ubFrame = 0;
 
 static UBYTE initialAnim(void) {
 	UBYTE isDrawnAnyBlob = 0;
 	UBYTE ubY = s_ubCurrY;
+	UBYTE ubFrame = s_ubFrame;
 	while(!isDrawnAnyBlob && ubY < MAP_SIZE) {
 		for(UBYTE ubX = 0; ubX < MAP_SIZE; ++ubX) {
 			tTile eTile = g_sMapData.pTiles[ubX][ubY];
@@ -26,28 +27,31 @@ static UBYTE initialAnim(void) {
 				isDrawnAnyBlob = 1;
 			}
 			tUbCoordYX sPos = {.ubX = ubX, .ubY = ubY};
-			gameDrawMapTileAt(sPos, s_ubFrame);
+			gameDrawMapTileAt(sPos, ubFrame);
 		}
-		if(!isDrawnAnyBlob || ++s_ubFrame >= BLOB_FRAME_COUNT) {
-			s_ubFrame = 0;
+
+		if(!isDrawnAnyBlob || ++ubFrame >= BLOB_FRAME_COUNT) {
+			ubFrame = 0;
 			++ubY;
 		}
 	};
 
-	if(s_isEven) {
+
+	if(s_isDrawnOnce) {
 		s_ubCurrY = ubY;
+		s_ubFrame = ubFrame;
 		if(ubY >= MAP_SIZE) {
 			return 1;
 		}
 	}
-	s_isEven = !s_isEven;
+	s_isDrawnOnce = !s_isDrawnOnce;
 	return 0;
 }
 
 //-------------------------------------------------------------------- GAMESTATE
 
 static void gameInitGsCreate(void) {
-	s_isEven = 0;
+	s_isDrawnOnce = 0;
 	s_ubCurrY = 0;
 	s_ubFrame = 0;
 	tBitMap *pDisplay = gameGetBackBuffer();

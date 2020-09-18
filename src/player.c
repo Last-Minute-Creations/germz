@@ -124,6 +124,13 @@ tPlayerIdx playerToIdx(const tPlayer *pPlayer) {
 	return eIdx;
 }
 
+tPlayerIdx playerIdxFromTile(tTile eTile) {
+	while(eTile > TILE_BLOB_NEUTRAL) {
+		eTile -= TILE_BLOB_NEUTRAL + 1;
+	}
+	return eTile;
+}
+
 tPlayer *playerFromIdx(tPlayerIdx eIdx) {
 	tPlayer *pPlayer = 0;
 	if(eIdx != PLAYER_NONE) {
@@ -150,8 +157,9 @@ UBYTE playerProcess(void) {
 		if(pPlayer->isSelectingDestination) {
 			if(eDir == DIRECTION_FIRE) {
 				playerSpawnPlep(pPlayer);
-				playerSetCursorPos(pPlayer, pPlayer->pNodePlepSrc);
 				pPlayer->isSelectingDestination = 0;
+				// Initial tests proved it being annoying. TODO: Enable as a setting?
+				// playerSetCursorPos(pPlayer, pPlayer->pNodePlepSrc);
 			}
 			else {
 				playerTryMoveSelectionFromInDir(pPlayer, pPlayer->pNodePlepSrc, eDir);

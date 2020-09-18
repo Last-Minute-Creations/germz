@@ -74,6 +74,7 @@ extractBitmaps(TARGET ${GERMZ_EXECUTABLE} SOURCE 	${RES_DIR}/gfx.png
 		${GEN_DIR}/blob0/6.png  96 160 16 16
 		${GEN_DIR}/blob0/7.png 112 160 16 16
 		${GEN_DIR}/blob0/8.png 128 160 16 16
+		${GEN_DIR}/blob0/9.png  80  64 16 16
 		# Blob 1 - green
 		${GEN_DIR}/blob1/0.png   0 176 16 16
 		${GEN_DIR}/blob1/1.png  16 176 16 16
@@ -84,6 +85,7 @@ extractBitmaps(TARGET ${GERMZ_EXECUTABLE} SOURCE 	${RES_DIR}/gfx.png
 		${GEN_DIR}/blob1/6.png  96 176 16 16
 		${GEN_DIR}/blob1/7.png 112 176 16 16
 		${GEN_DIR}/blob1/8.png 128 176 16 16
+		${GEN_DIR}/blob1/9.png  80  48 16 16
 		# Blob 2 - yellow
 		${GEN_DIR}/blob2/0.png   0 192 16 16
 		${GEN_DIR}/blob2/1.png  16 192 16 16
@@ -94,6 +96,7 @@ extractBitmaps(TARGET ${GERMZ_EXECUTABLE} SOURCE 	${RES_DIR}/gfx.png
 		${GEN_DIR}/blob2/6.png  96 192 16 16
 		${GEN_DIR}/blob2/7.png 112 192 16 16
 		${GEN_DIR}/blob2/8.png 128 192 16 16
+		${GEN_DIR}/blob2/9.png  80  32 16 16
 		# Blob 3 - blue
 		${GEN_DIR}/blob3/0.png   0 208 16 16
 		${GEN_DIR}/blob3/1.png  16 208 16 16
@@ -104,6 +107,7 @@ extractBitmaps(TARGET ${GERMZ_EXECUTABLE} SOURCE 	${RES_DIR}/gfx.png
 		${GEN_DIR}/blob3/6.png  96 208 16 16
 		${GEN_DIR}/blob3/7.png 112 208 16 16
 		${GEN_DIR}/blob3/8.png 128 208 16 16
+		${GEN_DIR}/blob3/9.png  80  16 16 16
 		# Blob 4 - neutral
 		${GEN_DIR}/blob4/0.png   0 224 16 16
 		${GEN_DIR}/blob4/1.png  16 224 16 16
@@ -114,6 +118,7 @@ extractBitmaps(TARGET ${GERMZ_EXECUTABLE} SOURCE 	${RES_DIR}/gfx.png
 		${GEN_DIR}/blob4/6.png  96 224 16 16
 		${GEN_DIR}/blob4/7.png 112 224 16 16
 		${GEN_DIR}/blob4/8.png 128 224 16 16
+		${GEN_DIR}/blob4/9.png  80   0 16 16
 		# Links - additional tiles
 		${GEN_DIR}/links/0.png 128 0 16 16
 		# Links - horizontal
@@ -230,7 +235,7 @@ foreach(i RANGE 4)
 	convertTileset(
 		TARGET ${GERMZ_EXECUTABLE} SIZE 16
 		SOURCE ${GEN_DIR}/blob${i} DESTINATION ${GEN_DIR}/blob${i}.png
-		TILES 0.png 1.png 2.png 3.png 4.png 5.png 6.png 7.png 8.png
+		TILES 0.png 1.png 2.png 3.png 4.png 5.png 6.png 7.png 8.png 9.png
 	)
 endforeach()
 convertTileset(

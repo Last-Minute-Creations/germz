@@ -50,6 +50,8 @@ tPlayer *playerFromTile(enum _tTile eTile);
 
 tPlayerIdx playerToIdx(const tPlayer *pPlayer);
 
+tPlayerIdx playerIdxFromTile(tTile eTile);
+
 tPlayer *playerFromIdx(tPlayerIdx eIdx);
 
 void playerUpdateDead(tPlayer *pPlayer);

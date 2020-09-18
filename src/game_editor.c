@@ -35,7 +35,7 @@ static tDialogResult s_eDialogResult;
 static tSteer s_sSteerKey, s_sSteerJoy;
 
 static tTile s_pMenuTiles[] = {
-	TILE_BLOB_P1, TILE_PATH_X1, TILE_BLANK, TILE_BLANK, TILE_BLANK, TILE_BLANK,
+	TILE_BLOB_P1, TILE_SUPER_P1, TILE_PATH_X1, TILE_BLANK, TILE_BLANK, TILE_BLANK,
 	TILE_BLANK, TILE_BLANK, TILE_BLANK
 };
 static const UBYTE s_ubMenuPosCount = sizeof(s_pMenuTiles) / sizeof(s_pMenuTiles[0]);
@@ -62,6 +62,7 @@ static void editorDrawMapTileAt(tUbCoordYX sPosTile) {
 static void setPaletteBlobColor(UBYTE ubColor) {
 	s_ubCurrentColor = ubColor;
 	s_pMenuTiles[0] = TILE_BLOB_P1 + ubColor;
+	s_pMenuTiles[1] = TILE_SUPER_P1 + ubColor;
 	bobNewSetBitMapOffset(&s_sBobLedColor, 10 * ubColor);
 	s_ubPaletteDrawCount = 2;
 }

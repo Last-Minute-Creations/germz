@@ -22,13 +22,29 @@ static tNode *nodeAdd(UBYTE ubX, UBYTE ubY, tTile eTile) {
 		pNode->pNeighbors[i] = 0;
 	}
 	pNode->pPlayer = playerFromTile(eTile);
+	pNode->eType = nodeTypeFromTile(eTile);
+
+	if(pNode->eType == NODE_TYPE_SUPER) {
+		pNode->wCapacity = 125;
+	}
+	else {
+		pNode->wCapacity = 100;
+	}
+
+	pNode->ubChargeClock = 0;
 	if(pNode->pPlayer) {
 		pNode->wCharges = 60;
+		pNode->ubChargeRate = 2;
 		logWrite("player at pos %hhu,%hhu: %p (%d)\n", ubX, ubY, pNode->pPlayer, eTile);
 	}
 	else {
 		pNode->wCharges = 20;
+		pNode->ubChargeRate = 6;
 	}
+	if(pNode->eType == NODE_TYPE_SUPER) {
+		pNode->ubChargeRate >>= 1;
+	}
+
 	pNode->ubIdx = g_sMap.uwNodeCount;
 	++g_sMap.uwNodeCount;
 	g_sMap.pNodesOnTiles[ubX][ubY] = pNode;
@@ -113,28 +129,27 @@ void mapInitFromMapData(void) {
 }
 
 void mapProcessNodes(void) {
-	// TODO: nodes could save some sort of "timestamps" for growth start
-	// and deltas from them could be calculated when needed
-	// provided that the growth time is constant for each blob
+	// Player nodes gain charge every 50 ticks (special: 25 ticks)
+	// Neutral nodes gain charge every 150 ticks (special: 75 ticks)
 	++g_sMap.ubChargeClock;
-	if(
-		g_sMap.ubChargeClock == 50 || g_sMap.ubChargeClock == 100 ||
-		g_sMap.ubChargeClock == 150
-	) {
-		UBYTE isNeutralCharge = 0;
-		if(g_sMap.ubChargeClock >= 150) {
-			g_sMap.ubChargeClock = 0;
-			isNeutralCharge = 1;
-		}
+	if(g_sMap.ubChargeClock >= 25) {
+		g_sMap.ubChargeClock = 0;
 		for(UBYTE i = 0; i < g_sMap.uwNodeCount; ++i) {
+			tNode *pNode = &g_sMap.pNodes[i];
+			++pNode->ubChargeClock;
 			if(
-				g_sMap.pNodes[i].wCharges < 100 &&
-				(g_sMap.pNodes[i].pPlayer || isNeutralCharge)
+				pNode->wCharges < pNode->wCapacity &&
+				pNode->ubChargeClock >= pNode->ubChargeRate
 			) {
-				++g_sMap.pNodes[i].wCharges;
+				pNode->ubChargeClock = 0;
+				++pNode->wCharges;
 			}
-			else if(isNeutralCharge && g_sMap.pNodes[i].wCharges > 100) {
-				--g_sMap.pNodes[i].wCharges;
+			else if (
+				pNode->wCharges > pNode->wCapacity &&
+				++pNode->ubChargeClock >= 100
+			) {
+				pNode->ubChargeClock = 0;
+				--pNode->wCharges;
 			}
 		}
 	}
@@ -148,6 +163,13 @@ void nodeChangeOwnership(tNode *pNode, tPlayer *pPlayer) {
 	pNode->pPlayer = pPlayer;
 	if(pPlayer) {
 		++pPlayer->bNodeCount;
+		pNode->ubChargeRate = 2;
+	}
+	else {
+		pNode->ubChargeRate = 6;
+	}
+	if(pNode->eType == NODE_TYPE_SUPER) {
+		pNode->ubChargeRate >>= 1;
 	}
 	blobAnimAddToQueue(pNode);
 }
@@ -162,3 +184,12 @@ void mapUpdateNodeCountForPlayers(void) {
 
 tMapData g_sMapData;
 tMap g_sMap;
+
+tNodeType nodeTypeFromTile(tTile eTile) {
+	if(eTile <= TILE_BLOB_NEUTRAL) {
+		return NODE_TYPE_NORMAL;
+	}
+	else { // eTile <= TILE_SUPER_NEUTRAL
+		return NODE_TYPE_SUPER;
+	}
+}

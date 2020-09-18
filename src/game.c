@@ -232,8 +232,17 @@ void gameDrawBlobAt(tTile eTile, UBYTE ubFrame, UWORD uwX, UWORD uwY) {
 			eTile, ubFrame, uwX, uwY, g_pBmBlobs[eTile]
 		);
 	}
+	tPlayerIdx ePlayer = playerIdxFromTile(eTile);
+	tNodeType eNodeType = nodeTypeFromTile(eTile);
+	UWORD uwSrcX;
+	if(ubFrame < BLOB_FRAME_COUNT - 1) {
+		uwSrcX = ubFrame * MAP_TILE_SIZE;
+	}
+	else {
+		uwSrcX = (BLOB_FRAME_COUNT - 1 + eNodeType) * MAP_TILE_SIZE;
+	}
 	blitCopyMask(
-		g_pBmBlobs[eTile], 0, ubFrame * MAP_TILE_SIZE, s_pBfr->pBack, uwX, uwY,
+		g_pBmBlobs[ePlayer], 0, uwSrcX, s_pBfr->pBack, uwX, uwY,
 		MAP_TILE_SIZE, MAP_TILE_SIZE, (const UWORD*)g_pBmBlobMask->Planes[0]
 	);
 }

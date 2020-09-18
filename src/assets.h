@@ -8,6 +8,7 @@
 #include "map.h"
 #include <ace/utils/font.h>
 #include <ace/utils/ptplayer.h>
+#define BLOB_COLOR_COUNT 5
 #define BLOB_FRAME_COUNT 9
 
 /**
@@ -35,7 +36,7 @@ extern tFont *g_pFontSmall, *g_pFontBig;
 extern tTextBitMap *g_pTextBitmap;
 
 // Game assets
-extern tBitMap *g_pBmBlobs[TILE_BLOB_COUNT], *g_pBmBlobMask;
+extern tBitMap *g_pBmBlobs[BLOB_COLOR_COUNT], *g_pBmBlobMask;
 extern tBitMap *g_pCursors, *g_pCursorsMask;
 extern tBitMap *g_pBmLinks, *g_pBmLinksMask;
 extern tPtplayerSfx *g_pSfxPlep1, *g_pSfxPlep2;

@@ -1,3 +1,7 @@
+20.9.18
+- added special node with 2x regeneration speed and increased capacity to 125
+- fixed flickering nodes on map
+
 20.9.15
 - added confirmation dialog before exiting from editor
 - fixed hud redraw when dealing with big numbers
