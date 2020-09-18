@@ -1,6 +1,7 @@
 20.9.18
 - added special node with 2x regeneration speed and increased capacity to 125
 - fixed flickering nodes on map
+- cursor doesn't return on source node anymore
 
 20.9.15
 - added confirmation dialog before exiting from editor
