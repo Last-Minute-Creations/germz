@@ -193,3 +193,17 @@ tNodeType nodeTypeFromTile(tTile eTile) {
 		return NODE_TYPE_SUPER;
 	}
 }
+
+tTile nodeToTile(const tNode *pNode) {
+	tTile eTile;
+	switch(pNode->eType) {
+		case NODE_TYPE_SUPER:
+			eTile = TILE_SUPER_P1;
+			break;
+		default:
+			eTile = TILE_BLOB_P1;
+			break;
+	}
+	eTile +=  playerToIdx(pNode->pPlayer) - PLAYER_1;
+	return eTile;
+}

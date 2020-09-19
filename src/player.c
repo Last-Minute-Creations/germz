@@ -103,11 +103,6 @@ void playerReset(tPlayerIdx eIdx, tNode *pStartNode) {
 	}
 }
 
-tTile playerToTile(const tPlayer *pPlayer) {
-	tTile eTile = TILE_BLOB_P1 + playerToIdx(pPlayer) - PLAYER_1;
-	return eTile;
-}
-
 tPlayer *playerFromTile(tTile eTile) {
 	tPlayer *pPlayer = 0;
 	if(eTile < TILE_BLOB_NEUTRAL) {

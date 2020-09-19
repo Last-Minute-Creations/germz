@@ -55,7 +55,7 @@ void blobAnimQueueProcess(void) {
 		const tNode *pNode = pElement->pNode;
 		if(pElement->bFrame >= 0) {
 			gameDrawBlobAt(
-				playerToTile(pNode->pPlayer), pElement->bFrame,
+				nodeToTile(pNode), pElement->bFrame,
 				pNode->sPosTile.ubX * MAP_TILE_SIZE, pNode->sPosTile.ubY * MAP_TILE_SIZE
 			);
 		}

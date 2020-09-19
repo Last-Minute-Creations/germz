@@ -46,6 +46,8 @@ void mapUpdateNodeCountForPlayers(void);
 
 tNodeType nodeTypeFromTile(tTile eTile);
 
+tTile nodeToTile(const tNode *pNode);
+
 extern tMapData g_sMapData;
 extern tMap g_sMap;
 

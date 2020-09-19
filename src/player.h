@@ -44,8 +44,6 @@ void playerReset(tPlayerIdx eIdx, struct _tNode *pStartNode);
  */
 UBYTE playerProcess(void);
 
-enum _tTile playerToTile(const tPlayer *pPlayer);
-
 tPlayer *playerFromTile(enum _tTile eTile);
 
 tPlayerIdx playerToIdx(const tPlayer *pPlayer);
