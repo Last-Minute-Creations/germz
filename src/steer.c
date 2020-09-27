@@ -9,34 +9,32 @@
 
 //------------------------------------------------------------------ PRIVATE FNS
 
-static tDirection onJoy(tSteer *pSteer) {
-	UBYTE isRepeat = (timerGetDelta(pSteer->ulTimer, timerGet()) > 10);
+static void onJoy(tSteer *pSteer) {
+	// Joy direction enum is not in same order as steer enum
+	// There is a reason why it's ordered that way in game, so it needs remapping
+	static const UBYTE pDirToJoy[] = {
+		[DIRECTION_UP] = JOY_UP,
+		[DIRECTION_DOWN] = JOY_DOWN,
+		[DIRECTION_LEFT] = JOY_LEFT,
+		[DIRECTION_RIGHT] = JOY_RIGHT,
+		[DIRECTION_FIRE] = JOY_FIRE
+	};
+
 	UBYTE ubJoy = pSteer->ubJoy;
-	tDirection eDir = DIRECTION_COUNT;
-	if(joyUse(ubJoy + JOY_LEFT) || (isRepeat && joyCheck(ubJoy + JOY_LEFT))) {
-		eDir = DIRECTION_LEFT;
-		pSteer->ulTimer = timerGet();
+
+	for(tDirection eDir = 0; eDir < DIRECTION_COUNT; ++eDir) {
+		if(joyCheck(ubJoy + pDirToJoy[eDir])) {
+			if(pSteer->pDirectionStates[eDir] == STEER_DIR_STATE_INACTIVE) {
+				pSteer->pDirectionStates[eDir] = STEER_DIR_STATE_ACTIVE;
+			}
+		}
+		else {
+			pSteer->pDirectionStates[eDir] = STEER_DIR_STATE_INACTIVE;
+		}
 	}
-	else if(joyUse(ubJoy + JOY_RIGHT) || (isRepeat && joyCheck(ubJoy + JOY_RIGHT))) {
-		eDir = DIRECTION_RIGHT;
-		pSteer->ulTimer = timerGet();
-	}
-	else if(joyUse(ubJoy + JOY_UP) || (isRepeat && joyCheck(ubJoy + JOY_UP))) {
-		eDir = DIRECTION_UP;
-		pSteer->ulTimer = timerGet();
-	}
-	else if(joyUse(ubJoy + JOY_DOWN) || (isRepeat && joyCheck(ubJoy + JOY_DOWN))) {
-		eDir = DIRECTION_DOWN;
-		pSteer->ulTimer = timerGet();
-	}
-	else if(joyUse(ubJoy + JOY_FIRE)) {
-		eDir = DIRECTION_FIRE;
-		pSteer->ulTimer = timerGet();
-	}
-	return eDir;
 }
 
-static tDirection onKey(tSteer *pSteer) {
+static void onKey(tSteer *pSteer) {
 	static const UBYTE pDirsWsad[] = {
 		[DIRECTION_UP] = KEY_W,
 		[DIRECTION_DOWN] = KEY_S,
@@ -52,31 +50,58 @@ static tDirection onKey(tSteer *pSteer) {
 		[DIRECTION_FIRE] = KEY_RSHIFT
 	};
 
-	const UBYTE *pKeymap = (pSteer->eKeymap == KEYMAP_WSAD) ? pDirsWsad : pDirsArrows;
+	const UBYTE *pDirToKey = (pSteer->eKeymap == KEYMAP_WSAD) ? pDirsWsad : pDirsArrows;
 
-	tDirection eDir = DIRECTION_COUNT;
-	for(UBYTE i = 0; i < DIRECTION_COUNT; ++i) {
-		if(
-			keyUse(pKeymap[i]) ||
-			(keyCheck(pKeymap[i]) && timerGetDelta(pSteer->ulTimer, timerGet()) > 10)
-		) {
-			pSteer->ulTimer = timerGet();
-			eDir = i;
-			break;
+	for(tDirection eDir = 0; eDir < DIRECTION_COUNT; ++eDir) {
+		if(keyCheck(pDirToKey[eDir])) {
+			if(pSteer->pDirectionStates[eDir] == STEER_DIR_STATE_INACTIVE) {
+				pSteer->pDirectionStates[eDir] = STEER_DIR_STATE_ACTIVE;
+			}
+		}
+		else {
+			pSteer->pDirectionStates[eDir] = STEER_DIR_STATE_INACTIVE;
+		}
+	}
+}
+
+static void onAi(tSteer *pSteer) {
+	tAi *pAi = &pSteer->sAi;
+	tDirection eDir = aiProcess(pAi);
+
+	// Fire is a special button - can be pressed for more than one process
+	if(pAi->isPressingFire) {
+		if(pSteer->pDirectionStates[DIRECTION_FIRE] == STEER_DIR_STATE_INACTIVE) {
+			logWrite("Pressing fire\n");
+			pSteer->pDirectionStates[DIRECTION_FIRE] = STEER_DIR_STATE_ACTIVE;
+		}
+	}
+	else {
+		if(pSteer->pDirectionStates[DIRECTION_FIRE] != STEER_DIR_STATE_INACTIVE) {
+			logWrite("Releasing fire\n");
+		}
+		pSteer->pDirectionStates[DIRECTION_FIRE] = STEER_DIR_STATE_INACTIVE;
+	}
+
+	if(eDir != DIRECTION_COUNT) {
+		// Push the selected button
+		if(pSteer->pDirectionStates[eDir] == STEER_DIR_STATE_INACTIVE) {
+			logWrite("Pressing dir %hhu\n", eDir);
+			pSteer->pDirectionStates[eDir] = STEER_DIR_STATE_ACTIVE;
 		}
 	}
 
-	return eDir;
+	// Unpress the previous action
+	if(pAi->ePrevDir != DIRECTION_COUNT) {
+		logWrite("Releasing dir %hhu\n", pAi->ePrevDir);
+		pSteer->pDirectionStates[pAi->ePrevDir] = STEER_DIR_STATE_INACTIVE;
+	}
+
+	// Save the current action for later unpressing
+	pAi->ePrevDir = eDir;
 }
 
-static tDirection onAi(tSteer *pSteer) {
-	tAi *pAi = &pSteer->sAi;
-	return aiProcess(pAi);
-}
-
-static tDirection onIdle(UNUSED_ARG tSteer *pSteer) {
+static void onIdle(UNUSED_ARG tSteer *pSteer) {
 	// Do nothing
-	return DIRECTION_COUNT;
 }
 
 //------------------------------------------------------------------- PUBLIC FNS
@@ -112,13 +137,40 @@ tSteer steerInitIdle(void) {
 	return sSteer;
 }
 
-tDirection steerProcess(tSteer *pSteer) {
+void steerProcess(tSteer *pSteer) {
 	if(pSteer->cbProcess) {
-		return pSteer->cbProcess(pSteer);
+		pSteer->cbProcess(pSteer);
 	}
-	return DIRECTION_COUNT;
 }
 
 UBYTE steerIsPlayer(const tSteer *pSteer) {
 	return (pSteer->cbProcess == onJoy || pSteer->cbProcess == onKey);
+}
+
+UBYTE steerDirCheck(const tSteer *pSteer, tDirection eDir) {
+	return pSteer->pDirectionStates[eDir] != STEER_DIR_STATE_INACTIVE;
+}
+
+UBYTE steerDirUse(tSteer *pSteer, tDirection eDir) {
+	if(pSteer->pDirectionStates[eDir] == STEER_DIR_STATE_ACTIVE) {
+		pSteer->pDirectionStates[eDir] = STEER_DIR_STATE_USED;
+		return 1;
+	}
+	return 0;
+}
+
+tDirection steerGetPressedDir(const tSteer *pSteer) {
+	if(pSteer->pDirectionStates[DIRECTION_UP] != STEER_DIR_STATE_INACTIVE) {
+		return DIRECTION_UP;
+	}
+	if(pSteer->pDirectionStates[DIRECTION_DOWN] != STEER_DIR_STATE_INACTIVE) {
+		return DIRECTION_DOWN;
+	}
+	if(pSteer->pDirectionStates[DIRECTION_LEFT] != STEER_DIR_STATE_INACTIVE) {
+		return DIRECTION_LEFT;
+	}
+	if(pSteer->pDirectionStates[DIRECTION_RIGHT] != STEER_DIR_STATE_INACTIVE) {
+		return DIRECTION_RIGHT;
+	}
+	return DIRECTION_COUNT;
 }

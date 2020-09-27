@@ -6,6 +6,7 @@
 #include <ace/managers/game.h>
 #include <ace/managers/system.h>
 #include <ace/managers/key.h>
+#include <ace/managers/timer.h>
 #include <gui/config.h>
 #include "assets.h"
 #include "dialog_load.h"
@@ -33,6 +34,7 @@ typedef void (*tCbFn)(void);
 static tEditorPlayer s_sPlayer;
 static tDialogResult s_eDialogResult;
 static tSteer s_sSteerKey, s_sSteerJoy;
+static ULONG s_ulRepeatCounter;
 
 static tTile s_pMenuTiles[] = {
 	TILE_BLOB_P1, TILE_SUPER_P1, TILE_PATH_X1, TILE_BLANK, TILE_BLANK, TILE_BLANK,
@@ -125,6 +127,7 @@ static void gameEditorGsCreate(void) {
 	s_sPlayer.ubX = 0;
 	s_sPlayer.ubY = 0;
 	s_eDialogResult = DIALOG_RESULT_NONE;
+	s_ulRepeatCounter = timerGet();
 	editorInitialDraw();
 }
 
@@ -233,7 +236,7 @@ static void gameEditorGsLoop(void) {
 	}
 	else {
 		// Hackty hack
-		tDirection eDir = gameEditorGetSteerDir();
+		tDirection eDir = gameEditorProcessSteer();
 
 		switch(eDir) {
 			case DIRECTION_UP:
@@ -303,15 +306,25 @@ static void gameEditorGsDestroy(void) {
 	systemUnuse();
 }
 
-tDirection gameEditorGetSteerDir(void) {
-	tDirection eDir = steerProcess(&s_sSteerKey);
-	if(eDir == DIRECTION_COUNT) {
-		eDir = steerProcess(&s_sSteerJoy);
+tDirection gameEditorProcessSteer(void) {
+	steerProcess(&s_sSteerKey);
+	steerProcess(&s_sSteerJoy);
+
+	UBYTE isRepeat = timerGetDelta(s_ulRepeatCounter, timerGet()) >= 10;
+
+	tDirection eDir;
+	for(eDir = 0; eDir < DIRECTION_COUNT; ++eDir) {
+		if(
+			(steerDirUse(&s_sSteerKey, eDir) || (steerDirCheck(&s_sSteerKey, eDir) && isRepeat)) ||
+			(steerDirUse(&s_sSteerJoy, eDir) || (steerDirCheck(&s_sSteerJoy, eDir) && isRepeat))
+		) {
+			s_ulRepeatCounter = timerGet();
+			break;
+		}
 	}
+
 	return eDir;
 }
-
-// #error MAP CREATE FAIL - in editor
 
 tState g_sStateEditor = {
 	.cbCreate = gameEditorGsCreate, .cbLoop = gameEditorGsLoop,

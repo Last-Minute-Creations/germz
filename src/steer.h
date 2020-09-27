@@ -11,7 +11,13 @@
 
 struct _tSteer;
 
-typedef tDirection (*tCbSteerProcess)(struct _tSteer *pSteer);
+typedef void (*tCbSteerProcess)(struct _tSteer *pSteer);
+
+typedef enum _tSteerDirState {
+	STEER_DIR_STATE_INACTIVE,
+	STEER_DIR_STATE_USED,
+	STEER_DIR_STATE_ACTIVE,
+} tSteerDirState;
 
 typedef enum _tKeymap {
 	KEYMAP_WSAD,
@@ -20,12 +26,12 @@ typedef enum _tKeymap {
 
 typedef struct _tSteer {
 	tCbSteerProcess cbProcess;
+	tSteerDirState pDirectionStates[DIRECTION_COUNT];
 	union {
 		UBYTE ubJoy; ///< for joy steer
 		tKeymap eKeymap; ///< for keyboard steer
 		tAi sAi;
 	};
-	ULONG ulTimer;
 } tSteer;
 
 tSteer steerInitJoy(UBYTE ubJoy);
@@ -34,10 +40,16 @@ tSteer steerInitKey(tKeymap eKeymap);
 
 tSteer steerInitAi(UBYTE ubPlayerIdx);
 
-tDirection steerProcess(tSteer *pSteer);
+void steerProcess(tSteer *pSteer);
 
 tSteer steerInitIdle(void);
 
 UBYTE steerIsPlayer(const tSteer *pSteer);
+
+UBYTE steerDirCheck(const tSteer *pSteer, tDirection eDir);
+
+UBYTE steerDirUse(tSteer *pSteer, tDirection eDir);
+
+tDirection steerGetPressedDir(const tSteer *pSteer);
 
 #endif // _GERMZ_STEER_H_

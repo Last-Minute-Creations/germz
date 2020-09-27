@@ -149,7 +149,7 @@ void lmcWait(void) {
 		s_eFadeState = FADE_STATE_OUT;
 	}
 	else if(s_ubFrame == 1){
-		ptplayerSfxPlay(s_pSfxLmc, -1, 64, 1);
+		ptplayerSfxPlay(s_pSfxLmc, -1, PTPLAYER_VOLUME_MAX, 1);
 	}
 }
 

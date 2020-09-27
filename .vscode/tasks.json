@@ -4,14 +4,31 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "debug on",
+			"label": "debug game",
 			"type": "shell",
 			"command": "cmake",
 			"group": "build",
 			"args": [
 				"..",
 				"-DACE_DEBUG=ON",
-				"-DGAME_DEBUG=ON"
+				"-DGAME_DEBUG=ON",
+				"-DGAME_DEBUG_AI=OFF"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}/build"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "debug game+ai",
+			"type": "shell",
+			"command": "cmake",
+			"group": "build",
+			"args": [
+				"..",
+				"-DACE_DEBUG=ON",
+				"-DGAME_DEBUG=ON",
+				"-DGAME_DEBUG_AI=ON"
 			],
 			"options": {
 				"cwd": "${workspaceFolder}/build"
@@ -26,7 +43,8 @@
 			"args": [
 				"..",
 				"-DACE_DEBUG=OFF",
-				"-DGAME_DEBUG=OFF"
+				"-DGAME_DEBUG=OFF",
+				"-DGAME_DEBUG_AI=OFF"
 			],
 			"options": {
 				"cwd": "${workspaceFolder}/build"

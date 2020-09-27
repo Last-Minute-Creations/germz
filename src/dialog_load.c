@@ -61,7 +61,7 @@ static void dialogLoadGsLoop(void) {
 	}
 
 	UBYTE isMapSelected = 0;
-	tDirection eDir = gameEditorGetSteerDir();
+	tDirection eDir = gameEditorProcessSteer();
 	if(eDir == DIRECTION_UP) {
 		listCtlSelectPrev(s_pCtrl);
 		clearMapInfo(s_pCtrl, 0, s_pBmDialog);

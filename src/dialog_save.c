@@ -87,7 +87,7 @@ void dialogSaveYesNoCreate(const char **pMsgLines, UBYTE ubLineCount, UBYTE isCa
 }
 
 tButton *dialogSaveYesNoLoop(void) {
-	tDirection eDir = gameEditorGetSteerDir();
+	tDirection eDir = gameEditorProcessSteer();
 	if(eDir == DIRECTION_LEFT) {
 		buttonSelectPrev();
 		buttonDrawAll();
@@ -162,7 +162,7 @@ void dialogSaveSelectCreate(void) {
 
 void dialogSaveSelectLoop(void) {
 	UBYTE isTab = keyUse(KEY_TAB);
-	tDirection eDir = gameEditorGetSteerDir();
+	tDirection eDir = gameEditorProcessSteer();
 	if(eDir == DIRECTION_UP || (isTab && keyCheck(KEY_LSHIFT))) {
 		if(s_eCurrentInput) {
 			if(s_eCurrentInput == SAVE_INPUT_COUNT) {

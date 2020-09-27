@@ -53,16 +53,18 @@ Now:
 		✔ info/anim while saving @done(20-09-14 18:55)
 		✔ Ask for saving unsaved progress on load @done(20-09-15 21:47)
 		☐ animation while loading preview
-		☐ info/anim while loading
+		☐ info/anim while loading map in editor
 	☐ Sometimes after starting game again pleps are blinking
 	☐ fix ptplayer on higher cpu freq
 	☐ win/lose screen
+	☐ pause screen (escape in game, exit yes/no)
 	☐ display in visible menu part how keyboard layouts have action button bound (how to play)
 	☐ fix plep anim rotations
 	☐ Import/export to/from editor by typing in code
 	☐ Crash when skipping LMC logo and sfx is still playing
 
 Later:
+	☐ handle map create fail in editor
 	☐ EKG
 	☐ special blobs
 	☐ ensure sprites are disabled

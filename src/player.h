@@ -21,14 +21,15 @@ typedef enum _tPlayerIdx {
 } tPlayerIdx;
 
 typedef struct _tPlayer {
+	tBobNew *pBobCursor;
+	ULONG ulRepeatCounter;
+	struct _tSteer *pSteer;
+	struct _tNode *pNodeCursor;
+	struct _tNode *pNodePlepSrc;
+	struct _tPlep pPleps[PLEPS_PER_PLAYER];
 	BYTE bNodeCount;
 	UBYTE isSelectingDestination;
 	UBYTE isDead;
-	tBobNew *pBobCursor;
-	struct _tSteer *pSteer;
-	struct _tNode *pNodeCursor, *pNodePlepSrc;
-	struct _tPlep pPleps[PLEPS_PER_PLAYER];
-	tDirection eLastDir;
 } tPlayer;
 
 void playerCreate(void);
@@ -57,5 +58,7 @@ void playerUpdateDead(tPlayer *pPlayer);
 void playerAllDead(void);
 
 void playerPushCursors(void);
+
+UBYTE playerHasFreePlep(const tPlayer *pPlayer);
 
 #endif // _GERMZ_PLAYER_H_

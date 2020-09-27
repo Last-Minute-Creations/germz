@@ -7,6 +7,6 @@
 
 #include "direction.h"
 
-tDirection gameEditorGetSteerDir(void);
+tDirection gameEditorProcessSteer(void);
 
 #endif // _GERMZ_GAME_EDITOR_H_

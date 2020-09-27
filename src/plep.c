@@ -188,7 +188,7 @@ void plepProcess(tPlep *pPlep) {
 
 void plepSpawn(tPlep *pPlep, WORD wCharges, tDirection eDir) {
 	const tNode *pSrc = pPlep->pPlayer->pNodePlepSrc;
-	pPlep->pDestination = pPlep->pPlayer->pNodeCursor;
+	pPlep->pDestination = pSrc->pNeighbors[eDir];
 	pPlep->isActive = 1;
 	pPlep->wCharges = wCharges;
 	pPlep->sBob.sPos.uwX = pSrc->sPosTile.ubX * MAP_TILE_SIZE;

@@ -32,6 +32,8 @@ typedef struct _tAi {
 	tAiState eState;
 	tDirection eNeighborIdx;
 	UBYTE ubCnt;
+	UBYTE isPressingFire;
+	tDirection ePrevDir;
 } tAi;
 
 void aiCreate(const tMap *pMap);

@@ -33,40 +33,30 @@ static void playerSetCursorPos(tPlayer *pPlayer, tNode *pNode) {
 		pPlayer->pBobCursor->sPos.uwY = pNode->sPosTile.ubY * MAP_TILE_SIZE;
 }
 
-static void playerTryMoveSelectionFromInDir(
-	tPlayer *pPlayer, tNode *pNode, tDirection eDir
-) {
-	if(eDir != DIRECTION_COUNT && pNode->pNeighbors[eDir]) {
-		playerSetCursorPos(pPlayer, pNode->pNeighbors[eDir]);
-		pPlayer->eLastDir = eDir;
-	}
-}
-
-static void playerSpawnPlep(tPlayer *pPlayer) {
+static UBYTE playerSpawnPlep(tPlayer *pPlayer, tDirection eDir) {
 	// TODO: store last index, add starting from it
 	WORD wPlepCharges = pPlayer->pNodePlepSrc->wCharges / 2;
 	if(
-		!wPlepCharges || pPlayer->eLastDir >= DIRECTION_FIRE ||
-		!pPlayer->pNodePlepSrc->pNeighbors[pPlayer->eLastDir]
+		!wPlepCharges || eDir >= DIRECTION_FIRE ||
+		!pPlayer->pNodePlepSrc->pNeighbors[eDir]
 	) {
-		return;
+		return 0;
 	}
 	for(UBYTE i = 0; i < PLEPS_PER_PLAYER; ++i) {
 		tPlep *pPlep = &pPlayer->pPleps[i];
 		if(!pPlep->isActive && pPlayer->pNodePlepSrc->pPlayer == pPlayer) {
-			plepSpawn(pPlep, wPlepCharges, pPlayer->eLastDir);
-			pPlayer->eLastDir = DIRECTION_COUNT;
+			plepSpawn(pPlep, wPlepCharges, eDir);
 			pPlayer->pNodePlepSrc->wCharges -= wPlepCharges;
-			ptplayerSfxPlay(g_pSfxPlep2, 3, 64, 2);
 			logWrite(
 				"Spawned plep %hhu on player %d: blob %hhu,%hhu -> %hhu,%hhu\n",
 				i, playerToIdx(pPlayer),
 				pPlayer->pNodePlepSrc->sPosTile.ubX, pPlayer->pNodePlepSrc->sPosTile.ubY,
 				pPlep->pDestination->sPosTile.ubX, pPlep->pDestination->sPosTile.ubY
 			);
-			break;
+			return 1;
 		}
 	}
+	return 0;
 }
 
 //------------------------------------------------------------------- PUBLIC FNS
@@ -96,7 +86,7 @@ void playerReset(tPlayerIdx eIdx, tNode *pStartNode) {
 	pPlayer->pSteer = gameGetSteerForPlayer(eIdx);
 	pPlayer->isDead = 0;
 	pPlayer->bNodeCount = 0;
-	pPlayer->eLastDir = DIRECTION_COUNT;
+	pPlayer->ulRepeatCounter = timerGet();
 
 	for(UBYTE ubPlep = 0; ubPlep < PLEPS_PER_PLAYER; ++ubPlep) {
 		plepInitBob(&pPlayer->pPleps[ubPlep]);
@@ -148,28 +138,38 @@ UBYTE playerProcess(void) {
 		}
 		++ubAliveCount;
 
-		tDirection eDir = steerProcess(pPlayer->pSteer);
-		if(pPlayer->isSelectingDestination) {
-			if(eDir == DIRECTION_FIRE) {
-				playerSpawnPlep(pPlayer);
-				pPlayer->isSelectingDestination = 0;
-				// Initial tests proved it being annoying. TODO: Enable as a setting?
-				// playerSetCursorPos(pPlayer, pPlayer->pNodePlepSrc);
-			}
-			else {
-				playerTryMoveSelectionFromInDir(pPlayer, pPlayer->pNodePlepSrc, eDir);
+		steerProcess(pPlayer->pSteer);
+
+		if(steerDirUse(pPlayer->pSteer, DIRECTION_FIRE)) {
+			// Pressed fire button - setup targeting mode
+			pPlayer->pNodePlepSrc = pPlayer->pNodeCursor;
+			pPlayer->isSelectingDestination = 1;
+			ptplayerSfxPlay(g_pSfxPlep1, 3, PTPLAYER_VOLUME_MAX, 1);
+		}
+		else if(steerDirCheck(pPlayer->pSteer, DIRECTION_FIRE)) {
+			// Holding fire button - process targeting mode
+			tDirection eDir = steerGetPressedDir(pPlayer->pSteer);
+			if(steerDirUse(pPlayer->pSteer, eDir) && playerSpawnPlep(pPlayer, eDir)) {
+				ptplayerSfxPlay(g_pSfxPlep2, 3, PTPLAYER_VOLUME_MAX, 2);
 			}
 		}
 		else {
-			if(eDir == DIRECTION_FIRE) {
-				if(pPlayer->pNodeCursor->pPlayer == pPlayer) {
-					pPlayer->pNodePlepSrc = pPlayer->pNodeCursor;
-					pPlayer->isSelectingDestination = 1;
-					ptplayerSfxPlay(g_pSfxPlep1, 3, 64, 1);
+			// Released fire button - clean up targeting mode
+			pPlayer->isSelectingDestination = 0;
+
+			// Process regular navigation
+			tDirection eDir = steerGetPressedDir(pPlayer->pSteer);
+			if(eDir != DIRECTION_COUNT && pPlayer->pNodeCursor->pNeighbors[eDir]) {
+				// Direction button pressed - check if first time or is it repeat
+				ULONG ulNow = timerGet();
+				UBYTE isRepeat = timerGetDelta(pPlayer->ulRepeatCounter, ulNow) >= 10;
+				if(
+					steerDirUse(pPlayer->pSteer, eDir) ||
+					(isRepeat && steerDirCheck(pPlayer->pSteer, eDir))
+				) {
+					playerSetCursorPos(pPlayer, pPlayer->pNodeCursor->pNeighbors[eDir]);
+					pPlayer->ulRepeatCounter = ulNow;
 				}
-			}
-			else {
-				playerTryMoveSelectionFromInDir(pPlayer, pPlayer->pNodeCursor, eDir);
 			}
 		}
 
@@ -248,4 +248,13 @@ void playerPushCursors(void) {
 			bobNewPush(pField->pBobs[pField->ubCurrentCursor]);
 		}
 	}
+}
+
+UBYTE playerHasFreePlep(const tPlayer *pPlayer) {
+	for(UBYTE i = 0; i < PLEPS_PER_PLAYER; ++i) {
+		if(!pPlayer->pPleps[i].isActive) {
+			return 1;
+		}
+	}
+	return 0;
 }
