@@ -5,11 +5,13 @@
 #ifndef _GERMZ_MAP_H_
 #define _GERMZ_MAP_H_
 
-#define MAP_NODES_MAX 255
-#define MAP_TILE_SIZE 16
-
 #include "direction.h"
 #include "map_data.h"
+
+#define MAP_NODES_MAX 255
+#define MAP_TILE_SIZE 16
+// #define MAP_TICK_RATE 25
+#define MAP_TICK_RATE 5
 
 typedef enum _tNodeType {
 	NODE_TYPE_NORMAL,
@@ -24,7 +26,7 @@ typedef struct _tNode {
 	WORD wCharges;
 	WORD wCapacity; ///< Max amount of charges.
 	UBYTE ubChargeClock;
-	UBYTE ubChargeRate; ///< How long before gaining next charge, 1 unit is 25 frames.
+	UBYTE ubChargeRate; ///< How many ticks before gaining next charge, 1 unit is MAP_TICK_RATE frames.
 	tNodeType eType;
 } tNode;
 

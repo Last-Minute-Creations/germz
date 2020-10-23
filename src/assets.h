@@ -11,6 +11,17 @@
 #define BLOB_COLOR_COUNT 5
 #define BLOB_FRAME_COUNT 9
 
+typedef struct _tDefsNode {
+	UBYTE ubChargeRate;
+	UBYTE ubChargeRateNeutral;
+	WORD wCapacity;
+} tDefsNode;
+
+typedef struct _tDefs {
+	tDefsNode sNodeBasic;
+	tDefsNode sNodeSpecial;
+} tDefs;
+
 /**
  * @brief Everything that haven't found its place everywhere else.
  * All those things need to be loaded constantly for game to function properly.
@@ -40,5 +51,7 @@ extern tBitMap *g_pBmBlobs[BLOB_COLOR_COUNT], *g_pBmBlobMask;
 extern tBitMap *g_pCursors, *g_pCursorsMask;
 extern tBitMap *g_pBmLinks, *g_pBmLinksMask;
 extern tPtplayerSfx *g_pSfxPlep1, *g_pSfxPlep2;
+
+extern tDefs g_sDefs;
 
 #endif // _GERMZ_GAME_ASSETS_H_

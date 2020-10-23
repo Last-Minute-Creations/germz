@@ -9,6 +9,26 @@
 #include "json/json.h"
 #include "player.h"
 #include "blob_anim.h"
+#include "assets.h"
+
+static void nodeUpdateChargeRate(tNode *pNode) {
+	if(pNode->pPlayer) {
+		if(pNode->eType == NODE_TYPE_SUPER) {
+			pNode->ubChargeRate = g_sDefs.sNodeSpecial.ubChargeRate;
+		}
+		else {
+			pNode->ubChargeRate = g_sDefs.sNodeBasic.ubChargeRate;
+		}
+	}
+	else {
+		if(pNode->eType == NODE_TYPE_SUPER) {
+			pNode->ubChargeRate = g_sDefs.sNodeSpecial.ubChargeRateNeutral;
+		}
+		else {
+			pNode->ubChargeRate = g_sDefs.sNodeBasic.ubChargeRateNeutral;
+		}
+	}
+}
 
 static tNode *nodeAdd(UBYTE ubX, UBYTE ubY, tTile eTile) {
 	if(g_sMap.uwNodeCount >= MAP_NODES_MAX) {
@@ -25,25 +45,21 @@ static tNode *nodeAdd(UBYTE ubX, UBYTE ubY, tTile eTile) {
 	pNode->eType = nodeTypeFromTile(eTile);
 
 	if(pNode->eType == NODE_TYPE_SUPER) {
-		pNode->wCapacity = 125;
+		pNode->wCapacity = g_sDefs.sNodeSpecial.wCapacity;
 	}
 	else {
-		pNode->wCapacity = 100;
+		pNode->wCapacity = g_sDefs.sNodeBasic.wCapacity;
 	}
 
 	pNode->ubChargeClock = 0;
 	if(pNode->pPlayer) {
 		pNode->wCharges = 60;
-		pNode->ubChargeRate = 2;
 		logWrite("player at pos %hhu,%hhu: %p (%d)\n", ubX, ubY, pNode->pPlayer, eTile);
 	}
 	else {
 		pNode->wCharges = 20;
-		pNode->ubChargeRate = 6;
 	}
-	if(pNode->eType == NODE_TYPE_SUPER) {
-		pNode->ubChargeRate >>= 1;
-	}
+	nodeUpdateChargeRate(pNode);
 
 	pNode->ubIdx = g_sMap.uwNodeCount;
 	++g_sMap.uwNodeCount;
@@ -129,10 +145,8 @@ void mapInitFromMapData(void) {
 }
 
 void mapProcessNodes(void) {
-	// Player nodes gain charge every 50 ticks (special: 25 ticks)
-	// Neutral nodes gain charge every 150 ticks (special: 75 ticks)
 	++g_sMap.ubChargeClock;
-	if(g_sMap.ubChargeClock >= 25) {
+	if(g_sMap.ubChargeClock >= 5) {
 		g_sMap.ubChargeClock = 0;
 		for(UBYTE i = 0; i < g_sMap.uwNodeCount; ++i) {
 			tNode *pNode = &g_sMap.pNodes[i];
@@ -163,14 +177,8 @@ void nodeChangeOwnership(tNode *pNode, tPlayer *pPlayer) {
 	pNode->pPlayer = pPlayer;
 	if(pPlayer) {
 		++pPlayer->bNodeCount;
-		pNode->ubChargeRate = 2;
 	}
-	else {
-		pNode->ubChargeRate = 6;
-	}
-	if(pNode->eType == NODE_TYPE_SUPER) {
-		pNode->ubChargeRate >>= 1;
-	}
+	nodeUpdateChargeRate(pNode);
 	blobAnimAddToQueue(pNode);
 }
 

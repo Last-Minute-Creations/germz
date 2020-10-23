@@ -1,3 +1,7 @@
+20.10.23
+	- Rearranged menu a bit
+	- Added defs.json for configuring node parameters
+
 20.9.27
 - fixed special nodes not having proper gfx after takeover
 - game background is now visible under the HUD

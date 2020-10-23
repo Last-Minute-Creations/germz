@@ -365,8 +365,10 @@ convertFont(
 	SOURCE ${RES_DIR}/germz_font.png DESTINATION ${DATA_DIR}/germz.fnt
 )
 
-# Copy MODs and maps
+# Copy MODs, maps, fonts and defs
 file(
-	COPY ${RES_DIR}/germz2-25.mod ${RES_DIR}/maps ${RES_DIR}/uni54.fnt
+	COPY
+		${RES_DIR}/germz2-25.mod ${RES_DIR}/maps ${RES_DIR}/uni54.fnt
+		${RES_DIR}/defs.json
 	DESTINATION ${DATA_DIR}
 )
