@@ -5,6 +5,7 @@
 #include "map_list.h"
 #include "assets.h"
 #include <ace/utils/dir.h>
+#include <gui/border.h>
 
 static const char *s_szFilePrev;
 static UBYTE s_isMapInfoRefreshed;
@@ -55,16 +56,13 @@ static void mapListDrawPreview(
 	};
 
 	const UBYTE ubSize = ubTileSize * 16;
-	blitRect(pBmDest, uwX -      1, uwY -      1, ubSize + 2,          1, 18);
-	blitRect(pBmDest, uwX -      1, uwY -      1,          1, ubSize + 2, 18);
-	blitRect(pBmDest, uwX         , uwY + ubSize, ubSize + 1,          1, 20);
-	blitRect(pBmDest, uwX + ubSize, uwY         ,          1, ubSize + 1, 20);
+	guiDraw3dBorder(pBmDest, uwX, uwY, ubSize + 2, ubSize + 2);
 	UWORD uwPosY = uwY;
 	for(UBYTE ubTileY = 0; ubTileY < MAP_SIZE; ++ubTileY) {
 		UWORD uwPosX = uwX;
 		for(UBYTE ubTileX = 0; ubTileX < MAP_SIZE; ++ubTileX) {
 			UBYTE ubColor = pTileColors[pMapData->pTiles[ubTileX][ubTileY]];
-			blitRect(pBmDest, uwPosX, uwPosY, ubTileSize, ubTileSize, ubColor);
+			blitRect(pBmDest, uwPosX + 1, uwPosY + 1, ubTileSize, ubTileSize, ubColor);
 			uwPosX += ubTileSize;
 		}
 		uwPosY += ubTileSize;
@@ -122,27 +120,31 @@ UBYTE updateMapInfo(
 	sprintf(szPath, "data/maps/%s.json", szFile);
 	mapDataInitFromFile(pMapData, szPath);
 
-	UWORD uwOffsX = pCtrl->sRect.uwX + pCtrl->sRect.uwWidth + 3;
-	UWORD uwOffsY = 3;
+	UWORD uwOffsX = pCtrl->sRect.uwX;
+	UWORD uwOffsY = pCtrl->sRect.uwY + pCtrl->sRect.uwHeight + 3;
 	const UBYTE ubRowWidth = 100;
 	const UBYTE ubRowHeight = g_pFontSmall->uwHeight + 2;
 
 	char szLine[10 + MAX(MAP_NAME_MAX, MAP_AUTHOR_MAX)];
 	fillBg(pBmBg, pBmBuffer, uwOffsX, uwOffsY, ubRowWidth, ubRowHeight);
 	sprintf(szLine, "Title: %s", pMapData->szName);
-	fontFillTextBitMap(g_pFontSmall, g_pTextBitmap, szLine);
-	fontDrawTextBitMap(pBmBuffer, g_pTextBitmap, uwOffsX, uwOffsY, 19, FONT_COOKIE);
+	fontDrawStr(
+		g_pFontSmall, pBmBuffer, uwOffsX, uwOffsY, szLine, 19, FONT_COOKIE,
+		g_pTextBitmap
+	);
 
 	uwOffsY += ubRowHeight;
 	fillBg(pBmBg, pBmBuffer, uwOffsX, uwOffsY, ubRowWidth, ubRowHeight);
 	sprintf(szLine, "Author: %s", pMapData->szAuthor);
-	fontFillTextBitMap(g_pFontSmall, g_pTextBitmap, szLine);
-	fontDrawTextBitMap(pBmBuffer, g_pTextBitmap, uwOffsX, uwOffsY, 19, FONT_COOKIE);
+	fontDrawStr(
+		g_pFontSmall, pBmBuffer, uwOffsX, uwOffsY, szLine, 19, FONT_COOKIE,
+		g_pTextBitmap
+	);
 	uwOffsY += ubRowHeight + 1;
 
 	// Draw map
-	UWORD uwPreviewWidth = 2 + ubMapPreviewTileSize * 16;
-	uwOffsX += (((bitmapGetByteWidth(pBmBuffer)*8 - uwOffsX) - uwPreviewWidth) / 2);
+	uwOffsX = pCtrl->sRect.uwX + pCtrl->sRect.uwWidth + 8;
+	uwOffsY = pCtrl->sRect.uwY;
 	mapListDrawPreview(pMapData, pBmBuffer, uwOffsX, uwOffsY, ubMapPreviewTileSize);
 
 	s_isMapInfoRefreshed = 1;
@@ -153,14 +155,16 @@ UBYTE updateMapInfo(
 void clearMapInfo(
 	const tListCtl *pCtrl, const tBitMap *pBmBg, tBitMap *pBmBuffer
 ) {
-	const UWORD uwOffsX = pCtrl->sRect.uwX + pCtrl->sRect.uwWidth + 3;
-	UWORD uwOffsY = 3;
+	UWORD uwOffsX = pCtrl->sRect.uwX;
+	UWORD uwOffsY = pCtrl->sRect.uwY + pCtrl->sRect.uwHeight + 3;
 	const UBYTE ubRowWidth = 100;
 	const UBYTE ubRowHeight = g_pFontSmall->uwHeight + 2;
 
 	fillBg(pBmBg, pBmBuffer, uwOffsX, uwOffsY, ubRowWidth, ubRowHeight);
-	fontFillTextBitMap(g_pFontSmall, g_pTextBitmap, "Loading map...");
-	fontDrawTextBitMap(pBmBuffer, g_pTextBitmap, uwOffsX, uwOffsY, 19, FONT_COOKIE);
+	fontDrawStr(
+		g_pFontSmall, pBmBuffer, uwOffsX, uwOffsY, "Loading map...", 19, FONT_COOKIE,
+		g_pTextBitmap
+	);
 
 	uwOffsY += ubRowHeight;
 	fillBg(pBmBg, pBmBuffer, uwOffsX, uwOffsY, ubRowWidth, ubRowHeight);

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.5)
+cmake_minimum_required(VERSION 3.14.0)
 project(germz LANGUAGES C)
 
 if(NOT AMIGA)
@@ -52,7 +52,7 @@ file(
 	${GEN_DIR}/plep1_up ${GEN_DIR}/plep1_down ${GEN_DIR}/plep1_left ${GEN_DIR}/plep1_right
 	${GEN_DIR}/plep2_up ${GEN_DIR}/plep2_down ${GEN_DIR}/plep2_left ${GEN_DIR}/plep2_right
 	${GEN_DIR}/plep3_up ${GEN_DIR}/plep3_down ${GEN_DIR}/plep3_left ${GEN_DIR}/plep3_right
-	${GEN_DIR}/game_bg
+	${GEN_DIR}/game_bg ${GEN_DIR}/display
 )
 
 # Palette
@@ -168,6 +168,16 @@ extractBitmaps(TARGET ${GERMZ_EXECUTABLE} SOURCE 	${RES_DIR}/editor_gfx.png
 		${GEN_DIR}/game_hud.png     0 433 64  64
 		# Game bg
 		${GEN_DIR}/game_bg.png 0 498 64 64
+		# Display border
+		${GEN_DIR}/display/0.png  0 605 16 16
+		${GEN_DIR}/display/1.png 17 605 16 16
+		${GEN_DIR}/display/2.png 34 605 16 16
+		${GEN_DIR}/display/3.png  0 622 16 16
+		${GEN_DIR}/display/4.png 17 622 16 16
+		${GEN_DIR}/display/5.png 34 622 16 16
+		${GEN_DIR}/display/6.png  0 639 16 16
+		${GEN_DIR}/display/7.png 17 639 16 16
+		${GEN_DIR}/display/8.png 34 639 16 16
 )
 
 # Pleps
@@ -258,6 +268,11 @@ convertTileset(
 	TARGET ${GERMZ_EXECUTABLE} SIZE 32 HEIGHT 10 TILES 0.png 1.png 2.png 3.png 4.png
 	SOURCE ${GEN_DIR}/led_big DESTINATION ${GEN_DIR}/led_big.png
 )
+convertTileset(
+	TARGET ${GERMZ_EXECUTABLE} SIZE 16
+	TILES 0.png 1.png 2.png 3.png 4.png 5.png 6.png 7.png 8.png
+	SOURCE ${GEN_DIR}/display DESTINATION ${GEN_DIR}/display.png
+)
 set(DIRS "up;down;left;right")
 foreach(player RANGE 3)
 	foreach(dir ${DIRS})
@@ -312,6 +327,7 @@ convertBitmaps(
 		${GEN_DIR}/editor_hud.png ${GEN_DIR}/game_bg.png
 		${RES_DIR}/menu_main.png ${RES_DIR}/menu_sub.png
 		${RES_DIR}/lmc.png ${RES_DIR}/ace.png ${GEN_DIR}/game_bg.png
+		${GEN_DIR}/display.png
 	DESTINATIONS
 		${DATA_DIR}/blob1.bm ${DATA_DIR}/blob2.bm ${DATA_DIR}/blob3.bm
 		${DATA_DIR}/blob4.bm ${DATA_DIR}/game_hud.bm
@@ -324,6 +340,7 @@ convertBitmaps(
 		${DATA_DIR}/editor_hud.bm ${DATA_DIR}/game_bg.bm
 		${DATA_DIR}/menu_main.bm ${DATA_DIR}/menu_sub.bm
 		${DATA_DIR}/lmc.bm ${DATA_DIR}/ace.bm ${DATA_DIR}/game_bg.bm
+		${DATA_DIR}/display.bm
 )
 
 convertAudio(

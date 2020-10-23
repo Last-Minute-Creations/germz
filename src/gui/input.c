@@ -31,11 +31,10 @@ static void inputDrawText(const tInput *pInput, UBYTE isDrawCursor) {
 	// Draw cursor if needed
 	if(isDrawCursor) {
 		UWORD uwTextLength = pInput->pTextBitMap->uwActualWidth;
-		fontFillTextBitMap(pInput->pFont, pInput->pTextBitMap, "_");
-		fontDrawTextBitMap(
-			pInput->pBfr, pInput->pTextBitMap,
+		fontDrawStr(
+			pInput->pFont, pInput->pBfr,
 			pInput->sPos.uwX + 2 + uwTextLength, pInput->sPos.uwY + 2,
-			pConfig->ubColorText, FONT_COOKIE
+			"_", pConfig->ubColorText, FONT_COOKIE, pInput->pTextBitMap
 		);
 	}
 }
@@ -85,11 +84,10 @@ tInput *inputCreate(
 	UWORD uwHeight = inputGetHeight(pInput);
 	const tGuiConfig *pConfig = guiGetConfig();
 	if(szLabel) {
-		fontFillTextBitMap(pFont, pInput->pTextBitMap, szLabel);
-		fontDrawTextBitMap(
-			pBg, pInput->pTextBitMap,
-			pInput->sPos.uwX - 1, pInput->sPos.uwY + uwHeight / 2,
-			pConfig->ubColorText, FONT_COOKIE | FONT_RIGHT | FONT_VCENTER
+		fontDrawStr(
+			pFont, pBg, pInput->sPos.uwX - 1, pInput->sPos.uwY + uwHeight / 2,
+			szLabel, pConfig->ubColorText, FONT_COOKIE | FONT_RIGHT | FONT_VCENTER,
+			pInput->pTextBitMap
 		);
 	}
 	guiDraw3dBorder(pBg, pInput->sPos.uwX, pInput->sPos.uwY, uwWidth, uwHeight);

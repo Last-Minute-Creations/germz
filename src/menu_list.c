@@ -88,6 +88,8 @@ void menuListDrawPos(UBYTE ubPos) {
 		if(!pStyle) {
 			pStyle = s_pStyle;
 		}
+
+		// Draw pos + non-zero shadow
 		fontFillTextBitMap(s_pFont, s_pTextBitmap, szText);
 		fontDrawTextBitMap(
 			s_pBmBuffer, s_pTextBitmap, s_uwX, uwPosY + 1,
@@ -131,13 +133,19 @@ UBYTE menuListToggle(BYTE bDelta) {
 		}
 		*s_pOptions[s_ubActiveOption].sOptUb.pVar = wNewVal;
 		s_pOptions[s_ubActiveOption].eDirty = MENU_LIST_DIRTY_VAL_CHANGE;
+		if(s_pOptions[s_ubActiveOption].sOptUb.cbOnValChange) {
+			s_pOptions[s_ubActiveOption].sOptUb.cbOnValChange();
+		}
 		return 1;
 	}
 	return 0;
 }
 
 UBYTE menuListEnter(void) {
-	if(s_pOptions[s_ubActiveOption].eOptionType == MENU_LIST_OPTION_TYPE_CALLBACK) {
+	if(
+		s_pOptions[s_ubActiveOption].eOptionType == MENU_LIST_OPTION_TYPE_CALLBACK &&
+		s_pOptions[s_ubActiveOption].sOptCb.cbSelect
+	) {
 		s_pOptions[s_ubActiveOption].sOptCb.cbSelect();
 		return 1;
 	}

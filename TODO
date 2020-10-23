@@ -43,6 +43,16 @@ Done:
 	✔ Reduce mem usage by AI @done(20-09-13 19:11)
 
 Now:
+	☐ Menu revamp, battle mode
+		✔ Campaign/battle on main screen @done(20-10-21 12:53)
+		✔ Battle: selecting teams @done(20-10-21 12:53)
+		✔ Battle: selecting steer @done(20-10-23 16:55)
+		☐ Battle: teams should be displayed in colors (draw on callback onChange)
+		☐ Steer: going back should remember previously selected map
+	☐ Campaign:
+		☐ Start with c01.json map
+		☐ Start next map after finishing map
+		☐ Retry yes/no after defeat
 	☐ Map save/load to/from file
 		✔ List only .json files @done(20-06-15 19:52)
 		✔ Remember last saved/load file name and use it for default selection @done(20-06-21 08:03)
@@ -62,6 +72,8 @@ Now:
 	☐ fix plep anim rotations
 	☐ Import/export to/from editor by typing in code
 	☐ Crash when skipping LMC logo and sfx is still playing
+	☐ Something gets bugged when staying in credits for too long
+	☐ Add json for special blob defs
 
 Later:
 	☐ handle map create fail in editor

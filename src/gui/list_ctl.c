@@ -30,11 +30,11 @@ static void listCtlDrawEntry(tListCtl *pCtl, UWORD uwIdx) {
 			pCtl->sRect.uwWidth - LISTCTL_BTN_WIDTH - 2 - 2 - 1, pCtl->ubEntryHeight,
 			(uwIdx == pCtl->uwEntrySel ? pCfg->ubColorFill : 0)
 		);
-		fontFillTextBitMap(pCtl->pFont, pCtl->pEntryTextBfr, pCtl->pEntries[uwIdx]);
-		fontDrawTextBitMap(
-			pCtl->pBfr, pCtl->pEntryTextBfr,
+		fontDrawStr(
+			pCtl->pFont, pCtl->pBfr,
 			pCtl->sRect.uwX+2+1, pCtl->sRect.uwY+2+1 + uwIdx*pCtl->ubEntryHeight,
-			pCfg->ubColorText, FONT_LEFT| FONT_TOP | FONT_COOKIE
+			pCtl->pEntries[uwIdx], pCfg->ubColorText,
+			FONT_LEFT | FONT_TOP | FONT_COOKIE, pCtl->pEntryTextBfr
 		);
 	}
 }

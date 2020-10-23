@@ -12,6 +12,7 @@
 #include <ace/utils/font.h>
 #include <ace/utils/palette.h>
 #include <ace/utils/ptplayer.h>
+#include <ace/utils/bmframe.h>
 #include "game.h"
 #include "build_ver.h"
 #include "fade.h"
@@ -61,7 +62,8 @@ static const char *s_pMenuEnumSteer[] = {
 };
 
 static const char *s_pMenuCaptions[] = {
-	"INFECT",
+	"CAMPAIGN",
+	"BATTLE",
 	"EDITOR",
 	"CREDITS",
 	"CURE"
@@ -70,42 +72,22 @@ static const char *s_pMenuCaptions[] = {
 static tView *s_pView;
 static tVPort *s_pVp;
 static tSimpleBufferManager *s_pBfr;
-static tBitMap *s_pBg, *s_pBgSub;
+static tBitMap *s_pBg, *s_pBgSub, *s_pFrameDisplay, *s_pBgCurr;
 static tFade *s_pFadeMenu;
 static tCbFadeOnDone s_cbOnEscape;
 
-static void onInfect(void);
-static void onEditor(void);
-static void onCredits(void);
-static void onExit(void);
-
-//------------------------------------------------------------------------- MENU
-
-static tOption s_pOptions[] = {
-	{MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onInfect}},
-	{MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onEditor}},
-	{MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onCredits}},
-	{MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onExit}},
-};
-#define MENU_POS_COUNT (sizeof(s_pOptions) / sizeof(s_pOptions[0]))
+static tStateManager *s_pStateMachineMenu;
+static tState s_sStateMain, s_sStateBattle, s_sStateCredits, s_sStateSteer;
 
 //------------------------------------------------------------------ PRIVATE FNS
 
-static void onFadeoutGameStart(void) {
+static void onFadeoutEditorGameStart(void) {
 	stateChange(g_pStateMachineGame, &g_sStateGame);
 }
 
-static void onFadeoutEditorStart(void) {
+static void onFadeoutGameStart(void) {
 	statePop(g_pStateMachineGame); // Pop from map select to main menu
 	stateChange(g_pStateMachineGame, &g_sStateGame);
-}
-
-static void onFadeoutExit(void) {
-	gameExit();
-}
-
-static void onExit(void) {
-	fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, onFadeoutExit);
 }
 
 static void menuErrorMsg(const char *szMsg) {
@@ -132,10 +114,9 @@ static void menuErrorMsg(const char *szMsg) {
 			szLine[uwLineWidth] = '\0';
 			szLineStart = 0;
 		}
-		fontFillTextBitMap(g_pFontSmall, g_pTextBitmap, szLine);
-		fontDrawTextBitMap(
-			s_pBfr->pBack, g_pTextBitmap, 320/2, uwOffsY,
-			MENU_COLOR_ERROR, FONT_COOKIE | FONT_SHADOW | FONT_HCENTER
+		fontDrawStr(
+			g_pFontSmall, s_pBfr->pBack, 320/2, uwOffsY, szLine, MENU_COLOR_ERROR,
+			FONT_COOKIE | FONT_SHADOW | FONT_HCENTER, g_pTextBitmap
 		);
 		uwOffsY += ubLineHeight;
 	}
@@ -144,7 +125,7 @@ static void menuErrorMsg(const char *szMsg) {
 static void startGame(UBYTE isEditor, UBYTE ubPlayerMask) {
 	gameSetEditor(isEditor);
 	if(isEditor) {
-		fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, onFadeoutGameStart);
+		fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, onFadeoutEditorGameStart);
 	}
 	else {
 		UBYTE pSteerToPlayer[PLAYER_STEER_AI] = {0};
@@ -175,59 +156,8 @@ static void startGame(UBYTE isEditor, UBYTE ubPlayerMask) {
 				}
 			}
 		}
-		fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, onFadeoutEditorStart);
+		fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, onFadeoutGameStart);
 	}
-}
-
-static void onEditor(void) {
-	mapDataClear(&g_sMapData);
-	startGame(1, 1);
-}
-
-static void onFadeoutToCredits(void) {
-	statePush(g_pStateMachineGame, &g_sStateCredits);
-}
-
-static void onFadeoutToInfect(void) {
-	statePush(g_pStateMachineGame, &g_sStateInfect);
-}
-
-static void onInfect(void) {
-	fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, onFadeoutToInfect);
-}
-
-static void onCredits(void) {
-	fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, onFadeoutToCredits);
-}
-
-static void menuInitialDraw(void) {
-	blitCopy(s_pBg, 0, 0, s_pBfr->pBack, 0, 0, 320, 128, MINTERM_COPY);
-	blitCopy(s_pBg, 0, 128, s_pBfr->pBack, 0, 128, 320, 128, MINTERM_COPY);
-
-	menuListInit(
-		s_pOptions, s_pMenuCaptions, MENU_POS_COUNT,
-		g_pFontBig, g_pTextBitmap, s_pBg, s_pBfr->pBack, 120, 100,
-		&s_sMenuStyleDefault
-	);
-
-	char szVersion[15];
-	sprintf(szVersion, "V.%d.%d.%d", BUILD_YEAR, BUILD_MONTH, BUILD_DAY);
-	fontFillTextBitMap(g_pFontSmall, g_pTextBitmap, szVersion);
-	fontDrawTextBitMap(
-		s_pBfr->pBack, g_pTextBitmap, 320, 0, MENU_COLOR_INACTIVE,
-		FONT_RIGHT | FONT_COOKIE
-	);
-
-	fontFillTextBitMap(g_pFontSmall, g_pTextBitmap, "A game by Last Minute Creations");
-	fontDrawTextBitMap(s_pBfr->pBack, g_pTextBitmap, 320/2, 256 - 20, MENU_COLOR_INACTIVE, FONT_HCENTER | FONT_COOKIE);
-
-	fontFillTextBitMap(g_pFontSmall, g_pTextBitmap, "lastminutecreations.itch.io/germz");
-	fontDrawTextBitMap(s_pBfr->pBack, g_pTextBitmap, 320/2, 256 - 10, MENU_COLOR_INACTIVE, FONT_HCENTER | FONT_COOKIE);
-}
-
-static void menuGsResume(void) {
-	menuInitialDraw();
-	fadeSet(s_pFadeMenu, FADE_STATE_IN, 50, 0);
 }
 
 static UBYTE menuProcessList(UBYTE isEnabled34) {
@@ -293,19 +223,21 @@ static void menuGsCreate(void) {
 	);
 	s_pBg = bitmapCreateFromFile("data/menu_main.bm", 0);
 	s_pBgSub = bitmapCreateFromFile("data/menu_sub.bm", 0);
+	s_pBgCurr = bitmapCreate(320, 256, 5, BMF_INTERLEAVED);
+	s_pFrameDisplay = bitmapCreateFromFile("data/display.bm", 0);
+
 
 	UWORD pPalette[32];
 	paletteLoad("data/germz.plt", pPalette, 32);
 	s_pFadeMenu = fadeCreate(s_pView, pPalette, 32);
 
+	s_pStateMachineMenu = stateManagerCreate();
 	systemUnuse();
+	stateChange(s_pStateMachineMenu, &s_sStateMain);
 
-	menuInitialDraw();
 	fadeSet(s_pFadeMenu, FADE_STATE_IN, 50, 0);
 	viewLoad(s_pView);
 	ptplayerEnableMusic(1);
-
-	s_cbOnEscape = onFadeoutExit;
 }
 
 static void menuGsLoop(void) {
@@ -314,18 +246,11 @@ static void menuGsLoop(void) {
 		return;
 	}
 	if(eFadeState != FADE_STATE_OUT && keyUse(KEY_ESCAPE)) {
-		fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, s_cbOnEscape);
+		s_cbOnEscape();
 		return;
 	}
-
-	menuListDraw();
-
-	UBYTE isEnabled34 = joyIsParallelEnabled();
 	if(eFadeState != FADE_STATE_OUT) {
-		if(menuProcessList(isEnabled34)) {
-			// menuEnter may change gamestate and deallocate s_pVp
-			return;
-		}
+		stateProcess(s_pStateMachineMenu);
 	}
 
 	copProcessBlocks();
@@ -335,8 +260,11 @@ static void menuGsLoop(void) {
 static void menuGsDestroy(void) {
 	viewLoad(0);
 	systemUse();
+	stateManagerDestroy(s_pStateMachineMenu);
 	bitmapDestroy(s_pBg);
 	bitmapDestroy(s_pBgSub);
+	bitmapDestroy(s_pBgCurr);
+	bitmapDestroy(s_pFrameDisplay);
 	viewDestroy(s_pView);
 	fadeDestroy(s_pFadeMenu);
 }
@@ -368,81 +296,262 @@ tSteer menuGetSteerForPlayer(UBYTE ubPlayerIdx) {
 	return steerInitIdle();
 }
 
-static void onSubmenuFadeout(void) {
-	statePop(g_pStateMachineGame);
+//------------------------------------------------------------- SUBSTATE: COMMON
+
+// It needs to work on state changing instead of  pushing/popping since it needs
+// to redraw each screen on transition.
+static tState *s_pNextSubstate;
+
+static void onFadeToSubstate(void) {
+	stateChange(s_pStateMachineMenu, s_pNextSubstate);
 }
 
-//----------------------------------------------------------------------- INFECT
+static void fadeToSubstate(tState *pNextSubstate) {
+	s_pNextSubstate = pNextSubstate;
+	fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, onFadeToSubstate);
+}
 
-static ULONG s_ullChangeTimer;
+static void onCampaign(void) {
 
-static void infectGsLoopMapSelect(void);
+}
+
+static void onEditor(void) {
+	mapDataClear(&g_sMapData);
+	startGame(1, 1);
+}
+
+static void onBattle(void) {
+	fadeToSubstate(&s_sStateBattle);
+}
+
+static void onCredits(void) {
+	fadeToSubstate(&s_sStateCredits);
+}
+
+static void onFadeoutToExit(void) {
+	gameExit();
+}
+
+static void fadeToExit(void) {
+	fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, onFadeoutToExit);
+}
+
+static tOption s_pOptions[] = {
+	{MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onCampaign}},
+	{MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onBattle}},
+	{MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onEditor}},
+	{MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onCredits}},
+	{MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = fadeToExit}},
+};
+#define MENU_POS_COUNT (sizeof(s_pOptions) / sizeof(s_pOptions[0]))
+
+static void fadeToMain(void) {
+	fadeToSubstate(&s_sStateMain);
+}
+
+static void fadeToBattle(void) {
+	fadeToSubstate(&s_sStateBattle);
+}
+
+static void menuSubstateLoop(void) {
+	menuListDraw();
+
+	UBYTE isEnabled34 = joyIsParallelEnabled();
+	if(menuProcessList(isEnabled34)) {
+		// menuEnter may change gamestate and deallocate s_pVp
+		return;
+	}
+}
+
+//-------------------------------------------------------------- SUBSTATE: STEER
+
+#define STEER_MENU_OPTION_MAX 8
+static const char *s_pMenuCaptionsSteer[STEER_MENU_OPTION_MAX];
+static tOption s_pOptionsSteer[STEER_MENU_OPTION_MAX];
+static UBYTE s_ubSteerOptionCount;
 
 static void onStart(void) {
 	startGame(0, g_sMapData.ubPlayerMask);
 }
 
-static void onMap(void) {
-	g_sStateInfect.cbLoop = infectGsLoopMapSelect;
-}
-
-static void onBack(void) {
-	fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, onSubmenuFadeout);
-}
-
-#define INFECT_MENU_OPTION_MAX 7
-
-static const char *s_pMenuInfectCaptions[INFECT_MENU_OPTION_MAX];
-static tOption s_pOptionsInfect[INFECT_MENU_OPTION_MAX];
-static UBYTE s_ubInfectOptionCount;
-
-static tListCtl *s_pMapList;
-
-static void infectRegenMenuList(UBYTE ubPlayerMask) {
+static void menuSteerGsCreate(void) {
 	static const char *pPlayerLabels[] = {
 		"PLAYER 1", "PLAYER 2", "PLAYER 3", "PLAYER 4"
 	};
 
-	s_ubInfectOptionCount = 0;
-	s_pOptionsInfect[s_ubInfectOptionCount] = (tOption){
+	// Prepare current bg
+	blitCopy(s_pBgSub, 0, 0, s_pBgCurr, 0, 0, 320, 128, MINTERM_COPY);
+	blitCopy(s_pBgSub, 0, 128, s_pBgCurr, 0, 128, 320, 128, MINTERM_COPY);
+	bmFrameDraw(s_pFrameDisplay, s_pBgCurr, 48, 48, 14, 10, 16);
+
+	// Copy current bg to vport's bitmap
+	blitCopy(s_pBgCurr, 0, 0, s_pBfr->pBack, 0, 0, 320, 128, MINTERM_COPY);
+	blitCopy(s_pBgCurr, 0, 128, s_pBfr->pBack, 0, 128, 320, 128, MINTERM_COPY);
+
+	// Infect
+	s_ubSteerOptionCount = 0;
+	s_pOptionsSteer[s_ubSteerOptionCount] = (tOption){
 		MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onStart}
 	};
-	s_pMenuInfectCaptions[s_ubInfectOptionCount++] = "START";
+	s_pMenuCaptionsSteer[s_ubSteerOptionCount++] = "INFECT";
 
-	s_pOptionsInfect[s_ubInfectOptionCount] = (tOption){
-		MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onMap}
-	};
-	s_pMenuInfectCaptions[s_ubInfectOptionCount++] = "SELECT MAP";
+	// Dummy
+	s_pOptionsSteer[s_ubSteerOptionCount++] = (tOption){.isHidden = 1};
 
+	// Players
 	for(UBYTE i = 0; i < 4; ++i) {
 		if(BTST(g_sMapData.ubPlayerMask, i)) {
-			s_pOptionsInfect[s_ubInfectOptionCount] = (tOption){
+			s_pOptionsSteer[s_ubSteerOptionCount] = (tOption){
 				MENU_LIST_OPTION_TYPE_UINT8, .isHidden = 0, .sOptUb = {
 				.pVar = &s_pPlayerSteers[i], .ubMax = PLAYER_STEER_IDLE, .isCyclic = 1,
 				.ubDefault = PLAYER_STEER_JOY_1, .pEnumLabels = s_pMenuEnumSteer
 			}, .pStyle = &s_pMenuStylePlayers[i]};
-			s_pMenuInfectCaptions[s_ubInfectOptionCount++] = pPlayerLabels[i];
+			s_pMenuCaptionsSteer[s_ubSteerOptionCount++] = pPlayerLabels[i];
 		}
 	}
 
-	s_pOptionsInfect[s_ubInfectOptionCount] = (tOption){
-		MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onBack}
+	// Dummy
+	s_pOptionsSteer[s_ubSteerOptionCount++] = (tOption){.isHidden = 1};
+
+	// Back
+	s_pOptionsSteer[s_ubSteerOptionCount] = (tOption){
+		MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0,
+		.sOptCb = {.cbSelect = fadeToBattle}
 	};
-	s_pMenuInfectCaptions[s_ubInfectOptionCount++] = "BACK";
+	s_pMenuCaptionsSteer[s_ubSteerOptionCount++] = "BACK";
+
+	menuListInit(
+		s_pOptionsSteer, s_pMenuCaptionsSteer, s_ubSteerOptionCount,
+		g_pFontBig, g_pTextBitmap, s_pBgCurr, s_pBfr->pBack, 64, 64,
+		&s_sMenuStyleDefault
+	);
+
+	fadeSet(s_pFadeMenu, FADE_STATE_IN, 50, 0);
+	s_cbOnEscape = fadeToBattle;
+}
+
+//------------------------------------------------------------- SUBSTATE: BATTLE
+
+#define BATTLE_MENU_OPTION_MAX 6
+
+static ULONG s_ullChangeTimer;
+static const char *s_pMenuBattleCaptions[BATTLE_MENU_OPTION_MAX];
+static tOption s_pOptionsBattle[BATTLE_MENU_OPTION_MAX];
+static UBYTE s_ubBattleOptionCount;
+static tListCtl *s_pMapList;
+static const char *s_pLabelsMode[] = {"SOLO", "TEAMS"};
+static const char *s_pLabelsTeam1[] = {"P1 P2", "P1 P3", "P1 P4"};
+static const char *s_pLabelsTeam2[] = {"P3 P4", "P2 P4", "P2 P3"};
+static UBYTE s_ubBattleMode;
+static UBYTE s_ubTeamCfg;
+static UBYTE s_ubOptionIdxTeam1, s_ubOptionIdxTeam2;
+
+static void battleGsLoopMapSelect(void);
+
+static void onBattleGoToSteer(void) {
+	fadeToSubstate(&s_sStateSteer);
+}
+
+static void onMap(void) {
+	s_sStateBattle.cbLoop = battleGsLoopMapSelect;
+}
+
+static void onModeChange(void) {
+	if(s_ubBattleMode) {
+		// Teams - allow selecting
+		s_pOptionsBattle[s_ubOptionIdxTeam1].isHidden = 0;
+		s_pOptionsBattle[s_ubOptionIdxTeam2].isHidden = 0;
+	}
+	else {
+		// Solo - hide
+		s_pOptionsBattle[s_ubOptionIdxTeam1].isHidden = 1;
+		s_pOptionsBattle[s_ubOptionIdxTeam2].isHidden = 1;
+	}
+	s_pOptionsBattle[s_ubOptionIdxTeam1].eDirty = MENU_LIST_DIRTY_VAL_CHANGE;
+	s_pOptionsBattle[s_ubOptionIdxTeam2].eDirty = MENU_LIST_DIRTY_VAL_CHANGE;
+}
+
+static void onTeamChange(void) {
+	// Team changed - mark both for redraw since it's the same var
+	s_pOptionsBattle[s_ubOptionIdxTeam1].eDirty = MENU_LIST_DIRTY_VAL_CHANGE;
+	s_pOptionsBattle[s_ubOptionIdxTeam2].eDirty = MENU_LIST_DIRTY_VAL_CHANGE;
+}
+
+static void battleRegenMenuList(UBYTE ubPlayerMask) {
+	s_ubBattleOptionCount = 0;
+
+	// Infect
+	s_pOptionsBattle[s_ubBattleOptionCount] = (tOption){
+		MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onBattleGoToSteer}
+	};
+	s_pMenuBattleCaptions[s_ubBattleOptionCount++] = "INFECT";
+
+	// Select map
+	s_pOptionsBattle[s_ubBattleOptionCount] = (tOption){
+		.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0,
+		.sOptCb = {.cbSelect = onMap}
+	};
+	s_pMenuBattleCaptions[s_ubBattleOptionCount++] = "SELECT MAP";
+
+	// Game mode
+	UBYTE isTeamsAllowed = (g_sMapData.ubPlayerMask == 0xF);
+	s_pOptionsBattle[s_ubBattleOptionCount] = (tOption){
+		.eOptionType = MENU_LIST_OPTION_TYPE_UINT8, .isHidden = 0, .sOptUb = {
+			.isCyclic = 1, .pEnumLabels = s_pLabelsMode, .pVar = &s_ubBattleMode,
+			.ubMax = 0, .ubDefault = 0, .cbOnValChange = onModeChange
+		}
+	};
+	if(isTeamsAllowed) {
+		// All players are available - allow team mode
+		s_pOptionsBattle[s_ubBattleOptionCount].sOptUb.ubMax = 1;
+	}
+	s_pMenuBattleCaptions[s_ubBattleOptionCount++] = "GAME MODE";
+
+	// Team 1
+	s_ubOptionIdxTeam1 = s_ubBattleOptionCount;
+	s_pOptionsBattle[s_ubBattleOptionCount] = (tOption){
+		.eOptionType = MENU_LIST_OPTION_TYPE_UINT8, .isHidden = 1, .sOptUb = {
+			.isCyclic = 1, .pEnumLabels = s_pLabelsTeam1, .pVar = &s_ubTeamCfg,
+			.ubDefault = 0, .ubMax = 2, .cbOnValChange = onTeamChange
+		}
+	};
+	if(isTeamsAllowed && s_ubBattleMode) {
+		s_pOptionsBattle[s_ubBattleOptionCount].isHidden = 0;
+	}
+	s_pMenuBattleCaptions[s_ubBattleOptionCount++] = "TEAM 1";
+
+	// Team 2
+	s_ubOptionIdxTeam2 = s_ubBattleOptionCount;
+	s_pOptionsBattle[s_ubBattleOptionCount] = (tOption){
+		.eOptionType = MENU_LIST_OPTION_TYPE_UINT8, .isHidden = 1, .sOptUb = {
+			.isCyclic = 1, .pEnumLabels = s_pLabelsTeam2, .pVar = &s_ubTeamCfg,
+			.ubDefault = 0, .ubMax = 2, .cbOnValChange = onTeamChange
+		}
+	};
+	if(isTeamsAllowed && s_ubBattleMode) {
+		s_pOptionsBattle[s_ubBattleOptionCount].isHidden = 0;
+	}
+	s_pMenuBattleCaptions[s_ubBattleOptionCount++] = "TEAM 2";
+
+	// Back
+	s_pOptionsBattle[s_ubBattleOptionCount] = (tOption){
+		MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = fadeToMain}
+	};
+	s_pMenuBattleCaptions[s_ubBattleOptionCount++] = "BACK";
 }
 
 static void menuUpdateMapInfo(UBYTE isUndraw, UBYTE isForce) {
 	if(updateMapInfo(
-		s_pMapList, s_pBgSub, s_pBfr->pBack, &g_sMapData, 6
+		s_pMapList, s_pBgCurr, s_pBfr->pBack, &g_sMapData, 6
 	) || isForce) {
 		if(isUndraw) {
 			menuListUndraw();
 		}
-		infectRegenMenuList(g_sMapData.ubPlayerMask);
+		battleRegenMenuList(g_sMapData.ubPlayerMask);
 		UBYTE ubActive = menuListGetActive();
 		menuListInit(
-			s_pOptionsInfect, s_pMenuInfectCaptions, s_ubInfectOptionCount,
-			g_pFontBig, g_pTextBitmap, s_pBgSub, s_pBfr->pBack, 80, 140,
+			s_pOptionsBattle, s_pMenuBattleCaptions, s_ubBattleOptionCount,
+			g_pFontBig, g_pTextBitmap, s_pBgCurr, s_pBfr->pBack, 80, 133,
 			&s_sMenuStyleDefault
 		);
 		menuListSetActive(ubActive);
@@ -450,23 +559,30 @@ static void menuUpdateMapInfo(UBYTE isUndraw, UBYTE isForce) {
 	}
 }
 
-static void infectGsCreate(void) {
-	blitCopy(s_pBgSub, 0, 0, s_pBfr->pBack, 0, 0, 320, 128, MINTERM_COPY);
-	blitCopy(s_pBgSub, 0, 128, s_pBfr->pBack, 0, 128, 320, 128, MINTERM_COPY);
+static void battleGsCreate(void) {
+	// Prepare current bg
+	blitCopy(s_pBgSub, 0, 0, s_pBgCurr, 0, 0, 320, 128, MINTERM_COPY);
+	blitCopy(s_pBgSub, 0, 128, s_pBgCurr, 0, 128, 320, 128, MINTERM_COPY);
+	bmFrameDraw(s_pFrameDisplay, s_pBgCurr, 32, 16, 16, 14, 16);
+
+	// Copy current bg to vport's bitmap
+	blitCopy(s_pBgCurr, 0, 0, s_pBfr->pBack, 0, 0, 320, 128, MINTERM_COPY);
+	blitCopy(s_pBgCurr, 0, 128, s_pBfr->pBack, 0, 128, 320, 128, MINTERM_COPY);
 
 	buttonListCreate(5, s_pBfr->pBack, g_pFontSmall, g_pTextBitmap);
-	s_pMapList = mapListCreateCtl(s_pBfr->pBack, 5, 5, 160, 128);
+	s_pMapList = mapListCreateCtl(s_pBfr->pBack, 45, 29, 120, 75);
 	listCtlDraw(s_pMapList);
 	buttonDrawAll();
 
 	fadeSet(s_pFadeMenu, FADE_STATE_IN, 50, 0);
 
-	s_cbOnEscape = onSubmenuFadeout;
+	s_cbOnEscape = fadeToMain;
+	menuListSetActive(1);
 	menuUpdateMapInfo(0, 1);
 	s_ullChangeTimer = timerGet();
 }
 
-static void infectGsLoopMapSelect(void) {
+static void battleGsLoopMapSelect(void) {
 	UBYTE isMapSelected = 0;
 	UBYTE isEnabled34 = joyIsParallelEnabled();
 
@@ -476,7 +592,7 @@ static void infectGsLoopMapSelect(void) {
 		(isEnabled34 && (joyUse(JOY3_UP) || joyUse(JOY4_UP)))
 	) {
 		listCtlSelectPrev(s_pMapList);
-		clearMapInfo(s_pMapList, s_pBgSub, s_pBfr->pBack);
+		clearMapInfo(s_pMapList, s_pBgCurr, s_pBfr->pBack);
 		s_ullChangeTimer = timerGet();
 	}
 	else if(
@@ -485,7 +601,7 @@ static void infectGsLoopMapSelect(void) {
 		(isEnabled34 && (joyUse(JOY3_DOWN) || joyUse(JOY4_DOWN)))
 	) {
 		listCtlSelectNext(s_pMapList);
-		clearMapInfo(s_pMapList, s_pBgSub, s_pBfr->pBack);
+		clearMapInfo(s_pMapList, s_pBgCurr, s_pBfr->pBack);
 		s_ullChangeTimer = timerGet();
 	}
 	else if(
@@ -503,17 +619,16 @@ static void infectGsLoopMapSelect(void) {
 	}
 
 	if(isMapSelected || keyUse(KEY_ESCAPE)) {
-		g_sStateInfect.cbLoop = menuGsLoop;
+		s_sStateBattle.cbLoop = menuSubstateLoop;
 	}
 }
 
-static void infectGsDestroy(void) {
+static void battleGsDestroy(void) {
 	listCtlDestroy(s_pMapList);
 	buttonListDestroy();
-	s_cbOnEscape = onFadeoutExit;
 }
 
-//---------------------------------------------------------------------- CREDITS
+//------------------------------------------------------------ SUBSTATE: CREDITS
 
 static const char *s_pCreditsLines[] = {
 	"GermZ by Last Minute Creations",
@@ -546,10 +661,9 @@ static void creditsGsCreate(void) {
 	for(UBYTE ubLine = 0; ubLine < CREDITS_LINES_COUNT; ++ubLine) {
 		// Draw only non-empty lines
 		if(s_pCreditsLines[ubLine][0] != '\0') {
-			fontFillTextBitMap(g_pFontSmall, g_pTextBitmap, s_pCreditsLines[ubLine]);
-			fontDrawTextBitMap(
-				s_pBfr->pBack, g_pTextBitmap, 0, uwOffsY, MENU_COLOR_ACTIVE,
-				FONT_COOKIE | FONT_SHADOW
+			fontDrawStr(
+				g_pFontSmall, s_pBfr->pBack, 0, uwOffsY, s_pCreditsLines[ubLine],
+				MENU_COLOR_ACTIVE, FONT_COOKIE | FONT_SHADOW, g_pTextBitmap
 			);
 		}
 
@@ -557,6 +671,7 @@ static void creditsGsCreate(void) {
 		uwOffsY += ubLineWidth;
 	}
 	fadeSet(s_pFadeMenu, FADE_STATE_IN, 50, 0);
+	s_cbOnEscape = fadeToMain;
 }
 
 static void creditsGsLoop(void) {
@@ -564,29 +679,72 @@ static void creditsGsLoop(void) {
 
 	UBYTE isEnabled34 = joyIsParallelEnabled();
 	if(eFadeState != FADE_STATE_OUT && (
-		keyUse(KEY_RETURN) || keyUse(KEY_ESCAPE) ||
 		keyUse(KEY_RETURN) || keyUse(KEY_LSHIFT) || keyUse(KEY_RSHIFT) ||
 		joyUse(JOY1_FIRE) || joyUse(JOY2_FIRE) ||
 		(isEnabled34 && (joyUse(JOY3_FIRE) || joyUse(JOY4_FIRE)))
 	)) {
 		// menuEnter may change gamestate, so do nothing past it
-		onBack();
+		fadeToMain();
 	}
 
 	copProcessBlocks();
 	vPortWaitForEnd(s_pVp);
 }
 
+//---------------------------------------------------------- SUBSTATE: MAIN MENU
+
+static void mainGsCreate(void) {
+	blitCopy(s_pBg, 0, 0, s_pBfr->pBack, 0, 0, 320, 128, MINTERM_COPY);
+	blitCopy(s_pBg, 0, 128, s_pBfr->pBack, 0, 128, 320, 128, MINTERM_COPY);
+
+	menuListInit(
+		s_pOptions, s_pMenuCaptions, MENU_POS_COUNT,
+		g_pFontBig, g_pTextBitmap, s_pBg, s_pBfr->pBack, 120, 120,
+		&s_sMenuStyleDefault
+	);
+
+	char szVersion[15];
+	sprintf(szVersion, "V.%d.%d.%d", BUILD_YEAR, BUILD_MONTH, BUILD_DAY);
+	fontDrawStr(
+		g_pFontSmall, s_pBfr->pBack, 320, 0, szVersion,
+		MENU_COLOR_INACTIVE, FONT_RIGHT | FONT_COOKIE, g_pTextBitmap
+	);
+
+	fontDrawStr(
+		g_pFontSmall, s_pBfr->pBack, 320/2, 256 - 20,
+		"A game by Last Minute Creations",
+		MENU_COLOR_INACTIVE, FONT_HCENTER | FONT_COOKIE, g_pTextBitmap
+	);
+
+	fontDrawStr(
+		g_pFontSmall, s_pBfr->pBack, 320/2, 256 - 10,
+		"lastminutecreations.itch.io/germz",
+		MENU_COLOR_INACTIVE, FONT_HCENTER | FONT_COOKIE, g_pTextBitmap
+	);
+
+	s_cbOnEscape = fadeToExit;
+	fadeSet(s_pFadeMenu, FADE_STATE_IN, 50, 0);
+}
+
 //--------------------------------------------------------------- GAMESTATE DEFS
 
 tState g_sStateMenu = {
-	.cbCreate = menuGsCreate, .cbLoop = menuGsLoop, .cbDestroy = menuGsDestroy,
-	.cbResume = menuGsResume
+	.cbCreate = menuGsCreate, .cbLoop = menuGsLoop, .cbDestroy = menuGsDestroy
 };
 
-tState g_sStateCredits = {.cbCreate = creditsGsCreate, .cbLoop = creditsGsLoop};
-tState g_sStateInfect = {
-	.cbCreate = infectGsCreate, .cbLoop = menuGsLoop,
-	.cbDestroy = infectGsDestroy
+static tState s_sStateCredits = {
+	.cbCreate = creditsGsCreate, .cbLoop = creditsGsLoop
 };
 
+static tState s_sStateBattle = {
+	.cbCreate = battleGsCreate, .cbLoop = menuSubstateLoop,
+	.cbDestroy = battleGsDestroy
+};
+
+static tState s_sStateMain = {
+	.cbCreate = mainGsCreate, .cbLoop = menuSubstateLoop
+};
+
+static tState s_sStateSteer = {
+	.cbCreate = menuSteerGsCreate, .cbLoop = menuSubstateLoop
+};

@@ -25,6 +25,7 @@ typedef struct _tMenuListStyle {
 } tMenuListStyle;
 
 typedef void (*tOptionSelectCb)(void);
+typedef void (*tOptionValChangeCb)(void);
 
 // All options are uint8_t, enums or numbers
 typedef struct _tOption {
@@ -39,10 +40,11 @@ typedef struct _tOption {
 			UBYTE ubDefault;
 			UBYTE isCyclic;
 			const char **pEnumLabels;
-		} sOptUb;
+			tOptionValChangeCb cbOnValChange;
+		} sOptUb; ///< Params for uint8-based option
 		struct {
 			tOptionSelectCb cbSelect;
-		} sOptCb;
+		} sOptCb; ///< Params for callback-based option
 	};
 } tOption;
 

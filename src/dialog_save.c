@@ -60,11 +60,10 @@ void dialogSaveYesNoCreate(const char **pMsgLines, UBYTE ubLineCount, UBYTE isCa
 	UWORD uwBtnY = uwDlgHeight - uwBtnHeight - 10;
 
 	for(UBYTE i = 0; i < ubLineCount; ++i) {
-		fontFillTextBitMap(g_pFontSmall, g_pTextBitmap, pMsgLines[i]);
-		fontDrawTextBitMap(
-			s_pBmDialog, g_pTextBitmap, uwDlgWidth / 2,
+		fontDrawStr(
+			g_pFontSmall, s_pBmDialog, uwDlgWidth / 2,
 			uwBtnY / 2 + g_pFontSmall->uwHeight * (i - (ubLineCount / 2)),
-			pConfig->ubColorText, FONT_LAZY | FONT_CENTER
+			pMsgLines[i], pConfig->ubColorText, FONT_LAZY | FONT_CENTER, g_pTextBitmap
 		);
 	}
 
@@ -135,12 +134,11 @@ void dialogSaveSelectCreate(void) {
 		s_pBmDialog, g_pFontSmall, g_pTextBitmap, ubPadX + 50, ubPadY + 40, 100,
 		sizeof(s_szFileName), "File name", s_szFileName
 	);
-	fontFillTextBitMap(g_pFontSmall, g_pTextBitmap, FILE_PATH_EXTENSION);
-	fontDrawTextBitMap(
-		s_pBmDialog, g_pTextBitmap,
+	fontDrawStr(
+		g_pFontSmall, s_pBmDialog,
 		s_pInputs[SAVE_INPUT_FILENAME]->sPos.uwX + s_pInputs[SAVE_INPUT_FILENAME]->uwWidth + 2,
 		s_pInputs[SAVE_INPUT_FILENAME]->sPos.uwY + inputGetHeight(s_pInputs[SAVE_INPUT_FILENAME]) / 2,
-		pConfig->ubColorText, FONT_COOKIE | FONT_VCENTER
+		FILE_PATH_EXTENSION, pConfig->ubColorText, FONT_COOKIE | FONT_VCENTER, g_pTextBitmap
 	);
 
 	s_eCurrentInput = 0;
@@ -287,13 +285,11 @@ static void dialogSaveSavingCreate(void) {
 	dialogClear();
 	const tGuiConfig *pConfig = guiGetConfig();
 
-	fontFillTextBitMap(
-		g_pFontSmall, g_pTextBitmap, "Saving map. Don't turn off the power..."
-	);
-	fontDrawTextBitMap(
-		s_pBmDialog, g_pTextBitmap,
+	fontDrawStr(
+		g_pFontSmall, s_pBmDialog,
 		(bitmapGetByteWidth(s_pBmDialog) * 8) / 2, s_pBmDialog->Rows / 2,
-		pConfig->ubColorText, FONT_LAZY | FONT_CENTER
+		"Saving map. Don't turn off the power...", pConfig->ubColorText,
+		FONT_LAZY | FONT_CENTER, g_pTextBitmap
 	);
 }
 

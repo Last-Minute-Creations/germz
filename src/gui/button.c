@@ -102,11 +102,10 @@ static void buttonDraw(tButton *pButton) {
 		ubFontColor = pConfig->ubColorText;
 		ubFontFlags |= FONT_SHADOW;
 	}
-	fontFillTextBitMap(s_pFont, s_pLabelTextBfr, pButton->szText);
-	fontDrawTextBitMap(
-		s_pBfr, s_pLabelTextBfr,
+	fontDrawStr(
+		s_pFont, s_pBfr,
 		pRect->uwX + pRect->uwWidth/2, pRect->uwY + pRect->uwHeight/2,
-		ubFontColor, ubFontFlags
+		pButton->szText, ubFontColor, ubFontFlags, s_pLabelTextBfr
 	);
 }
 
