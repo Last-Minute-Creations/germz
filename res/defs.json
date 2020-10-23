@@ -1,0 +1,14 @@
+{
+	"nodes": {
+		"basic": {
+			"ubChargeRate": 10,
+			"ubChargeRateNeutral": 30,
+			"wCapacity": 100
+		},
+		"special": {
+			"ubChargeRate": 5,
+			"ubChargeRateNeutral": 20,
+			"wCapacity": 125
+		}
+	}
+}
