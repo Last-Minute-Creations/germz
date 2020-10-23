@@ -440,8 +440,8 @@ static tOption s_pOptionsBattle[BATTLE_MENU_OPTION_MAX];
 static UBYTE s_ubBattleOptionCount;
 static tListCtl *s_pMapList;
 static const char *s_pLabelsMode[] = {"SOLO", "TEAMS"};
-static const char *s_pLabelsTeam1[] = {"P1 P2", "P1 P3", "P1 P4"};
-static const char *s_pLabelsTeam2[] = {"P3 P4", "P2 P4", "P2 P3"};
+static const char *s_pLabelsTeam1[] = {"", "", ""}; // P1+P2, P1+P3, P1+P4
+static const char *s_pLabelsTeam2[] = {"", "", ""}; // P3+P4, P2+P4, P2+P3
 static UBYTE s_ubBattleMode;
 static UBYTE s_ubTeamCfg;
 static UBYTE s_ubOptionIdxTeam1, s_ubOptionIdxTeam2;
@@ -475,6 +475,39 @@ static void onTeamChange(void) {
 	// Team changed - mark both for redraw since it's the same var
 	s_pOptionsBattle[s_ubOptionIdxTeam1].eDirty = MENU_LIST_DIRTY_VAL_CHANGE;
 	s_pOptionsBattle[s_ubOptionIdxTeam2].eDirty = MENU_LIST_DIRTY_VAL_CHANGE;
+}
+
+static void onTeamDraw(UBYTE ubIdx) {
+	static const UBYTE pComboA[][2] = {{0, 1}, {0, 2}, {0, 3}}; // P1+P2, P1+P3, P1+P4
+	static const UBYTE pComboB[][2] = {{2, 3}, {1, 3}, {1, 2}}; // P3+P4, P2+P4, P2+P3
+	static const char *pPlayerNames[] = {"P1", "P2", "P3", "P4"};
+
+	UBYTE ubActiveIdx = menuListGetActive();
+	const UBYTE (*pCombo)[2] = (ubIdx == s_ubOptionIdxTeam1 ? pComboA : pComboB);
+
+	UWORD uwX = 80 + 80;
+	UWORD uwY = 133 + ubIdx * (g_pFontBig->uwHeight + 1); // HACK HACK HACK
+	UBYTE ubPlayerX = pCombo[s_ubTeamCfg][0];
+	UBYTE ubPlayerY = pCombo[s_ubTeamCfg][1];
+	UBYTE ubColor = (
+		ubActiveIdx == ubIdx ?
+		s_pMenuStylePlayers[ubPlayerX].ubColorActive :
+		s_pMenuStylePlayers[ubPlayerX].ubColorInactive
+	);
+	fontDrawStr(
+		g_pFontBig, s_pBfr->pBack, uwX, uwY, pPlayerNames[ubPlayerX],
+		ubColor, FONT_COOKIE, g_pTextBitmap
+	);
+
+	ubColor = (
+		ubActiveIdx == ubIdx ?
+		s_pMenuStylePlayers[ubPlayerY].ubColorActive :
+		s_pMenuStylePlayers[ubPlayerY].ubColorInactive
+	);
+	fontDrawStr(
+		g_pFontBig, s_pBfr->pBack, uwX + 30, uwY, pPlayerNames[ubPlayerY],
+		ubColor, FONT_COOKIE, g_pTextBitmap
+	);
 }
 
 static void battleRegenMenuList(UBYTE ubPlayerMask) {
@@ -512,7 +545,8 @@ static void battleRegenMenuList(UBYTE ubPlayerMask) {
 	s_pOptionsBattle[s_ubBattleOptionCount] = (tOption){
 		.eOptionType = MENU_LIST_OPTION_TYPE_UINT8, .isHidden = 1, .sOptUb = {
 			.isCyclic = 1, .pEnumLabels = s_pLabelsTeam1, .pVar = &s_ubTeamCfg,
-			.ubDefault = 0, .ubMax = 2, .cbOnValChange = onTeamChange
+			.ubDefault = 0, .ubMax = 2, .cbOnValChange = onTeamChange,
+			.cbOnValDraw = onTeamDraw
 		}
 	};
 	if(isTeamsAllowed && s_ubBattleMode) {
@@ -525,7 +559,8 @@ static void battleRegenMenuList(UBYTE ubPlayerMask) {
 	s_pOptionsBattle[s_ubBattleOptionCount] = (tOption){
 		.eOptionType = MENU_LIST_OPTION_TYPE_UINT8, .isHidden = 1, .sOptUb = {
 			.isCyclic = 1, .pEnumLabels = s_pLabelsTeam2, .pVar = &s_ubTeamCfg,
-			.ubDefault = 0, .ubMax = 2, .cbOnValChange = onTeamChange
+			.ubDefault = 0, .ubMax = 2, .cbOnValChange = onTeamChange,
+			.cbOnValDraw = onTeamDraw
 		}
 	};
 	if(isTeamsAllowed && s_ubBattleMode) {

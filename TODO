@@ -41,14 +41,18 @@ Done:
 	✔ After killing player his hud may still be visible (blinking) @done(20-09-13 17:34)
 	✔ Improve AI performance @done(20-09-13 19:11)
 	✔ Reduce mem usage by AI @done(20-09-13 19:11)
+	✔ Add json for special blob defs @done(20-10-23 21:26)
 
 Now:
 	☐ Menu revamp, battle mode
 		✔ Campaign/battle on main screen @done(20-10-21 12:53)
 		✔ Battle: selecting teams @done(20-10-21 12:53)
 		✔ Battle: selecting steer @done(20-10-23 16:55)
-		☐ Battle: teams should be displayed in colors (draw on callback onChange)
+		✔ Battle: teams should be displayed in colors (draw on callback onDraw) @done(20-10-23 22:05)
 		☐ Steer: going back should remember previously selected map
+		☐ Text with scanlines
+	☐ win/lose screen
+	☐ pause screen (escape in game, exit yes/no)
 	☐ Campaign:
 		☐ Start with c01.json map
 		☐ Start next map after finishing map
@@ -64,23 +68,22 @@ Now:
 		✔ Ask for saving unsaved progress on load @done(20-09-15 21:47)
 		☐ animation while loading preview
 		☐ info/anim while loading map in editor
+	☐ display in visible menu part how keyboard layouts have action button bound (how to play)
+	☐ Import/export to/from editor by typing in code (AmigaLive)
+
+Bugs:
 	☐ Sometimes after starting game again pleps are blinking
 	☐ fix ptplayer on higher cpu freq
-	☐ win/lose screen
-	☐ pause screen (escape in game, exit yes/no)
-	☐ display in visible menu part how keyboard layouts have action button bound (how to play)
 	☐ fix plep anim rotations
-	☐ Import/export to/from editor by typing in code
 	☐ Crash when skipping LMC logo and sfx is still playing
 	☐ Something gets bugged when staying in credits for too long
-	☐ Add json for special blob defs
+	☐ fix 060 (ACE)
+	☐ fix ks1.3 (ACE)
+	☐ freeze when going from menu to game (ACE)
 
 Later:
 	☐ handle map create fail in editor
 	☐ EKG
 	☐ special blobs
 	☐ ensure sprites are disabled
-	☐ fix 060 (ACE)
-	☐ fix ks1.3 (ACE)
-	☐ freeze when going from menu to game (ACE)
 	☐ put final gfx!

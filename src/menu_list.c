@@ -99,6 +99,10 @@ void menuListDrawPos(UBYTE ubPos) {
 			(ubPos == s_ubActiveOption) ? pStyle->ubColorActive : pStyle->ubColorInactive,
 			FONT_COOKIE
 		);
+
+		if(pOption->sOptUb.cbOnValDraw) {
+			pOption->sOptUb.cbOnValDraw(ubPos);
+		}
 	}
 }
 
