@@ -27,6 +27,7 @@ typedef struct _tListCtl {
 	UWORD uwEntrySel;
 	char **pEntries;
 	tFont *pFont;
+	const tBitMap *pBg;
 	tBitMap *pBfr;
 	tCbListCtlOnSelect cbOnSelect;
 	tTextBitMap *pEntryTextBfr;
@@ -34,9 +35,9 @@ typedef struct _tListCtl {
 } tListCtl;
 
 tListCtl *listCtlCreate(
-	tBitMap *pBfr, UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwHeight,
-	tFont *pFont, UWORD uwEntryMaxCnt, tTextBitMap *pTextBfr,
-	tCbListCtlOnSelect cbOnSelect
+	const tBitMap *pBg, tBitMap *pBfr, UWORD uwX, UWORD uwY,
+	UWORD uwWidth, UWORD uwHeight, tFont *pFont, UWORD uwEntryMaxCnt,
+	tTextBitMap *pTextBfr, tCbListCtlOnSelect cbOnSelect
 );
 
 void listCtlDestroy(tListCtl *pCtl);
@@ -46,6 +47,8 @@ UWORD listCtlAddEntry(tListCtl *pCtl, const char *szTxt);
 void listCtlRemoveEntry(tListCtl *pCtl, UWORD uwIdx);
 
 void listCtlDraw(tListCtl *pCtl);
+
+void listCtlUndraw(tListCtl *pCtl);
 
 UBYTE listCtlProcessClick(tListCtl *pCtl, UWORD uwMouseX, UWORD uwMouseY);
 

@@ -17,6 +17,22 @@ static int onSortAsc(const void *pA, const void *pB) {
 	return SGN(strcmp(szA, szB));
 }
 
+static void clearRect(
+	tListCtl *pCtl, UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwHeight
+) {
+	if(pCtl->pBg) {
+		// Fill background with bg
+		blitCopy(
+			pCtl->pBg, uwX, uwY, pCtl->pBfr, uwX, uwY,
+			uwWidth, uwHeight, MINTERM_COOKIE
+		);
+	}
+	else {
+		// Clear background
+		blitRect(pCtl->pBfr, uwX, uwY, uwWidth, uwHeight, 0);
+	}
+}
+
 static void listCtlDrawEntry(tListCtl *pCtl, UWORD uwIdx) {
 	UWORD uwFirstVisible = 0;
 	UWORD uwLastVisible = MIN(
@@ -25,11 +41,19 @@ static void listCtlDrawEntry(tListCtl *pCtl, UWORD uwIdx) {
 	);
 	if(uwIdx >= uwFirstVisible && uwIdx <= uwLastVisible) {
 		const tGuiConfig *pCfg = guiGetConfig();
-		blitRect(
-			pCtl->pBfr, pCtl->sRect.uwX+2, pCtl->sRect.uwY+2 + uwIdx* pCtl->ubEntryHeight,
-			pCtl->sRect.uwWidth - LISTCTL_BTN_WIDTH - 2 - 2 - 1, pCtl->ubEntryHeight,
-			(uwIdx == pCtl->uwEntrySel ? pCfg->ubColorFill : 0)
-		);
+		if(uwIdx == pCtl->uwEntrySel) {
+			blitRect(
+				pCtl->pBfr, pCtl->sRect.uwX+2, pCtl->sRect.uwY+2 + uwIdx* pCtl->ubEntryHeight,
+				pCtl->sRect.uwWidth - LISTCTL_BTN_WIDTH - 2 - 2 - 1, pCtl->ubEntryHeight,
+				pCfg->ubColorFill
+			);
+		}
+		else {
+			clearRect(
+				pCtl, pCtl->sRect.uwX+2, pCtl->sRect.uwY+2 + uwIdx* pCtl->ubEntryHeight,
+				pCtl->sRect.uwWidth - LISTCTL_BTN_WIDTH - 2 - 2 - 1, pCtl->ubEntryHeight
+			);
+		}
 		fontDrawStr(
 			pCtl->pFont, pCtl->pBfr,
 			pCtl->sRect.uwX+2+1, pCtl->sRect.uwY+2+1 + uwIdx*pCtl->ubEntryHeight,
@@ -64,10 +88,9 @@ static void onPressDown(void *pData) {
 }
 
 tListCtl *listCtlCreate(
-	tBitMap *pBfr,
-	UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwHeight,
-	tFont *pFont, UWORD uwEntryMaxCnt, tTextBitMap *pTextBfr,
-	tCbListCtlOnSelect cbOnSelect
+	const tBitMap *pBg, tBitMap *pBfr, UWORD uwX, UWORD uwY,
+	UWORD uwWidth, UWORD uwHeight, tFont *pFont, UWORD uwEntryMaxCnt,
+	tTextBitMap *pTextBfr, tCbListCtlOnSelect cbOnSelect
 ) {
 	logBlockBegin(
 		"listCtlCreate(uwX: %hu, uwY: %hu, uwWidth: %hu, uwHeight: %hu, pFont: %p)",
@@ -84,6 +107,7 @@ tListCtl *listCtlCreate(
 	pCtl->sRect.uwHeight = uwHeight;
 	pCtl->ubDrawState = LISTCTL_DRAWSTATE_NEEDS_REDRAW;
 	pCtl->pFont = pFont;
+	pCtl->pBg = pBg;
 	pCtl->pBfr = pBfr;
 	pCtl->uwEntrySel = 0;
 	pCtl->cbOnSelect = cbOnSelect;
@@ -138,20 +162,25 @@ void listCtlRemoveEntry(tListCtl *pCtl, UWORD uwIdx) {
 		memFree(pCtl->pEntries[uwIdx], strlen(pCtl->pEntries[uwIdx])+1);
 }
 
-void listCtlDraw(tListCtl *pCtl) {
-	// Fill background with bg color
-	blitRect(
-		pCtl->pBfr, pCtl->sRect.uwX, pCtl->sRect.uwY,
-		pCtl->sRect.uwWidth, pCtl->sRect.uwHeight, 0
-	);
-
-	guiDraw3dBorder(
-		pCtl->pBfr, pCtl->sRect.uwX, pCtl->sRect.uwY,
+void listCtlUndraw(tListCtl *pCtl) {
+	clearRect(
+		pCtl, pCtl->sRect.uwX, pCtl->sRect.uwY,
 		pCtl->sRect.uwWidth, pCtl->sRect.uwHeight
 	);
+}
+
+void listCtlDraw(tListCtl *pCtl) {
+	listCtlUndraw(pCtl);
+
+	const tGuiConfig *pCfg = guiGetConfig();
+	if(pCfg->eFill == FILL_STYLE_3D) {
+		guiDraw3dBorder(
+			pCtl->pBfr, pCtl->sRect.uwX, pCtl->sRect.uwY,
+			pCtl->sRect.uwWidth, pCtl->sRect.uwHeight
+		);
+	}
 
 	// Draw scroll bar
-	const tGuiConfig *pCfg = guiGetConfig();
 	blitRect(
 		pCtl->pBfr,
 		pCtl->sRect.uwX + pCtl->sRect.uwWidth - LISTCTL_BTN_WIDTH - 2,

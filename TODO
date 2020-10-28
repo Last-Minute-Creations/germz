@@ -52,6 +52,7 @@ Now:
 		✔ Text with scanlines @done(20-10-28 13:50)
 		✔ Disable fades between battle/steer, same screen size @done(20-10-28 17:44)
 		✔ Steer: also map preview? @done(20-10-28 17:44)
+		✔ Battle: display map list ctrl in laced manner @done(20-10-28 20:13)
 		☐ Steer: going back should remember previously selected map
 		☐ fix map load/save dialog in editor
 	☐ win/lose screen

@@ -11,7 +11,8 @@
 #define MAP_FILENAME_MAX 100
 
 tListCtl *mapListCreateCtl(
-	tBitMap *s_pBg, UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwHeight
+	const tBitMap *pBmBg, tBitMap *pBmBfr, UWORD uwX, UWORD uwY,
+	UWORD uwWidth, UWORD uwHeight
 );
 
 UBYTE updateMapInfo(const tListCtl *pCtrl, tMapData *pMapData);

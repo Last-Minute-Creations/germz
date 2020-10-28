@@ -70,9 +70,13 @@ void mapListDrawPreview(
 	}
 }
 
-tListCtl *mapListCreateCtl(tBitMap *pBg, UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwHeight) {
+tListCtl *mapListCreateCtl(
+	const tBitMap *pBmBg, tBitMap *pBmBfr, UWORD uwX, UWORD uwY,
+	UWORD uwWidth, UWORD uwHeight
+) {
 	tListCtl *pCtrl = listCtlCreate(
-		pBg, uwX, uwY, uwWidth, uwHeight, g_pFontSmall, 50, g_pTextBitmap, 0
+		pBmBg, pBmBfr, uwX, uwY, uwWidth, uwHeight, g_pFontSmall, 50,
+		g_pTextBitmap, 0
 	);
 
 	tDir *pDir = dirOpen("data/maps");

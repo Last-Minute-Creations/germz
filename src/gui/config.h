@@ -11,11 +11,18 @@ extern "C" {
 
 #include <ace/types.h>
 
+typedef enum _tFillStyle {
+	FILL_STYLE_NONE,
+	FILL_STYLE_FLAT,
+	FILL_STYLE_3D
+} tFillStyle;
+
 typedef struct _tGuiConfig {
 	UBYTE ubColorLight;
 	UBYTE ubColorDark;
 	UBYTE ubColorFill;
 	UBYTE ubColorText;
+	tFillStyle eFill;
 	// TODO move font here instead of params
 } tGuiConfig;
 

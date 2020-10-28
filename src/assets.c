@@ -46,10 +46,11 @@ void assetsGlobalCreate(void) {
 	g_pTextBitmap = fontCreateTextBitMap(320, g_pFontBig->uwHeight);
 
 	tGuiConfig *pConfig = guiGetConfig();
-	pConfig->ubColorLight = 18;
-	pConfig->ubColorDark = 21;
-	pConfig->ubColorFill = 20;
-	pConfig->ubColorText = 19;
+	pConfig->ubColorLight = 20 >> 1;
+	pConfig->ubColorDark = 20 >> 1;
+	pConfig->ubColorFill = 20 >> 1;
+	pConfig->ubColorText = 18 >> 1;
+	pConfig->eFill = FILL_STYLE_NONE;
 }
 
 void assetsGlobalDestroy(void) {

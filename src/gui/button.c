@@ -86,21 +86,27 @@ static void buttonDraw(tButton *pButton) {
 	const tGuiConfig *pConfig = guiGetConfig();
 
 	// Fill
-	blitRect(
-		s_pBfr, pRect->uwX, pRect->uwY,
-		pRect->uwWidth, pRect->uwHeight, pConfig->ubColorFill
-	);
+	if(pConfig->eFill != FILL_STYLE_NONE) {
+		blitRect(
+			s_pBfr, pRect->uwX, pRect->uwY,
+			pRect->uwWidth, pRect->uwHeight, pConfig->ubColorFill
+		);
+	}
 
-	guiDraw3dBorder(
-		s_pBfr, pRect->uwX, pRect->uwY, pRect->uwWidth, pRect->uwHeight
-	);
+	if(pConfig->eFill == FILL_STYLE_3D) {
+		guiDraw3dBorder(
+			s_pBfr, pRect->uwX, pRect->uwY, pRect->uwWidth, pRect->uwHeight
+		);
+	}
 
 	// Text
 	UBYTE ubFontColor = pConfig->ubColorDark;
 	UBYTE ubFontFlags = FONT_CENTER | FONT_COOKIE;
 	if(pButton == s_pSelected) {
 		ubFontColor = pConfig->ubColorText;
-		ubFontFlags |= FONT_SHADOW;
+		if(pConfig->eFill == FILL_STYLE_3D) {
+			ubFontFlags |= FONT_SHADOW;
+		}
 	}
 	fontDrawStr(
 		s_pFont, s_pBfr,

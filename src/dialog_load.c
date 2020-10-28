@@ -34,8 +34,8 @@ static void dialogLoadGsCreate(void) {
 	UWORD uwWidth = uwDlgWidth / 2;
 	UWORD uwHeight = uwDlgHeight - 2 * ubPad;
 
-	buttonListCreate(5, s_pBmDialog, g_pFontSmall, g_pTextBitmap);
-	s_pCtrl = mapListCreateCtl(s_pBmDialog, ubPad, ubPad, uwWidth, uwHeight);
+	// buttonListCreate(5, &s_sScanLine, g_pFontSmall, g_pTextBitmap);
+	// s_pCtrl = mapListCreateCtl(&s_sScanline, ubPad, ubPad, uwWidth, uwHeight);
 	if(!s_pCtrl) {
 		statePop(g_pStateMachineGame);
 	}

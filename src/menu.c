@@ -493,7 +493,7 @@ static void onMap(void) {
 	// Undraw menu list
 	blitRect(
 		&s_sBmFrontScanline, BATTLE_MENU_X, BATTLE_MENU_Y,
-		BATTLE_MENU_WIDTH, BATTLE_MENU_HEIGHT, 2
+		BATTLE_MENU_WIDTH, BATTLE_MENU_HEIGHT, 2 >> 1
 	);
 
 	// Draw map list ctrl instead
@@ -654,9 +654,9 @@ static void battleGsCreate(void) {
 	blitCopy(s_pBgCurr, 0, 0, s_pBfr->pBack, 0, 0, 320, 128, MINTERM_COPY);
 	blitCopy(s_pBgCurr, 0, 128, s_pBfr->pBack, 0, 128, 320, 128, MINTERM_COPY);
 
-	buttonListCreate(5, s_pBfr->pBack, g_pFontSmall, g_pTextBitmap);
+	buttonListCreate(5, &s_sBmFrontScanline, g_pFontSmall, g_pTextBitmap);
 	s_pMapList = mapListCreateCtl(
-		s_pBfr->pBack, BATTLE_MENU_X, BATTLE_MENU_Y,
+		&s_sBgCurrScanline, &s_sBmFrontScanline, BATTLE_MENU_X, BATTLE_MENU_Y,
 		BATTLE_MENU_WIDTH, BATTLE_MENU_HEIGHT
 	);
 
@@ -707,7 +707,7 @@ static void battleGsLoopMapSelect(void) {
 		// Undraw map select ui
 		blitRect(
 			&s_sBmFrontScanline, BATTLE_MENU_X, BATTLE_MENU_Y,
-			BATTLE_MENU_WIDTH, BATTLE_MENU_HEIGHT, 2
+			BATTLE_MENU_WIDTH, BATTLE_MENU_HEIGHT, 2 >> 1
 		);
 
 		// Draw menu list instead
