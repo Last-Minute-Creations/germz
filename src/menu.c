@@ -22,9 +22,14 @@
 #include "menu_list.h"
 #include "gui/button.h"
 
-#define MENU_COLOR_ACTIVE 18
-#define MENU_COLOR_INACTIVE 19
-#define MENU_COLOR_SHADOW 21
+#define COLOR_P1_BRIGHT 10
+#define COLOR_P2_BRIGHT 14
+#define COLOR_P3_BRIGHT 18
+#define COLOR_P4_BRIGHT 22
+
+#define MENU_COLOR_ACTIVE (COLOR_P3_BRIGHT)
+#define MENU_COLOR_INACTIVE (COLOR_P3_BRIGHT + 1)
+#define MENU_COLOR_SHADOW (COLOR_P3_BRIGHT + 3)
 #define MENU_COLOR_ERROR 11
 
 typedef enum _tPlayerSteer {
@@ -44,18 +49,33 @@ static UBYTE s_pPlayerSteers[4] = {
 	PLAYER_STEER_KEY_WSAD, PLAYER_STEER_KEY_ARROWS
 };
 
-static const tMenuListStyle s_sMenuStyleDefault = {
+static const tMenuListStyle s_sMenuStyleMain = {
 	.ubColorActive = MENU_COLOR_ACTIVE,
 	.ubColorInactive = MENU_COLOR_INACTIVE,
 	.ubColorShadow = MENU_COLOR_SHADOW
 };
 
+
 static const tMenuListStyle s_pMenuStylePlayers[4] = {
-	{.ubColorActive = 10, .ubColorInactive = 11, .ubColorShadow = 13},
-	{.ubColorActive = 14, .ubColorInactive = 15, .ubColorShadow = 17},
-	{.ubColorActive = 18, .ubColorInactive = 19, .ubColorShadow = 21},
-	{.ubColorActive = 22, .ubColorInactive = 23, .ubColorShadow = 25}
+	{
+		.ubColorActive = COLOR_P1_BRIGHT >> 1, .ubColorShadow = 0xFF,
+		.ubColorInactive = (COLOR_P1_BRIGHT + 2) >> 1
+	},
+	{
+		.ubColorActive = COLOR_P2_BRIGHT >> 1, .ubColorShadow = 0xFF,
+		.ubColorInactive = (COLOR_P2_BRIGHT + 2) >> 1
+	},
+	{
+		.ubColorActive = COLOR_P3_BRIGHT >> 1, .ubColorShadow = 0xFF,
+		.ubColorInactive = (COLOR_P3_BRIGHT + 2) >> 1
+	},
+	{
+		.ubColorActive = COLOR_P4_BRIGHT >> 1, .ubColorShadow = 0xFF,
+		.ubColorInactive = (COLOR_P4_BRIGHT + 2) >> 1
+	},
 };
+
+static const tMenuListStyle *s_pMenuStyleScanline = &s_pMenuStylePlayers[2];
 
 static const char *s_pMenuEnumSteer[] = {
 	"JOY 1", "JOY 2", "JOY 3", "JOY 4", "WSAD", "ARROWS", "CPU", "IDLE", "OFF"
@@ -73,6 +93,7 @@ static tView *s_pView;
 static tVPort *s_pVp;
 static tSimpleBufferManager *s_pBfr;
 static tBitMap *s_pBg, *s_pBgSub, *s_pFrameDisplay, *s_pBgCurr;
+static tBitMap s_sBmFrontScanline, s_sBgCurrScanline;
 static tFade *s_pFadeMenu;
 static tCbFadeOnDone s_cbOnEscape;
 
@@ -226,6 +247,21 @@ static void menuGsCreate(void) {
 	s_pBgCurr = bitmapCreate(320, 256, 5, BMF_INTERLEAVED);
 	s_pFrameDisplay = bitmapCreateFromFile("data/display.bm", 0);
 
+	s_sBmFrontScanline.BytesPerRow = s_pBfr->pBack->BytesPerRow;
+	s_sBmFrontScanline.Rows = s_pBfr->pBack->Rows;
+	s_sBmFrontScanline.Depth = 4;
+	s_sBmFrontScanline.Planes[0] = s_pBfr->pBack->Planes[1];
+	s_sBmFrontScanline.Planes[1] = s_pBfr->pBack->Planes[2];
+	s_sBmFrontScanline.Planes[2] = s_pBfr->pBack->Planes[3];
+	s_sBmFrontScanline.Planes[3] = s_pBfr->pBack->Planes[4];
+
+	s_sBgCurrScanline.BytesPerRow = s_pBgCurr->BytesPerRow;
+	s_sBgCurrScanline.Rows = s_pBgCurr->Rows;
+	s_sBgCurrScanline.Depth = 4;
+	s_sBgCurrScanline.Planes[0] = s_pBgCurr->Planes[1];
+	s_sBgCurrScanline.Planes[1] = s_pBgCurr->Planes[2];
+	s_sBgCurrScanline.Planes[2] = s_pBgCurr->Planes[3];
+	s_sBgCurrScanline.Planes[3] = s_pBgCurr->Planes[4];
 
 	UWORD pPalette[32];
 	paletteLoad("data/germz.plt", pPalette, 32);
@@ -422,8 +458,8 @@ static void menuSteerGsCreate(void) {
 
 	menuListInit(
 		s_pOptionsSteer, s_pMenuCaptionsSteer, s_ubSteerOptionCount,
-		g_pFontBig, g_pTextBitmap, s_pBgCurr, s_pBfr->pBack, 64, 64,
-		&s_sMenuStyleDefault
+		g_pFontBig, g_pTextBitmap, &s_sBgCurrScanline, &s_sBmFrontScanline, 64, 64,
+		s_pMenuStyleScanline
 	);
 
 	fadeSet(s_pFadeMenu, FADE_STATE_IN, 50, 0);
@@ -478,6 +514,7 @@ static void onTeamChange(void) {
 }
 
 static void onTeamDraw(UBYTE ubIdx) {
+	// Team combos, consisting of 2 players (X and Y)
 	static const UBYTE pComboA[][2] = {{0, 1}, {0, 2}, {0, 3}}; // P1+P2, P1+P3, P1+P4
 	static const UBYTE pComboB[][2] = {{2, 3}, {1, 3}, {1, 2}}; // P3+P4, P2+P4, P2+P3
 	static const char *pPlayerNames[] = {"P1", "P2", "P3", "P4"};
@@ -486,7 +523,7 @@ static void onTeamDraw(UBYTE ubIdx) {
 	const UBYTE (*pCombo)[2] = (ubIdx == s_ubOptionIdxTeam1 ? pComboA : pComboB);
 
 	UWORD uwX = 80 + 80;
-	UWORD uwY = 133 + ubIdx * (g_pFontBig->uwHeight + 1); // HACK HACK HACK
+	UWORD uwY = 134 + ubIdx * (g_pFontBig->uwHeight + 1); // HACK HACK HACK
 	UBYTE ubPlayerX = pCombo[s_ubTeamCfg][0];
 	UBYTE ubPlayerY = pCombo[s_ubTeamCfg][1];
 	UBYTE ubColor = (
@@ -495,7 +532,7 @@ static void onTeamDraw(UBYTE ubIdx) {
 		s_pMenuStylePlayers[ubPlayerX].ubColorInactive
 	);
 	fontDrawStr(
-		g_pFontBig, s_pBfr->pBack, uwX, uwY, pPlayerNames[ubPlayerX],
+		g_pFontBig, &s_sBmFrontScanline, uwX, uwY, pPlayerNames[ubPlayerX],
 		ubColor, FONT_COOKIE, g_pTextBitmap
 	);
 
@@ -505,7 +542,7 @@ static void onTeamDraw(UBYTE ubIdx) {
 		s_pMenuStylePlayers[ubPlayerY].ubColorInactive
 	);
 	fontDrawStr(
-		g_pFontBig, s_pBfr->pBack, uwX + 30, uwY, pPlayerNames[ubPlayerY],
+		g_pFontBig, &s_sBmFrontScanline, uwX + 30, uwY, pPlayerNames[ubPlayerY],
 		ubColor, FONT_COOKIE, g_pTextBitmap
 	);
 }
@@ -586,8 +623,8 @@ static void menuUpdateMapInfo(UBYTE isUndraw, UBYTE isForce) {
 		UBYTE ubActive = menuListGetActive();
 		menuListInit(
 			s_pOptionsBattle, s_pMenuBattleCaptions, s_ubBattleOptionCount,
-			g_pFontBig, g_pTextBitmap, s_pBgCurr, s_pBfr->pBack, 80, 133,
-			&s_sMenuStyleDefault
+			g_pFontBig, g_pTextBitmap, &s_sBgCurrScanline, &s_sBmFrontScanline, 80, 134,
+			s_pMenuStyleScanline
 		);
 		menuListSetActive(ubActive);
 		menuListDraw();
@@ -735,7 +772,7 @@ static void mainGsCreate(void) {
 	menuListInit(
 		s_pOptions, s_pMenuCaptions, MENU_POS_COUNT,
 		g_pFontBig, g_pTextBitmap, s_pBg, s_pBfr->pBack, 120, 120,
-		&s_sMenuStyleDefault
+		&s_sMenuStyleMain
 	);
 
 	char szVersion[15];
