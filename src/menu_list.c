@@ -91,13 +91,22 @@ void menuListDrawPos(UBYTE ubPos) {
 
 		// Draw pos + non-zero shadow
 		fontFillTextBitMap(s_pFont, s_pTextBitmap, szText);
+		UBYTE ubColor;
+		if(ubPos == s_ubActiveOption) {
+			ubColor = pStyle->ubColorActive;
+		}
+		else {
+			ubColor = pStyle->ubColorInactive;
+		}
+		UBYTE ubColorShadow = pStyle->ubColorShadow;
+
+		if(ubColorShadow != 0xFF) {
+			fontDrawTextBitMap(
+				s_pBmBuffer, s_pTextBitmap, s_uwX, uwPosY + 1, ubColorShadow, FONT_COOKIE
+			);
+		}
 		fontDrawTextBitMap(
-			s_pBmBuffer, s_pTextBitmap, s_uwX, uwPosY + 1,
-			pStyle->ubColorShadow, FONT_COOKIE
-		);
-		fontDrawTextBitMap(s_pBmBuffer, s_pTextBitmap, s_uwX, uwPosY,
-			(ubPos == s_ubActiveOption) ? pStyle->ubColorActive : pStyle->ubColorInactive,
-			FONT_COOKIE
+			s_pBmBuffer, s_pTextBitmap, s_uwX, uwPosY, ubColor, FONT_COOKIE
 		);
 
 		if(pOption->sOptUb.cbOnValDraw) {

@@ -21,7 +21,7 @@ typedef enum _tMenuListDirty {
 typedef struct _tMenuListStyle {
 	UBYTE ubColorActive;
 	UBYTE ubColorInactive;
-	UBYTE ubColorShadow;
+	UBYTE ubColorShadow; ///< Set to 0xFF to skip drawing.
 } tMenuListStyle;
 
 typedef void (*tOptionSelectCb)(void);
