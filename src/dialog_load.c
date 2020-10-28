@@ -40,7 +40,7 @@ static void dialogLoadGsCreate(void) {
 		statePop(g_pStateMachineGame);
 	}
 
-	updateMapInfo(s_pCtrl, 0, s_pBmDialog, s_pPreview, 4);
+	// updateMapInfo(s_pCtrl, 0, s_pBmDialog, s_pPreview, 4);
 	s_ullChangeTimer = timerGet();
 
 	const UWORD uwBtnWidth = 50;
@@ -64,24 +64,24 @@ static void dialogLoadGsLoop(void) {
 	tDirection eDir = gameEditorProcessSteer();
 	if(eDir == DIRECTION_UP) {
 		listCtlSelectPrev(s_pCtrl);
-		clearMapInfo(s_pCtrl, 0, s_pBmDialog);
+		// clearMapInfo(s_pCtrl, 0, s_pBmDialog);
 		s_ullChangeTimer = timerGet();
 	}
 	else if(eDir == DIRECTION_DOWN) {
 		listCtlSelectNext(s_pCtrl);
-		clearMapInfo(s_pCtrl, 0, s_pBmDialog);
+		// clearMapInfo(s_pCtrl, 0, s_pBmDialog);
 		s_ullChangeTimer = timerGet();
 	}
 	else if(eDir == DIRECTION_FIRE || keyUse(KEY_RETURN) || keyUse(KEY_NUMENTER)) {
 		// No processing via the OK button callback - code is shorter that way
-		updateMapInfo(s_pCtrl, 0, s_pBmDialog, s_pPreview, 4);
+		// updateMapInfo(s_pCtrl, 0, s_pBmDialog, s_pPreview, 4);
 		memcpy(&g_sMapData, s_pPreview, sizeof(g_sMapData));
 		dialogSaveSetSaveName(listCtlGetSelection(s_pCtrl));
 		isMapSelected = 1;
 	}
 
 	if(timerGetDelta(s_ullChangeTimer, timerGet()) >= 25) {
-		updateMapInfo(s_pCtrl, 0, s_pBmDialog, s_pPreview, 4);
+		// updateMapInfo(s_pCtrl, 0, s_pBmDialog, s_pPreview, 4);
 		s_ullChangeTimer = timerGet();
 	}
 

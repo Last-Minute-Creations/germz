@@ -49,8 +49,11 @@ Now:
 		✔ Battle: selecting teams @done(20-10-21 12:53)
 		✔ Battle: selecting steer @done(20-10-23 16:55)
 		✔ Battle: teams should be displayed in colors (draw on callback onDraw) @done(20-10-23 22:05)
+		✔ Text with scanlines @done(20-10-28 13:50)
+		✔ Disable fades between battle/steer, same screen size @done(20-10-28 17:44)
+		✔ Steer: also map preview? @done(20-10-28 17:44)
 		☐ Steer: going back should remember previously selected map
-		☐ Text with scanlines
+		☐ fix map load/save dialog in editor
 	☐ win/lose screen
 	☐ pause screen (escape in game, exit yes/no)
 	☐ Campaign:

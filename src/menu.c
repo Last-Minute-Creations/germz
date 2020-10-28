@@ -32,6 +32,15 @@
 #define MENU_COLOR_SHADOW (COLOR_P3_BRIGHT + 3)
 #define MENU_COLOR_ERROR 11
 
+#define INFO_X 46
+#define INFO_Y 28
+#define PREVIEW_X (INFO_X + 120)
+#define PREVIEW_Y INFO_Y
+#define BATTLE_MENU_X 75
+#define BATTLE_MENU_Y 134
+#define BATTLE_MENU_WIDTH 180
+#define BATTLE_MENU_HEIGHT 93
+
 typedef enum _tPlayerSteer {
 	PLAYER_STEER_JOY_1,
 	PLAYER_STEER_JOY_2,
@@ -54,7 +63,6 @@ static const tMenuListStyle s_sMenuStyleMain = {
 	.ubColorInactive = MENU_COLOR_INACTIVE,
 	.ubColorShadow = MENU_COLOR_SHADOW
 };
-
 
 static const tMenuListStyle s_pMenuStylePlayers[4] = {
 	{
@@ -340,6 +348,7 @@ static tState *s_pNextSubstate;
 
 static void onFadeToSubstate(void) {
 	stateChange(s_pStateMachineMenu, s_pNextSubstate);
+	fadeSet(s_pFadeMenu, FADE_STATE_IN, 50, 0);
 }
 
 static void fadeToSubstate(tState *pNextSubstate) {
@@ -386,7 +395,7 @@ static void fadeToMain(void) {
 }
 
 static void fadeToBattle(void) {
-	fadeToSubstate(&s_sStateBattle);
+	stateChange(s_pStateMachineMenu, &s_sStateBattle);
 }
 
 static void menuSubstateLoop(void) {
@@ -415,24 +424,13 @@ static void menuSteerGsCreate(void) {
 		"PLAYER 1", "PLAYER 2", "PLAYER 3", "PLAYER 4"
 	};
 
-	// Prepare current bg
-	blitCopy(s_pBgSub, 0, 0, s_pBgCurr, 0, 0, 320, 128, MINTERM_COPY);
-	blitCopy(s_pBgSub, 0, 128, s_pBgCurr, 0, 128, 320, 128, MINTERM_COPY);
-	bmFrameDraw(s_pFrameDisplay, s_pBgCurr, 48, 48, 14, 10, 16);
+	// Undraw battle's menu list
+	blitRect(
+		&s_sBmFrontScanline, BATTLE_MENU_X, BATTLE_MENU_Y,
+		BATTLE_MENU_WIDTH, BATTLE_MENU_HEIGHT, 2 >> 1
+	);
 
-	// Copy current bg to vport's bitmap
-	blitCopy(s_pBgCurr, 0, 0, s_pBfr->pBack, 0, 0, 320, 128, MINTERM_COPY);
-	blitCopy(s_pBgCurr, 0, 128, s_pBfr->pBack, 0, 128, 320, 128, MINTERM_COPY);
-
-	// Infect
 	s_ubSteerOptionCount = 0;
-	s_pOptionsSteer[s_ubSteerOptionCount] = (tOption){
-		MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onStart}
-	};
-	s_pMenuCaptionsSteer[s_ubSteerOptionCount++] = "INFECT";
-
-	// Dummy
-	s_pOptionsSteer[s_ubSteerOptionCount++] = (tOption){.isHidden = 1};
 
 	// Players
 	for(UBYTE i = 0; i < 4; ++i) {
@@ -446,8 +444,11 @@ static void menuSteerGsCreate(void) {
 		}
 	}
 
-	// Dummy
-	s_pOptionsSteer[s_ubSteerOptionCount++] = (tOption){.isHidden = 1};
+	// Infect
+	s_pOptionsSteer[s_ubSteerOptionCount] = (tOption){
+		MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onStart}
+	};
+	s_pMenuCaptionsSteer[s_ubSteerOptionCount++] = "INFECT";
 
 	// Back
 	s_pOptionsSteer[s_ubSteerOptionCount] = (tOption){
@@ -458,11 +459,11 @@ static void menuSteerGsCreate(void) {
 
 	menuListInit(
 		s_pOptionsSteer, s_pMenuCaptionsSteer, s_ubSteerOptionCount,
-		g_pFontBig, g_pTextBitmap, &s_sBgCurrScanline, &s_sBmFrontScanline, 64, 64,
-		s_pMenuStyleScanline
+		g_pFontBig, g_pTextBitmap, &s_sBgCurrScanline, &s_sBmFrontScanline,
+		BATTLE_MENU_X, BATTLE_MENU_Y, s_pMenuStyleScanline
 	);
+	menuListSetActive(s_ubSteerOptionCount - 2);
 
-	fadeSet(s_pFadeMenu, FADE_STATE_IN, 50, 0);
 	s_cbOnEscape = fadeToBattle;
 }
 
@@ -485,10 +486,19 @@ static UBYTE s_ubOptionIdxTeam1, s_ubOptionIdxTeam2;
 static void battleGsLoopMapSelect(void);
 
 static void onBattleGoToSteer(void) {
-	fadeToSubstate(&s_sStateSteer);
+	stateChange(s_pStateMachineMenu, &s_sStateSteer);
 }
 
 static void onMap(void) {
+	// Undraw menu list
+	blitRect(
+		&s_sBmFrontScanline, BATTLE_MENU_X, BATTLE_MENU_Y,
+		BATTLE_MENU_WIDTH, BATTLE_MENU_HEIGHT, 2
+	);
+
+	// Draw map list ctrl instead
+	listCtlDraw(s_pMapList);
+	buttonDrawAll();
 	s_sStateBattle.cbLoop = battleGsLoopMapSelect;
 }
 
@@ -550,12 +560,6 @@ static void onTeamDraw(UBYTE ubIdx) {
 static void battleRegenMenuList(UBYTE ubPlayerMask) {
 	s_ubBattleOptionCount = 0;
 
-	// Infect
-	s_pOptionsBattle[s_ubBattleOptionCount] = (tOption){
-		MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onBattleGoToSteer}
-	};
-	s_pMenuBattleCaptions[s_ubBattleOptionCount++] = "INFECT";
-
 	// Select map
 	s_pOptionsBattle[s_ubBattleOptionCount] = (tOption){
 		.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0,
@@ -605,6 +609,12 @@ static void battleRegenMenuList(UBYTE ubPlayerMask) {
 	}
 	s_pMenuBattleCaptions[s_ubBattleOptionCount++] = "TEAM 2";
 
+	// Proceed
+	s_pOptionsBattle[s_ubBattleOptionCount] = (tOption){
+		MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onBattleGoToSteer}
+	};
+	s_pMenuBattleCaptions[s_ubBattleOptionCount++] = "PROCEED";
+
 	// Back
 	s_pOptionsBattle[s_ubBattleOptionCount] = (tOption){
 		MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = fadeToMain}
@@ -612,26 +622,29 @@ static void battleRegenMenuList(UBYTE ubPlayerMask) {
 	s_pMenuBattleCaptions[s_ubBattleOptionCount++] = "BACK";
 }
 
-static void menuUpdateMapInfo(UBYTE isUndraw, UBYTE isForce) {
-	if(updateMapInfo(
-		s_pMapList, s_pBgCurr, s_pBfr->pBack, &g_sMapData, 6
-	) || isForce) {
-		if(isUndraw) {
-			menuListUndraw();
-		}
-		battleRegenMenuList(g_sMapData.ubPlayerMask);
-		UBYTE ubActive = menuListGetActive();
-		menuListInit(
-			s_pOptionsBattle, s_pMenuBattleCaptions, s_ubBattleOptionCount,
-			g_pFontBig, g_pTextBitmap, &s_sBgCurrScanline, &s_sBmFrontScanline, 80, 134,
-			s_pMenuStyleScanline
-		);
-		menuListSetActive(ubActive);
-		menuListDraw();
+static void menuUpdateMapInfo(UBYTE isForce) {
+	if(updateMapInfo(s_pMapList, &g_sMapData) || isForce) {
+		mapInfoDrawAuthorTitle(&g_sMapData, &s_sBgCurrScanline, &s_sBmFrontScanline, INFO_X, INFO_Y);
+		mapListDrawPreview(&g_sMapData, &s_sBmFrontScanline, PREVIEW_X, PREVIEW_Y, 6);
 	}
 }
 
+static void battleDrawMenuList(void) {
+	battleRegenMenuList(g_sMapData.ubPlayerMask);
+	UBYTE ubActive = menuListGetActive();
+	menuListInit(
+		s_pOptionsBattle, s_pMenuBattleCaptions, s_ubBattleOptionCount,
+		g_pFontBig, g_pTextBitmap, &s_sBgCurrScanline, &s_sBmFrontScanline,
+		BATTLE_MENU_X, BATTLE_MENU_Y, s_pMenuStyleScanline
+	);
+	menuListSetActive(ubActive);
+	menuListDraw();
+}
+
 static void battleGsCreate(void) {
+	s_pFadeMenu->pPaletteRef[8] = 0x333;
+	s_pFadeMenu->pPaletteRef[9] = 0x222;
+
 	// Prepare current bg
 	blitCopy(s_pBgSub, 0, 0, s_pBgCurr, 0, 0, 320, 128, MINTERM_COPY);
 	blitCopy(s_pBgSub, 0, 128, s_pBgCurr, 0, 128, 320, 128, MINTERM_COPY);
@@ -642,15 +655,15 @@ static void battleGsCreate(void) {
 	blitCopy(s_pBgCurr, 0, 128, s_pBfr->pBack, 0, 128, 320, 128, MINTERM_COPY);
 
 	buttonListCreate(5, s_pBfr->pBack, g_pFontSmall, g_pTextBitmap);
-	s_pMapList = mapListCreateCtl(s_pBfr->pBack, 45, 29, 120, 75);
-	listCtlDraw(s_pMapList);
-	buttonDrawAll();
-
-	fadeSet(s_pFadeMenu, FADE_STATE_IN, 50, 0);
+	s_pMapList = mapListCreateCtl(
+		s_pBfr->pBack, BATTLE_MENU_X, BATTLE_MENU_Y,
+		BATTLE_MENU_WIDTH, BATTLE_MENU_HEIGHT
+	);
 
 	s_cbOnEscape = fadeToMain;
-	menuListSetActive(1);
-	menuUpdateMapInfo(0, 1);
+	menuListSetActive(4);
+	menuUpdateMapInfo(1);
+	battleDrawMenuList();
 	s_ullChangeTimer = timerGet();
 }
 
@@ -664,7 +677,7 @@ static void battleGsLoopMapSelect(void) {
 		(isEnabled34 && (joyUse(JOY3_UP) || joyUse(JOY4_UP)))
 	) {
 		listCtlSelectPrev(s_pMapList);
-		clearMapInfo(s_pMapList, s_pBgCurr, s_pBfr->pBack);
+		clearMapInfo(&s_sBgCurrScanline, &s_sBmFrontScanline, INFO_X, INFO_Y);
 		s_ullChangeTimer = timerGet();
 	}
 	else if(
@@ -673,7 +686,7 @@ static void battleGsLoopMapSelect(void) {
 		(isEnabled34 && (joyUse(JOY3_DOWN) || joyUse(JOY4_DOWN)))
 	) {
 		listCtlSelectNext(s_pMapList);
-		clearMapInfo(s_pMapList, s_pBgCurr, s_pBfr->pBack);
+		clearMapInfo(&s_sBgCurrScanline, &s_sBmFrontScanline, INFO_X, INFO_Y);
 		s_ullChangeTimer = timerGet();
 	}
 	else if(
@@ -681,16 +694,25 @@ static void battleGsLoopMapSelect(void) {
 		joyUse(JOY1_FIRE) || joyUse(JOY2_FIRE) ||
 		(isEnabled34 && (joyUse(JOY3_FIRE) || joyUse(JOY4_FIRE)))
 	) {
-		menuUpdateMapInfo(1, 0);
+		menuUpdateMapInfo(0);
 		isMapSelected = 1;
 	}
 
 	if(timerGetDelta(s_ullChangeTimer, timerGet()) >= 25) {
-		menuUpdateMapInfo(1, 0);
+		menuUpdateMapInfo(0);
 		s_ullChangeTimer = timerGet();
 	}
 
 	if(isMapSelected || keyUse(KEY_ESCAPE)) {
+		// Undraw map select ui
+		blitRect(
+			&s_sBmFrontScanline, BATTLE_MENU_X, BATTLE_MENU_Y,
+			BATTLE_MENU_WIDTH, BATTLE_MENU_HEIGHT, 2
+		);
+
+		// Draw menu list instead
+		battleDrawMenuList();
+
 		s_sStateBattle.cbLoop = menuSubstateLoop;
 	}
 }
@@ -742,7 +764,6 @@ static void creditsGsCreate(void) {
 		// Advance Y pos nonetheless
 		uwOffsY += ubLineWidth;
 	}
-	fadeSet(s_pFadeMenu, FADE_STATE_IN, 50, 0);
 	s_cbOnEscape = fadeToMain;
 }
 
@@ -795,7 +816,6 @@ static void mainGsCreate(void) {
 	);
 
 	s_cbOnEscape = fadeToExit;
-	fadeSet(s_pFadeMenu, FADE_STATE_IN, 50, 0);
 }
 
 //--------------------------------------------------------------- GAMESTATE DEFS
