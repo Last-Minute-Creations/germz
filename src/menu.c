@@ -662,6 +662,9 @@ static void battleGsCreate(void) {
 	);
 	listCtlSetSelectionIdx(s_pMapList, s_uwBattleLastSelectedEntry);
 
+	// Always start in menu loop (after ESC pressed when in map select)
+	s_sStateBattle.cbLoop = menuSubstateLoop;
+
 	s_cbOnEscape = fadeToMain;
 	menuListSetActive(4);
 	menuUpdateMapInfo(1);
