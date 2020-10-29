@@ -1,3 +1,7 @@
+20.10.28
+	- battle menu is now displayed in laced manner
+	- editor's map load dialog is broken and doesn't work
+
 20.10.23
 	- Rearranged menu a bit
 	- Added defs.json for configuring node parameters

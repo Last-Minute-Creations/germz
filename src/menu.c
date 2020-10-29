@@ -482,6 +482,7 @@ static const char *s_pLabelsTeam2[] = {"", "", ""}; // P3+P4, P2+P4, P2+P3
 static UBYTE s_ubBattleMode;
 static UBYTE s_ubTeamCfg;
 static UBYTE s_ubOptionIdxTeam1, s_ubOptionIdxTeam2;
+static UWORD s_uwBattleLastSelectedEntry = 0;
 
 static void battleGsLoopMapSelect(void);
 
@@ -659,6 +660,7 @@ static void battleGsCreate(void) {
 		&s_sBgCurrScanline, &s_sBmFrontScanline, BATTLE_MENU_X, BATTLE_MENU_Y,
 		BATTLE_MENU_WIDTH, BATTLE_MENU_HEIGHT
 	);
+	listCtlSetSelectionIdx(s_pMapList, s_uwBattleLastSelectedEntry);
 
 	s_cbOnEscape = fadeToMain;
 	menuListSetActive(4);
@@ -718,6 +720,7 @@ static void battleGsLoopMapSelect(void) {
 }
 
 static void battleGsDestroy(void) {
+	s_uwBattleLastSelectedEntry = s_pMapList->uwEntrySel;
 	listCtlDestroy(s_pMapList);
 	buttonListDestroy();
 }

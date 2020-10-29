@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "list_ctl.h"
+#include <stdlib.h>
 #include "config.h"
 #include "button.h"
 #include "border.h"
@@ -33,43 +34,85 @@ static void clearRect(
 	}
 }
 
+static UBYTE listCtlGetMaxVisibleEntries(const tListCtl *pCtl) {
+	return (pCtl->sRect.uwHeight - 4) / pCtl->ubEntryHeight;
+}
+
 static void listCtlDrawEntry(tListCtl *pCtl, UWORD uwIdx) {
-	UWORD uwFirstVisible = 0;
+	UWORD uwFirstVisible = pCtl->uwEntryScrollPos;
 	UWORD uwLastVisible = MIN(
-		pCtl->uwEntryCnt,
-		uwFirstVisible + (pCtl->sRect.uwHeight - 4) / pCtl->ubEntryHeight
+		pCtl->uwEntryCnt, uwFirstVisible + listCtlGetMaxVisibleEntries(pCtl)
 	);
 	if(uwIdx >= uwFirstVisible && uwIdx <= uwLastVisible) {
+		UBYTE ubPosOnView = uwIdx - pCtl->uwEntryScrollPos;
 		const tGuiConfig *pCfg = guiGetConfig();
 		if(uwIdx == pCtl->uwEntrySel) {
 			blitRect(
-				pCtl->pBfr, pCtl->sRect.uwX+2, pCtl->sRect.uwY+2 + uwIdx* pCtl->ubEntryHeight,
+				pCtl->pBfr, pCtl->sRect.uwX+2, pCtl->sRect.uwY+2 + ubPosOnView * pCtl->ubEntryHeight,
 				pCtl->sRect.uwWidth - LISTCTL_BTN_WIDTH - 2 - 2 - 1, pCtl->ubEntryHeight,
 				pCfg->ubColorFill
 			);
 		}
 		else {
 			clearRect(
-				pCtl, pCtl->sRect.uwX+2, pCtl->sRect.uwY+2 + uwIdx* pCtl->ubEntryHeight,
+				pCtl, pCtl->sRect.uwX+2, pCtl->sRect.uwY+2 + ubPosOnView * pCtl->ubEntryHeight,
 				pCtl->sRect.uwWidth - LISTCTL_BTN_WIDTH - 2 - 2 - 1, pCtl->ubEntryHeight
 			);
 		}
 		fontDrawStr(
 			pCtl->pFont, pCtl->pBfr,
-			pCtl->sRect.uwX+2+1, pCtl->sRect.uwY+2+1 + uwIdx*pCtl->ubEntryHeight,
+			pCtl->sRect.uwX+2+1, pCtl->sRect.uwY+2+1 + ubPosOnView * pCtl->ubEntryHeight,
 			pCtl->pEntries[uwIdx], pCfg->ubColorText,
 			FONT_LEFT | FONT_TOP | FONT_COOKIE, pCtl->pEntryTextBfr
 		);
 	}
 }
 
+static void listCtlDrawAllEntries(tListCtl *pCtl) {
+	const tGuiConfig *pCfg = guiGetConfig();
+
+	// Draw scroll bar
+	UBYTE ubScrollBarHeight = pCtl->sRect.uwHeight - 2 * LISTCTL_BTN_WIDTH - 6;
+	UBYTE ubBeadHeight = MIN(
+		ubScrollBarHeight,
+		ubScrollBarHeight * listCtlGetMaxVisibleEntries(pCtl) / pCtl->uwEntryCnt
+	);
+	UBYTE ubBeadStart = CLAMP(
+		ubScrollBarHeight * pCtl->uwEntryScrollPos / pCtl->uwEntryCnt,
+		0, ubScrollBarHeight - ubBeadHeight
+	);
+	UWORD uwScrollX = pCtl->sRect.uwX + pCtl->sRect.uwWidth - LISTCTL_BTN_WIDTH - 2;
+	UWORD uwScrollY =  pCtl->sRect.uwY + LISTCTL_BTN_WIDTH + 3;
+	clearRect(pCtl, uwScrollX, uwScrollY, LISTCTL_BTN_WIDTH, ubScrollBarHeight);
+	blitRect(
+		pCtl->pBfr, uwScrollX, uwScrollY + ubBeadStart, LISTCTL_BTN_WIDTH, ubBeadHeight,
+		pCfg->ubColorDark
+	);
+
+	// Draw elements
+	UWORD uwFirstVisible = pCtl->uwEntryScrollPos;
+	UWORD uwLastVisible = MIN(
+		pCtl->uwEntryCnt, uwFirstVisible + listCtlGetMaxVisibleEntries(pCtl)
+	);
+	for(UWORD i = uwFirstVisible; i != uwLastVisible; ++i) {
+		listCtlDrawEntry(pCtl, i);
+	}
+}
+
 static void listCtlSelect(tListCtl *pCtl, UWORD uwNewSelection) {
 	UWORD uwPrevSel = pCtl->uwEntrySel;
-	pCtl->uwEntrySel = uwNewSelection;
-	listCtlDrawEntry(pCtl, uwPrevSel);
-	listCtlDrawEntry(pCtl, pCtl->uwEntrySel);
-	if(pCtl->cbOnSelect) {
-		pCtl->cbOnSelect();
+	UWORD uwPrevScroll = pCtl->uwEntryScrollPos;
+	listCtlSetSelectionIdx(pCtl, uwNewSelection);
+
+	if(pCtl->uwEntryScrollPos != uwPrevScroll) {
+		listCtlDrawAllEntries(pCtl);
+	}
+	else {
+		listCtlDrawEntry(pCtl, uwPrevSel);
+		listCtlDrawEntry(pCtl, pCtl->uwEntrySel);
+		if(pCtl->cbOnSelect) {
+			pCtl->cbOnSelect();
+		}
 	}
 }
 
@@ -110,6 +153,7 @@ tListCtl *listCtlCreate(
 	pCtl->pBg = pBg;
 	pCtl->pBfr = pBfr;
 	pCtl->uwEntrySel = 0;
+	pCtl->uwEntryScrollPos = 0;
 	pCtl->cbOnSelect = cbOnSelect;
 
 	pCtl->pEntries =  memAllocFastClear(uwEntryMaxCnt * sizeof(char*));
@@ -180,25 +224,7 @@ void listCtlDraw(tListCtl *pCtl) {
 		);
 	}
 
-	// Draw scroll bar
-	blitRect(
-		pCtl->pBfr,
-		pCtl->sRect.uwX + pCtl->sRect.uwWidth - LISTCTL_BTN_WIDTH - 2,
-		pCtl->sRect.uwY + LISTCTL_BTN_WIDTH + 3,
-		LISTCTL_BTN_WIDTH, pCtl->sRect.uwHeight - 2*LISTCTL_BTN_WIDTH - 6,
-		pCfg->ubColorDark
-	);
-
-	UWORD uwFirstVisible = 0;
-	UWORD uwLastVisible = MIN(
-		pCtl->uwEntryCnt,
-		uwFirstVisible + (pCtl->sRect.uwHeight - 4) / pCtl->ubEntryHeight
-	);
-
-	// Draw elements
-	for(UWORD i = uwFirstVisible; i != uwLastVisible; ++i) {
-		listCtlDrawEntry(pCtl, i);
-	}
+	listCtlDrawAllEntries(pCtl);
 }
 
 UBYTE listCtlProcessClick(tListCtl *pCtl, UWORD uwMouseX, UWORD uwMouseY) {
@@ -223,9 +249,25 @@ void listCtlSelectNext(tListCtl *pCtl) {
 }
 
 void listCtlSortEntries(tListCtl *pCtl) {
-	// qsort(pCtl->pEntries, pCtl->uwEntryCnt, sizeof(pCtl->pEntries[0]), onSortAsc);
+	qsort(pCtl->pEntries, pCtl->uwEntryCnt, sizeof(pCtl->pEntries[0]), onSortAsc);
 }
 
 const char *listCtlGetSelection(const tListCtl *pCtl) {
 	return pCtl->pEntries[pCtl->uwEntrySel];
+}
+
+void listCtlSetSelectionIdx(tListCtl *pCtl, UWORD uwIdx) {
+	pCtl->uwEntrySel = uwIdx;
+	UBYTE ubMaxPerScreen = listCtlGetMaxVisibleEntries(pCtl);
+
+	if(uwIdx < pCtl->uwEntryScrollPos) {
+		// New pos is above current display window
+		pCtl->uwEntryScrollPos = uwIdx;
+	}
+	else if(uwIdx > pCtl->uwEntryScrollPos + ubMaxPerScreen - 1) {
+		// New pos is below current display window
+		pCtl->uwEntryScrollPos = MAX(
+			0, uwIdx - (ubMaxPerScreen - 1)
+		);
+	}
 }

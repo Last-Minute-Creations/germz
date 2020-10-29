@@ -25,6 +25,7 @@ typedef struct _tListCtl {
 	UWORD uwEntryCnt;
 	UWORD uwEntryMaxCnt;
 	UWORD uwEntrySel;
+	UWORD uwEntryScrollPos;
 	char **pEntries;
 	tFont *pFont;
 	const tBitMap *pBg;
@@ -59,6 +60,8 @@ void listCtlSelectNext(tListCtl *pCtl);
 void listCtlSortEntries(tListCtl *pCtl);
 
 const char *listCtlGetSelection(const tListCtl *pCtl);
+
+void listCtlSetSelectionIdx(tListCtl *pCtl, UWORD uwIdx);
 
 #ifdef __cplusplus
 }

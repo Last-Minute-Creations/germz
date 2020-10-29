@@ -53,7 +53,7 @@ Now:
 		✔ Disable fades between battle/steer, same screen size @done(20-10-28 17:44)
 		✔ Steer: also map preview? @done(20-10-28 17:44)
 		✔ Battle: display map list ctrl in laced manner @done(20-10-28 20:13)
-		☐ Steer: going back should remember previously selected map
+		✔ Steer: going back should remember previously selected map on list ctl @done(20-10-29 11:23)
 		☐ fix map load/save dialog in editor
 	☐ win/lose screen
 	☐ pause screen (escape in game, exit yes/no)
