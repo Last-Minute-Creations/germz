@@ -21,11 +21,7 @@
 #include "map_list.h"
 #include "menu_list.h"
 #include "gui/button.h"
-
-#define COLOR_P1_BRIGHT 10
-#define COLOR_P2_BRIGHT 14
-#define COLOR_P3_BRIGHT 18
-#define COLOR_P4_BRIGHT 22
+#include "color.h"
 
 #define MENU_COLOR_ACTIVE (COLOR_P3_BRIGHT)
 #define MENU_COLOR_INACTIVE (COLOR_P3_BRIGHT + 1)
@@ -100,7 +96,7 @@ static const char *s_pMenuCaptions[] = {
 static tView *s_pView;
 static tVPort *s_pVp;
 static tSimpleBufferManager *s_pBfr;
-static tBitMap *s_pBg, *s_pBgSub, *s_pFrameDisplay, *s_pBgCurr;
+static tBitMap *s_pBg, *s_pBgSub, *s_pBgCurr;
 static tBitMap s_sBmFrontScanline, s_sBgCurrScanline;
 static tFade *s_pFadeMenu;
 static tCbFadeOnDone s_cbOnEscape;
@@ -253,7 +249,6 @@ static void menuGsCreate(void) {
 	s_pBg = bitmapCreateFromFile("data/menu_main.bm", 0);
 	s_pBgSub = bitmapCreateFromFile("data/menu_sub.bm", 0);
 	s_pBgCurr = bitmapCreate(320, 256, 5, BMF_INTERLEAVED);
-	s_pFrameDisplay = bitmapCreateFromFile("data/display.bm", 0);
 
 	s_sBmFrontScanline.BytesPerRow = s_pBfr->pBack->BytesPerRow;
 	s_sBmFrontScanline.Rows = s_pBfr->pBack->Rows;
@@ -308,7 +303,6 @@ static void menuGsDestroy(void) {
 	bitmapDestroy(s_pBg);
 	bitmapDestroy(s_pBgSub);
 	bitmapDestroy(s_pBgCurr);
-	bitmapDestroy(s_pFrameDisplay);
 	viewDestroy(s_pView);
 	fadeDestroy(s_pFadeMenu);
 }
@@ -336,8 +330,9 @@ tSteer menuGetSteerForPlayer(UBYTE ubPlayerIdx) {
 			return steerInitKey(KEYMAP_WSAD);
 		case PLAYER_STEER_AI:
 			return steerInitAi(ubPlayerIdx);
+		default:
+			return steerInitIdle();
 	}
-	return steerInitIdle();
 }
 
 //------------------------------------------------------------- SUBSTATE: COMMON
@@ -427,7 +422,7 @@ static void menuSteerGsCreate(void) {
 	// Undraw battle's menu list
 	blitRect(
 		&s_sBmFrontScanline, BATTLE_MENU_X, BATTLE_MENU_Y,
-		BATTLE_MENU_WIDTH, BATTLE_MENU_HEIGHT, 2 >> 1
+		BATTLE_MENU_WIDTH, BATTLE_MENU_HEIGHT, COLOR_CONSOLE_BG >> 1
 	);
 
 	s_ubSteerOptionCount = 0;
@@ -494,7 +489,7 @@ static void onMap(void) {
 	// Undraw menu list
 	blitRect(
 		&s_sBmFrontScanline, BATTLE_MENU_X, BATTLE_MENU_Y,
-		BATTLE_MENU_WIDTH, BATTLE_MENU_HEIGHT, 2 >> 1
+		BATTLE_MENU_WIDTH, BATTLE_MENU_HEIGHT, COLOR_CONSOLE_BG >> 1
 	);
 
 	// Draw map list ctrl instead
@@ -513,6 +508,14 @@ static void onModeChange(void) {
 		// Solo - hide
 		s_pOptionsBattle[s_ubOptionIdxTeam1].isHidden = 1;
 		s_pOptionsBattle[s_ubOptionIdxTeam2].isHidden = 1;
+
+		// Ensure that teams get undrawn
+		UWORD uwX = BATTLE_MENU_X + 80;
+		UWORD uwY = BATTLE_MENU_Y + s_ubOptionIdxTeam1 * (g_pFontBig->uwHeight + 1); // HACK HACK HACK
+		blitRect(
+			&s_sBmFrontScanline, uwX, uwY, 60, (g_pFontBig->uwHeight + 1) * 2,
+			 COLOR_CONSOLE_BG >> 1
+		);
 	}
 	s_pOptionsBattle[s_ubOptionIdxTeam1].eDirty = MENU_LIST_DIRTY_VAL_CHANGE;
 	s_pOptionsBattle[s_ubOptionIdxTeam2].eDirty = MENU_LIST_DIRTY_VAL_CHANGE;
@@ -533,10 +536,16 @@ static void onTeamDraw(UBYTE ubIdx) {
 	UBYTE ubActiveIdx = menuListGetActive();
 	const UBYTE (*pCombo)[2] = (ubIdx == s_ubOptionIdxTeam1 ? pComboA : pComboB);
 
-	UWORD uwX = 80 + 80;
-	UWORD uwY = 134 + ubIdx * (g_pFontBig->uwHeight + 1); // HACK HACK HACK
+	UWORD uwX = BATTLE_MENU_X + 80;
+	UWORD uwY = BATTLE_MENU_Y + ubIdx * (g_pFontBig->uwHeight + 1); // HACK HACK HACK
 	UBYTE ubPlayerX = pCombo[s_ubTeamCfg][0];
 	UBYTE ubPlayerY = pCombo[s_ubTeamCfg][1];
+
+	blitRect(
+		&s_sBmFrontScanline, uwX, uwY, 60, g_pFontBig->uwHeight,
+		COLOR_CONSOLE_BG >> 1
+	);
+
 	UBYTE ubColor = (
 		ubActiveIdx == ubIdx ?
 		s_pMenuStylePlayers[ubPlayerX].ubColorActive :
@@ -643,13 +652,13 @@ static void battleDrawMenuList(void) {
 }
 
 static void battleGsCreate(void) {
-	s_pFadeMenu->pPaletteRef[8] = 0x333;
-	s_pFadeMenu->pPaletteRef[9] = 0x222;
+	s_pFadeMenu->pPaletteRef[COLOR_SPECIAL_1] = 0x333;
+	s_pFadeMenu->pPaletteRef[COLOR_SPECIAL_2] = 0x222;
 
 	// Prepare current bg
 	blitCopy(s_pBgSub, 0, 0, s_pBgCurr, 0, 0, 320, 128, MINTERM_COPY);
 	blitCopy(s_pBgSub, 0, 128, s_pBgCurr, 0, 128, 320, 128, MINTERM_COPY);
-	bmFrameDraw(s_pFrameDisplay, s_pBgCurr, 32, 16, 16, 14, 16);
+	bmFrameDraw(g_pFrameDisplay, s_pBgCurr, 32, 16, 16, 14, 16);
 
 	// Copy current bg to vport's bitmap
 	blitCopy(s_pBgCurr, 0, 0, s_pBfr->pBack, 0, 0, 320, 128, MINTERM_COPY);
@@ -712,7 +721,7 @@ static void battleGsLoopMapSelect(void) {
 		// Undraw map select ui
 		blitRect(
 			&s_sBmFrontScanline, BATTLE_MENU_X, BATTLE_MENU_Y,
-			BATTLE_MENU_WIDTH, BATTLE_MENU_HEIGHT, 2 >> 1
+			BATTLE_MENU_WIDTH, BATTLE_MENU_HEIGHT, COLOR_CONSOLE_BG >> 1
 		);
 
 		// Draw menu list instead

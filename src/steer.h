@@ -52,4 +52,6 @@ UBYTE steerDirUse(tSteer *pSteer, tDirection eDir);
 
 tDirection steerGetPressedDir(const tSteer *pSteer);
 
+void steerResetAi(tSteer *pSteer);
+
 #endif // _GERMZ_STEER_H_

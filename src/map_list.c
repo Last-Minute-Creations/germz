@@ -3,10 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "map_list.h"
-#include "assets.h"
 #include <ace/utils/dir.h>
 #include <ace/utils/string.h>
-#include <gui/border.h>
+#include "assets.h"
+#include "gui/border.h"
+#include "color.h"
 
 static const char *s_szFilePrev;
 static UBYTE s_isMapInfoRefreshed;
@@ -35,13 +36,13 @@ void mapListDrawPreview(
 		[TILE_BLOB_P3] = 20,
 		[TILE_BLOB_P4] = 24,
 		[TILE_BLOB_NEUTRAL] = 6,
-		[TILE_SUPER_P1] = 10,
-		[TILE_SUPER_P2] = 14,
-		[TILE_SUPER_P3] = 18,
-		[TILE_SUPER_P4] = 22,
+		[TILE_SUPER_P1] = COLOR_P1_BRIGHT,
+		[TILE_SUPER_P2] = COLOR_P2_BRIGHT,
+		[TILE_SUPER_P3] = COLOR_P3_BRIGHT,
+		[TILE_SUPER_P4] = COLOR_P4_BRIGHT,
 		[TILE_SUPER_NEUTRAL] = 4,
-		[TILE_BLANK] = 8, // 2,
-		[TILE_EDITOR_BLANK] = 8, //2,
+		[TILE_BLANK] = COLOR_SPECIAL_1,
+		[TILE_EDITOR_BLANK] = COLOR_SPECIAL_1,
 		[TILE_PATH_H1] = 28,
 		[TILE_PATH_H2] = 28,
 		[TILE_PATH_H3] = 28,

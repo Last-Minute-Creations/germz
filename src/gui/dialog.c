@@ -73,5 +73,5 @@ void dialogProcess(tBitMap *pBack) {
 
 void dialogClear(void) {
 	blitRect(s_pBmDialog, 0, 0, s_uwWidth, s_uwHeight, 0);
-	guiDraw3dBorder(s_pBmDialog, 0, 0, s_uwWidth, s_uwHeight);
+	// guiDraw3dBorder(s_pBmDialog, 0, 0, s_uwWidth, s_uwHeight);
 }

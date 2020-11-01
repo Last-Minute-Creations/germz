@@ -174,3 +174,9 @@ tDirection steerGetPressedDir(const tSteer *pSteer) {
 	}
 	return DIRECTION_COUNT;
 }
+
+void steerResetAi(tSteer *pSteer) {
+	if(pSteer->cbProcess == onAi) {
+		aiInit(&pSteer->sAi, pSteer->sAi.ubPlayerIdx);
+	}
+}

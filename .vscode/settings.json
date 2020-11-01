@@ -1,6 +1,9 @@
 {
 	"files.associations": {
+		"*.make": "makefile",
+		"*.cmake": "cmake",
 		"game_summary.h": "c",
-		"game_init.h": "c"
+		"game_init.h": "c",
+		"game_pause.h": "c"
 	}
 }

@@ -45,6 +45,9 @@ void assetsGlobalCreate(void) {
 	g_pFontBig = fontCreate("data/germz.fnt");
 	g_pTextBitmap = fontCreateTextBitMap(320, g_pFontBig->uwHeight);
 
+	// Bitmaps
+	g_pFrameDisplay = bitmapCreateFromFile("data/display.bm", 0);
+
 	tGuiConfig *pConfig = guiGetConfig();
 	pConfig->ubColorLight = 20 >> 1;
 	pConfig->ubColorDark = 20 >> 1;
@@ -61,6 +64,9 @@ void assetsGlobalDestroy(void) {
 	fontDestroy(g_pFontSmall);
 	fontDestroy(g_pFontBig);
 	fontDestroyTextBitMap(g_pTextBitmap);
+
+	// Bitmaps
+	bitmapDestroy(g_pFrameDisplay);
 }
 
 void assetsGameCreate(void) {
@@ -116,6 +122,7 @@ void assetsGameDestroy(void) {
 tPtplayerMod *g_pMod;
 tFont *g_pFontSmall, *g_pFontBig;
 tTextBitMap *g_pTextBitmap;
+tBitMap *g_pFrameDisplay;
 tDefs g_sDefs;
 
 // Game assets

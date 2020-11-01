@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "menu_list.h"
+#include "value_ptr.h"
 
 static UBYTE s_ubActiveOption;
 static UBYTE s_ubOptionCount;
@@ -48,12 +49,18 @@ void menuListDraw(void) {
 
 void menuListUndrawPos(UBYTE ubPos) {
 	UWORD uwPosY = s_uwY + ubPos * (s_pFont->uwHeight + 1);
-	const UWORD uwBlitBgOffsX = s_uwX & 0xFFF0;
-	const UWORD uwBlitBgWidth = 320 - uwBlitBgOffsX;
-	blitCopyAligned(
-		s_pBmBg, uwBlitBgOffsX, uwPosY, s_pBmBuffer, uwBlitBgOffsX, uwPosY,
-		uwBlitBgWidth, s_pFont->uwHeight
-	);
+	if(isValuePtr(s_pBmBg)) {
+		blitRect(
+			s_pBmBuffer, s_uwX, uwPosY, s_pOptions[ubPos].uwUndrawWidth,
+			s_pFont->uwHeight, valuePtrUnpack(s_pBmBg)
+		);
+	}
+	else {
+		blitCopy(
+			s_pBmBg, s_uwX, uwPosY, s_pBmBuffer, s_uwX, uwPosY,
+			s_pOptions[ubPos].uwUndrawWidth, s_pFont->uwHeight, MINTERM_COOKIE
+		);
+	}
 }
 
 void menuListDrawPos(UBYTE ubPos) {
@@ -61,7 +68,7 @@ void menuListDrawPos(UBYTE ubPos) {
 
 	char szBfr[50];
 	const char *szText = 0;
-	const tOption *pOption = &s_pOptions[ubPos];
+	tOption *pOption = &s_pOptions[ubPos];
 	if(pOption->eOptionType == MENU_LIST_OPTION_TYPE_UINT8) {
 		if(pOption->sOptUb.pEnumLabels) {
 			sprintf(
@@ -80,7 +87,7 @@ void menuListDrawPos(UBYTE ubPos) {
 	else if(pOption->eOptionType == MENU_LIST_OPTION_TYPE_CALLBACK) {
 		szText = s_pOptionCaptions[ubPos];
 	}
-	if(pOption->eDirty == MENU_LIST_DIRTY_VAL_CHANGE) {
+	if(pOption->eDirty == MENU_LIST_DIRTY_VAL_CHANGE && pOption->uwUndrawWidth) {
 		menuListUndrawPos(ubPos);
 	}
 	if(!pOption->isHidden && szText != 0) {
@@ -91,6 +98,7 @@ void menuListDrawPos(UBYTE ubPos) {
 
 		// Draw pos + non-zero shadow
 		fontFillTextBitMap(s_pFont, s_pTextBitmap, szText);
+		pOption->uwUndrawWidth = s_pTextBitmap->uwActualWidth;
 		UBYTE ubColor;
 		if(ubPos == s_ubActiveOption) {
 			ubColor = pStyle->ubColorActive;

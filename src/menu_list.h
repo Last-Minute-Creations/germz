@@ -33,6 +33,7 @@ typedef struct _tOption {
 	tMenuListOptionType eOptionType;
 	UBYTE isHidden;
 	tMenuListDirty eDirty;
+	UWORD uwUndrawWidth;
 	const tMenuListStyle *pStyle;
 	union {
 		struct {
@@ -65,6 +66,12 @@ void menuListDrawPos(UBYTE ubPos);
 
 void menuListUndrawPos(UBYTE ubPos);
 
+/**
+ * @brief Moved current cursor on menu list up or down.
+ *
+ * @param bDir Direction to move cursor: -1 for "up", +1 for "down"
+ * @return 1 if movement is in menu bounds and done correctly, otherwise 0.
+ */
 UBYTE menuListNavigate(BYTE bDir);
 
 UBYTE menuListToggle(BYTE bDelta);

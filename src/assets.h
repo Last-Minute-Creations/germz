@@ -45,6 +45,7 @@ void assetsGameDestroy(void);
 extern tPtplayerMod *g_pMod;
 extern tFont *g_pFontSmall, *g_pFontBig;
 extern tTextBitMap *g_pTextBitmap;
+extern tBitMap *g_pFrameDisplay;
 
 // Game assets
 extern tBitMap *g_pBmBlobs[BLOB_COLOR_COUNT], *g_pBmBlobMask;

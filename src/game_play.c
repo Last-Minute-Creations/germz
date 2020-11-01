@@ -9,7 +9,7 @@
 #include <ace/utils/string.h>
 #include "game.h"
 #include "assets.h"
-#include "game_summary.h"
+#include "game_pause.h"
 #include "game_editor.h"
 #include "player.h"
 #include "blob_anim.h"
@@ -157,6 +157,14 @@ static void updateHud(void) {
 	}
 }
 
+static void hudReset(void) {
+	s_isHudDrawnOnce = 0;
+	s_isHudDrawCurrent = 0;
+	s_eHudCurrPlayer = 0;
+	memset(s_pHudPlayersWereDead, 0, sizeof(s_pHudPlayersWereDead));
+	s_eHudState = 0;
+}
+
 //-------------------------------------------------------------------- GAMESTATE
 
 static void gamePlayGsCreate(void) {
@@ -165,11 +173,7 @@ static void gamePlayGsCreate(void) {
 	s_sBmHudAlias.BytesPerRow = pDisplay->BytesPerRow;
 	s_sBmHudAlias.Depth = 3;
 
-	s_isHudDrawnOnce = 0;
-	s_isHudDrawCurrent = 0;
-	s_eHudCurrPlayer = 0;
-	memset(s_pHudPlayersWereDead, 0, sizeof(s_pHudPlayersWereDead));
-	s_eHudState = 0;
+	hudReset();
 	blobAnimReset();
 }
 
@@ -193,17 +197,24 @@ static void gamePlayGsLoop(void) {
 	bobNewPushingDone();
 	mapProcessNodes();
 
-	if(!ubAliveCount) {
-		stateChange(g_pStateMachineGame, &g_sStateGameSummary);
+	if(ubAliveCount <= 1) {
+		gamePauseEnable(PAUSE_KIND_BATTLE_SUMMARY);
 		return;
 	}
 	gamePostprocess();
 }
 
 static void gamePlayGsDestroy(void) {
+
+}
+
+static void gamePlayGsResume(void) {
+	// Restart HUD state machine after going back from pause so that it won't try
+	// to use textBitMap with wrong content
+	hudReset();
 }
 
 tState g_sStateGamePlay = {
 	.cbCreate = gamePlayGsCreate, .cbLoop = gamePlayGsLoop,
-	.cbDestroy = gamePlayGsDestroy
+	.cbDestroy = gamePlayGsDestroy, .cbResume = gamePlayGsResume
 };

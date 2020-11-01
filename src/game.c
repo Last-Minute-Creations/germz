@@ -17,7 +17,7 @@
 #include "game_init.h"
 #include "game_editor.h"
 #include "game_play.h"
-#include "game_summary.h"
+#include "game_pause.h"
 #include "germz.h"
 #include <bartman/gcc8_c_support.h>
 
@@ -46,13 +46,21 @@ void gameDumpFrame(void) {
 	s_isDump = 1;
 }
 
-static void onGameFadeOut(void) {
+static void onGameRestartFadeout(void) {
+	stateChange(g_pStateMachineGame, &g_sStateGameInit);
+}
+
+static void onGameQuitFadeout(void) {
 	statePop(g_pStateMachineGame);
 }
 
 void gameQuit(void) {
 	s_isQuitting = 1;
-	fadeSet(s_pFade, FADE_STATE_OUT, 50, onGameFadeOut);
+	fadeSet(s_pFade, FADE_STATE_OUT, 50, onGameQuitFadeout);
+}
+
+void gameRestart(void) {
+	fadeSet(s_pFade, FADE_STATE_OUT, 50, onGameRestartFadeout);
 }
 
 //-------------------------------------------------------------------- GAMESTATE
@@ -67,7 +75,7 @@ UBYTE gamePreprocess(void) {
 	else if(keyUse(KEY_ESCAPE)) {
 		// TODO: if pause is triggered and text is written, be sure to restart HUD
 		// state machine 'cuz it uses global textbitmap
-		gameQuit();
+		gamePauseEnable(PAUSE_KIND_PAUSE);
 		return 0;
 	}
 	bobNewBegin(s_pBfr->pBack);
@@ -121,14 +129,14 @@ static void gameGsCreate(void) {
 	UWORD pPalette[32];
 	paletteLoad("data/germz.plt", pPalette, 32);
 	s_pFade = fadeCreate(s_pView, pPalette, 32);
-	fadeSet(s_pFade, FADE_STATE_IN, 50, 0);
+
+	assetsGameCreate();
 
 	// Load settings from menu
 	for(UBYTE i = 0; i < 4; ++i) {
 		s_pSteers[i] = menuGetSteerForPlayer(i);
 	}
 
-	assetsGameCreate();
 	playerCreate();
 	aiCreate(&g_sMap);
 	s_isQuitting = 0;
@@ -136,6 +144,7 @@ static void gameGsCreate(void) {
 	bobNewManagerCreate(s_pBfr->pFront, s_pBfr->pBack, s_pBfr->uBfrBounds.uwY);
 
 	if(s_isEditor) {
+		fadeSet(s_pFade, FADE_STATE_IN, 50, 0);
 		statePush(g_pStateMachineGame, &g_sStateEditor);
 	}
 	else {
@@ -172,7 +181,6 @@ void gameCopyBackToFront(void) {
 }
 
 void gameInitMap(void) {
-	systemUse();
 	// Reset map
 	mapInitFromMapData();
 	aiSetNodeCount();
@@ -184,13 +192,15 @@ void gameInitMap(void) {
 	for(UBYTE i = 0; i < 4; ++i) {
 		if(ubMask & 1) {
 			playerReset(i, g_sMap.pPlayerStartNodes[i]);
+			steerResetAi(&s_pSteers[i]);
 		}
 		ubMask >>= 1;
 	}
 
 	// Now that players are initialized, update node counts for all of them
 	mapUpdateNodeCountForPlayers();
-	systemUnuse();
+
+	fadeSet(s_pFade, FADE_STATE_IN, 50, 0);
 }
 
 tBitMap *gameGetBackBuffer(void) {
