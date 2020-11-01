@@ -56,8 +56,6 @@ static void gameInitGsCreate(void) {
 	s_ubFrame = 0;
 	tBitMap *pDisplay = gameGetBackBuffer();
 
-	blitRect(pDisplay, 0, 0, 320, 128, 0);
-	blitRect(pDisplay, 0, 128, 320, 128, 0);
 	bobNewDiscardUndraw();
 
 	bitmapLoadFromFile(pDisplay, "data/game_hud.bm", HUD_OFFS_X, 0);
