@@ -72,7 +72,7 @@ UBYTE gamePreprocess(void) {
 		// for fade end
 		return 0;
 	}
-	else if(keyUse(KEY_ESCAPE)) {
+	else if(keyUse(KEY_ESCAPE) || keyUse(KEY_P)) {
 		// TODO: if pause is triggered and text is written, be sure to restart HUD
 		// state machine 'cuz it uses global textbitmap
 		gamePauseEnable(PAUSE_KIND_PAUSE);
