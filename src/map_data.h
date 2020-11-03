@@ -61,4 +61,6 @@ void mapDataRecalculateStuff(tMapData *pMapData);
 
 void mapDataRecalculateLinkTileAt(tMapData *pMapData, UBYTE ubX, UBYTE ubY);
 
+UBYTE mapDataGetPlayerCount(const tMapData *pMapData);
+
 #endif // _GERMZ_MAP_DATA_H_

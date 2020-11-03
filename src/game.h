@@ -48,6 +48,8 @@ tFade *gameGetFade(void);
 
 void gameQuit(void);
 
+UBYTE *gameGetScores(void);
+
 void gameRestart(void);
 
 #endif // _GERMZ_GAME_H_

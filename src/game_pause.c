@@ -5,6 +5,7 @@
 #include "game_pause.h"
 #include <ace/managers/key.h>
 #include <ace/utils/bmframe.h>
+#include <ace/utils/string.h>
 #include "germz.h"
 #include "gui/dialog.h"
 #include "game.h"
@@ -14,12 +15,16 @@
 #include "player.h"
 #include "value_ptr.h"
 
+#define PAUSE_MENU_MAX 3
+
 static tBitMap *s_pBmDialog;
 static tBitMap s_sBmDlgScanline;
+static tPauseKind s_eKind;
 
 static void onRestart(void);
 static void onExit(void);
 static void onBack(void);
+static void onNextMap(void);
 
 static const tMenuListStyle s_sMenuStyle = {
 	.ubColorActive = COLOR_P3_BRIGHT >> 1,
@@ -27,24 +32,8 @@ static const tMenuListStyle s_sMenuStyle = {
 	.ubColorShadow = 0xFF
 };
 
-static tOption s_pPauseOptions[] = {
-	{
-		.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK, .pStyle = &s_sMenuStyle,
-		.sOptCb = {.cbSelect = onBack}
-	},
-	{
-		.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK, .pStyle = &s_sMenuStyle,
-		.sOptCb = {.cbSelect = onRestart}
-	},
-	{
-		.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK, .pStyle = &s_sMenuStyle,
-		.sOptCb = {.cbSelect = onExit}
-	},
-};
-
-static const char *s_pPauseLabels[] = {
-	"BACK", "RESTART MATCH", "EXIT TO MENU"
-};
+static tOption s_pPauseOptions[PAUSE_MENU_MAX];
+static const char *s_pPauseLabels[PAUSE_MENU_MAX];
 
 static void gamePauseGsCreate(void) {
 	UWORD uwDlgWidth = 192;
@@ -69,13 +58,38 @@ static void gamePauseGsCreate(void) {
 	UWORD uwY = 16;
 	UWORD uwRowSize = g_pFontBig->uwHeight + 2;
 
-	fontDrawStr(
-		g_pFontBig, &s_sBmDlgScanline, uwX, uwY, "PAUSED", 18 >> 1,
-		FONT_COOKIE, g_pTextBitmap
-	);
+	switch(s_eKind) {
+		case PAUSE_KIND_BATTLE_PAUSE:
+		case PAUSE_KIND_CAMPAIGN_PAUSE:
+		case PAUSE_KIND_CAMPAIGN_WIN:
+		case PAUSE_KIND_CAMPAIGN_DEFEAT: {
+			static const char *pMsgs[] = {
+				[PAUSE_KIND_BATTLE_PAUSE] = "PAUSED",
+				[PAUSE_KIND_CAMPAIGN_PAUSE] = "PAUSED",
+				[PAUSE_KIND_CAMPAIGN_WIN] = "YOU WIN",
+				[PAUSE_KIND_CAMPAIGN_DEFEAT] = "DEFEATED"
+			};
+			fontDrawStr(
+				g_pFontBig, &s_sBmDlgScanline, uwX, uwY, pMsgs[s_eKind], 18 >> 1,
+				FONT_COOKIE, g_pTextBitmap
+			);
+		} break;
+		case PAUSE_KIND_BATTLE_SUMMARY: {
+			UBYTE ubPlayer = 0;
+			UBYTE ubColor = COLOR_P1_BRIGHT + 4 * ubPlayer;
+			char szWins[15];
+			sprintf(szWins, "PLAYER %hhu WINS", ubPlayer + 1);
+			fontDrawStr(
+				g_pFontBig, &s_sBmDlgScanline, uwX, uwY, szWins, ubColor >> 1,
+				FONT_COOKIE, g_pTextBitmap
+			);
+		} break;
+	}
 	uwY += uwRowSize * 3 / 2;
 
-	if(1) {
+	if(
+		s_eKind == PAUSE_KIND_BATTLE_PAUSE || s_eKind == PAUSE_KIND_BATTLE_SUMMARY
+	) {
 		fontDrawStr(
 			g_pFontBig, &s_sBmDlgScanline, uwX, uwY, "CURRENT SCORES", 18 >> 1,
 			FONT_COOKIE, g_pTextBitmap
@@ -83,21 +97,60 @@ static void gamePauseGsCreate(void) {
 		uwY += uwRowSize;
 
 		if(1) {
-			static const UBYTE pPlayerColors[] = {
-				COLOR_P1_BRIGHT >> 1, COLOR_P2_BRIGHT >> 1,
-				COLOR_P3_BRIGHT >> 1, COLOR_P4_BRIGHT >> 1
-			};
-			for(UBYTE i = 0; i < 4; ++i) {
-				fontDrawStr(
-					g_pFontBig, &s_sBmDlgScanline, 32 + i * 30, uwY, "9",
-					pPlayerColors[i], FONT_COOKIE, g_pTextBitmap
-				);
+			UBYTE *pScores = gameGetScores();
+			char szScore[4];
+			UBYTE ubPlayerCount = mapDataGetPlayerCount(&g_sMapData);
+			UBYTE ubMask = g_sMapData.ubPlayerMask;
+			UBYTE i = 0;
+			for(UBYTE ubPlayer = 0; ubPlayer < 4; ++ubPlayer) {
+				if(ubMask & 1) {
+					stringDecimalFromULong(pScores[ubPlayer], szScore);
+					UBYTE ubColor = COLOR_P1_BRIGHT + 4 * ubPlayer;
+					UWORD uwPlayerX = uwX + (i + 1) * ((uwDlgWidth - 2 * uwX) / (ubPlayerCount + 1));
+					fontDrawStr(
+						g_pFontBig, &s_sBmDlgScanline, uwPlayerX, uwY, szScore,
+						ubColor >> 1, FONT_HCENTER | FONT_COOKIE, g_pTextBitmap
+					);
+					++i;
+				}
+				ubMask >>= 1;
 			}
 		}
 		else {
 			// teams
 		}
 		uwY += uwRowSize * 2;
+	}
+
+	UBYTE ubOptionCount = 0;
+
+	if(s_eKind == PAUSE_KIND_BATTLE_PAUSE || s_eKind == PAUSE_KIND_CAMPAIGN_PAUSE) {
+		s_pPauseLabels[ubOptionCount] = "BACK";
+		s_pPauseOptions[ubOptionCount++] = (tOption){
+			.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK, .pStyle = &s_sMenuStyle,
+			.sOptCb = {.cbSelect = onBack}
+		};
+	}
+
+	if(s_eKind == PAUSE_KIND_CAMPAIGN_WIN) {
+		s_pPauseLabels[ubOptionCount] = "CONTINUE";
+		s_pPauseOptions[ubOptionCount++] = (tOption){
+			.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK, .pStyle = &s_sMenuStyle,
+			.sOptCb = {.cbSelect = onNextMap}
+		};
+	}
+	else {
+		s_pPauseLabels[ubOptionCount] = "RESTART MATCH";
+		s_pPauseOptions[ubOptionCount++] = (tOption){
+			.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK, .pStyle = &s_sMenuStyle,
+			.sOptCb = {.cbSelect = onRestart}
+		};
+
+		s_pPauseLabels[ubOptionCount] = "EXIT TO MENU";
+		s_pPauseOptions[ubOptionCount++] = (tOption){
+			.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK, .pStyle = &s_sMenuStyle,
+			.sOptCb = {.cbSelect = onExit}
+		};
 	}
 
 	menuListInit(
@@ -184,9 +237,14 @@ static void onBack(void) {
 	// Do nothing else
 }
 
+static void onNextMap(void) {
+
+}
+
 //------------------------------------------------------------------- PUBLIC FNS
 
 void gamePauseEnable(tPauseKind eKind) {
+	s_eKind = eKind;
 	// Switch to pause gamestate - needs pop 'cuz we can't call destroy callback
 	// of gameInit/gamePlay here
 	statePush(g_pStateMachineGame, &g_sStateGamePause);

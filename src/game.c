@@ -27,6 +27,7 @@ static tSimpleBufferManager *s_pBfr;
 static tBobNew s_pCursorBobs[4];
 static tFade *s_pFade;
 static UBYTE s_isQuitting;
+static UBYTE s_pScores[4];
 
 //------------------------------------------------------------------------ DEBUG
 
@@ -63,6 +64,10 @@ void gameRestart(void) {
 	fadeSet(s_pFade, FADE_STATE_OUT, 50, onGameRestartFadeout);
 }
 
+UBYTE *gameGetScores(void) {
+	return s_pScores;
+}
+
 //-------------------------------------------------------------------- GAMESTATE
 
 UBYTE gamePreprocess(void) {
@@ -75,7 +80,7 @@ UBYTE gamePreprocess(void) {
 	else if(keyUse(KEY_ESCAPE) || keyUse(KEY_P)) {
 		// TODO: if pause is triggered and text is written, be sure to restart HUD
 		// state machine 'cuz it uses global textbitmap
-		gamePauseEnable(PAUSE_KIND_PAUSE);
+		gamePauseEnable(PAUSE_KIND_BATTLE_PAUSE);
 		return 0;
 	}
 	bobNewBegin(s_pBfr->pBack);
@@ -148,6 +153,12 @@ static void gameGsCreate(void) {
 		statePush(g_pStateMachineGame, &g_sStateEditor);
 	}
 	else {
+		// Reset scores
+		for(UBYTE i = 0; i < 4; ++i) {
+			s_pScores[i] = 0;
+		}
+
+		// Proceed with game
 		statePush(g_pStateMachineGame, &g_sStateGameInit);
 	}
 	systemUnuse();

@@ -211,3 +211,17 @@ void mapDataRecalculateLinkTileAt(tMapData *pMapData, UBYTE ubX, UBYTE ubY) {
 	eTile += ((ubX + ubY) & 3);
 	pMapData->pTiles[ubX][ubY] = eTile;
 }
+
+UBYTE mapDataGetPlayerCount(const tMapData *pMapData) {
+	UBYTE ubCount = 0;
+	UBYTE ubMask = pMapData->ubPlayerMask;
+
+	while(ubMask) {
+		if(ubMask & 1) {
+			++ubCount;
+		}
+		ubMask >>= 1;
+	}
+
+	return ubCount;
+}

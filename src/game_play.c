@@ -198,6 +198,13 @@ static void gamePlayGsLoop(void) {
 	mapProcessNodes();
 
 	if(ubAliveCount <= 1) {
+		UBYTE *pScores = gameGetScores();
+		for(tPlayerIdx eIdx = 0; eIdx <= PLAYER_4; ++eIdx) {
+			const tPlayer *pPlayer = playerFromIdx(eIdx);
+			if(!pPlayer->isDead) {
+				pScores[eIdx] = MIN(pScores[eIdx] + 1, 99);
+			}
+		}
 		gamePauseEnable(PAUSE_KIND_BATTLE_SUMMARY);
 		return;
 	}

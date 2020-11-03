@@ -1,3 +1,7 @@
+20.11.3
+	- added post-battle summary
+	- scores should now be working properly
+
 20.10.28
 	- battle menu is now displayed in laced manner
 	- editor's map load dialog is broken and doesn't work
