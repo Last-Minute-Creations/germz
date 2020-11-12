@@ -40,11 +40,18 @@ typedef enum _tTile {
 	TILE_COUNT
 } tTile;
 
+typedef struct _tMapPlayerData {
+	UBYTE ubChargeRate;
+	UBYTE ubChargeRateSpecial;
+	UBYTE ubPower;
+} tMapPlayerData;
+
 typedef struct _tMapData {
 	char szName[MAP_NAME_MAX];
 	char szAuthor[MAP_AUTHOR_MAX];
 	UBYTE ubPlayerMask;
 	tTile pTiles[MAP_SIZE][MAP_SIZE];
+	tMapPlayerData pPlayerData[4];
 } tMapData;
 
 UBYTE mapDataInitFromFile(tMapData *pMapData, const char *szPath);

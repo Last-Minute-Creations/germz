@@ -133,6 +133,9 @@ UWORD jsonGetDom(const tJson *pJson, const char *szPattern) {
 			}
 			uwParentTok = jsonGetElementInArray(pJson, uwParentTok, uwIdx);
 			++c;
+			if(*c == '.') {
+				++c;
+			}
 		}
 		else {
 			// Struct element - read name

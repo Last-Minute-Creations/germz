@@ -31,6 +31,7 @@ typedef struct _tPlayer {
 	BYTE bNodeCount;
 	UBYTE isSelectingDestination;
 	UBYTE isDead;
+	const tMapPlayerData *pMapData;
 } tPlayer;
 
 void playerCreate(void);

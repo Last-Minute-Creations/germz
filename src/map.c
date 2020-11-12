@@ -14,10 +14,10 @@
 static void nodeUpdateChargeRate(tNode *pNode) {
 	if(pNode->pPlayer) {
 		if(pNode->eType == NODE_TYPE_SUPER) {
-			pNode->ubChargeRate = g_sDefs.sNodeSpecial.ubChargeRate;
+			pNode->ubChargeRate = pNode->pPlayer->pMapData->ubChargeRateSpecial;
 		}
 		else {
-			pNode->ubChargeRate = g_sDefs.sNodeBasic.ubChargeRate;
+			pNode->ubChargeRate = pNode->pPlayer->pMapData->ubChargeRate;
 		}
 	}
 	else {

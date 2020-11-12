@@ -45,7 +45,7 @@ static UBYTE plepSinkInNode(tPlep *pPlep) {
 	else {
 		// logWrite("Attacking blob %hd with plep %hd\n", pNode->wCharges, pPlep->wCharges);
 		// Attack with plep's charges!
-		pNode->wCharges -= pPlep->wCharges;
+		pNode->wCharges -= pPlep->wCharges * pPlep->pPlayer->pMapData->ubPower;
 		if(pNode->wCharges == 0) {
 			// Zero charges in blob - make it neutral
 			if(pNode->pPlayer) {

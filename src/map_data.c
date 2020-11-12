@@ -6,6 +6,7 @@
 #include <ace/managers/system.h>
 #include "map_data.h"
 #include "json/json.h"
+#include <assets.h>
 
 static const char s_pTileToChar[TILE_COUNT] = {'\0',
 	[TILE_BLANK] = '.',
@@ -85,6 +86,39 @@ UBYTE mapDataInitFromFile(tMapData *pMapData, const char *szPath) {
 				logWrite("ERR: Can't find tile for '%c' at %hu,%hu\n", pRow[x], x, y);
 				goto end;
 			}
+		}
+	}
+
+	for(UBYTE i = 0; i < 4; ++i) {
+		char szDom[40];
+		sprintf(szDom, "playerData[%hhu].ubChargeRate", i);
+		UWORD uwTokPlayerRate = jsonGetDom(pJson, szDom);
+		if(uwTokPlayerRate) {
+			ULONG ulVal = jsonTokToUlong(pJson, uwTokPlayerRate);
+			pMapData->pPlayerData[i].ubChargeRate = ulVal;
+		}
+		else {
+			pMapData->pPlayerData[i].ubChargeRate = g_sDefs.sNodeBasic.ubChargeRate;
+		}
+
+		sprintf(szDom, "playerData[%hhu].ubChargeRateSpecial", i);
+		UWORD uwTokPlayerRateSpecial = jsonGetDom(pJson, szDom);
+		if(uwTokPlayerRateSpecial) {
+			ULONG ulVal = jsonTokToUlong(pJson, uwTokPlayerRateSpecial);
+			pMapData->pPlayerData[i].ubChargeRateSpecial = ulVal;
+		}
+		else {
+			pMapData->pPlayerData[i].ubChargeRateSpecial = g_sDefs.sNodeSpecial.ubChargeRate;
+		}
+
+		sprintf(szDom, "playerData[%hhu].ubPower", i);
+		UWORD uwTokPower = jsonGetDom(pJson, szDom);
+		if(uwTokPower) {
+			ULONG ulVal = jsonTokToUlong(pJson, uwTokPower);
+			pMapData->pPlayerData[i].ubPower = ulVal;
+		}
+		else {
+			pMapData->pPlayerData[i].ubPower = 1;
 		}
 	}
 
