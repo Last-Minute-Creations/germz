@@ -28,6 +28,24 @@ static tBobNew s_pCursorBobs[4];
 static tFade *s_pFade;
 static UBYTE s_isQuitting;
 static UBYTE s_pScores[4];
+static tBattleMode s_eBattleMode;
+static tTeamConfig s_eTeamCfg;
+static UBYTE s_ubCampaignStage;
+static tPlayer *s_pTeamLeaders[2];
+static const tPlayerIdx s_pPlayerTeamMates[TEAM_CONFIG_COUNT][4] = {
+	[TEAM_CONFIG_P1_P2_AND_P3_P4] = {
+		[PLAYER_1] = PLAYER_2, [PLAYER_2] = PLAYER_1,
+		[PLAYER_3] = PLAYER_4, [PLAYER_4] = PLAYER_3,
+	},
+	[TEAM_CONFIG_P1_P3_AND_P2_P4] = {
+		[PLAYER_1] = PLAYER_3, [PLAYER_2] = PLAYER_4,
+		[PLAYER_3] = PLAYER_1, [PLAYER_4] = PLAYER_2,
+	},
+	[TEAM_CONFIG_P1_P4_AND_P2_P3] = {
+		[PLAYER_1] = PLAYER_4, [PLAYER_2] = PLAYER_3,
+		[PLAYER_3] = PLAYER_2, [PLAYER_4] = PLAYER_1,
+	}
+};
 
 //------------------------------------------------------------------------ DEBUG
 
@@ -208,6 +226,32 @@ void gameInitMap(void) {
 		ubMask >>= 1;
 	}
 
+
+	// Initialize team-specific stuff
+	if(gameGetBattleMode()) {
+		// Find team leaders
+		tTeamConfig eTeamCfg = gameGetTeamConfig();
+		s_pTeamLeaders[0] = playerFromIdx(PLAYER_1);
+		switch(eTeamCfg) {
+			case TEAM_CONFIG_P1_P2_AND_P3_P4:
+				s_pTeamLeaders[1] = playerFromIdx(PLAYER_3);
+				break;
+			case TEAM_CONFIG_P1_P3_AND_P2_P4:
+			case TEAM_CONFIG_P1_P4_AND_P2_P3:
+				s_pTeamLeaders[1] = playerFromIdx(PLAYER_2);
+				break;
+			default:
+				break;
+		}
+
+		// Assign teammates
+		const tPlayerIdx *pMates = s_pPlayerTeamMates[eTeamCfg];
+		for(tPlayerIdx eIdx = 0; eIdx <= PLAYER_4; ++eIdx) {
+			tPlayer *pPlayer = playerFromIdx(eIdx);
+			pPlayer->pTeamMate = playerFromIdx(pMates[eIdx]);
+		}
+	}
+
 	// Now that players are initialized, update node counts for all of them
 	mapUpdateNodeCountForPlayers();
 
@@ -281,12 +325,58 @@ void gameInitCursorBobs(void) {
 	}
 }
 
-void gameSetEditor(UBYTE isEditor) {
+void gameSetRules(
+	UBYTE isEditor, tBattleMode eBattleMode, tTeamConfig eTeamCfg,
+	UBYTE isCampaign
+) {
 	s_isEditor = isEditor;
+	s_eBattleMode = eBattleMode;
+	s_eTeamCfg = eTeamCfg;
+	s_ubCampaignStage = isCampaign;
 }
 
 tFade *gameGetFade(void) {
 	return s_pFade;
+}
+
+tPlayer **gameGetTeamLeaders(void) {
+	return s_pTeamLeaders;
+}
+
+tTeamIdx gameGetWinnerTeams(void) {
+	tPlayer **pTeamLeaders = gameGetTeamLeaders();
+	tTeamIdx eWinner = TEAM_NONE;
+	if(pTeamLeaders[0]->isDead && pTeamLeaders[0]->pTeamMate->isDead) {
+		eWinner = TEAM_2;
+	}
+	else if(pTeamLeaders[1]->isDead && pTeamLeaders[1]->pTeamMate->isDead) {
+		eWinner = TEAM_1;
+	}
+	return eWinner;
+}
+
+tPlayerIdx gameGetWinnerFfa(void) {
+	tPlayerIdx eWinner = PLAYER_NONE;
+	for(tPlayerIdx eIdx = 0; eIdx <= PLAYER_4; ++eIdx) {
+		const tPlayer *pPlayer = playerFromIdx(eIdx);
+		if(!pPlayer->isDead) {
+			eWinner = eIdx;
+			break;
+		}
+	}
+	return eWinner;
+}
+
+UBYTE gameIsCampaign(void) {
+	return s_ubCampaignStage != 0;
+}
+
+tBattleMode gameGetBattleMode(void) {
+	return s_eBattleMode;
+}
+
+tTeamConfig gameGetTeamConfig(void) {
+	return s_eTeamCfg;
 }
 
 tState g_sStateGame = {

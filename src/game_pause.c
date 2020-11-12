@@ -39,7 +39,7 @@ static void gamePauseGsCreate(void) {
 	UWORD uwDlgWidth = 192;
 	UWORD uwDlgHeight = 160;
 	s_pBmDialog = dialogCreate(
-		uwDlgWidth, uwDlgHeight, gameGetBackBuffer(), gameGetFrontBuffer()
+		uwDlgWidth, uwDlgHeight, gameGetFrontBuffer(), gameGetFrontBuffer()
 	);
 
 	s_sBmDlgScanline.BytesPerRow = s_pBmDialog->BytesPerRow;
@@ -70,18 +70,38 @@ static void gamePauseGsCreate(void) {
 				[PAUSE_KIND_CAMPAIGN_DEFEAT] = "DEFEATED"
 			};
 			fontDrawStr(
-				g_pFontBig, &s_sBmDlgScanline, uwX, uwY, pMsgs[s_eKind], 18 >> 1,
-				FONT_COOKIE, g_pTextBitmap
+				g_pFontBig, &s_sBmDlgScanline, uwDlgWidth / 2, uwY, pMsgs[s_eKind],
+				18 >> 1, FONT_HCENTER | FONT_COOKIE, g_pTextBitmap
 			);
 		} break;
 		case PAUSE_KIND_BATTLE_SUMMARY: {
-			UBYTE ubPlayer = 0;
-			UBYTE ubColor = COLOR_P1_BRIGHT + 4 * ubPlayer;
 			char szWins[15];
-			sprintf(szWins, "PLAYER %hhu WINS", ubPlayer + 1);
+			UBYTE ubColor;
+			if(gameGetBattleMode() == BATTLE_MODE_TEAMS) {
+				tTeamIdx eTeam  = gameGetWinnerTeams();
+				if(eTeam == TEAM_NONE) {
+					ubColor = COLOR_P3_BRIGHT;
+					strcpy(szWins, "DRAW");
+				}
+				else {
+					ubColor = COLOR_P1_BRIGHT + 4 * playerToIdx(gameGetTeamLeaders()[eTeam]);
+					sprintf(szWins, "TEAM %hhu WINS", eTeam + 1);
+				}
+			}
+			else {
+				tPlayerIdx ePlayer = gameGetWinnerFfa();
+				if(ePlayer == PLAYER_NONE) {
+					ubColor = COLOR_P3_BRIGHT;
+					strcpy(szWins, "DRAW");
+				}
+				else {
+					ubColor = COLOR_P1_BRIGHT + 4 * ePlayer;
+					sprintf(szWins, "PLAYER %hhu WINS", ePlayer + 1);
+				}
+			}
 			fontDrawStr(
-				g_pFontBig, &s_sBmDlgScanline, uwX, uwY, szWins, ubColor >> 1,
-				FONT_COOKIE, g_pTextBitmap
+				g_pFontBig, &s_sBmDlgScanline, uwDlgWidth / 2, uwY, szWins,
+				ubColor >> 1, FONT_HCENTER | FONT_COOKIE, g_pTextBitmap
 			);
 		} break;
 	}
@@ -96,16 +116,42 @@ static void gamePauseGsCreate(void) {
 		);
 		uwY += uwRowSize;
 
-		if(1) {
+		if(gameIsCampaign()) {
+			// Campaign - map number?
+		}
+		else {
+			// Battle
+			UBYTE ubPlayerCount;
+			UBYTE ubMask;
+			const UBYTE *pColors;
+			if(gameGetBattleMode() == BATTLE_MODE_TEAMS) {
+				// Teams
+				static const UBYTE pTeamColors[TEAM_CONFIG_COUNT][4] = {
+					[TEAM_CONFIG_P1_P2_AND_P3_P4] = {COLOR_P1_BRIGHT, COLOR_P3_BRIGHT},
+					[TEAM_CONFIG_P1_P3_AND_P2_P4] = {COLOR_P1_BRIGHT, COLOR_P2_BRIGHT},
+					[TEAM_CONFIG_P1_P4_AND_P2_P3] = {COLOR_P1_BRIGHT, COLOR_P2_BRIGHT},
+				};
+				ubMask = 0b11;
+				ubPlayerCount = 2;
+				pColors = pTeamColors[gameGetTeamConfig()];
+			}
+			else {
+				// FFA
+				static const UBYTE pPlayerColors[] = {
+					COLOR_P1_BRIGHT, COLOR_P2_BRIGHT, COLOR_P3_BRIGHT, COLOR_P4_BRIGHT
+				};
+				ubPlayerCount = mapDataGetPlayerCount(&g_sMapData);
+				ubMask = g_sMapData.ubPlayerMask;
+				pColors = pPlayerColors;
+			}
+
 			UBYTE *pScores = gameGetScores();
 			char szScore[4];
-			UBYTE ubPlayerCount = mapDataGetPlayerCount(&g_sMapData);
-			UBYTE ubMask = g_sMapData.ubPlayerMask;
 			UBYTE i = 0;
 			for(UBYTE ubPlayer = 0; ubPlayer < 4; ++ubPlayer) {
 				if(ubMask & 1) {
 					stringDecimalFromULong(pScores[ubPlayer], szScore);
-					UBYTE ubColor = COLOR_P1_BRIGHT + 4 * ubPlayer;
+					UBYTE ubColor = pColors[ubPlayer];
 					UWORD uwPlayerX = uwX + (i + 1) * ((uwDlgWidth - 2 * uwX) / (ubPlayerCount + 1));
 					fontDrawStr(
 						g_pFontBig, &s_sBmDlgScanline, uwPlayerX, uwY, szScore,
@@ -115,11 +161,8 @@ static void gamePauseGsCreate(void) {
 				}
 				ubMask >>= 1;
 			}
+			uwY += uwRowSize * 2;
 		}
-		else {
-			// teams
-		}
-		uwY += uwRowSize * 2;
 	}
 
 	UBYTE ubOptionCount = 0;
@@ -154,16 +197,16 @@ static void gamePauseGsCreate(void) {
 	}
 
 	menuListInit(
-		s_pPauseOptions, s_pPauseLabels, 3, g_pFontBig, g_pTextBitmap,
+		s_pPauseOptions, s_pPauseLabels, ubOptionCount, g_pFontBig, g_pTextBitmap,
 		valuePtrPack(COLOR_CONSOLE_BG >> 1), &s_sBmDlgScanline, uwX, uwY,
 		&s_sMenuStyle
 	);
 }
 
 static void gamePauseGsLoop(void) {
-	if(!gamePreprocess()) {
-		return;
-	}
+	// if(!gamePreprocess()) {
+	// 	return;
+	// }
 
 	UBYTE isAnyPlayerMoved = 0;
 	for(tPlayerIdx ePlayerIdx = PLAYER_1; ePlayerIdx <= PLAYER_4; ++ePlayerIdx) {
@@ -182,9 +225,9 @@ static void gamePauseGsLoop(void) {
 	}
 
 	menuListDraw();
-	dialogProcess(gameGetBackBuffer());
+	dialogProcess(gameGetFrontBuffer());
 
-	gamePostprocess();
+	// gamePostprocess();
 
 	// Process pressing fire after gamePostProcess and only if noone moved up/down
 	for(tPlayerIdx ePlayerIdx = PLAYER_1; ePlayerIdx <= PLAYER_4; ++ePlayerIdx) {

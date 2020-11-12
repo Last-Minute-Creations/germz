@@ -49,6 +49,9 @@ typedef enum _tPlayerSteer {
 	PLAYER_STEER_OFF,
 } tPlayerSteer;
 
+static UBYTE s_ubBattleMode;
+static UBYTE s_ubTeamCfg;
+
 static UBYTE s_pPlayerSteers[4] = {
 	PLAYER_STEER_JOY_1, PLAYER_STEER_JOY_2,
 	PLAYER_STEER_KEY_WSAD, PLAYER_STEER_KEY_ARROWS
@@ -148,8 +151,8 @@ static void menuErrorMsg(const char *szMsg) {
 }
 
 static void startGame(UBYTE isEditor, UBYTE ubPlayerMask) {
-	gameSetEditor(isEditor);
 	if(isEditor) {
+		gameSetRules(1, BATTLE_MODE_FFA, TEAM_CONFIG_P1_P2_AND_P3_P4, 0);
 		fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, onFadeoutEditorGameStart);
 	}
 	else {
@@ -181,6 +184,7 @@ static void startGame(UBYTE isEditor, UBYTE ubPlayerMask) {
 				}
 			}
 		}
+		gameSetRules(0, s_ubBattleMode, s_ubTeamCfg, 0);
 		fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, onFadeoutGameStart);
 	}
 }
@@ -472,12 +476,19 @@ static tOption s_pOptionsBattle[BATTLE_MENU_OPTION_MAX];
 static UBYTE s_ubBattleOptionCount;
 static tListCtl *s_pMapList;
 static const char *s_pLabelsMode[] = {"SOLO", "TEAMS"};
-static const char *s_pLabelsTeam1[] = {"", "", ""}; // P1+P2, P1+P3, P1+P4
-static const char *s_pLabelsTeam2[] = {"", "", ""}; // P3+P4, P2+P4, P2+P3
-static UBYTE s_ubBattleMode;
-static UBYTE s_ubTeamCfg;
+static const char *s_pLabelsTeam1[TEAM_CONFIG_COUNT] = {"", "", ""};
+static const char *s_pLabelsTeam2[TEAM_CONFIG_COUNT] = {"", "", ""};
 static UBYTE s_ubOptionIdxTeam1, s_ubOptionIdxTeam2;
 static UWORD s_uwBattleLastSelectedEntry = 0;
+
+tTeamConfig menuGetTeamConfig(void) {
+	tTeamConfig eCfg = s_ubTeamCfg;
+	return eCfg;
+}
+
+UBYTE menuGetBattleMode(void) {
+	return s_ubBattleMode;
+}
 
 static void battleGsLoopMapSelect(void);
 
@@ -529,8 +540,16 @@ static void onTeamChange(void) {
 
 static void onTeamDraw(UBYTE ubIdx) {
 	// Team combos, consisting of 2 players (X and Y)
-	static const UBYTE pComboA[][2] = {{0, 1}, {0, 2}, {0, 3}}; // P1+P2, P1+P3, P1+P4
-	static const UBYTE pComboB[][2] = {{2, 3}, {1, 3}, {1, 2}}; // P3+P4, P2+P4, P2+P3
+	static const UBYTE pComboA[TEAM_CONFIG_COUNT][2] = {
+		[TEAM_CONFIG_P1_P2_AND_P3_P4] = {0, 1},
+		[TEAM_CONFIG_P1_P3_AND_P2_P4] = {0, 2},
+		[TEAM_CONFIG_P1_P4_AND_P2_P3] = {0, 3}
+	};
+	static const UBYTE pComboB[TEAM_CONFIG_COUNT][2] = {
+		[TEAM_CONFIG_P1_P2_AND_P3_P4] = {2, 3},
+		[TEAM_CONFIG_P1_P3_AND_P2_P4] = {1, 3},
+		[TEAM_CONFIG_P1_P4_AND_P2_P3] = {1, 2}
+	};
 	static const char *pPlayerNames[] = {"P1", "P2", "P3", "P4"};
 
 	UBYTE ubActiveIdx = menuListGetActive();

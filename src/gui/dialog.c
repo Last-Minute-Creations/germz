@@ -22,9 +22,10 @@ tBitMap *dialogCreate(
 	UBYTE ubFlags = (bitmapIsInterleaved(pBack) ? BMF_INTERLEAVED : 0);
 	systemUse();
 	s_pBmDialog = bitmapCreate(s_uwWidth, s_uwHeight, pBack->Depth, ubFlags);
-	dialogClear();
 	s_pBmDialogBgFirst = bitmapCreate(s_uwWidth, s_uwHeight, pBack->Depth, ubFlags);
 	systemUnuse();
+
+	dialogClear();
 	s_pBmFirst = pBack;
 	blitCopy(
 		s_pBmFirst, s_uwOffsX, s_uwOffsY, s_pBmDialogBgFirst, 0, 0,

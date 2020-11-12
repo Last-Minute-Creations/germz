@@ -87,6 +87,7 @@ void playerReset(tPlayerIdx eIdx, tNode *pStartNode) {
 	pPlayer->isDead = 0;
 	pPlayer->bNodeCount = 0;
 	pPlayer->ulRepeatCounter = timerGet();
+	pPlayer->pTeamMate = 0;
 
 	for(UBYTE ubPlep = 0; ubPlep < PLEPS_PER_PLAYER; ++ubPlep) {
 		plepInitBob(&pPlayer->pPleps[ubPlep]);

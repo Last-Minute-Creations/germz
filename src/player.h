@@ -23,6 +23,7 @@ typedef enum _tPlayerIdx {
 typedef struct _tPlayer {
 	tBobNew *pBobCursor;
 	ULONG ulRepeatCounter;
+	struct _tPlayer *pTeamMate;
 	struct _tSteer *pSteer;
 	struct _tNode *pNodeCursor;
 	struct _tNode *pNodePlepSrc;

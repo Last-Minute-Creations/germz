@@ -10,9 +10,28 @@
 #include "steer.h"
 #include "bob_new.h"
 #include "fade.h"
+#include "player.h"
 
 #define HUD_OFFS_X 256
 #define HUD_MONITOR_SIZE 64
+
+typedef enum _tTeamConfig {
+	TEAM_CONFIG_P1_P2_AND_P3_P4,
+	TEAM_CONFIG_P1_P3_AND_P2_P4,
+	TEAM_CONFIG_P1_P4_AND_P2_P3,
+	TEAM_CONFIG_COUNT
+} tTeamConfig;
+
+typedef enum _tBattleMode {
+	BATTLE_MODE_FFA,
+	BATTLE_MODE_TEAMS,
+} tBattleMode;
+
+typedef enum _tTeamIdx {
+	TEAM_1,
+	TEAM_2,
+	TEAM_NONE,
+} tTeamIdx;
 
 //------------------------------------------------------------------------ UTILS
 
@@ -40,7 +59,10 @@ void gameDrawTileAt(tTile eTile, UWORD uwX, UWORD uwY, UBYTE ubFrame);
 
 void gameInitCursorBobs(void);
 
-void gameSetEditor(UBYTE isEditor);
+void gameSetRules(
+	UBYTE isEditor, tBattleMode eBattleMode, tTeamConfig eTeamCfg,
+	UBYTE isCampaign
+);
 
 tBobNew *gameGetCursorBob(UBYTE ubIdx);
 
@@ -51,5 +73,17 @@ void gameQuit(void);
 UBYTE *gameGetScores(void);
 
 void gameRestart(void);
+
+tPlayer **gameGetTeamLeaders(void);
+
+UBYTE gameIsCampaign(void);
+
+tBattleMode gameGetBattleMode(void);
+
+tTeamIdx gameGetWinnerTeams(void);
+
+tPlayerIdx gameGetWinnerFfa(void);
+
+tTeamConfig gameGetTeamConfig(void);
 
 #endif // _GERMZ_GAME_H_

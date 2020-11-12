@@ -34,7 +34,15 @@ static const tBCoordYX s_pPlepMoveDelta[4] = {
 
 static UBYTE plepSinkInNode(tPlep *pPlep) {
 	tNode *pNode = pPlep->pDestination;
-	if(pNode->pPlayer != pPlep->pPlayer) {
+	if(pNode->pPlayer == pPlep->pPlayer || (
+		pNode->pPlayer && pNode->pPlayer == pPlep->pPlayer->pTeamMate
+	)) {
+		// logWrite("Power up! %hd %hd\n", pNode->wCharges, pPlep->wCharges);
+		// Power up blob with plep's charges
+		pNode->wCharges = MIN(pNode->wCharges + pPlep->wCharges, 999);
+		return 1;
+	}
+	else {
 		// logWrite("Attacking blob %hd with plep %hd\n", pNode->wCharges, pPlep->wCharges);
 		// Attack with plep's charges!
 		pNode->wCharges -= pPlep->wCharges;
@@ -54,12 +62,6 @@ static UBYTE plepSinkInNode(tPlep *pPlep) {
 			return 1;
 			// logWrite("Capture! %hd\n", pNode->wCharges);
 		}
-	}
-	else {
-		// logWrite("Power up! %hd %hd\n", pNode->wCharges, pPlep->wCharges);
-		// Power up blob with plep's charges
-		pNode->wCharges = MIN(pNode->wCharges + pPlep->wCharges, 999);
-		return 1;
 	}
 
 	// Plep capture / power up failed

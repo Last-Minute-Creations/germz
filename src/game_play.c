@@ -197,16 +197,34 @@ static void gamePlayGsLoop(void) {
 	bobNewPushingDone();
 	mapProcessNodes();
 
-	if(ubAliveCount <= 1) {
-		UBYTE *pScores = gameGetScores();
-		for(tPlayerIdx eIdx = 0; eIdx <= PLAYER_4; ++eIdx) {
-			const tPlayer *pPlayer = playerFromIdx(eIdx);
-			if(!pPlayer->isDead) {
-				pScores[eIdx] = MIN(pScores[eIdx] + 1, 99);
+	// Process end of match conditions
+	if(gameIsCampaign()) {
+		// Campaign
+	}
+	else {
+		// Battle
+		if(gameGetBattleMode() == BATTLE_MODE_TEAMS) {
+			// Teams
+			tTeamIdx eTeam  = gameGetWinnerTeams();
+			if(eTeam != TEAM_NONE) {
+				UBYTE *pScores = gameGetScores();
+				pScores[eTeam] = MIN(pScores[eTeam] + 1, 99);
+				gamePauseEnable(PAUSE_KIND_BATTLE_SUMMARY);
+				return;
 			}
 		}
-		gamePauseEnable(PAUSE_KIND_BATTLE_SUMMARY);
-		return;
+		else {
+			// FFA
+			if(ubAliveCount <= 1) {
+				tPlayerIdx eWinner = gameGetWinnerFfa();
+				if(eWinner != PLAYER_NONE) {
+					UBYTE *pScores = gameGetScores();
+					pScores[eWinner] = MIN(pScores[eWinner] + 1, 99);
+					gamePauseEnable(PAUSE_KIND_BATTLE_SUMMARY);
+					return;
+				}
+			}
+		}
 	}
 	gamePostprocess();
 }
