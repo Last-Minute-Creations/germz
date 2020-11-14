@@ -26,7 +26,7 @@ static tVPort *s_pVp;
 static tSimpleBufferManager *s_pBfr;
 static tBobNew s_pCursorBobs[4];
 static tFade *s_pFade;
-static UBYTE s_isQuitting;
+static UBYTE s_isQuitting; // TODO: do quitting state instead
 static UBYTE s_pScores[4];
 static tBattleMode s_eBattleMode;
 static tTeamConfig s_eTeamCfg;
@@ -66,6 +66,7 @@ void gameDumpFrame(void) {
 }
 
 static void onGameRestartFadeout(void) {
+	s_isQuitting = 0;
 	stateChange(g_pStateMachineGame, &g_sStateGameInit);
 }
 
@@ -79,6 +80,7 @@ void gameQuit(void) {
 }
 
 void gameRestart(void) {
+	s_isQuitting = 1;
 	fadeSet(s_pFade, FADE_STATE_OUT, 50, onGameRestartFadeout);
 }
 

@@ -12,7 +12,7 @@
 			"compilerPath": "${default}",
 			"cStandard": "c11",
 			"cppStandard": "c++17",
-			"intelliSenseMode": "gcc-x64"
+			"intelliSenseMode": "gcc-x86"
 		},
 		{
 			"name": "Win32",
@@ -31,7 +31,7 @@
 			],
 			"cStandard": "c11",
 			"cppStandard": "c++17",
-			"intelliSenseMode": "clang-x64",
+			"intelliSenseMode": "gcc-x86",
 			"browse": {
 				"path": [
 					"${workspaceFolder}"

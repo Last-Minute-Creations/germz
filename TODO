@@ -76,7 +76,7 @@ Done:
 		✔ Use "pause" dialog without "back" option @done(20-11-03 21:38)
 
 Now:
-	☐ clear hud monitors in gameInit so that it won't contain stuff from gamePlay after restart
+	✔ old digits are blinking on HUD after restarting battle @done(20-11-14 11:43)
 	✔ menu.c should probably set vars in game.c on start @done(20-11-12 15:26)
 	☐ Team play:
 		✔ pause: scores team 1, team 2 @done(20-11-12 15:26)

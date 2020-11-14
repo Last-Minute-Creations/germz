@@ -1,3 +1,7 @@
+20.11.12
+	- pause is now single-buffered
+	- added per-player per-map charge rate and attack power defs
+
 20.11.3
 	- added post-battle summary
 	- scores should now be working properly
