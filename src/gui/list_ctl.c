@@ -18,22 +18,6 @@ static int onSortAsc(const void *pA, const void *pB) {
 	return SGN(strcmp(szA, szB));
 }
 
-static void clearRect(
-	tListCtl *pCtl, UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwHeight
-) {
-	if(pCtl->pBg) {
-		// Fill background with bg
-		blitCopy(
-			pCtl->pBg, uwX, uwY, pCtl->pBfr, uwX, uwY,
-			uwWidth, uwHeight, MINTERM_COOKIE
-		);
-	}
-	else {
-		// Clear background
-		blitRect(pCtl->pBfr, uwX, uwY, uwWidth, uwHeight, 0);
-	}
-}
-
 static UBYTE listCtlGetMaxVisibleEntries(const tListCtl *pCtl) {
 	return (pCtl->sRect.uwHeight - 4) / pCtl->ubEntryHeight;
 }
@@ -54,8 +38,9 @@ static void listCtlDrawEntry(tListCtl *pCtl, UWORD uwIdx) {
 			);
 		}
 		else {
-			clearRect(
-				pCtl, pCtl->sRect.uwX+2, pCtl->sRect.uwY+2 + ubPosOnView * pCtl->ubEntryHeight,
+			guiBackgroundClear(
+				pCtl->pBg, pCtl->pBfr,
+				pCtl->sRect.uwX+2, pCtl->sRect.uwY+2 + ubPosOnView * pCtl->ubEntryHeight,
 				pCtl->sRect.uwWidth - LISTCTL_BTN_WIDTH - 2 - 2 - 1, pCtl->ubEntryHeight
 			);
 		}
@@ -83,7 +68,10 @@ static void listCtlDrawAllEntries(tListCtl *pCtl) {
 	);
 	UWORD uwScrollX = pCtl->sRect.uwX + pCtl->sRect.uwWidth - LISTCTL_BTN_WIDTH - 2;
 	UWORD uwScrollY =  pCtl->sRect.uwY + LISTCTL_BTN_WIDTH + 3;
-	clearRect(pCtl, uwScrollX, uwScrollY, LISTCTL_BTN_WIDTH, ubScrollBarHeight);
+	guiBackgroundClear(
+		pCtl->pBg, pCtl->pBfr, uwScrollX, uwScrollY,
+		LISTCTL_BTN_WIDTH, ubScrollBarHeight
+	);
 	blitRect(
 		pCtl->pBfr, uwScrollX, uwScrollY + ubBeadStart, LISTCTL_BTN_WIDTH, ubBeadHeight,
 		pCfg->ubColorDark
@@ -131,7 +119,7 @@ static void onPressDown(void *pData) {
 }
 
 tListCtl *listCtlCreate(
-	const tBitMap *pBg, tBitMap *pBfr, UWORD uwX, UWORD uwY,
+	const tGuiBackground *pBg, tBitMap *pBfr, UWORD uwX, UWORD uwY,
 	UWORD uwWidth, UWORD uwHeight, tFont *pFont, UWORD uwEntryMaxCnt,
 	tTextBitMap *pTextBfr, tCbListCtlOnSelect cbOnSelect
 ) {
@@ -207,8 +195,8 @@ void listCtlRemoveEntry(tListCtl *pCtl, UWORD uwIdx) {
 }
 
 void listCtlUndraw(tListCtl *pCtl) {
-	clearRect(
-		pCtl, pCtl->sRect.uwX, pCtl->sRect.uwY,
+	guiBackgroundClear(
+		pCtl->pBg, pCtl->pBfr, pCtl->sRect.uwX, pCtl->sRect.uwY,
 		pCtl->sRect.uwWidth, pCtl->sRect.uwHeight
 	);
 }
@@ -240,12 +228,20 @@ UBYTE listCtlProcessClick(tListCtl *pCtl, UWORD uwMouseX, UWORD uwMouseY) {
 	return 0;
 }
 
-void listCtlSelectPrev(tListCtl *pCtl) {
-	onPressUp(pCtl);
+UBYTE listCtlSelectPrev(tListCtl *pCtl) {
+	if(pCtl->uwEntrySel) {
+		onPressUp(pCtl);
+		return 1;
+	}
+	return 0;
 }
 
-void listCtlSelectNext(tListCtl *pCtl) {
-	onPressDown(pCtl);
+UBYTE listCtlSelectNext(tListCtl *pCtl) {
+	if(pCtl->uwEntrySel < pCtl->uwEntryCnt - 1) {
+		onPressDown(pCtl);
+		return 1;
+	}
+	return 0;
 }
 
 void listCtlSortEntries(tListCtl *pCtl) {

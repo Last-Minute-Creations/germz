@@ -7,24 +7,11 @@
 #include <ace/utils/string.h>
 #include "assets.h"
 #include "gui/border.h"
+#include "gui/background.h"
 #include "color.h"
 
 static const char *s_szFilePrev;
 static UBYTE s_isMapInfoRefreshed;
-
-static void fillBg(
-	const tBitMap *pBmBg, tBitMap *pBmDest,
-	UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwHeight
-) {
-	if(pBmBg) {
-		blitCopy(
-			pBmBg, uwX, uwY, pBmDest, uwX, uwY, uwWidth, uwHeight, MINTERM_COOKIE
-		);
-	}
-	else {
-		blitRect(pBmDest, uwX, uwY, uwWidth, uwHeight, 0);
-	}
-}
 
 void mapListDrawPreview(
 	const tMapData *pMapData, tBitMap *pBmDest, UWORD uwX, UWORD uwY,
@@ -72,11 +59,10 @@ void mapListDrawPreview(
 }
 
 tListCtl *mapListCreateCtl(
-	const tBitMap *pBmBg, tBitMap *pBmBfr, UWORD uwX, UWORD uwY,
-	UWORD uwWidth, UWORD uwHeight
+	tBitMap *pBmBfr, UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwHeight
 ) {
 	tListCtl *pCtrl = listCtlCreate(
-		pBmBg, pBmBfr, uwX, uwY, uwWidth, uwHeight, g_pFontSmall, 50,
+		&g_sBgScanlined, pBmBfr, uwX, uwY, uwWidth, uwHeight, g_pFontSmall, 50,
 		g_pTextBitmap, 0
 	);
 
@@ -113,7 +99,7 @@ tListCtl *mapListCreateCtl(
 	return pCtrl;
 }
 
-UBYTE updateMapInfo(const tListCtl *pCtrl, tMapData *pMapData) {
+UBYTE mapListLoadMap(const tListCtl *pCtrl, tMapData *pMapData) {
 	const char *szFile = listCtlGetSelection(pCtrl);
 	if(szFile == s_szFilePrev && s_isMapInfoRefreshed) {
 		return 0;
@@ -129,60 +115,57 @@ UBYTE updateMapInfo(const tListCtl *pCtrl, tMapData *pMapData) {
 }
 
 void mapInfoDrawAuthorTitle(
-	const tMapData *pMapData, const tBitMap *pBmBg, tBitMap *pBmBuffer,
-	UWORD uwX, UWORD uwY
+	const tMapData *pMapData, tBitMap *pBmBuffer, UWORD uwX, UWORD uwY
 ) {
 	const UBYTE ubRowWidth = 100;
 	const UBYTE ubRowHeight = g_pFontSmall->uwHeight + 2;
 
-	fillBg(pBmBg, pBmBuffer, uwX, uwY, ubRowWidth, ubRowHeight);
+	guiBackgroundClear(&g_sBgScanlined, pBmBuffer, uwX, uwY, ubRowWidth, ubRowHeight);
 	fontDrawStr(
 		g_pFontSmall, pBmBuffer, uwX, uwY, "Title:",
 		18 >> 1, FONT_COOKIE, g_pTextBitmap
 	);
 	uwY += ubRowHeight;
 
-	fillBg(pBmBg, pBmBuffer, uwX, uwY, ubRowWidth, ubRowHeight);
+	guiBackgroundClear(&g_sBgScanlined, pBmBuffer, uwX, uwY, ubRowWidth, ubRowHeight);
 	fontDrawStr(
 		g_pFontSmall, pBmBuffer, uwX + 5, uwY, pMapData->szName,
 		18 >> 1, FONT_COOKIE, g_pTextBitmap
 	);
 	uwY += ubRowHeight;
 
-	fillBg(pBmBg, pBmBuffer, uwX, uwY, ubRowWidth, ubRowHeight);
+	guiBackgroundClear(&g_sBgScanlined, pBmBuffer, uwX, uwY, ubRowWidth, ubRowHeight);
 	fontDrawStr(
 		g_pFontSmall, pBmBuffer, uwX, uwY, "Author:",
 		18 >> 1, FONT_COOKIE, g_pTextBitmap
 	);
 	uwY += ubRowHeight;
 
-	fillBg(pBmBg, pBmBuffer, uwX, uwY, ubRowWidth, ubRowHeight);
+	guiBackgroundClear(&g_sBgScanlined, pBmBuffer, uwX, uwY, ubRowWidth, ubRowHeight);
 	fontDrawStr(
 		g_pFontSmall, pBmBuffer, uwX + 5, uwY, pMapData->szAuthor,
 		18 >> 1, FONT_COOKIE, g_pTextBitmap
 	);
 }
 
-void clearMapInfo(
-	const tBitMap *pBmBg, tBitMap *pBmBuffer, UWORD uwX, UWORD uwY
-) {
+void clearMapInfo(tBitMap *pBmBuffer, UWORD uwX, UWORD uwY) {
 	const UBYTE ubRowWidth = 100;
 	const UBYTE ubRowHeight = g_pFontSmall->uwHeight + 2;
 
-	fillBg(pBmBg, pBmBuffer, uwX, uwY, ubRowWidth, ubRowHeight);
+	guiBackgroundClear(&g_sBgScanlined, pBmBuffer, uwX, uwY, ubRowWidth, ubRowHeight);
 	fontDrawStr(
 		g_pFontSmall, pBmBuffer, uwX, uwY, "Loading map...",
 		18 >> 1, FONT_COOKIE, g_pTextBitmap
 	);
 	uwY += ubRowHeight;
 
-	fillBg(pBmBg, pBmBuffer, uwX, uwY, ubRowWidth, ubRowHeight);
+	guiBackgroundClear(&g_sBgScanlined, pBmBuffer, uwX, uwY, ubRowWidth, ubRowHeight);
 	uwY += ubRowHeight;
 
-	fillBg(pBmBg, pBmBuffer, uwX, uwY, ubRowWidth, ubRowHeight);
+	guiBackgroundClear(&g_sBgScanlined, pBmBuffer, uwX, uwY, ubRowWidth, ubRowHeight);
 	uwY += ubRowHeight;
 
-	fillBg(pBmBg, pBmBuffer, uwX, uwY, ubRowWidth, ubRowHeight);
+	guiBackgroundClear(&g_sBgScanlined, pBmBuffer, uwX, uwY, ubRowWidth, ubRowHeight);
 
 	s_isMapInfoRefreshed = 0;
 }

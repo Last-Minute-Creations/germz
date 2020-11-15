@@ -74,23 +74,25 @@ Done:
 		✔ Actually count scores @done(20-11-03 21:38)
 		✔ Reset scores on battle start (gameGsCreate?) @done(20-11-03 21:38)
 		✔ Use "pause" dialog without "back" option @done(20-11-03 21:38)
-
-Now:
 	✔ old digits are blinking on HUD after restarting battle @done(20-11-14 11:43)
 	✔ menu.c should probably set vars in game.c on start @done(20-11-12 15:26)
-	☐ Team play:
+	✔ Team play: @done(20-11-14 12:00)
 		✔ pause: scores team 1, team 2 @done(20-11-12 15:26)
-		☐ win conditions
-		☐ teammate can launch attacks from other teammate's nodes
+		✔ win conditions @done(20-11-14 11:57)
+		✘ teammate can launch attacks from other teammate's nodes @cancelled(20-11-14 12:00)
+
+Now:
+	☐ fix map load/save dialog in editor
+	☐ game summary when launched from editor
+	☐ proper game init when launched from editor
 	☐ Campaign:
 		☐ pause: retry
 		☐ Start with c01.json map
 		☐ Start next map after finishing map
 		☐ Retry yes/no after defeat
-	☐ fix map load/save dialog in editor
-	☐ game summary when launched from editor
-	☐ proper game init when launched from editor
 	☐ Speed up hud drawing (1bpp + copper)
+	☐ Set special colors for map preview in editor using copperlist or use different special colors for HUD and hardcode map preview colors into palette
+	☐ Configurable match count in battle mode
 	☐ targeting icon on hud when fire is pressed and node is given player's
 	☐ error messages before starting battle
 	☐ display in visible menu part how keyboard layouts have action button bound (how to play)

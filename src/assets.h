@@ -5,9 +5,12 @@
 #ifndef _GERMZ_ASSETS_H_
 #define _GERMZ_ASSETS_H_
 
-#include "map.h"
 #include <ace/utils/font.h>
 #include <ace/utils/ptplayer.h>
+#include <gui/background.h>
+#include "map.h"
+#include "color.h"
+
 #define BLOB_COLOR_COUNT 5
 #define BLOB_FRAME_COUNT 9
 
@@ -54,5 +57,6 @@ extern tBitMap *g_pBmLinks, *g_pBmLinksMask;
 extern tPtplayerSfx *g_pSfxPlep1, *g_pSfxPlep2;
 
 extern tDefs g_sDefs;
+extern const tGuiBackground g_sBgScanlined;
 
 #endif // _GERMZ_GAME_ASSETS_H_

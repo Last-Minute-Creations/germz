@@ -11,6 +11,7 @@ extern "C" {
 
 #include <ace/types.h>
 #include <ace/utils/font.h>
+#include <gui/background.h>
 
 #define LISTCTL_ENTRY_INVALID 0xFFFF
 #define LISTCTL_DRAWSTATE_OK 0
@@ -28,7 +29,7 @@ typedef struct _tListCtl {
 	UWORD uwEntryScrollPos;
 	char **pEntries;
 	tFont *pFont;
-	const tBitMap *pBg;
+	const tGuiBackground *pBg;
 	tBitMap *pBfr;
 	tCbListCtlOnSelect cbOnSelect;
 	tTextBitMap *pEntryTextBfr;
@@ -36,7 +37,7 @@ typedef struct _tListCtl {
 } tListCtl;
 
 tListCtl *listCtlCreate(
-	const tBitMap *pBg, tBitMap *pBfr, UWORD uwX, UWORD uwY,
+	const tGuiBackground *pBg, tBitMap *pBfr, UWORD uwX, UWORD uwY,
 	UWORD uwWidth, UWORD uwHeight, tFont *pFont, UWORD uwEntryMaxCnt,
 	tTextBitMap *pTextBfr, tCbListCtlOnSelect cbOnSelect
 );
@@ -53,9 +54,21 @@ void listCtlUndraw(tListCtl *pCtl);
 
 UBYTE listCtlProcessClick(tListCtl *pCtl, UWORD uwMouseX, UWORD uwMouseY);
 
-void listCtlSelectPrev(tListCtl *pCtl);
+/**
+ * @brief Selects previous entry on the list.
+ *
+ * @param pCtl
+ * @return 1 if selection was changed, otherwise 0.
+ */
+UBYTE listCtlSelectPrev(tListCtl *pCtl);
 
-void listCtlSelectNext(tListCtl *pCtl);
+/**
+ * @brief Selects next entry on the list.
+ *
+ * @param pCtl
+ * @return 1 if selection was changed, otherwise 0.
+ */
+UBYTE listCtlSelectNext(tListCtl *pCtl);
 
 void listCtlSortEntries(tListCtl *pCtl);
 

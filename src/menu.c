@@ -651,9 +651,9 @@ static void battleRegenMenuList(UBYTE ubPlayerMask) {
 	s_pMenuBattleCaptions[s_ubBattleOptionCount++] = "BACK";
 }
 
-static void menuUpdateMapInfo(UBYTE isForce) {
-	if(updateMapInfo(s_pMapList, &g_sMapData) || isForce) {
-		mapInfoDrawAuthorTitle(&g_sMapData, &s_sBgCurrScanline, &s_sBmFrontScanline, INFO_X, INFO_Y);
+static void menumapListLoadMap(UBYTE isForce) {
+	if(mapListLoadMap(s_pMapList, &g_sMapData) || isForce) {
+		mapInfoDrawAuthorTitle(&g_sMapData, &s_sBmFrontScanline, INFO_X, INFO_Y);
 		mapListDrawPreview(&g_sMapData, &s_sBmFrontScanline, PREVIEW_X, PREVIEW_Y, 6);
 	}
 }
@@ -685,7 +685,7 @@ static void battleGsCreate(void) {
 
 	buttonListCreate(5, &s_sBmFrontScanline, g_pFontSmall, g_pTextBitmap);
 	s_pMapList = mapListCreateCtl(
-		&s_sBgCurrScanline, &s_sBmFrontScanline, BATTLE_MENU_X, BATTLE_MENU_Y,
+		&s_sBmFrontScanline, BATTLE_MENU_X, BATTLE_MENU_Y,
 		BATTLE_MENU_WIDTH, BATTLE_MENU_HEIGHT
 	);
 	listCtlSetSelectionIdx(s_pMapList, s_uwBattleLastSelectedEntry);
@@ -695,7 +695,7 @@ static void battleGsCreate(void) {
 
 	s_cbOnEscape = fadeToMain;
 	menuListSetActive(4);
-	menuUpdateMapInfo(1);
+	menumapListLoadMap(1);
 	battleDrawMenuList();
 	s_ullChangeTimer = timerGet();
 }
@@ -710,7 +710,7 @@ static void battleGsLoopMapSelect(void) {
 		(isEnabled34 && (joyUse(JOY3_UP) || joyUse(JOY4_UP)))
 	) {
 		listCtlSelectPrev(s_pMapList);
-		clearMapInfo(&s_sBgCurrScanline, &s_sBmFrontScanline, INFO_X, INFO_Y);
+		clearMapInfo(&s_sBmFrontScanline, INFO_X, INFO_Y);
 		s_ullChangeTimer = timerGet();
 	}
 	else if(
@@ -719,7 +719,7 @@ static void battleGsLoopMapSelect(void) {
 		(isEnabled34 && (joyUse(JOY3_DOWN) || joyUse(JOY4_DOWN)))
 	) {
 		listCtlSelectNext(s_pMapList);
-		clearMapInfo(&s_sBgCurrScanline, &s_sBmFrontScanline, INFO_X, INFO_Y);
+		clearMapInfo(&s_sBmFrontScanline, INFO_X, INFO_Y);
 		s_ullChangeTimer = timerGet();
 	}
 	else if(
@@ -727,12 +727,12 @@ static void battleGsLoopMapSelect(void) {
 		joyUse(JOY1_FIRE) || joyUse(JOY2_FIRE) ||
 		(isEnabled34 && (joyUse(JOY3_FIRE) || joyUse(JOY4_FIRE)))
 	) {
-		menuUpdateMapInfo(0);
+		menumapListLoadMap(0);
 		isMapSelected = 1;
 	}
 
 	if(timerGetDelta(s_ullChangeTimer, timerGet()) >= 25) {
-		menuUpdateMapInfo(0);
+		menumapListLoadMap(0);
 		s_ullChangeTimer = timerGet();
 	}
 

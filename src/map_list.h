@@ -11,20 +11,16 @@
 #define MAP_FILENAME_MAX 100
 
 tListCtl *mapListCreateCtl(
-	const tBitMap *pBmBg, tBitMap *pBmBfr, UWORD uwX, UWORD uwY,
-	UWORD uwWidth, UWORD uwHeight
+	tBitMap *pBmBfr, UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwHeight
 );
 
-UBYTE updateMapInfo(const tListCtl *pCtrl, tMapData *pMapData);
+UBYTE mapListLoadMap(const tListCtl *pCtrl, tMapData *pMapData);
 
 void mapInfoDrawAuthorTitle(
-	const tMapData *pMapData, const tBitMap *pBmBg, tBitMap *pBmBuffer,
-	UWORD uwX, UWORD uwY
+	const tMapData *pMapData, tBitMap *pBmBuffer, UWORD uwX, UWORD uwY
 );
 
-void clearMapInfo(
-	const tBitMap *pBmBg, tBitMap *pBmBuffer, UWORD uwX, UWORD uwY
-);
+void clearMapInfo(tBitMap *pBmBuffer, UWORD uwX, UWORD uwY);
 
 void mapListDrawPreview(
 	const tMapData *pMapData, tBitMap *pBmDest, UWORD uwX, UWORD uwY,

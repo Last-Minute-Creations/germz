@@ -54,6 +54,7 @@ void assetsGlobalCreate(void) {
 	pConfig->ubColorFill = 20 >> 1;
 	pConfig->ubColorText = 18 >> 1;
 	pConfig->eFill = FILL_STYLE_NONE;
+
 }
 
 void assetsGlobalDestroy(void) {
@@ -125,8 +126,13 @@ tTextBitMap *g_pTextBitmap;
 tBitMap *g_pFrameDisplay;
 tDefs g_sDefs;
 
+const tGuiBackground g_sBgScanlined = {
+	.pBm = 0, .ubColorIdx = COLOR_CONSOLE_BG >> 1
+};
+
 // Game assets
 tBitMap *g_pBmBlobs[BLOB_COLOR_COUNT], *g_pBmBlobMask;
 tBitMap *g_pCursors, *g_pCursorsMask;
 tBitMap *g_pBmLinks, *g_pBmLinksMask;
 tPtplayerSfx *g_pSfxPlep1, *g_pSfxPlep2;
+
