@@ -34,38 +34,44 @@ static const tBCoordYX s_pPlepMoveDelta[4] = {
 
 static UBYTE plepSinkInNode(tPlep *pPlep) {
 	tNode *pNode = pPlep->pDestination;
+	UBYTE isCaptureSuccess = 0;
 	if(pNode->pPlayer == pPlep->pPlayer || (
 		pNode->pPlayer && pNode->pPlayer == pPlep->pPlayer->pTeamMate
 	)) {
 		// logWrite("Power up! %hd %hd\n", pNode->wCharges, pPlep->wCharges);
 		// Power up blob with plep's charges
 		pNode->wCharges = MIN(pNode->wCharges + pPlep->wCharges, 999);
-		return 1;
+		isCaptureSuccess = 1;
 	}
 	else {
 		// logWrite("Attacking blob %hd with plep %hd\n", pNode->wCharges, pPlep->wCharges);
 		// Attack with plep's charges!
-		pNode->wCharges -= pPlep->wCharges * pPlep->pPlayer->pMapData->ubPower;
-		if(pNode->wCharges == 0) {
-			// Zero charges in blob - make it neutral
-			if(pNode->pPlayer) {
-				// logWrite("Draw! To neutral\n");
-				nodeChangeOwnership(pNode, 0);
-				// TODO: if player is selecting from that blob, remove selection
-				// TODO: test it
-			}
-		}
-		else if(pNode->wCharges < 0) {
-			// Negative charge - capture blob!
-			nodeChangeOwnership(pNode, pPlep->pPlayer);
+		UBYTE ubPower = pPlep->pPlayer->pMapData->ubPower;
+		pNode->wCharges -= pPlep->wCharges * ubPower;
+		if(pNode->wCharges <= 0) {
+			// Negative charge - downgrade power and check if blob is really captured
 			pNode->wCharges = -pNode->wCharges;
-			return 1;
-			// logWrite("Capture! %hd\n", pNode->wCharges);
+			if(pNode->wCharges < ubPower) {
+				// Zero charges in blob or too little to survive downgrade - make it neutral
+				if(pNode->pPlayer) {
+					// logWrite("Draw! To neutral\n");
+					nodeChangeOwnership(pNode, 0);
+					// TODO: if player is selecting from that blob, remove selection
+					// TODO: test it
+				}
+			}
+			else {
+				// Blob captured
+				pNode->wCharges = (UWORD)pNode->wCharges / ubPower;
+				nodeChangeOwnership(pNode, pPlep->pPlayer);
+				isCaptureSuccess = 1;
+				// logWrite("Capture! %hd\n", pNode->wCharges);
+			}
 		}
 	}
 
 	// Plep capture / power up failed
-	return 0;
+	return isCaptureSuccess;
 }
 
 //------------------------------------------------------------------- PUBLIC FNS

@@ -1,3 +1,12 @@
+20.11.20
+	- Probably fixed incrementing scores when pressing ESC in game summary
+	- Probably fixed not being able to navigate in summary if defeated by CPU
+	- Attack power now doesn't affect final plep count after takeover
+
+20.11.15
+	- "load" dialog in editor now should work, "save" probably not
+	- fixed old digits on HUD blinking after restarting map from pause menu
+
 20.11.12
 	- pause is now single-buffered
 	- added per-player per-map charge rate and attack power defs

@@ -80,6 +80,8 @@ Done:
 		✔ pause: scores team 1, team 2 @done(20-11-12 15:26)
 		✔ win conditions @done(20-11-14 11:57)
 		✘ teammate can launch attacks from other teammate's nodes @cancelled(20-11-14 12:00)
+	✔ if AI won (?), "rematch" and "exit to menu" options doesn't work @done(20-11-20 17:08)
+	✔ pressing ESC in game summary causes points to be incremented @done(20-11-20 17:08)
 
 Now:
 	☐ fix map load/save dialog in editor
@@ -98,6 +100,7 @@ Now:
 	☐ display in visible menu part how keyboard layouts have action button bound (how to play)
 	☐ Import/export to/from editor by typing in code (AmigaLive)
 	☐ remove value_ptr stuff (separate param in menu list)
+	☐ credits for used fonts
 
 Bugs:
 	☐ Sometimes after starting game again pleps are blinking

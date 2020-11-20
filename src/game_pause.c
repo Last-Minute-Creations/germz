@@ -232,7 +232,7 @@ static void gamePauseGsLoop(void) {
 	// Process pressing fire after gamePostProcess and only if noone moved up/down
 	for(tPlayerIdx ePlayerIdx = PLAYER_1; ePlayerIdx <= PLAYER_4; ++ePlayerIdx) {
 		const tPlayer *pPlayer = playerFromIdx(ePlayerIdx);
-		if(!pPlayer->isDead && steerIsPlayer(pPlayer->pSteer) && !isAnyPlayerMoved) {
+		if(steerIsPlayer(pPlayer->pSteer) && !isAnyPlayerMoved) {
 			if(steerDirUse(pPlayer->pSteer, DIRECTION_FIRE)) {
 				menuListEnter();
 				// Don't process anything else past this point
@@ -241,7 +241,10 @@ static void gamePauseGsLoop(void) {
 		}
 	}
 
-	if(keyUse(KEY_ESCAPE)) {
+	if(
+		keyUse(KEY_ESCAPE) &&
+		(s_eKind == PAUSE_KIND_BATTLE_PAUSE || s_eKind == PAUSE_KIND_CAMPAIGN_PAUSE)
+	) {
 		onBack();
 	}
 }
