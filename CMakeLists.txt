@@ -13,11 +13,12 @@ file(GLOB_RECURSE SOURCES src/*.c src/*.h)
 
 if(ELF2HUNK)
 	set(GERMZ_EXECUTABLE germz.elf)
+	set(GERMZ_OUTPUT_EXECUTABLE germz.exe)
 	add_executable(${GERMZ_EXECUTABLE} ${SOURCES})
 	target_link_libraries(${GERMZ_EXECUTABLE} -Wl,-Map=germz.map)
 	add_custom_command(
 		TARGET ${GERMZ_EXECUTABLE} POST_BUILD
-		COMMAND ${ELF2HUNK} ${GERMZ_EXECUTABLE} germz.exe
+		COMMAND ${ELF2HUNK} ${GERMZ_EXECUTABLE} ${GERMZ_OUTPUT_EXECUTABLE}
 	)
 	add_custom_command(
 		TARGET ${GERMZ_EXECUTABLE} POST_BUILD
@@ -25,6 +26,7 @@ if(ELF2HUNK)
 	)
 else()
 	SET(GERMZ_EXECUTABLE germz)
+	SET(GERMZ_OUTPUT_EXECUTABLE germz)
 	add_executable(${GERMZ_EXECUTABLE} ${SOURCES})
 endif()
 
@@ -371,4 +373,24 @@ file(
 		${RES_DIR}/germz2-25.mod ${RES_DIR}/maps ${RES_DIR}/uni54.fnt
 		${RES_DIR}/defs.json
 	DESTINATION ${DATA_DIR}
+)
+
+# Generating ZIP
+set(GERMZ_ZIP_NAME ${CMAKE_PROJECT_NAME})
+add_custom_target(generateZip COMMAND
+	${CMAKE_COMMAND} -E tar "cf" "${GERMZ_ZIP_NAME}.zip" --format=zip
+	"${CMAKE_CURRENT_BINARY_DIR}/${GERMZ_OUTPUT_EXECUTABLE}" "${DATA_DIR}"
+	COMMENT "Generating ${GERMZ_ZIP_NAME}.zip"
+)
+
+# Generating ADF
+set(ADF_DIR "${CMAKE_CURRENT_BINARY_DIR}/adf")
+add_custom_target(generateAdf
+	COMMAND ${CMAKE_COMMAND} -E make_directory "${ADF_DIR}/s"
+	COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/${GERMZ_OUTPUT_EXECUTABLE}" "${ADF_DIR}"
+	COMMAND ${CMAKE_COMMAND} -E copy_directory "${DATA_DIR}" "${ADF_DIR}/data"
+	COMMAND ${CMAKE_COMMAND} -E echo "${GERMZ_OUTPUT_EXECUTABLE}" > "${ADF_DIR}/s/startup-sequence"
+	COMMAND exe2adf -l ${CMAKE_PROJECT_NAME} -a "${CMAKE_PROJECT_NAME}.adf" -d ${ADF_DIR}
+	COMMAND ${CMAKE_COMMAND} -E rm -rf "${ADF_DIR}"
+	COMMENT "Generating ADF file"
 )
