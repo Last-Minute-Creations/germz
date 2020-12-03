@@ -3,35 +3,30 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "menu_list.h"
-#include "value_ptr.h"
 
 static UBYTE s_ubActiveOption;
 static UBYTE s_ubOptionCount;
-static tOption *s_pOptions;
+static tMenuListOption *s_pOptions;
 static const char **s_pOptionCaptions;
-static tBitMap *s_pBmBg, *s_pBmBuffer;
 static tFont *s_pFont;
-static tTextBitMap *s_pTextBitmap;
 static UWORD s_uwX, s_uwY;
-static const tMenuListStyle *s_pStyle;
+static tCbMenuListUndraw s_cbUndraw;
+static tCbMenuListDrawPos s_cbDrawPos;
 
 void menuListInit(
-	tOption *pOptions, const char **pOptionCaptions,
-	UBYTE ubOptionCount, tFont *pFont, tTextBitMap *pTextBitmap,
-	tBitMap *pBmBg, tBitMap *pBmBuffer, UWORD uwX, UWORD uwY,
-	const tMenuListStyle *pStyle
+	tMenuListOption *pOptions, const char **pOptionCaptions, UBYTE ubOptionCount,
+	tFont *pFont, UWORD uwX, UWORD uwY, const tCbMenuListUndraw cbUndraw,
+	const tCbMenuListDrawPos cbDrawPos
 ) {
 	s_pOptions = pOptions;
 	s_ubOptionCount = ubOptionCount;
 	s_ubActiveOption = 0;
 	s_pFont = pFont;
 	s_pOptionCaptions = pOptionCaptions;
-	s_pBmBg = pBmBg;
-	s_pBmBuffer = pBmBuffer;
-	s_pTextBitmap = pTextBitmap;
-	s_pStyle = pStyle;
 	s_uwX = uwX;
 	s_uwY = uwY;
+	s_cbUndraw = cbUndraw;
+	s_cbDrawPos = cbDrawPos;
 
 	for(UBYTE ubMenuPos = 0; ubMenuPos < ubOptionCount; ++ubMenuPos) {
 		s_pOptions[ubMenuPos].eDirty = MENU_LIST_DIRTY_VAL_CHANGE;
@@ -49,16 +44,9 @@ void menuListDraw(void) {
 
 void menuListUndrawPos(UBYTE ubPos) {
 	UWORD uwPosY = s_uwY + ubPos * (s_pFont->uwHeight + 1);
-	if(isValuePtr(s_pBmBg)) {
-		blitRect(
-			s_pBmBuffer, s_uwX, uwPosY, s_pOptions[ubPos].uwUndrawWidth,
-			s_pFont->uwHeight, valuePtrUnpack(s_pBmBg)
-		);
-	}
-	else {
-		blitCopy(
-			s_pBmBg, s_uwX, uwPosY, s_pBmBuffer, s_uwX, uwPosY,
-			s_pOptions[ubPos].uwUndrawWidth, s_pFont->uwHeight, MINTERM_COOKIE
+	if(s_cbUndraw) {
+		s_cbUndraw(
+			s_uwX, uwPosY, s_pOptions[ubPos].uwUndrawWidth, s_pFont->uwHeight
 		);
 	}
 }
@@ -68,55 +56,31 @@ void menuListDrawPos(UBYTE ubPos) {
 
 	char szBfr[50];
 	const char *szText = 0;
-	tOption *pOption = &s_pOptions[ubPos];
+	const char *szCaption = s_pOptionCaptions[ubPos];
+	tMenuListOption *pOption = &s_pOptions[ubPos];
 	if(pOption->eOptionType == MENU_LIST_OPTION_TYPE_UINT8) {
 		if(pOption->sOptUb.pEnumLabels) {
 			sprintf(
-				szBfr, "%s: %s", s_pOptionCaptions[ubPos],
+				szBfr, "%s: %s", szCaption,
 				pOption->sOptUb.pEnumLabels[*pOption->sOptUb.pVar]
 			);
 		}
 		else {
-			sprintf(
-				szBfr, "%s: %hhu", s_pOptionCaptions[ubPos],
-				*pOption->sOptUb.pVar
-			);
+			sprintf(szBfr, "%s: %hhu", szCaption, *pOption->sOptUb.pVar);
 		}
 		szText = szBfr;
 	}
 	else if(pOption->eOptionType == MENU_LIST_OPTION_TYPE_CALLBACK) {
-		szText = s_pOptionCaptions[ubPos];
+		szText = szCaption;
 	}
 	if(pOption->eDirty == MENU_LIST_DIRTY_VAL_CHANGE && pOption->uwUndrawWidth) {
 		menuListUndrawPos(ubPos);
 	}
 	if(!pOption->isHidden && szText != 0) {
-		const tMenuListStyle *pStyle = pOption->pStyle;
-		if(!pStyle) {
-			pStyle = s_pStyle;
+		if(s_cbDrawPos) {
+			UBYTE isActive = (ubPos == s_ubActiveOption);
+			s_cbDrawPos(s_uwX, uwPosY, szCaption, szText, isActive, &pOption->uwUndrawWidth);
 		}
-
-		// Draw pos + non-zero shadow
-		fontFillTextBitMap(s_pFont, s_pTextBitmap, szText);
-		pOption->uwUndrawWidth = s_pTextBitmap->uwActualWidth;
-		UBYTE ubColor;
-		if(ubPos == s_ubActiveOption) {
-			ubColor = pStyle->ubColorActive;
-		}
-		else {
-			ubColor = pStyle->ubColorInactive;
-		}
-		UBYTE ubColorShadow = pStyle->ubColorShadow;
-
-		if(ubColorShadow != 0xFF) {
-			fontDrawTextBitMap(
-				s_pBmBuffer, s_pTextBitmap, s_uwX, uwPosY + 1, ubColorShadow, FONT_COOKIE
-			);
-		}
-		fontDrawTextBitMap(
-			s_pBmBuffer, s_pTextBitmap, s_uwX, uwPosY, ubColor, FONT_COOKIE
-		);
-
 		if(pOption->sOptUb.cbOnValDraw) {
 			pOption->sOptUb.cbOnValDraw(ubPos);
 		}

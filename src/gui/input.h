@@ -12,35 +12,48 @@ extern "C" {
 #include <ace/types.h>
 #include <ace/utils/font.h>
 
-typedef struct _tInput {
+struct _tGuiInput;
+
+typedef enum _tGuiInputDrawFlags {
+	GUI_INPUT_DRAW_BORDER = 1,
+	GUI_INPUT_DRAW_TEXT = 2,
+	GUI_INPUT_DRAW_CURSOR = 4,
+} tGuiInputDrawFlags;
+
+typedef void (*tGuiInputCbDraw)(const struct _tGuiInput *pInput);
+typedef UBYTE (*tGuiInputCbGetHeight)(const struct _tGuiInput *pInput);
+
+typedef struct _tGuiInput {
 	tUwCoordYX sPos;
 	UWORD uwMaxChars;
 	UWORD uwValueLength;
 	UWORD uwWidth;
 	char *szValue;
-	tFont *pFont;
-	tBitMap *pBfr;
-	tTextBitMap *pTextBitMap;
-	UBYTE isTextBitMapAllocated;
+	const char *szLabel;
+	tGuiInputCbDraw cbDraw;
+	tGuiInputCbGetHeight cbGetHeight;
 	UBYTE isValueBufferAllocated;
-} tInput;
+	tGuiInputDrawFlags eDrawFlags;
+	UBYTE isFocus;
+} tGuiInput;
 
-tInput *inputCreate(
-	tBitMap *pBg, tFont *pFont, tTextBitMap *pTextBitMap, UWORD uwX, UWORD uwY,
-	UWORD uwWidth, UWORD uwMaxChars, const char *szLabel, char *szValueBuffer
+tGuiInput *inputCreate(
+	UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwMaxChars,
+	const char *szLabel, char *szValueBuffer, tGuiInputCbDraw cbDraw,
+	tGuiInputCbGetHeight cbGetHeight
 );
 
-void inputDestroy(tInput *pInput);
+void inputDestroy(tGuiInput *pInput);
 
-void inputProcess(tInput *pInput);
+void inputProcess(tGuiInput *pInput);
 
-const char *inputGetValue(const tInput *pInput);
+const char *inputGetValue(const tGuiInput *pInput);
 
-UBYTE inputGetHeight(const tInput *pInput);
+UBYTE inputGetHeight(const tGuiInput *pInput);
 
-void inputLoseFocus(tInput *pInput);
+void inputLoseFocus(tGuiInput *pInput);
 
-void inputSetFocus(tInput *pInput);
+void inputSetFocus(tGuiInput *pInput);
 
 #ifdef __cplusplus
 }

@@ -5,7 +5,6 @@
 #include "list_ctl.h"
 #include <stdlib.h>
 #include "config.h"
-#include "button.h"
 #include "border.h"
 #include <ace/managers/log.h>
 #include <ace/macros.h>
@@ -29,27 +28,10 @@ static void listCtlDrawEntry(tListCtl *pCtl, UWORD uwIdx) {
 	);
 	if(uwIdx >= uwFirstVisible && uwIdx <= uwLastVisible) {
 		UBYTE ubPosOnView = uwIdx - pCtl->uwEntryScrollPos;
-		const tGuiConfig *pCfg = guiGetConfig();
-		if(uwIdx == pCtl->uwEntrySel) {
-			blitRect(
-				pCtl->pBfr, pCtl->sRect.uwX+2, pCtl->sRect.uwY+2 + ubPosOnView * pCtl->ubEntryHeight,
-				pCtl->sRect.uwWidth - LISTCTL_BTN_WIDTH - 2 - 2 - 1, pCtl->ubEntryHeight,
-				pCfg->ubColorFill
-			);
+		UBYTE isSelected = (uwIdx == pCtl->uwEntrySel);
+		if(pCtl->cbDrawPos) {
+			pCtl->cbDrawPos(pCtl, uwIdx, ubPosOnView, isSelected);
 		}
-		else {
-			guiBackgroundClear(
-				pCtl->pBg, pCtl->pBfr,
-				pCtl->sRect.uwX+2, pCtl->sRect.uwY+2 + ubPosOnView * pCtl->ubEntryHeight,
-				pCtl->sRect.uwWidth - LISTCTL_BTN_WIDTH - 2 - 2 - 1, pCtl->ubEntryHeight
-			);
-		}
-		fontDrawStr(
-			pCtl->pFont, pCtl->pBfr,
-			pCtl->sRect.uwX+2+1, pCtl->sRect.uwY+2+1 + ubPosOnView * pCtl->ubEntryHeight,
-			pCtl->pEntries[uwIdx], pCfg->ubColorText,
-			FONT_LEFT | FONT_TOP | FONT_COOKIE, pCtl->pEntryTextBfr
-		);
 	}
 }
 
@@ -68,10 +50,9 @@ static void listCtlDrawAllEntries(tListCtl *pCtl) {
 	);
 	UWORD uwScrollX = pCtl->sRect.uwX + pCtl->sRect.uwWidth - LISTCTL_BTN_WIDTH - 2;
 	UWORD uwScrollY =  pCtl->sRect.uwY + LISTCTL_BTN_WIDTH + 3;
-	guiBackgroundClear(
-		pCtl->pBg, pCtl->pBfr, uwScrollX, uwScrollY,
-		LISTCTL_BTN_WIDTH, ubScrollBarHeight
-	);
+	if(pCtl->cbUndraw) {
+		pCtl->cbUndraw(uwScrollX, uwScrollY, LISTCTL_BTN_WIDTH, ubScrollBarHeight);
+	}
 	blitRect(
 		pCtl->pBfr, uwScrollX, uwScrollY + ubBeadStart, LISTCTL_BTN_WIDTH, ubBeadHeight,
 		pCfg->ubColorDark
@@ -119,9 +100,10 @@ static void onPressDown(void *pData) {
 }
 
 tListCtl *listCtlCreate(
-	const tGuiBackground *pBg, tBitMap *pBfr, UWORD uwX, UWORD uwY,
-	UWORD uwWidth, UWORD uwHeight, tFont *pFont, UWORD uwEntryMaxCnt,
-	tTextBitMap *pTextBfr, tCbListCtlOnSelect cbOnSelect
+	tBitMap *pBfr, UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwHeight,
+	tFont *pFont, UWORD uwEntryMaxCnt, tTextBitMap *pTextBfr,
+	tGuiListCtlCbOnSelect cbOnSelect, tGuiListCtlCbUndraw cbUndraw,
+	tGuiListCtlCbDrawPos cbDrawPos
 ) {
 	logBlockBegin(
 		"listCtlCreate(uwX: %hu, uwY: %hu, uwWidth: %hu, uwHeight: %hu, pFont: %p)",
@@ -138,11 +120,12 @@ tListCtl *listCtlCreate(
 	pCtl->sRect.uwHeight = uwHeight;
 	pCtl->ubDrawState = LISTCTL_DRAWSTATE_NEEDS_REDRAW;
 	pCtl->pFont = pFont;
-	pCtl->pBg = pBg;
 	pCtl->pBfr = pBfr;
 	pCtl->uwEntrySel = 0;
 	pCtl->uwEntryScrollPos = 0;
 	pCtl->cbOnSelect = cbOnSelect;
+	pCtl->cbUndraw = cbUndraw;
+	pCtl->cbDrawPos = cbDrawPos;
 
 	pCtl->pEntries =  memAllocFastClear(uwEntryMaxCnt * sizeof(char*));
 
@@ -155,11 +138,11 @@ tListCtl *listCtlCreate(
 		pCtl->isTextBfrAlloc = 1;
 	}
 
-	buttonAdd(
+	pCtl->pButtonUp = buttonAdd(
 		uwX + uwWidth - LISTCTL_BTN_WIDTH-2, uwY+2,
 		LISTCTL_BTN_WIDTH, LISTCTL_BTN_WIDTH, "U", onPressUp, pCtl
 	);
-	buttonAdd(
+	pCtl->pButtonDown = buttonAdd(
 		uwX + uwWidth - LISTCTL_BTN_WIDTH-2, uwY + uwHeight - LISTCTL_BTN_WIDTH -2,
 		LISTCTL_BTN_WIDTH, LISTCTL_BTN_WIDTH, "D", onPressDown, pCtl
 	);
@@ -195,22 +178,21 @@ void listCtlRemoveEntry(tListCtl *pCtl, UWORD uwIdx) {
 }
 
 void listCtlUndraw(tListCtl *pCtl) {
-	guiBackgroundClear(
-		pCtl->pBg, pCtl->pBfr, pCtl->sRect.uwX, pCtl->sRect.uwY,
-		pCtl->sRect.uwWidth, pCtl->sRect.uwHeight
-	);
+	if(pCtl->cbUndraw) {
+		pCtl->cbUndraw(
+			pCtl->sRect.uwX, pCtl->sRect.uwY, pCtl->sRect.uwWidth, pCtl->sRect.uwHeight
+		);
+	}
 }
 
 void listCtlDraw(tListCtl *pCtl) {
 	listCtlUndraw(pCtl);
 
-	const tGuiConfig *pCfg = guiGetConfig();
-	if(pCfg->eFill == FILL_STYLE_3D) {
-		guiDraw3dBorder(
-			pCtl->pBfr, pCtl->sRect.uwX, pCtl->sRect.uwY,
-			pCtl->sRect.uwWidth, pCtl->sRect.uwHeight
-		);
-	}
+	// TODO: move to callback
+	// guiDraw3dBorder(
+	// 	pCtl->pBfr, pCtl->sRect.uwX, pCtl->sRect.uwY,
+	// 	pCtl->sRect.uwWidth, pCtl->sRect.uwHeight
+	// );
 
 	listCtlDrawAllEntries(pCtl);
 }

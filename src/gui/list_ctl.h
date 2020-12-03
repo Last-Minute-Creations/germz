@@ -11,13 +11,17 @@ extern "C" {
 
 #include <ace/types.h>
 #include <ace/utils/font.h>
-#include <gui/background.h>
+#include <gui/button.h>
 
 #define LISTCTL_ENTRY_INVALID 0xFFFF
 #define LISTCTL_DRAWSTATE_OK 0
 #define LISTCTL_DRAWSTATE_NEEDS_REDRAW 1
 
-typedef void (*tCbListCtlOnSelect)(void);
+struct _tListCtl;
+
+typedef void (*tGuiListCtlCbOnSelect)(void);
+typedef void (*tGuiListCtlCbUndraw)(UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwHeight);
+typedef void (*tGuiListCtlCbDrawPos)(struct _tListCtl *pCtl, UWORD uwIdx, UBYTE ubPosOnView, UBYTE isSelected);
 
 typedef struct _tListCtl {
 	tUwRect sRect;
@@ -29,17 +33,21 @@ typedef struct _tListCtl {
 	UWORD uwEntryScrollPos;
 	char **pEntries;
 	tFont *pFont;
-	const tGuiBackground *pBg;
 	tBitMap *pBfr;
-	tCbListCtlOnSelect cbOnSelect;
+	tGuiListCtlCbOnSelect cbOnSelect;
+	tGuiListCtlCbUndraw cbUndraw;
+	tGuiListCtlCbDrawPos cbDrawPos;
 	tTextBitMap *pEntryTextBfr;
 	UBYTE isTextBfrAlloc;
+	tGuiButton *pButtonUp;
+	tGuiButton *pButtonDown;
 } tListCtl;
 
 tListCtl *listCtlCreate(
-	const tGuiBackground *pBg, tBitMap *pBfr, UWORD uwX, UWORD uwY,
-	UWORD uwWidth, UWORD uwHeight, tFont *pFont, UWORD uwEntryMaxCnt,
-	tTextBitMap *pTextBfr, tCbListCtlOnSelect cbOnSelect
+	tBitMap *pBfr, UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwHeight,
+	tFont *pFont, UWORD uwEntryMaxCnt, tTextBitMap *pTextBfr,
+	tGuiListCtlCbOnSelect cbOnSelect, tGuiListCtlCbUndraw cbUndraw,
+	tGuiListCtlCbDrawPos cbDrawPos
 );
 
 void listCtlDestroy(tListCtl *pCtl);

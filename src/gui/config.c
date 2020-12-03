@@ -8,8 +8,7 @@ tGuiConfig s_sConfig = {
 	.ubColorLight = 12,
 	.ubColorDark = 3,
 	.ubColorFill = 7,
-	.ubColorText = 13,
-	.eFill = FILL_STYLE_3D
+	.ubColorText = 13
 };
 
 tGuiConfig *guiGetConfig(void) {

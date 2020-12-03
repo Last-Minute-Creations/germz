@@ -20,8 +20,8 @@
 #include "assets.h"
 #include "map_list.h"
 #include "menu_list.h"
-#include "gui/button.h"
 #include "color.h"
+#include "gui_scanlined.h"
 
 #define MENU_COLOR_ACTIVE (COLOR_P3_BRIGHT)
 #define MENU_COLOR_INACTIVE (COLOR_P3_BRIGHT + 1)
@@ -57,32 +57,13 @@ static UBYTE s_pPlayerSteers[4] = {
 	PLAYER_STEER_KEY_WSAD, PLAYER_STEER_KEY_ARROWS
 };
 
-static const tMenuListStyle s_sMenuStyleMain = {
-	.ubColorActive = MENU_COLOR_ACTIVE,
-	.ubColorInactive = MENU_COLOR_INACTIVE,
-	.ubColorShadow = MENU_COLOR_SHADOW
+	// [0:P1 .. 3:P4][0: inactive, 1: active]
+static const UBYTE s_pScanlinedMenuColors[][2] = {
+	{(COLOR_P1_BRIGHT + 2) >> 1, COLOR_P1_BRIGHT >> 1},
+	{(COLOR_P2_BRIGHT + 2) >> 1, COLOR_P2_BRIGHT >> 1},
+	{(COLOR_P3_BRIGHT + 2) >> 1, COLOR_P3_BRIGHT >> 1},
+	{(COLOR_P4_BRIGHT + 2) >> 1, COLOR_P4_BRIGHT >> 1},
 };
-
-static const tMenuListStyle s_pMenuStylePlayers[4] = {
-	{
-		.ubColorActive = COLOR_P1_BRIGHT >> 1, .ubColorShadow = 0xFF,
-		.ubColorInactive = (COLOR_P1_BRIGHT + 2) >> 1
-	},
-	{
-		.ubColorActive = COLOR_P2_BRIGHT >> 1, .ubColorShadow = 0xFF,
-		.ubColorInactive = (COLOR_P2_BRIGHT + 2) >> 1
-	},
-	{
-		.ubColorActive = COLOR_P3_BRIGHT >> 1, .ubColorShadow = 0xFF,
-		.ubColorInactive = (COLOR_P3_BRIGHT + 2) >> 1
-	},
-	{
-		.ubColorActive = COLOR_P4_BRIGHT >> 1, .ubColorShadow = 0xFF,
-		.ubColorInactive = (COLOR_P4_BRIGHT + 2) >> 1
-	},
-};
-
-static const tMenuListStyle *s_pMenuStyleScanline = &s_pMenuStylePlayers[2];
 
 static const char *s_pMenuEnumSteer[] = {
 	"JOY 1", "JOY 2", "JOY 3", "JOY 4", "WSAD", "ARROWS", "CPU", "IDLE", "OFF"
@@ -99,8 +80,8 @@ static const char *s_pMenuCaptions[] = {
 static tView *s_pView;
 static tVPort *s_pVp;
 static tSimpleBufferManager *s_pBfr;
-static tBitMap *s_pBg, *s_pBgSub, *s_pBgCurr;
-static tBitMap s_sBmFrontScanline, s_sBgCurrScanline;
+static tBitMap *s_pBg, *s_pBgSub;
+static tBitMap s_sBmFrontScanline;
 static tFade *s_pFadeMenu;
 static tCbFadeOnDone s_cbOnEscape;
 
@@ -252,7 +233,6 @@ static void menuGsCreate(void) {
 	);
 	s_pBg = bitmapCreateFromFile("data/menu_main.bm", 0);
 	s_pBgSub = bitmapCreateFromFile("data/menu_sub.bm", 0);
-	s_pBgCurr = bitmapCreate(320, 256, 5, BMF_INTERLEAVED);
 
 	s_sBmFrontScanline.BytesPerRow = s_pBfr->pBack->BytesPerRow;
 	s_sBmFrontScanline.Rows = s_pBfr->pBack->Rows;
@@ -261,14 +241,7 @@ static void menuGsCreate(void) {
 	s_sBmFrontScanline.Planes[1] = s_pBfr->pBack->Planes[2];
 	s_sBmFrontScanline.Planes[2] = s_pBfr->pBack->Planes[3];
 	s_sBmFrontScanline.Planes[3] = s_pBfr->pBack->Planes[4];
-
-	s_sBgCurrScanline.BytesPerRow = s_pBgCurr->BytesPerRow;
-	s_sBgCurrScanline.Rows = s_pBgCurr->Rows;
-	s_sBgCurrScanline.Depth = 4;
-	s_sBgCurrScanline.Planes[0] = s_pBgCurr->Planes[1];
-	s_sBgCurrScanline.Planes[1] = s_pBgCurr->Planes[2];
-	s_sBgCurrScanline.Planes[2] = s_pBgCurr->Planes[3];
-	s_sBgCurrScanline.Planes[3] = s_pBgCurr->Planes[4];
+	guiScanlinedInit(&s_sBmFrontScanline);
 
 	UWORD pPalette[32];
 	paletteLoad("data/germz.plt", pPalette, 32);
@@ -306,7 +279,6 @@ static void menuGsDestroy(void) {
 	stateManagerDestroy(s_pStateMachineMenu);
 	bitmapDestroy(s_pBg);
 	bitmapDestroy(s_pBgSub);
-	bitmapDestroy(s_pBgCurr);
 	viewDestroy(s_pView);
 	fadeDestroy(s_pFadeMenu);
 }
@@ -345,6 +317,10 @@ tSteer menuGetSteerForPlayer(UBYTE ubPlayerIdx) {
 // to redraw each screen on transition.
 static tState *s_pNextSubstate;
 
+static const char *s_pSteerPlayerLabels[] = {
+	"PLAYER 1", "PLAYER 2", "PLAYER 3", "PLAYER 4"
+};
+
 static void onFadeToSubstate(void) {
 	stateChange(s_pStateMachineMenu, s_pNextSubstate);
 	fadeSet(s_pFadeMenu, FADE_STATE_IN, 50, 0);
@@ -380,7 +356,7 @@ static void fadeToExit(void) {
 	fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, onFadeoutToExit);
 }
 
-static tOption s_pOptions[] = {
+static tMenuListOption s_pOptions[] = {
 	{MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onCampaign}},
 	{MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onBattle}},
 	{MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onEditor}},
@@ -407,11 +383,36 @@ static void menuSubstateLoop(void) {
 	}
 }
 
+static void scanlinedMenuUndraw(UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwHeight) {
+	blitRect(&s_sBmFrontScanline, uwX, uwY, uwWidth, uwHeight, COLOR_CONSOLE_BG >> 1);
+}
+
+static void scanlinedMenuPosDraw(
+	UWORD uwX, UWORD uwY, const char *szCaption, const char *szText,
+	UBYTE isActive, UWORD *pUndrawWidth
+) {
+	// Draw pos + non-zero shadow
+	fontFillTextBitMap(g_pFontBig, g_pTextBitmap, szText);
+	*pUndrawWidth = g_pTextBitmap->uwActualWidth;
+	UBYTE ubPlayerIdx = 2;
+	for(UBYTE i = 0; i < 4; ++i) {
+		if(szCaption == s_pSteerPlayerLabels[i]) {
+			ubPlayerIdx = i;
+			break;
+		}
+	}
+
+	UBYTE ubColor = s_pScanlinedMenuColors[ubPlayerIdx][isActive];
+	fontDrawTextBitMap(
+		&s_sBmFrontScanline, g_pTextBitmap, uwX, uwY, ubColor, FONT_COOKIE
+	);
+}
+
 //-------------------------------------------------------------- SUBSTATE: STEER
 
 #define STEER_MENU_OPTION_MAX 8
 static const char *s_pMenuCaptionsSteer[STEER_MENU_OPTION_MAX];
-static tOption s_pOptionsSteer[STEER_MENU_OPTION_MAX];
+static tMenuListOption s_pOptionsSteer[STEER_MENU_OPTION_MAX];
 static UBYTE s_ubSteerOptionCount;
 
 static void onStart(void) {
@@ -419,10 +420,6 @@ static void onStart(void) {
 }
 
 static void menuSteerGsCreate(void) {
-	static const char *pPlayerLabels[] = {
-		"PLAYER 1", "PLAYER 2", "PLAYER 3", "PLAYER 4"
-	};
-
 	// Undraw battle's menu list
 	blitRect(
 		&s_sBmFrontScanline, BATTLE_MENU_X, BATTLE_MENU_Y,
@@ -434,23 +431,23 @@ static void menuSteerGsCreate(void) {
 	// Players
 	for(UBYTE i = 0; i < 4; ++i) {
 		if(BTST(g_sMapData.ubPlayerMask, i)) {
-			s_pOptionsSteer[s_ubSteerOptionCount] = (tOption){
+			s_pOptionsSteer[s_ubSteerOptionCount] = (tMenuListOption){
 				MENU_LIST_OPTION_TYPE_UINT8, .isHidden = 0, .sOptUb = {
 				.pVar = &s_pPlayerSteers[i], .ubMax = PLAYER_STEER_IDLE, .isCyclic = 1,
 				.ubDefault = PLAYER_STEER_JOY_1, .pEnumLabels = s_pMenuEnumSteer
-			}, .pStyle = &s_pMenuStylePlayers[i]};
-			s_pMenuCaptionsSteer[s_ubSteerOptionCount++] = pPlayerLabels[i];
+			}};
+			s_pMenuCaptionsSteer[s_ubSteerOptionCount++] = s_pSteerPlayerLabels[i];
 		}
 	}
 
 	// Infect
-	s_pOptionsSteer[s_ubSteerOptionCount] = (tOption){
+	s_pOptionsSteer[s_ubSteerOptionCount] = (tMenuListOption){
 		MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onStart}
 	};
 	s_pMenuCaptionsSteer[s_ubSteerOptionCount++] = "INFECT";
 
 	// Back
-	s_pOptionsSteer[s_ubSteerOptionCount] = (tOption){
+	s_pOptionsSteer[s_ubSteerOptionCount] = (tMenuListOption){
 		MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0,
 		.sOptCb = {.cbSelect = fadeToBattle}
 	};
@@ -458,8 +455,8 @@ static void menuSteerGsCreate(void) {
 
 	menuListInit(
 		s_pOptionsSteer, s_pMenuCaptionsSteer, s_ubSteerOptionCount,
-		g_pFontBig, g_pTextBitmap, &s_sBgCurrScanline, &s_sBmFrontScanline,
-		BATTLE_MENU_X, BATTLE_MENU_Y, s_pMenuStyleScanline
+		g_pFontBig, BATTLE_MENU_X, BATTLE_MENU_Y, scanlinedMenuUndraw,
+		scanlinedMenuPosDraw
 	);
 	menuListSetActive(s_ubSteerOptionCount - 2);
 
@@ -472,7 +469,7 @@ static void menuSteerGsCreate(void) {
 
 static ULONG s_ullChangeTimer;
 static const char *s_pMenuBattleCaptions[BATTLE_MENU_OPTION_MAX];
-static tOption s_pOptionsBattle[BATTLE_MENU_OPTION_MAX];
+static tMenuListOption s_pOptionsBattle[BATTLE_MENU_OPTION_MAX];
 static UBYTE s_ubBattleOptionCount;
 static tListCtl *s_pMapList;
 static const char *s_pLabelsMode[] = {"SOLO", "TEAMS"};
@@ -565,21 +562,13 @@ static void onTeamDraw(UBYTE ubIdx) {
 		COLOR_CONSOLE_BG >> 1
 	);
 
-	UBYTE ubColor = (
-		ubActiveIdx == ubIdx ?
-		s_pMenuStylePlayers[ubPlayerX].ubColorActive :
-		s_pMenuStylePlayers[ubPlayerX].ubColorInactive
-	);
+	UBYTE ubColor = s_pScanlinedMenuColors[ubPlayerX][ubActiveIdx == ubIdx];
 	fontDrawStr(
 		g_pFontBig, &s_sBmFrontScanline, uwX, uwY, pPlayerNames[ubPlayerX],
 		ubColor, FONT_COOKIE, g_pTextBitmap
 	);
 
-	ubColor = (
-		ubActiveIdx == ubIdx ?
-		s_pMenuStylePlayers[ubPlayerY].ubColorActive :
-		s_pMenuStylePlayers[ubPlayerY].ubColorInactive
-	);
+	ubColor = s_pScanlinedMenuColors[ubPlayerY][ubActiveIdx == ubIdx];
 	fontDrawStr(
 		g_pFontBig, &s_sBmFrontScanline, uwX + 30, uwY, pPlayerNames[ubPlayerY],
 		ubColor, FONT_COOKIE, g_pTextBitmap
@@ -590,7 +579,7 @@ static void battleRegenMenuList(UBYTE ubPlayerMask) {
 	s_ubBattleOptionCount = 0;
 
 	// Select map
-	s_pOptionsBattle[s_ubBattleOptionCount] = (tOption){
+	s_pOptionsBattle[s_ubBattleOptionCount] = (tMenuListOption){
 		.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0,
 		.sOptCb = {.cbSelect = onMap}
 	};
@@ -598,7 +587,7 @@ static void battleRegenMenuList(UBYTE ubPlayerMask) {
 
 	// Game mode
 	UBYTE isTeamsAllowed = (g_sMapData.ubPlayerMask == 0xF);
-	s_pOptionsBattle[s_ubBattleOptionCount] = (tOption){
+	s_pOptionsBattle[s_ubBattleOptionCount] = (tMenuListOption){
 		.eOptionType = MENU_LIST_OPTION_TYPE_UINT8, .isHidden = 0, .sOptUb = {
 			.isCyclic = 1, .pEnumLabels = s_pLabelsMode, .pVar = &s_ubBattleMode,
 			.ubMax = 0, .ubDefault = 0, .cbOnValChange = onModeChange
@@ -612,7 +601,7 @@ static void battleRegenMenuList(UBYTE ubPlayerMask) {
 
 	// Team 1
 	s_ubOptionIdxTeam1 = s_ubBattleOptionCount;
-	s_pOptionsBattle[s_ubBattleOptionCount] = (tOption){
+	s_pOptionsBattle[s_ubBattleOptionCount] = (tMenuListOption){
 		.eOptionType = MENU_LIST_OPTION_TYPE_UINT8, .isHidden = 1, .sOptUb = {
 			.isCyclic = 1, .pEnumLabels = s_pLabelsTeam1, .pVar = &s_ubTeamCfg,
 			.ubDefault = 0, .ubMax = 2, .cbOnValChange = onTeamChange,
@@ -626,7 +615,7 @@ static void battleRegenMenuList(UBYTE ubPlayerMask) {
 
 	// Team 2
 	s_ubOptionIdxTeam2 = s_ubBattleOptionCount;
-	s_pOptionsBattle[s_ubBattleOptionCount] = (tOption){
+	s_pOptionsBattle[s_ubBattleOptionCount] = (tMenuListOption){
 		.eOptionType = MENU_LIST_OPTION_TYPE_UINT8, .isHidden = 1, .sOptUb = {
 			.isCyclic = 1, .pEnumLabels = s_pLabelsTeam2, .pVar = &s_ubTeamCfg,
 			.ubDefault = 0, .ubMax = 2, .cbOnValChange = onTeamChange,
@@ -639,13 +628,13 @@ static void battleRegenMenuList(UBYTE ubPlayerMask) {
 	s_pMenuBattleCaptions[s_ubBattleOptionCount++] = "TEAM 2";
 
 	// Proceed
-	s_pOptionsBattle[s_ubBattleOptionCount] = (tOption){
+	s_pOptionsBattle[s_ubBattleOptionCount] = (tMenuListOption){
 		MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onBattleGoToSteer}
 	};
 	s_pMenuBattleCaptions[s_ubBattleOptionCount++] = "PROCEED";
 
 	// Back
-	s_pOptionsBattle[s_ubBattleOptionCount] = (tOption){
+	s_pOptionsBattle[s_ubBattleOptionCount] = (tMenuListOption){
 		MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = fadeToMain}
 	};
 	s_pMenuBattleCaptions[s_ubBattleOptionCount++] = "BACK";
@@ -663,8 +652,8 @@ static void battleDrawMenuList(void) {
 	UBYTE ubActive = menuListGetActive();
 	menuListInit(
 		s_pOptionsBattle, s_pMenuBattleCaptions, s_ubBattleOptionCount,
-		g_pFontBig, g_pTextBitmap, &s_sBgCurrScanline, &s_sBmFrontScanline,
-		BATTLE_MENU_X, BATTLE_MENU_Y, s_pMenuStyleScanline
+		g_pFontBig, BATTLE_MENU_X, BATTLE_MENU_Y, scanlinedMenuUndraw,
+		scanlinedMenuPosDraw
 	);
 	menuListSetActive(ubActive);
 	menuListDraw();
@@ -675,15 +664,11 @@ static void battleGsCreate(void) {
 	s_pFadeMenu->pPaletteRef[COLOR_SPECIAL_2] = 0x222;
 
 	// Prepare current bg
-	blitCopy(s_pBgSub, 0, 0, s_pBgCurr, 0, 0, 320, 128, MINTERM_COPY);
-	blitCopy(s_pBgSub, 0, 128, s_pBgCurr, 0, 128, 320, 128, MINTERM_COPY);
-	bmFrameDraw(g_pFrameDisplay, s_pBgCurr, 32, 16, 16, 14, 16);
+	blitCopy(s_pBgSub, 0, 0, s_pBfr->pBack, 0, 0, 320, 128, MINTERM_COPY);
+	blitCopy(s_pBgSub, 0, 128, s_pBfr->pBack, 0, 128, 320, 128, MINTERM_COPY);
+	bmFrameDraw(g_pFrameDisplay, s_pBfr->pBack, 32, 16, 16, 14, 16);
 
-	// Copy current bg to vport's bitmap
-	blitCopy(s_pBgCurr, 0, 0, s_pBfr->pBack, 0, 0, 320, 128, MINTERM_COPY);
-	blitCopy(s_pBgCurr, 0, 128, s_pBfr->pBack, 0, 128, 320, 128, MINTERM_COPY);
-
-	buttonListCreate(5, &s_sBmFrontScanline, g_pFontSmall, g_pTextBitmap);
+	buttonListCreate(5, guiScanlinedButtonDraw);
 	s_pMapList = mapListCreateCtl(
 		&s_sBmFrontScanline, BATTLE_MENU_X, BATTLE_MENU_Y,
 		BATTLE_MENU_WIDTH, BATTLE_MENU_HEIGHT
@@ -820,14 +805,38 @@ static void creditsGsLoop(void) {
 
 //---------------------------------------------------------- SUBSTATE: MAIN MENU
 
+static void mainMenuUndraw(UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwHeight) {
+	// Copy from current bg, add 1 for text shadow
+	blitCopy(
+		s_pBg, uwX, uwY, s_pBfr->pBack, uwX, uwY + 1, uwWidth, uwHeight,
+		MINTERM_COOKIE
+	);
+}
+
+static void mainMenuPosDraw(
+	UWORD uwX, UWORD uwY, const char *szCaption, const char *szText,
+	UBYTE isActive, UWORD *pUndrawWidth
+) {
+	// Draw pos + non-zero shadow
+	fontFillTextBitMap(g_pFontBig, g_pTextBitmap, szText);
+	*pUndrawWidth = g_pTextBitmap->uwActualWidth;
+	UBYTE ubColor = (isActive ? MENU_COLOR_ACTIVE : MENU_COLOR_INACTIVE);
+
+	fontDrawTextBitMap(
+		s_pBfr->pBack, g_pTextBitmap, uwX, uwY + 1, MENU_COLOR_SHADOW, FONT_COOKIE
+	);
+	fontDrawTextBitMap(
+		s_pBfr->pBack, g_pTextBitmap, uwX, uwY, ubColor, FONT_COOKIE
+	);
+}
+
 static void mainGsCreate(void) {
 	blitCopy(s_pBg, 0, 0, s_pBfr->pBack, 0, 0, 320, 128, MINTERM_COPY);
 	blitCopy(s_pBg, 0, 128, s_pBfr->pBack, 0, 128, 320, 128, MINTERM_COPY);
 
 	menuListInit(
 		s_pOptions, s_pMenuCaptions, MENU_POS_COUNT,
-		g_pFontBig, g_pTextBitmap, s_pBg, s_pBfr->pBack, 120, 120,
-		&s_sMenuStyleMain
+		g_pFontBig, 120, 120, mainMenuUndraw, mainMenuPosDraw
 	);
 
 	char szVersion[15];

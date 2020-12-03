@@ -82,9 +82,13 @@ Done:
 		✘ teammate can launch attacks from other teammate's nodes @cancelled(20-11-14 12:00)
 	✔ if AI won (?), "rematch" and "exit to menu" options doesn't work @done(20-11-20 17:08)
 	✔ pressing ESC in game summary causes points to be incremented @done(20-11-20 17:08)
+	✔ fix map load/save dialog in editor @done(20-12-03 12:32)
+		✔ "load" dialog works @done(20-11-15 17:59)
+		✔ gui.button draw callback @done(20-12-03 12:32)
+		✔ gui.input draw callback @done(20-12-03 12:32)
+		✔ "save" dialog works @done(20-12-03 12:32)
 
 Now:
-	☐ fix map load/save dialog in editor
 	☐ game summary when launched from editor
 	☐ proper game init when launched from editor
 	☐ Campaign:

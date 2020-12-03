@@ -6,6 +6,7 @@
 #include <ace/managers/game.h>
 #include <ace/managers/key.h>
 #include <ace/managers/state.h>
+#include <ace/utils/bmframe.h>
 #include "gui/dialog.h"
 #include "gui/input.h"
 #include "gui/button.h"
@@ -14,6 +15,8 @@
 #include "game.h"
 #include "assets.h"
 #include "germz.h"
+#include "gui_scanlined.h"
+#include "color.h"
 
 #define FILE_PATH_PREFIX "data/maps/"
 #define FILE_PATH_EXTENSION ".json"
@@ -22,6 +25,18 @@
 	sizeof(FILE_PATH_EXTENSION) - 1 + 1 \
 )
 
+//----------------------------------------------------------------------- Layout
+
+#define DLG_SAVE_PAD 16
+#define DLG_SAVE_WIDTH 256
+#define DLG_SAVE_HEIGHT 160
+
+#define BTN_WIDTH 50
+#define BTN_HEIGHT 10
+#define BTN_Y (DLG_SAVE_HEIGHT - BTN_HEIGHT - DLG_SAVE_PAD)
+
+//------------------------------------------------------------------- Layout end
+
 typedef enum _tSaveInput {
 	SAVE_INPUT_TITLE,
 	SAVE_INPUT_AUTHOR,
@@ -29,10 +44,11 @@ typedef enum _tSaveInput {
 	SAVE_INPUT_COUNT
 } tSaveInput;
 
-static tBitMap *s_pBmDialog;
-static tInput *s_pInputs[SAVE_INPUT_COUNT];
+static tBitMap *s_pBmDlg;
+static tBitMap s_sBmDlgScanlined;
+static tGuiInput *s_pInputs[SAVE_INPUT_COUNT];
 static tSaveInput s_eCurrentInput;
-static tButton *s_pButtonYes, *s_pButtonNo, *s_pButtonCancel;
+static tGuiButton *s_pButtonYes, *s_pButtonNo, *s_pButtonCancel;
 static tStateManager *s_pDlgStateMachine;
 static UBYTE s_isQuitting;
 
@@ -40,6 +56,14 @@ static char s_szFileName[30] = "";
 static char s_szFilePath[FILE_PATH_SIZE];
 
 static tState s_sStateOverwrite, s_sStateSelect, s_sStateSaving;
+
+static void saveDialogClear(void) {
+	dialogClear();
+	bmFrameDraw(
+		g_pFrameDisplay, s_pBmDlg, 0, 0,
+		DLG_SAVE_WIDTH / 16, DLG_SAVE_HEIGHT / 16, 16
+	);
+}
 
 //----------------------------------------------------------------- STATE YES NO
 
@@ -49,43 +73,36 @@ void dialogSaveYesNoCreate(const char **pMsgLines, UBYTE ubLineCount, UBYTE isCa
 		++ubButtonCount;
 	}
 
-	dialogClear();
-	buttonListCreate(ubButtonCount, s_pBmDialog, g_pFontSmall, g_pTextBitmap);
-	const tGuiConfig *pConfig = guiGetConfig();
-
-	UWORD uwDlgWidth = bitmapGetByteWidth(s_pBmDialog) * 8;
-	UWORD uwDlgHeight = s_pBmDialog->Rows;
-	UWORD uwBtnWidth = 50;
-	UWORD uwBtnHeight = 20;
-	UWORD uwBtnY = uwDlgHeight - uwBtnHeight - 10;
+	saveDialogClear();
+	buttonListCreate(ubButtonCount, guiScanlinedButtonDraw);
 
 	for(UBYTE i = 0; i < ubLineCount; ++i) {
 		fontDrawStr(
-			g_pFontSmall, s_pBmDialog, uwDlgWidth / 2,
-			uwBtnY / 2 + g_pFontSmall->uwHeight * (i - (ubLineCount / 2)),
-			pMsgLines[i], pConfig->ubColorText, FONT_LAZY | FONT_CENTER, g_pTextBitmap
+			g_pFontSmall, &s_sBmDlgScanlined, DLG_SAVE_WIDTH / 2,
+			BTN_Y / 2 + g_pFontSmall->uwHeight * (i - (ubLineCount / 2)),
+			pMsgLines[i], COLOR_P3_BRIGHT >> 1, FONT_COOKIE | FONT_CENTER, g_pTextBitmap
 		);
 	}
 
 	s_pButtonYes = buttonAdd(
-		1 * uwDlgWidth / (ubButtonCount + 1) - uwBtnWidth / 2,
-		uwDlgHeight - uwBtnHeight - 10, uwBtnWidth, uwBtnHeight, "Yes", 0, 0
+		1 * DLG_SAVE_WIDTH / (ubButtonCount + 1) - BTN_WIDTH / 2, BTN_Y,
+		BTN_WIDTH, BTN_HEIGHT, "Yes", 0, 0
 	);
 	s_pButtonNo = buttonAdd(
-		2 * uwDlgWidth / (ubButtonCount + 1) - uwBtnWidth / 2,
-		uwDlgHeight - uwBtnHeight - 10, uwBtnWidth, uwBtnHeight, "No", 0, 0
+		2 * DLG_SAVE_WIDTH / (ubButtonCount + 1) - BTN_WIDTH / 2, BTN_Y,
+		BTN_WIDTH, BTN_HEIGHT, "No", 0, 0
 	);
 	if(isCancel) {
 		s_pButtonCancel = buttonAdd(
-			3 * uwDlgWidth / (ubButtonCount + 1) - uwBtnWidth / 2,
-			uwDlgHeight - uwBtnHeight - 10, uwBtnWidth, uwBtnHeight, "Cancel", 0, 0
+			3 * DLG_SAVE_WIDTH / (ubButtonCount + 1) - BTN_WIDTH / 2, BTN_Y,
+			BTN_WIDTH, BTN_HEIGHT, "Cancel", 0, 0
 		);
 	}
 	buttonSelect(s_pButtonNo);
 	buttonDrawAll();
 }
 
-tButton *dialogSaveYesNoLoop(void) {
+tGuiButton *dialogSaveYesNoLoop(void) {
 	tDirection eDir = gameEditorProcessSteer();
 	if(eDir == DIRECTION_LEFT) {
 		buttonSelectPrev();
@@ -115,47 +132,43 @@ void dialogSaveYesNoDestroy(void) {
 //----------------------------------------------------------------- STATE SELECT
 
 void dialogSaveSelectCreate(void) {
-	const tGuiConfig *pConfig = guiGetConfig();
-	dialogClear();
+	saveDialogClear();
 
 	UBYTE ubPadX = 3;
 	UBYTE ubPadY = 10;
 
-	buttonListCreate(2, s_pBmDialog, g_pFontSmall, g_pTextBitmap);
+	buttonListCreate(2, guiScanlinedButtonDraw);
 	s_pInputs[SAVE_INPUT_TITLE] = inputCreate(
-		s_pBmDialog, g_pFontSmall, g_pTextBitmap, ubPadX + 50, ubPadY, 100,
-		sizeof(g_sMapData.szName), "Title", g_sMapData.szName
+		ubPadX + 50, ubPadY, 100, sizeof(g_sMapData.szName), "Title",
+		g_sMapData.szName, guiScanlinedInputDraw, guiScanlinedInputGetHeight
 	);
 	s_pInputs[SAVE_INPUT_AUTHOR] = inputCreate(
-		s_pBmDialog, g_pFontSmall, g_pTextBitmap, ubPadX + 50, ubPadY + 20, 100,
-		sizeof(g_sMapData.szAuthor), "Author", g_sMapData.szAuthor
+		ubPadX + 50, ubPadY + 20, 100, sizeof(g_sMapData.szAuthor), "Author",
+		g_sMapData.szAuthor, guiScanlinedInputDraw, guiScanlinedInputGetHeight
 	);
 	s_pInputs[SAVE_INPUT_FILENAME] = inputCreate(
-		s_pBmDialog, g_pFontSmall, g_pTextBitmap, ubPadX + 50, ubPadY + 40, 100,
-		sizeof(s_szFileName), "File name", s_szFileName
+		ubPadX + 50, ubPadY + 40, 100, sizeof(s_szFileName), "File name",
+		s_szFileName, guiScanlinedInputDraw, guiScanlinedInputGetHeight
 	);
 	fontDrawStr(
-		g_pFontSmall, s_pBmDialog,
+		g_pFontSmall, &s_sBmDlgScanlined,
 		s_pInputs[SAVE_INPUT_FILENAME]->sPos.uwX + s_pInputs[SAVE_INPUT_FILENAME]->uwWidth + 2,
 		s_pInputs[SAVE_INPUT_FILENAME]->sPos.uwY + inputGetHeight(s_pInputs[SAVE_INPUT_FILENAME]) / 2,
-		FILE_PATH_EXTENSION, pConfig->ubColorText, FONT_COOKIE | FONT_VCENTER, g_pTextBitmap
+		FILE_PATH_EXTENSION, COLOR_P3_BRIGHT >> 1,
+		FONT_COOKIE | FONT_VCENTER, g_pTextBitmap
 	);
 
 	s_eCurrentInput = 0;
-	UWORD uwBtnWidth = 50;
-	UWORD uwBtnHeight = 20;
-	UWORD uwDlgWidth = bitmapGetByteWidth(s_pBmDialog) * 8;
-	UWORD uwDlgHeight = s_pBmDialog->Rows;
 	s_pButtonYes = buttonAdd(
-		uwDlgWidth / 3 - uwBtnWidth / 2, uwDlgHeight - uwBtnHeight - 10,
-		uwBtnWidth, uwBtnHeight, "Save", 0, 0
+		DLG_SAVE_WIDTH * 1 / 3 - BTN_WIDTH / 2, BTN_Y,
+		BTN_WIDTH, BTN_HEIGHT, "Save", 0, 0
 	);
 	s_pButtonNo = buttonAdd(
-		uwDlgWidth * 2 / 3 - uwBtnWidth / 2, uwDlgHeight - uwBtnHeight - 10,
-		uwBtnWidth, uwBtnHeight, "Cancel", 0, 0
+		DLG_SAVE_WIDTH * 2 / 3 - BTN_WIDTH / 2, BTN_Y,
+		BTN_WIDTH, BTN_HEIGHT, "Cancel", 0, 0
 	);
-	buttonDrawAll();
 	inputSetFocus(s_pInputs[s_eCurrentInput]);
+	buttonDrawAll();
 }
 
 void dialogSaveSelectLoop(void) {
@@ -197,8 +210,8 @@ void dialogSaveSelectLoop(void) {
 		buttonDrawAll();
 	}
 
-	if(s_eCurrentInput < SAVE_INPUT_COUNT) {
-		inputProcess(s_pInputs[s_eCurrentInput]);
+	for(tSaveInput eInput = 0; eInput < SAVE_INPUT_COUNT; ++eInput) {
+		inputProcess(s_pInputs[eInput]);
 	}
 
 	dialogProcess(gameGetBackBuffer());
@@ -263,7 +276,7 @@ void dialogSaveOverwriteCreate(void) {
 }
 
 void dialogSaveOverwriteLoop(void) {
-	tButton *pButton = dialogSaveYesNoLoop();
+	tGuiButton *pButton = dialogSaveYesNoLoop();
 	if(pButton) {
 		if(pButton == s_pButtonYes) {
 			stateChange(s_pDlgStateMachine, &s_sStateSaving);
@@ -282,14 +295,13 @@ static tState s_sStateOverwrite = {
 //----------------------------------------------------------------- STATE SAVING
 
 static void dialogSaveSavingCreate(void) {
-	dialogClear();
-	const tGuiConfig *pConfig = guiGetConfig();
+	saveDialogClear();
 
 	fontDrawStr(
-		g_pFontSmall, s_pBmDialog,
-		(bitmapGetByteWidth(s_pBmDialog) * 8) / 2, s_pBmDialog->Rows / 2,
-		"Saving map. Don't turn off the power...", pConfig->ubColorText,
-		FONT_LAZY | FONT_CENTER, g_pTextBitmap
+		g_pFontSmall, &s_sBmDlgScanlined,
+		DLG_SAVE_WIDTH / 2, DLG_SAVE_HEIGHT / 2,
+		"Saving map. Don't turn off the power...", COLOR_P3_BRIGHT >> 1,
+		FONT_COOKIE | FONT_CENTER, g_pTextBitmap
 	);
 }
 
@@ -324,7 +336,7 @@ void dialogSaveConfirmQuitCreate(void) {
 }
 
 void dialogSaveConfirmQuitLoop(void) {
-	tButton *pButton = dialogSaveYesNoLoop();
+	tGuiButton *pButton = dialogSaveYesNoLoop();
 	if(pButton) {
 		if(pButton == s_pButtonYes) {
 			stateChange(s_pDlgStateMachine, &s_sStateSelect);
@@ -348,12 +360,19 @@ static tState s_sStateConfirmQuit = {
 
 static void dialogSaveGsCreate(void) {
 	s_eCurrentInput = 0;
-	UWORD uwDlgWidth = 256;
-	UWORD uwDlgHeight = 128;
-
-	s_pBmDialog = dialogCreate(
-		uwDlgWidth, uwDlgHeight, gameGetBackBuffer(), gameGetFrontBuffer()
+	s_pBmDlg = dialogCreate(
+		DLG_SAVE_WIDTH, DLG_SAVE_HEIGHT, gameGetBackBuffer(), gameGetFrontBuffer()
 	);
+
+	// Create bitmap for scanlined draw
+	s_sBmDlgScanlined.BytesPerRow = s_pBmDlg->BytesPerRow;
+	s_sBmDlgScanlined.Rows = s_pBmDlg->Rows;
+	s_sBmDlgScanlined.Depth = 4;
+	s_sBmDlgScanlined.Planes[0] = s_pBmDlg->Planes[1];
+	s_sBmDlgScanlined.Planes[1] = s_pBmDlg->Planes[2];
+	s_sBmDlgScanlined.Planes[2] = s_pBmDlg->Planes[3];
+	s_sBmDlgScanlined.Planes[3] = s_pBmDlg->Planes[4];
+	guiScanlinedInit(&s_sBmDlgScanlined);
 
 	s_pDlgStateMachine = stateManagerCreate();
 	if(s_isQuitting) {

@@ -8,48 +8,17 @@
 #include "config.h"
 #include "border.h"
 
-//------------------------------------------------------------------- STATIC FNS
-
-static void inputDrawText(const tInput *pInput, UBYTE isDrawCursor) {
-	// Clear bg
-	const tGuiConfig *pConfig = guiGetConfig();
-	blitRect(
-		pInput->pBfr, pInput->sPos.uwX + 2, pInput->sPos.uwY + 2,
-		pInput->uwWidth - 4, pInput->pFont->uwHeight, 0
-	);
-
-	// Draw new text
-	fontFillTextBitMap(pInput->pFont, pInput->pTextBitMap, pInput->szValue);
-	if(pInput->pTextBitMap->uwActualWidth) {
-		fontDrawTextBitMap(
-			pInput->pBfr, pInput->pTextBitMap,
-			pInput->sPos.uwX + 2, pInput->sPos.uwY + 2,
-			pConfig->ubColorText, FONT_COOKIE
-		);
-	}
-
-	// Draw cursor if needed
-	if(isDrawCursor) {
-		UWORD uwTextLength = pInput->pTextBitMap->uwActualWidth;
-		fontDrawStr(
-			pInput->pFont, pInput->pBfr,
-			pInput->sPos.uwX + 2 + uwTextLength, pInput->sPos.uwY + 2,
-			"_", pConfig->ubColorText, FONT_COOKIE, pInput->pTextBitMap
-		);
-	}
-}
-
-//------------------------------------------------------------------- PUBLIC FNS
-
-tInput *inputCreate(
-	tBitMap *pBg, tFont *pFont, tTextBitMap *pTextBitMap, UWORD uwX, UWORD uwY,
-	UWORD uwWidth, UWORD uwMaxChars, const char *szLabel, char *szValueBuffer
+tGuiInput *inputCreate(
+	UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwMaxChars,
+	const char *szLabel, char *szValueBuffer, tGuiInputCbDraw cbDraw,
+	tGuiInputCbGetHeight cbGetHeight
 ) {
 	systemUse();
-	tInput *pInput = memAllocFast(sizeof(*pInput));
+	tGuiInput *pInput = memAllocFast(sizeof(*pInput));
 	if(!pInput) {
 		goto fail;
 	}
+	pInput->szLabel = szLabel;
 	if(szValueBuffer) {
 		pInput->szValue = szValueBuffer;
 		pInput->isValueBufferAllocated = 0;
@@ -68,30 +37,12 @@ tInput *inputCreate(
 	pInput->uwWidth = uwWidth;
 	pInput->uwMaxChars = uwMaxChars;
 	pInput->uwValueLength = strlen(pInput->szValue);
-	pInput->pFont = pFont;
-	pInput->pBfr = pBg;
-
-	if(pTextBitMap) {
-		pInput->pTextBitMap = pTextBitMap;
-		pInput->isTextBitMapAllocated = 0;
-	}
-	else {
-		pInput->pTextBitMap = fontCreateTextBitMap(uwWidth, pFont->uwHeight);
-		pInput->isTextBitMapAllocated = 1;
-	}
-
-	// Initial draw
-	UWORD uwHeight = inputGetHeight(pInput);
-	const tGuiConfig *pConfig = guiGetConfig();
-	if(szLabel) {
-		fontDrawStr(
-			pFont, pBg, pInput->sPos.uwX - 1, pInput->sPos.uwY + uwHeight / 2,
-			szLabel, pConfig->ubColorText, FONT_COOKIE | FONT_RIGHT | FONT_VCENTER,
-			pInput->pTextBitMap
-		);
-	}
-	guiDraw3dBorder(pBg, pInput->sPos.uwX, pInput->sPos.uwY, uwWidth, uwHeight);
-	inputDrawText(pInput, 0);
+	pInput->isFocus = 0;
+	pInput->eDrawFlags = (
+		GUI_INPUT_DRAW_BORDER | GUI_INPUT_DRAW_CURSOR | GUI_INPUT_DRAW_TEXT
+	);
+	pInput->cbDraw = cbDraw;
+	pInput->cbGetHeight = cbGetHeight;
 
 	return pInput;
 fail:
@@ -100,26 +51,20 @@ fail:
 	return 0;
 }
 
-void inputDestroy(tInput *pInput) {
+void inputDestroy(tGuiInput *pInput) {
 	systemUse();
 	if(pInput) {
 		if(pInput->isValueBufferAllocated && pInput->szValue) {
 			memFree(pInput->szValue, pInput->uwMaxChars);
-		}
-		if(pInput->isTextBitMapAllocated) {
-			fontDestroyTextBitMap(pInput->pTextBitMap);
 		}
 		memFree(pInput, sizeof(*pInput));
 	}
 	systemUnuse();
 }
 
-void inputProcess(tInput *pInput) {
-	UBYTE isUpdateNeeded = 0;
-
+void inputProcess(tGuiInput *pInput) {
 	// Process keystrokes
-	if(keyUse(g_sKeyManager.ubLastKey)) {
-		isUpdateNeeded = 1;
+	if(pInput->isFocus && keyUse(g_sKeyManager.ubLastKey)) {
 		WORD wInput = g_pToAscii[g_sKeyManager.ubLastKey];
 		if(
 			(wInput >= 'A' && wInput <= 'Z') ||
@@ -134,31 +79,33 @@ void inputProcess(tInput *pInput) {
 				pInput->szValue[pInput->uwValueLength] = wInput;
 				++pInput->uwValueLength;
 			}
+			pInput->eDrawFlags |= GUI_INPUT_DRAW_TEXT | GUI_INPUT_DRAW_CURSOR;
 		}
 		else if(g_sKeyManager.ubLastKey == KEY_BACKSPACE && pInput->uwValueLength){
 			--pInput->uwValueLength;
 			pInput->szValue[pInput->uwValueLength] = '\0';
-		}
-		else {
-			isUpdateNeeded = 0;
+			pInput->eDrawFlags |= GUI_INPUT_DRAW_TEXT | GUI_INPUT_DRAW_CURSOR;
 		}
 	}
-
-	// Draw changed letters + cursor
-	if(isUpdateNeeded) {
-		inputDrawText(pInput, 1);
+	if(pInput->eDrawFlags) {
+		if(pInput->cbDraw) {
+			pInput->cbDraw(pInput);
+		}
+		pInput->eDrawFlags = 0;
 	}
 }
 
-UBYTE inputGetHeight(const tInput *pInput) {
-	UBYTE ubHeight = pInput->pFont->uwHeight + 4;
+UBYTE inputGetHeight(const tGuiInput *pInput) {
+	UBYTE ubHeight = pInput->cbGetHeight(pInput);
 	return ubHeight;
 }
 
-void inputLoseFocus(tInput *pInput) {
-	inputDrawText(pInput, 0);
+void inputLoseFocus(tGuiInput *pInput) {
+	pInput->isFocus = 0;
+	pInput->eDrawFlags |= GUI_INPUT_DRAW_TEXT | GUI_INPUT_DRAW_CURSOR;
 }
 
-void inputSetFocus(tInput *pInput) {
-	inputDrawText(pInput, 1);
+void inputSetFocus(tGuiInput *pInput) {
+	pInput->isFocus = 1;
+	pInput->eDrawFlags |= GUI_INPUT_DRAW_TEXT | GUI_INPUT_DRAW_CURSOR;
 }

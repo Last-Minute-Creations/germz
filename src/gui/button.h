@@ -16,39 +16,42 @@ extern "C" {
 #define BUTTON_MAX_TEXT 20
 #define BUTTON_INVALID 0xFF
 
-typedef void (*tBtnOnClick)(void *pData);
+struct _tGuiButton;
 
-typedef struct _tButton {
+typedef void (*tGuiBtnOnClick)(void *pData);
+typedef void (*tGuiBtnOnDraw)(struct _tGuiButton *pButton);
+
+typedef struct _tGuiButton {
 	tUwRect sRect;
 	char szText[BUTTON_MAX_TEXT];
-	tBtnOnClick onClick;
+	tGuiBtnOnClick onClick;
 	void *pData;
-} tButton;
+} tGuiButton;
 
-void buttonListCreate(
-	UBYTE ubButtonCount, tBitMap *pBfr, const tFont *pFont, tTextBitMap *pTextBfr
-);
+void buttonListCreate(UBYTE ubButtonCount, const tGuiBtnOnDraw cbOnDraw);
 
 void buttonListDestroy(void);
 
-tButton *buttonAdd(
+tGuiButton *buttonAdd(
 	UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwHeight,
-	const char *szText, tBtnOnClick cbOnClick, void *pData
+	const char *szText, tGuiBtnOnClick cbOnClick, void *pData
 );
 
 void buttonDrawAll(void);
 
-void buttonSelect(tButton *pButton);
+void buttonSelect(tGuiButton *pButton);
 
 void buttonSelectNext(void);
 
 void buttonSelectPrev(void);
 
-tButton *buttonGetSelected(void);
+tGuiButton *buttonGetSelected(void);
 
 UBYTE buttonListProcessMouseClick(UWORD uwX, UWORD uwY);
 
-void buttonClick(const tButton *pButton);
+void buttonClick(const tGuiButton *pButton);
+
+UBYTE buttonIsSelected(const tGuiButton *pButton);
 
 #ifdef __cplusplus
 }

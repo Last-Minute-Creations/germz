@@ -13,9 +13,11 @@
 #include "color.h"
 #include "menu_list.h"
 #include "player.h"
-#include "value_ptr.h"
+#include "gui_scanlined.h"
 
 #define PAUSE_MENU_MAX 3
+#define PAUSE_MENU_COLOR_ACTIVE (COLOR_P3_BRIGHT >> 1)
+#define PAUSE_MENU_COLOR_INACTIVE ((COLOR_P3_BRIGHT + 2) >> 1)
 
 static tBitMap *s_pBmDialog;
 static tBitMap s_sBmDlgScanline;
@@ -26,14 +28,22 @@ static void onExit(void);
 static void onBack(void);
 static void onNextMap(void);
 
-static const tMenuListStyle s_sMenuStyle = {
-	.ubColorActive = COLOR_P3_BRIGHT >> 1,
-	.ubColorInactive = (COLOR_P3_BRIGHT + 2) >> 1,
-	.ubColorShadow = 0xFF
-};
-
-static tOption s_pPauseOptions[PAUSE_MENU_MAX];
+static tMenuListOption s_pPauseOptions[PAUSE_MENU_MAX];
 static const char *s_pPauseLabels[PAUSE_MENU_MAX];
+
+static void pauseMenuPosDraw(
+	UWORD uwX, UWORD uwY, const char *szCaption, const char *szText,
+	UBYTE isActive, UWORD *pUndrawWidth
+) {
+	// Draw pos + non-zero shadow
+	fontFillTextBitMap(g_pFontBig, g_pTextBitmap, szText);
+	*pUndrawWidth = g_pTextBitmap->uwActualWidth;
+	UBYTE ubColor = (isActive ? PAUSE_MENU_COLOR_ACTIVE : PAUSE_MENU_COLOR_INACTIVE);
+
+	fontDrawTextBitMap(
+		&s_sBmDlgScanline, g_pTextBitmap, uwX, uwY, ubColor, FONT_COOKIE
+	);
+}
 
 static void gamePauseGsCreate(void) {
 	UWORD uwDlgWidth = 192;
@@ -169,37 +179,36 @@ static void gamePauseGsCreate(void) {
 
 	if(s_eKind == PAUSE_KIND_BATTLE_PAUSE || s_eKind == PAUSE_KIND_CAMPAIGN_PAUSE) {
 		s_pPauseLabels[ubOptionCount] = "BACK";
-		s_pPauseOptions[ubOptionCount++] = (tOption){
-			.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK, .pStyle = &s_sMenuStyle,
+		s_pPauseOptions[ubOptionCount++] = (tMenuListOption){
+			.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK,
 			.sOptCb = {.cbSelect = onBack}
 		};
 	}
 
 	if(s_eKind == PAUSE_KIND_CAMPAIGN_WIN) {
 		s_pPauseLabels[ubOptionCount] = "CONTINUE";
-		s_pPauseOptions[ubOptionCount++] = (tOption){
-			.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK, .pStyle = &s_sMenuStyle,
+		s_pPauseOptions[ubOptionCount++] = (tMenuListOption){
+			.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK,
 			.sOptCb = {.cbSelect = onNextMap}
 		};
 	}
 	else {
 		s_pPauseLabels[ubOptionCount] = "RESTART MATCH";
-		s_pPauseOptions[ubOptionCount++] = (tOption){
-			.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK, .pStyle = &s_sMenuStyle,
+		s_pPauseOptions[ubOptionCount++] = (tMenuListOption){
+			.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK,
 			.sOptCb = {.cbSelect = onRestart}
 		};
 
 		s_pPauseLabels[ubOptionCount] = "EXIT TO MENU";
-		s_pPauseOptions[ubOptionCount++] = (tOption){
-			.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK, .pStyle = &s_sMenuStyle,
+		s_pPauseOptions[ubOptionCount++] = (tMenuListOption){
+			.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK,
 			.sOptCb = {.cbSelect = onExit}
 		};
 	}
 
 	menuListInit(
-		s_pPauseOptions, s_pPauseLabels, ubOptionCount, g_pFontBig, g_pTextBitmap,
-		valuePtrPack(COLOR_CONSOLE_BG >> 1), &s_sBmDlgScanline, uwX, uwY,
-		&s_sMenuStyle
+		s_pPauseOptions, s_pPauseLabels, ubOptionCount, g_pFontBig,
+		uwX, uwY, guiScanlinedBgClear, pauseMenuPosDraw
 	);
 }
 

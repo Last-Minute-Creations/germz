@@ -16,16 +16,17 @@
 #include "assets.h"
 #include "germz.h"
 #include "map_list.h"
+#include "gui_scanlined.h"
 
 //----------------------------------------------------------------------- Layout
-#define SAVE_DLG_PAD 16
-#define SAVE_DLG_WIDTH 256
-#define SAVE_DLG_HEIGHT 160
+#define DLG_LOAD_PAD 16
+#define DLG_LOAD_WIDTH 256
+#define DLG_LOAD_HEIGHT 160
 
-#define MAP_LIST_X SAVE_DLG_PAD
-#define MAP_LIST_Y SAVE_DLG_PAD
-#define MAP_LIST_WIDTH ((SAVE_DLG_WIDTH - 2 * SAVE_DLG_PAD) / 2)
-#define MAP_LIST_HEIGHT (SAVE_DLG_HEIGHT - 2 * SAVE_DLG_PAD)
+#define MAP_LIST_X DLG_LOAD_PAD
+#define MAP_LIST_Y DLG_LOAD_PAD
+#define MAP_LIST_WIDTH ((DLG_LOAD_WIDTH - 2 * DLG_LOAD_PAD) / 2)
+#define MAP_LIST_HEIGHT (DLG_LOAD_HEIGHT - 2 * DLG_LOAD_PAD)
 
 #define PREVIEW_X (MAP_LIST_X + MAP_LIST_WIDTH + 10)
 #define PREVIEW_Y (MAP_LIST_Y)
@@ -35,14 +36,14 @@
 #define INFO_Y (PREVIEW_Y + 16 * PREVIEW_TILE_SIZE + 10)
 
 #define BTN_LOAD_WIDTH 50
-#define BTN_LOAD_HEIGHT 20
-#define BTN_LOAD_X (INFO_X + (SAVE_DLG_WIDTH - INFO_X - SAVE_DLG_PAD) / 2)
-#define BTN_LOAD_Y (SAVE_DLG_HEIGHT - SAVE_DLG_PAD - BTN_LOAD_HEIGHT / 2)
+#define BTN_LOAD_HEIGHT 10
+#define BTN_LOAD_X (INFO_X + (DLG_LOAD_WIDTH - INFO_X - DLG_LOAD_PAD) / 2)
+#define BTN_LOAD_Y (DLG_LOAD_HEIGHT - DLG_LOAD_PAD - BTN_LOAD_HEIGHT / 2)
 //------------------------------------------------------------------- Layout end
 
 static tListCtl *s_pCtrl;
 static tMapData *s_pPreview;
-static tBitMap *s_pBmDialog;
+static tBitMap *s_pBmDlg;
 static ULONG s_ullChangeTimer; // Inactive if set to 0.
 static tBitMap s_sBmDlgScanlined;
 
@@ -52,26 +53,27 @@ static void invalidateMapSelection(void) {
 }
 
 static void dialogLoadGsCreate(void) {
-	s_pBmDialog = dialogCreate(
-		SAVE_DLG_WIDTH, SAVE_DLG_HEIGHT, gameGetBackBuffer(), gameGetFrontBuffer()
+	s_pBmDlg = dialogCreate(
+		DLG_LOAD_WIDTH, DLG_LOAD_HEIGHT, gameGetBackBuffer(), gameGetFrontBuffer()
 	);
 	bmFrameDraw(
-		g_pFrameDisplay, s_pBmDialog, 0, 0,
-		SAVE_DLG_WIDTH / 16, SAVE_DLG_HEIGHT / 16, 16
+		g_pFrameDisplay, s_pBmDlg, 0, 0,
+		DLG_LOAD_WIDTH / 16, DLG_LOAD_HEIGHT / 16, 16
 	);
 	s_pPreview = memAllocFast(sizeof(*s_pPreview));
 
 	// Create bitmap for scanlined draw
-	s_sBmDlgScanlined.BytesPerRow = s_pBmDialog->BytesPerRow;
-	s_sBmDlgScanlined.Rows = s_pBmDialog->Rows;
+	s_sBmDlgScanlined.BytesPerRow = s_pBmDlg->BytesPerRow;
+	s_sBmDlgScanlined.Rows = s_pBmDlg->Rows;
 	s_sBmDlgScanlined.Depth = 4;
-	s_sBmDlgScanlined.Planes[0] = s_pBmDialog->Planes[1];
-	s_sBmDlgScanlined.Planes[1] = s_pBmDialog->Planes[2];
-	s_sBmDlgScanlined.Planes[2] = s_pBmDialog->Planes[3];
-	s_sBmDlgScanlined.Planes[3] = s_pBmDialog->Planes[4];
+	s_sBmDlgScanlined.Planes[0] = s_pBmDlg->Planes[1];
+	s_sBmDlgScanlined.Planes[1] = s_pBmDlg->Planes[2];
+	s_sBmDlgScanlined.Planes[2] = s_pBmDlg->Planes[3];
+	s_sBmDlgScanlined.Planes[3] = s_pBmDlg->Planes[4];
+	guiScanlinedInit(&s_sBmDlgScanlined);
 
 	// Map list
-	buttonListCreate(5, &s_sBmDlgScanlined, g_pFontSmall, g_pTextBitmap);
+	buttonListCreate(5, guiScanlinedButtonDraw);
 	s_pCtrl = mapListCreateCtl(
 		&s_sBmDlgScanlined, MAP_LIST_X, MAP_LIST_Y, MAP_LIST_WIDTH, MAP_LIST_HEIGHT
 	);
@@ -83,7 +85,7 @@ static void dialogLoadGsCreate(void) {
 	invalidateMapSelection();
 
 	// Button: "Load"
-	tButton *pButtonLoad = buttonAdd(
+	tGuiButton *pButtonLoad = buttonAdd(
 		BTN_LOAD_X, BTN_LOAD_Y, BTN_LOAD_WIDTH, BTN_LOAD_HEIGHT, "Load", 0, 0
 	);
 	buttonSelect(pButtonLoad);

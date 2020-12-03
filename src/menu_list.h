@@ -18,23 +18,25 @@ typedef enum _tMenuListDirty {
 	MENU_LIST_DIRTY_SELECTION = 2,
 } tMenuListDirty;
 
-typedef struct _tMenuListStyle {
-	UBYTE ubColorActive;
-	UBYTE ubColorInactive;
-	UBYTE ubColorShadow; ///< Set to 0xFF to skip drawing.
-} tMenuListStyle;
-
 typedef void (*tOptionSelectCb)(void);
 typedef void (*tOptionValChangeCb)(void);
 typedef void (*tOptionValDrawCb)(UBYTE ubIdx);
 
+typedef void (*tCbMenuListUndraw)(
+	UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwHeight
+);
+
+typedef void (*tCbMenuListDrawPos)(
+	UWORD uwX, UWORD uwY, const char *szCaption, const char *szText,
+	UBYTE isActive, UWORD *pUndrawWidth
+);
+
 // All options are uint8_t, enums or numbers
-typedef struct _tOption {
+typedef struct _tMenuListOption {
 	tMenuListOptionType eOptionType;
 	UBYTE isHidden;
 	tMenuListDirty eDirty;
 	UWORD uwUndrawWidth;
-	const tMenuListStyle *pStyle;
 	union {
 		struct {
 			UBYTE *pVar;
@@ -49,13 +51,12 @@ typedef struct _tOption {
 			tOptionSelectCb cbSelect;
 		} sOptCb; ///< Params for callback-based option
 	};
-} tOption;
+} tMenuListOption;
 
 void menuListInit(
-	tOption *pOptions, const char **pOptionCaptions,
-	UBYTE ubOptionCount, tFont *pFont, tTextBitMap *pTextBitmap,
-	tBitMap *pBmBg, tBitMap *pBmBuffer, UWORD uwX, UWORD uwY,
-	const tMenuListStyle *pStyle
+	tMenuListOption *pOptions, const char **pOptionCaptions, UBYTE ubOptionCount,
+	tFont *pFont, UWORD uwX, UWORD uwY, const tCbMenuListUndraw cbUndraw,
+	const tCbMenuListDrawPos cbDrawPos
 );
 
 void menuListDraw(void);
