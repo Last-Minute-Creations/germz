@@ -52,6 +52,7 @@ extern tBitMap *g_pFrameDisplay;
 extern tBitMap *g_pBmBlobs[BLOB_COLOR_COUNT], *g_pBmBlobMask;
 extern tBitMap *g_pCursors, *g_pCursorsMask;
 extern tBitMap *g_pBmLinks, *g_pBmLinksMask;
+extern tBitMap *g_pBmHudTarget;
 extern tPtplayerSfx *g_pSfxPlep1, *g_pSfxPlep2;
 
 extern tDefs g_sDefs;

@@ -89,15 +89,15 @@ Done:
 		✔ "save" dialog works @done(20-12-03 12:32)
 	✔ Speed up hud drawing (1bpp + copper) @done(20-12-04 16:56)
 	✔ Set special colors for map preview in editor using copperlist or use different special colors for HUD and hardcode map preview colors into palette @done(20-12-04 16:56)
+	✔ targeting icon on hud when fire is pressed and node is given player's @done(20-12-04 17:33)
 
 Now:
-	☐ targeting icon on hud when fire is pressed and node is given player's
 	☐ arrows in list ctl buttons
-	☐ nested folder navigation in list ctl
-		☐ entering subfolder
-		☐ going to parent dir
-		☐ don't allow going above
 	☐ Campaign:
+		☐ nested folder navigation in list ctl
+			☐ entering subfolder
+			☐ going to parent dir
+			☐ don't allow going above
 		☐ pause: retry
 		☐ Start with c01.json map
 		☐ Start next map after finishing map

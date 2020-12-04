@@ -59,6 +59,7 @@ file(
 
 # Palette
 set(PLT_PATH ${DATA_DIR}/germz.plt)
+set(MONO_PLT_PATH ${RES_DIR}/mono.gpl)
 set(TRANSPARENCY_HEX "#000000")
 convertPalette(${GERMZ_EXECUTABLE} ${RES_DIR}/germz.gpl ${PLT_PATH})
 
@@ -180,6 +181,8 @@ extractBitmaps(TARGET ${GERMZ_EXECUTABLE} SOURCE 	${RES_DIR}/editor_gfx.png
 		${GEN_DIR}/display/6.png  0 639 16 16
 		${GEN_DIR}/display/7.png 17 639 16 16
 		${GEN_DIR}/display/8.png 34 639 16 16
+		# HUD icon
+		${GEN_DIR}/hud_target.png 0 593 16 9
 )
 
 # Pleps
@@ -329,7 +332,7 @@ convertBitmaps(
 		${GEN_DIR}/editor_hud.png ${GEN_DIR}/game_bg.png
 		${RES_DIR}/menu_main.png ${RES_DIR}/menu_sub.png
 		${RES_DIR}/lmc.png ${RES_DIR}/ace.png ${GEN_DIR}/game_bg.png
-		${GEN_DIR}/display.png
+		${GEN_DIR}/display.png ${GEN_DIR}/hud_target.png
 	DESTINATIONS
 		${DATA_DIR}/blob1.bm ${DATA_DIR}/blob2.bm ${DATA_DIR}/blob3.bm
 		${DATA_DIR}/blob4.bm ${DATA_DIR}/game_hud.bm
@@ -342,7 +345,12 @@ convertBitmaps(
 		${DATA_DIR}/editor_hud.bm ${DATA_DIR}/game_bg.bm
 		${DATA_DIR}/menu_main.bm ${DATA_DIR}/menu_sub.bm
 		${DATA_DIR}/lmc.bm ${DATA_DIR}/ace.bm ${DATA_DIR}/game_bg.bm
-		${DATA_DIR}/display.bm
+		${DATA_DIR}/display.bm ${DATA_DIR}/hud_target.bm
+)
+
+convertBitmaps(
+	TARGET ${GERMZ_EXECUTABLE} PALETTE ${MONO_PLT_PATH}
+	SOURCES ${GEN_DIR}/hud_target.png DESTINATIONS ${DATA_DIR}/hud_target.bm
 )
 
 convertAudio(

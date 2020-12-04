@@ -90,6 +90,9 @@ void assetsGameCreate(void) {
 	// Sounds
 	g_pSfxPlep1 = ptplayerSfxCreateFromFile("data/sfx/plep1.sfx");
 	g_pSfxPlep2 = ptplayerSfxCreateFromFile("data/sfx/plep2.sfx");
+
+	// HUD icon
+	g_pBmHudTarget = bitmapCreateFromFile("data/hud_target.bm", 0);
 }
 
 void assetsGameDestroy(void) {
@@ -113,6 +116,9 @@ void assetsGameDestroy(void) {
 	ptplayerSfxDestroy(g_pSfxPlep1);
 	ptplayerSfxDestroy(g_pSfxPlep2);
 
+	// HUD icon
+	bitmapDestroy(g_pBmHudTarget);
+
 	systemUnuse();
 	logBlockEnd("gameAssetsDestroy()");
 }
@@ -128,5 +134,5 @@ tDefs g_sDefs;
 tBitMap *g_pBmBlobs[BLOB_COLOR_COUNT], *g_pBmBlobMask;
 tBitMap *g_pCursors, *g_pCursorsMask;
 tBitMap *g_pBmLinks, *g_pBmLinksMask;
+tBitMap *g_pBmHudTarget;
 tPtplayerSfx *g_pSfxPlep1, *g_pSfxPlep2;
-

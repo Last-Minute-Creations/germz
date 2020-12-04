@@ -21,6 +21,8 @@
 
 // The widest digit is 11px wide, there may be 3 of them, each spaced with 1px
 #define HUD_UNDRAW_WIDTH ((11 + 1) * 3 - 1)
+// Whole row because of icon
+#define HUD_UNDRAW_WIDTH_GRAB 44
 #define HUD_UNDRAW_HEIGHT 10
 
 typedef enum _tHudState {
@@ -104,7 +106,7 @@ static void hudUpdate(void) {
 			if(!s_isHudDrawnOnce) {
 				blitRect(
 					&s_sBmHudAlias, uwMonitorX, uwMonitorY + HUD_GRABBED_OFFS_Y + HUD_COPY_DELTA_Y,
-					HUD_UNDRAW_WIDTH, HUD_UNDRAW_HEIGHT, 0
+					HUD_UNDRAW_WIDTH_GRAB, HUD_UNDRAW_HEIGHT, 0
 				);
 				if(pPlayer->isSelectingDestination) {
 					char szBfr[6];
@@ -113,13 +115,17 @@ static void hudUpdate(void) {
 						g_pFontBig, &s_sBmHudAlias,
 						uwMonitorX, uwMonitorY + HUD_GRABBED_OFFS_Y, szBfr
 					);
+					blitCopy(
+						g_pBmHudTarget, 0, 0, &s_sBmHudAlias, uwMonitorX + 44 - 10,
+						uwMonitorY + HUD_GRABBED_OFFS_Y + HUD_COPY_DELTA_Y, 9, 9, MINTERM_COOKIE
+					);
 				}
 			}
 			else {
 				blitCopy(
 					&s_sBmHudAliasFront, uwMonitorX, uwMonitorY + HUD_GRABBED_OFFS_Y + HUD_COPY_DELTA_Y,
 					&s_sBmHudAlias, uwMonitorX, uwMonitorY + HUD_GRABBED_OFFS_Y + HUD_COPY_DELTA_Y,
-					HUD_UNDRAW_WIDTH, HUD_UNDRAW_HEIGHT, MINTERM_COOKIE
+					HUD_UNDRAW_WIDTH_GRAB, HUD_UNDRAW_HEIGHT, MINTERM_COOKIE
 				);
 			}
 			eNextState = HUD_STATE_NEXT_PLAYER;
