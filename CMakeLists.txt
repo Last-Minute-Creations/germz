@@ -332,7 +332,7 @@ convertBitmaps(
 		${GEN_DIR}/editor_hud.png ${GEN_DIR}/game_bg.png
 		${RES_DIR}/menu_main.png ${RES_DIR}/menu_sub.png
 		${RES_DIR}/lmc.png ${RES_DIR}/ace.png ${GEN_DIR}/game_bg.png
-		${GEN_DIR}/display.png ${GEN_DIR}/hud_target.png
+		${GEN_DIR}/display.png
 	DESTINATIONS
 		${DATA_DIR}/blob1.bm ${DATA_DIR}/blob2.bm ${DATA_DIR}/blob3.bm
 		${DATA_DIR}/blob4.bm ${DATA_DIR}/game_hud.bm
@@ -345,7 +345,7 @@ convertBitmaps(
 		${DATA_DIR}/editor_hud.bm ${DATA_DIR}/game_bg.bm
 		${DATA_DIR}/menu_main.bm ${DATA_DIR}/menu_sub.bm
 		${DATA_DIR}/lmc.bm ${DATA_DIR}/ace.bm ${DATA_DIR}/game_bg.bm
-		${DATA_DIR}/display.bm ${DATA_DIR}/hud_target.bm
+		${DATA_DIR}/display.bm
 )
 
 convertBitmaps(
