@@ -86,4 +86,8 @@ tPlayerIdx gameGetWinnerFfa(void);
 
 tTeamConfig gameGetTeamConfig(void);
 
+tCopCmd *gameGetColorCopperlist(void);
+
+void gameSetSpecialColors(UWORD uwSpecial1, UWORD uwSpecial2);
+
 #endif // _GERMZ_GAME_H_

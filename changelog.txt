@@ -1,3 +1,7 @@
+20.12.3
+	- Cleanup of GUI code - every dialog uses scanlines
+	- First half of HUD speedup complete - currently without colors
+
 20.11.20
 	- Probably fixed incrementing scores when pressing ESC in game summary
 	- Probably fixed not being able to navigate in summary if defeated by CPU

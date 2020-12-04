@@ -72,6 +72,8 @@ static void dialogLoadGsCreate(void) {
 	s_sBmDlgScanlined.Planes[3] = s_pBmDlg->Planes[4];
 	guiScanlinedInit(&s_sBmDlgScanlined);
 
+	gameSetSpecialColors(0x333, 0x222);
+
 	// Map list
 	buttonListCreate(5, guiScanlinedButtonDraw);
 	s_pCtrl = mapListCreateCtl(

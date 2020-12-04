@@ -19,8 +19,12 @@
 #include "game_play.h"
 #include "game_pause.h"
 #include "germz.h"
+#include "color.h"
 #include <bartman/gcc8_c_support.h>
 
+#define GAME_COPPERLIST_COLOR_CHANGES 4
+
+static UWORD s_uwCopColorCmdOffset;
 static tView *s_pView;
 static tVPort *s_pVp;
 static tSimpleBufferManager *s_pBfr;
@@ -128,7 +132,7 @@ void gamePostprocess(void) {
 }
 
 static void gameGsCreate(void) {
-	UWORD uwCopListLength = simpleBufferGetRawCopperlistInstructionCount(5) + 2;
+	UWORD uwCopListLength = simpleBufferGetRawCopperlistInstructionCount(5) + 2 + (3 * GAME_COPPERLIST_COLOR_CHANGES);
 
 	s_pView = viewCreate(0,
 		TAG_VIEW_COPLIST_MODE, COPPER_MODE_RAW,
@@ -136,6 +140,18 @@ static void gameGsCreate(void) {
 		TAG_VIEW_GLOBAL_CLUT, 1,
 		TAG_END
 	);
+
+	s_uwCopColorCmdOffset = simpleBufferGetRawCopperlistInstructionCount(5);
+	tCopCmd *pColorCmdsBack = &s_pView->pCopList->pBackBfr->pList[s_uwCopColorCmdOffset];
+	tCopCmd *pColorCmdsFront = &s_pView->pCopList->pFrontBfr->pList[s_uwCopColorCmdOffset];
+	for(tPlayerIdx ePlayer = PLAYER_1; ePlayer <= PLAYER_4; ++ePlayer) {
+		copSetWait(&pColorCmdsBack[3 * ePlayer + 0].sWait, 0, 0x2C + ePlayer * HUD_MONITOR_SIZE);
+		copSetMove(&pColorCmdsBack[3 * ePlayer + 1].sMove, &g_pCustom->color[COLOR_SPECIAL_1], 0);
+		copSetMove(&pColorCmdsBack[3 * ePlayer + 2].sMove, &g_pCustom->color[COLOR_SPECIAL_2], 0);
+		copSetWait(&pColorCmdsFront[3 * ePlayer + 0].sWait, 0, 0x2C + ePlayer * HUD_MONITOR_SIZE);
+		copSetMove(&pColorCmdsFront[3 * ePlayer + 1].sMove, &g_pCustom->color[COLOR_SPECIAL_1], 0);
+		copSetMove(&pColorCmdsFront[3 * ePlayer + 2].sMove, &g_pCustom->color[COLOR_SPECIAL_2], 0);
+	}
 
 	s_pVp = vPortCreate(0,
 		TAG_VPORT_VIEW, s_pView,
@@ -384,6 +400,22 @@ tBattleMode gameGetBattleMode(void) {
 
 tTeamConfig gameGetTeamConfig(void) {
 	return s_eTeamCfg;
+}
+
+tCopCmd *gameGetColorCopperlist(void) {
+	tCopCmd *pColorCmds = &s_pView->pCopList->pBackBfr->pList[s_uwCopColorCmdOffset];
+	return pColorCmds;
+}
+
+void gameSetSpecialColors(UWORD uwSpecial1, UWORD uwSpecial2) {
+	tCopCmd *pColorCmdsBack = &s_pView->pCopList->pBackBfr->pList[s_uwCopColorCmdOffset];
+	tCopCmd *pColorCmdsFront = &s_pView->pCopList->pFrontBfr->pList[s_uwCopColorCmdOffset];
+	for(UBYTE i = 0; i < 4; ++i) {
+		pColorCmdsBack[i * 3 + 1].sMove.bfValue = 0x333;
+		pColorCmdsBack[i * 3 + 2].sMove.bfValue = 0x222;
+		pColorCmdsFront[i * 3 + 1].sMove.bfValue = 0x333;
+		pColorCmdsFront[i * 3 + 2].sMove.bfValue = 0x222;
+	}
 }
 
 tState g_sStateGame = {

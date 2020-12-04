@@ -14,7 +14,9 @@
 #define COLOR_CONSOLE_BG 2
 
 // Special color. Used in battle menu for minimap background.
-#define COLOR_SPECIAL_1 8
-#define COLOR_SPECIAL_2 9
+#define COLOR_SPECIAL_1 6
+#define COLOR_SPECIAL_2 7
+
+#define RGB8TO4(r,g,b) (((r / 17) << 8) | ((g / 17) << 4) | ((b / 17) << 0))
 
 #endif // _GERMZ_COLOR_H_

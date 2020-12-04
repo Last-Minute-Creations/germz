@@ -14,17 +14,17 @@
 #include "player.h"
 #include "blob_anim.h"
 #include "germz.h"
+#include "color.h"
 
-#define HUD_ALIAS_BG 0
 #define HUD_GRABBED_OFFS_Y 15
+#define HUD_COPY_DELTA_Y 3
 
 // The widest digit is 11px wide, there may be 3 of them, each spaced with 1px
 #define HUD_UNDRAW_WIDTH ((11 + 1) * 3 - 1)
+#define HUD_UNDRAW_HEIGHT 10
 
 typedef enum _tHudState {
-	HUD_STATE_PLEPS_PREPARE,
 	HUD_STATE_PLEPS_DRAW,
-	HUD_STATE_GRABBED_PLEPS_PREPARE,
 	HUD_STATE_GRABBED_PLEPS_DRAW,
 	HUD_STATE_NEXT_PLAYER,
 	HUD_STATE_RIP_UNDRAW
@@ -36,90 +36,90 @@ static tPlayerIdx s_eHudCurrPlayer;
 static UBYTE s_pHudPlayersWereDead[4];
 tHudState s_eHudState;
 
-static tBitMap s_sBmHudAlias;
+static tBitMap s_sBmHudAlias, s_sBmHudAliasFront;
 
-static void updateHud(void) {
-	static const UBYTE pPlayerColors[] = {
-		10 >> 2, 14 >> 2, 18 >> 2, 22 >> 2, 6 >> 2
+static void hudUpdate(void) {
+	static const UWORD pPlayerColors[][2] = {
+		{RGB8TO4(255, 85, 85), RGB8TO4(204, 51, 51)},
+		{RGB8TO4(68, 255, 153), RGB8TO4(51, 204, 119)},
+		{RGB8TO4(255, 221, 102), RGB8TO4(204, 170, 68)},
+		{RGB8TO4(17, 119, 255), RGB8TO4(0, 85, 204)},
+		{RGB8TO4(170, 187, 170), RGB8TO4(136, 153, 136)},
 	};
-	// colors are arranged so that only top 3 bitplanes needs updating:
-	//  6: 00110 neutral
-	// 10: 01010 red
-	// 14: 01110 green
-	// 18: 10010 yellow
-	// 22: 10110 blue
-	//  2: 00010 bg
-	//  3: 00011 scanlines dark, so do scanlines with LSbit
+	// colors are arranged so that only top bitplane needs updating:
+	// 6: 00110 special
+	// 7: 00111 special scanlines dark
+	// 2: 00010 bg
+	// 3: 00011 bg scanlines dark, so do scanlines with LSbit
 
 	const tPlayer *pPlayer = playerFromIdx(s_eHudCurrPlayer);
 	const UBYTE ubMonitorPad = 7;
 	const UWORD uwMonitorX = HUD_OFFS_X + ubMonitorPad;
 	const UWORD uwMonitorY = s_eHudCurrPlayer * HUD_MONITOR_SIZE + ubMonitorPad;
-	tBitMap *pDisplay = gameGetBackBuffer();
-	s_sBmHudAlias.Planes[0] = pDisplay->Planes[2];
-	s_sBmHudAlias.Planes[1] = pDisplay->Planes[3];
-	s_sBmHudAlias.Planes[2] = pDisplay->Planes[4];
+	s_sBmHudAlias.Planes[0] = gameGetBackBuffer()->Planes[2];
+	s_sBmHudAliasFront.Planes[0] = gameGetFrontBuffer()->Planes[2];
 
 	tHudState eNextState = s_eHudState;
 	switch(s_eHudState) {
-		case HUD_STATE_PLEPS_PREPARE:
-			if(pPlayer->isDead) {
-				if(!s_pHudPlayersWereDead[s_eHudCurrPlayer]) {
-					eNextState = HUD_STATE_RIP_UNDRAW;
+		case HUD_STATE_PLEPS_DRAW:
+			if(!s_isHudDrawnOnce) {
+				if(pPlayer->isDead) {
+					if(!s_pHudPlayersWereDead[s_eHudCurrPlayer]) {
+						eNextState = HUD_STATE_RIP_UNDRAW;
+					}
+					else {
+						eNextState = HUD_STATE_NEXT_PLAYER;
+					}
 				}
 				else {
-					eNextState = HUD_STATE_NEXT_PLAYER;
+					blitRect(
+						&s_sBmHudAlias, uwMonitorX, uwMonitorY + HUD_COPY_DELTA_Y,
+						HUD_UNDRAW_WIDTH, HUD_UNDRAW_HEIGHT, 0
+					);
+					if(pPlayer->pNodeCursor) {
+						char szBfr[6];
+						stringDecimalFromULong(pPlayer->pNodeCursor->wCharges, szBfr);
+						fontDrawStr1bpp(
+							g_pFontBig, &s_sBmHudAlias, uwMonitorX, uwMonitorY, szBfr
+						);
+					}
 				}
 			}
 			else {
-				if(pPlayer->pNodeCursor) {
-					char szBfr[6];
-					stringDecimalFromULong(pPlayer->pNodeCursor->wCharges, szBfr);
-					fontFillTextBitMap(g_pFontBig, g_pTextBitmap, szBfr);
-					s_isHudDrawCurrent = 1;
-				}
-				else {
-					s_isHudDrawCurrent = 0; // just clear display in next state
-				}
-				s_isHudDrawnOnce = 1; // prevent processing falling here in another frame
-				eNextState = HUD_STATE_PLEPS_DRAW;
-			}
-			break;
-		case HUD_STATE_PLEPS_DRAW:
-			blitRect(
-				&s_sBmHudAlias, uwMonitorX, uwMonitorY,
-				HUD_UNDRAW_WIDTH, g_pTextBitmap->uwActualHeight, HUD_ALIAS_BG
-			);
-			if(s_isHudDrawCurrent) {
-				fontDrawTextBitMap(
-					&s_sBmHudAlias, g_pTextBitmap, uwMonitorX, uwMonitorY,
-					pPlayerColors[playerToIdx(pPlayer->pNodeCursor->pPlayer)], FONT_COOKIE
+				blitCopy(
+					&s_sBmHudAliasFront, uwMonitorX, uwMonitorY + HUD_COPY_DELTA_Y,
+					&s_sBmHudAlias, uwMonitorX, uwMonitorY + HUD_COPY_DELTA_Y,
+					HUD_UNDRAW_WIDTH, HUD_UNDRAW_HEIGHT, MINTERM_COOKIE
 				);
 			}
-			eNextState = HUD_STATE_GRABBED_PLEPS_PREPARE;
-			break;
-		case HUD_STATE_GRABBED_PLEPS_PREPARE:
-			if(pPlayer->isSelectingDestination) {
-				char szBfr[6];
-				stringDecimalFromULong(pPlayer->pNodePlepSrc->wCharges / 2, szBfr);
-				fontFillTextBitMap(g_pFontBig, g_pTextBitmap, szBfr);
-				s_isHudDrawCurrent = 1;
-			}
-			else {
-				s_isHudDrawCurrent = 0; // just clear display in next state
-			}
-			s_isHudDrawnOnce = 1; // prevent processing falling here in another frame
+			// Update HUD color
+			tCopCmd *pList = gameGetColorCopperlist();
+			tPlayerIdx ePlayerHover = playerToIdx(pPlayer->pNodeCursor->pPlayer);
+			pList[s_eHudCurrPlayer * 3 + 1].sMove.bfValue = pPlayerColors[ePlayerHover][0];
+			pList[s_eHudCurrPlayer * 3 + 2].sMove.bfValue = pPlayerColors[ePlayerHover][1];
+
 			eNextState = HUD_STATE_GRABBED_PLEPS_DRAW;
 			break;
 		case HUD_STATE_GRABBED_PLEPS_DRAW:
-			blitRect(
-				&s_sBmHudAlias, uwMonitorX, uwMonitorY + HUD_GRABBED_OFFS_Y,
-				HUD_UNDRAW_WIDTH, g_pTextBitmap->uwActualHeight, HUD_ALIAS_BG
-			);
-			if(s_isHudDrawCurrent) {
-				fontDrawTextBitMap(
-					&s_sBmHudAlias, g_pTextBitmap, uwMonitorX, uwMonitorY + HUD_GRABBED_OFFS_Y,
-					pPlayerColors[s_eHudCurrPlayer], FONT_COOKIE
+			if(!s_isHudDrawnOnce) {
+				blitRect(
+					&s_sBmHudAlias, uwMonitorX, uwMonitorY + HUD_GRABBED_OFFS_Y + HUD_COPY_DELTA_Y,
+					HUD_UNDRAW_WIDTH, HUD_UNDRAW_HEIGHT, 0
+				);
+				if(pPlayer->isSelectingDestination) {
+					char szBfr[6];
+					stringDecimalFromULong(pPlayer->pNodePlepSrc->wCharges / 2, szBfr);
+					fontDrawStr1bpp(
+						g_pFontBig, &s_sBmHudAlias,
+						uwMonitorX, uwMonitorY + HUD_GRABBED_OFFS_Y, szBfr
+					);
+				}
+			}
+			else {
+				blitCopy(
+					&s_sBmHudAliasFront, uwMonitorX, uwMonitorY + HUD_GRABBED_OFFS_Y + HUD_COPY_DELTA_Y,
+					&s_sBmHudAlias, uwMonitorX, uwMonitorY + HUD_GRABBED_OFFS_Y + HUD_COPY_DELTA_Y,
+					HUD_UNDRAW_WIDTH, HUD_UNDRAW_HEIGHT, MINTERM_COOKIE
 				);
 			}
 			eNextState = HUD_STATE_NEXT_PLAYER;
@@ -131,7 +131,7 @@ static void updateHud(void) {
 			// Erase whole HUD
 			blitRect(
 				&s_sBmHudAlias, uwMonitorX, uwMonitorY,
-				32, HUD_GRABBED_OFFS_Y + g_pFontBig->uwHeight, HUD_ALIAS_BG
+				32, HUD_GRABBED_OFFS_Y + g_pFontBig->uwHeight, 0
 			);
 			eNextState = HUD_STATE_NEXT_PLAYER;
 			break;
@@ -171,7 +171,10 @@ static void gamePlayGsCreate(void) {
 	tBitMap *pDisplay = gameGetBackBuffer();
 	s_sBmHudAlias.Rows = pDisplay->Rows;
 	s_sBmHudAlias.BytesPerRow = pDisplay->BytesPerRow;
-	s_sBmHudAlias.Depth = 3;
+	s_sBmHudAlias.Depth = 1;
+	s_sBmHudAliasFront.Rows = pDisplay->Rows;
+	s_sBmHudAliasFront.BytesPerRow = pDisplay->BytesPerRow;
+	s_sBmHudAliasFront.Depth = 1;
 
 	hudReset();
 	blobAnimReset();
@@ -190,7 +193,7 @@ static void gamePlayGsLoop(void) {
 		return;
 	}
 	blobAnimQueueProcess();
-	updateHud();
+	hudUpdate();
 	blitWait();
 	UBYTE ubAliveCount = playerProcess();
 	playerPushCursors();

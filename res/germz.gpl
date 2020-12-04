@@ -2,35 +2,35 @@ GIMP Palette
 Name: germz
 Columns: 4
 #
-  0   0   0 Index 0
+  0   0   0 Black
 204 221 204 Index 1
- 34  51  34 Index 6
-  0  17   0 Index 7
-170 187 170 Index 2
-136 153 136 Index 3
-102 119 102 Index 4
- 68  85  68 Index 5
-255 255 255 Index 31
-255 255 255 Index 31
-255  85  85 Index 8
-204  51  51 Index 9
-136  34  34 Index 10
- 68  17  17 Index 11
- 68 255 153 Index 12
- 51 204 119 Index 13
- 34 136  68 Index 14
- 17  68  34 Index 15
-255 221 102 Index 16
-204 170  68 Index 17
-136 102  34 Index 18
- 68  51  17 Index 19
- 17 119 255 Index 20
-  0  85 204 Index 21
-  0  51 136 Index 22
-  0  34  68 Index 23
-119 102 153 Index 24
- 85  68 119 Index 25
- 51  34  85 Index 26
- 17   0  34 Index 27
-255 255 255 Index 28
-255 255 255 Index 29
+ 34  51  34 Hud bg
+  0  17   0 Hud bg scanline
+170 187 170 Neutral 1
+136 153 136 Neutral 2
+255 255 255 Special 1
+255 255 255 Special 2
+102 119 102 Neutral 3
+ 68  85  68 Neutral 4
+255  85  85 Red 1
+204  51  51 Red 2
+136  34  34 Red 3
+ 68  17  17 Red 4
+ 68 255 153 Green 1
+ 51 204 119 Green 2
+ 34 136  68 Green 3
+ 17  68  34 Green 4
+255 221 102 Yellow 1
+204 170  68 Yellow 2
+136 102  34 Yellow 3
+ 68  51  17 Yellow 4
+ 17 119 255 Blue 1
+  0  85 204 Blue 2
+  0  51 136 Blue 3
+  0  34  68 Blue 4
+119 102 153 Violet 1
+ 85  68 119 Violet 2
+ 51  34  85 Violet 3
+ 17   0  34 Violet 4
+255 255 255 Sepcial 3
+255 255 255 Special 4

@@ -87,19 +87,24 @@ Done:
 		✔ gui.button draw callback @done(20-12-03 12:32)
 		✔ gui.input draw callback @done(20-12-03 12:32)
 		✔ "save" dialog works @done(20-12-03 12:32)
+	✔ Speed up hud drawing (1bpp + copper) @done(20-12-04 16:56)
+	✔ Set special colors for map preview in editor using copperlist or use different special colors for HUD and hardcode map preview colors into palette @done(20-12-04 16:56)
 
 Now:
-	☐ game summary when launched from editor
-	☐ proper game init when launched from editor
+	☐ targeting icon on hud when fire is pressed and node is given player's
+	☐ arrows in list ctl buttons
+	☐ nested folder navigation in list ctl
+		☐ entering subfolder
+		☐ going to parent dir
+		☐ don't allow going above
 	☐ Campaign:
 		☐ pause: retry
 		☐ Start with c01.json map
 		☐ Start next map after finishing map
 		☐ Retry yes/no after defeat
-	☐ Speed up hud drawing (1bpp + copper)
-	☐ Set special colors for map preview in editor using copperlist or use different special colors for HUD and hardcode map preview colors into palette
+	☐ proper game init when launched from editor
+	☐ game summary when launched from editor
 	☐ Configurable match count in battle mode
-	☐ targeting icon on hud when fire is pressed and node is given player's
 	☐ error messages before starting battle
 	☐ display in visible menu part how keyboard layouts have action button bound (how to play)
 	☐ Import/export to/from editor by typing in code (AmigaLive)
