@@ -121,7 +121,7 @@ static void gamePauseGsCreate(void) {
 		s_eKind == PAUSE_KIND_BATTLE_PAUSE || s_eKind == PAUSE_KIND_BATTLE_SUMMARY
 	) {
 		fontDrawStr(
-			g_pFontBig, &s_sBmDlgScanline, uwX, uwY, "CURRENT SCORES", 18 >> 1,
+			g_pFontBig, &s_sBmDlgScanline, uwX, uwY, "CURRENT SCORE", 18 >> 1,
 			FONT_COOKIE, g_pTextBitmap
 		);
 		uwY += uwRowSize;

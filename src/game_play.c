@@ -40,7 +40,7 @@ tHudState s_eHudState;
 
 static tBitMap s_sBmHudAlias, s_sBmHudAliasFront;
 
-static void hudUpdate(void) {
+static void hudProcess(void) {
 	static const UWORD pPlayerColors[][2] = {
 		{RGB8TO4(255, 85, 85), RGB8TO4(204, 51, 51)},
 		{RGB8TO4(68, 255, 153), RGB8TO4(51, 204, 119)},
@@ -64,16 +64,17 @@ static void hudUpdate(void) {
 	tHudState eNextState = s_eHudState;
 	switch(s_eHudState) {
 		case HUD_STATE_PLEPS_DRAW:
-			if(!s_isHudDrawnOnce) {
-				if(pPlayer->isDead) {
-					if(!s_pHudPlayersWereDead[s_eHudCurrPlayer]) {
-						eNextState = HUD_STATE_RIP_UNDRAW;
-					}
-					else {
-						eNextState = HUD_STATE_NEXT_PLAYER;
-					}
+			if(pPlayer->isDead) {
+				if(!s_pHudPlayersWereDead[s_eHudCurrPlayer]) {
+					eNextState = HUD_STATE_RIP_UNDRAW;
 				}
 				else {
+					eNextState = HUD_STATE_NEXT_PLAYER;
+				}
+				s_isHudDrawnOnce = 1;
+			}
+			else {
+				if(!s_isHudDrawnOnce) {
 					blitRect(
 						&s_sBmHudAlias, uwMonitorX, uwMonitorY + HUD_COPY_DELTA_Y,
 						HUD_UNDRAW_WIDTH, HUD_UNDRAW_HEIGHT, 0
@@ -86,21 +87,21 @@ static void hudUpdate(void) {
 						);
 					}
 				}
-			}
-			else {
-				blitCopy(
-					&s_sBmHudAliasFront, uwMonitorX, uwMonitorY + HUD_COPY_DELTA_Y,
-					&s_sBmHudAlias, uwMonitorX, uwMonitorY + HUD_COPY_DELTA_Y,
-					HUD_UNDRAW_WIDTH, HUD_UNDRAW_HEIGHT, MINTERM_COOKIE
-				);
-			}
-			// Update HUD color
-			tCopCmd *pList = gameGetColorCopperlist();
-			tPlayerIdx ePlayerHover = playerToIdx(pPlayer->pNodeCursor->pPlayer);
-			pList[s_eHudCurrPlayer * 3 + 1].sMove.bfValue = pPlayerColors[ePlayerHover][0];
-			pList[s_eHudCurrPlayer * 3 + 2].sMove.bfValue = pPlayerColors[ePlayerHover][1];
+				else {
+					blitCopy(
+						&s_sBmHudAliasFront, uwMonitorX, uwMonitorY + HUD_COPY_DELTA_Y,
+						&s_sBmHudAlias, uwMonitorX, uwMonitorY + HUD_COPY_DELTA_Y,
+						HUD_UNDRAW_WIDTH, HUD_UNDRAW_HEIGHT, MINTERM_COOKIE
+					);
+				}
+				// Update HUD color
+				tCopCmd *pList = gameGetColorCopperlist();
+				tPlayerIdx ePlayerHover = playerToIdx(pPlayer->pNodeCursor->pPlayer);
+				pList[s_eHudCurrPlayer * 3 + 1].sMove.bfValue = pPlayerColors[ePlayerHover][0];
+				pList[s_eHudCurrPlayer * 3 + 2].sMove.bfValue = pPlayerColors[ePlayerHover][1];
 
-			eNextState = HUD_STATE_GRABBED_PLEPS_DRAW;
+				eNextState = HUD_STATE_GRABBED_PLEPS_DRAW;
+			}
 			break;
 		case HUD_STATE_GRABBED_PLEPS_DRAW:
 			if(!s_isHudDrawnOnce) {
@@ -199,7 +200,7 @@ static void gamePlayGsLoop(void) {
 		return;
 	}
 	blobAnimQueueProcess();
-	hudUpdate();
+	hudProcess();
 	blitWait();
 	UBYTE ubAliveCount = playerProcess();
 	playerPushCursors();

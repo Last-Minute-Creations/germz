@@ -200,7 +200,7 @@ UBYTE playerProcess(void) {
 
 void playerUpdateDead(tPlayer *pPlayer) {
 	// Check if player has some blobs or is dead already
-	logWrite("playerUpdateDead: %p has %hhd blobs\n", pPlayer, pPlayer->bNodeCount);
+	logWrite("playerUpdateDead: %p (%d) has %hhd blobs\n", pPlayer, playerToIdx(pPlayer), pPlayer->bNodeCount);
 	if(pPlayer->isDead || pPlayer->bNodeCount > 0) {
 		return;
 	}
