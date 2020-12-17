@@ -141,7 +141,10 @@ UBYTE playerProcess(void) {
 
 		steerProcess(pPlayer->pSteer);
 
-		if(steerDirUse(pPlayer->pSteer, DIRECTION_FIRE)) {
+		if(
+			steerDirUse(pPlayer->pSteer, DIRECTION_FIRE) &&
+			pPlayer->pNodeCursor->pPlayer == pPlayer
+		) {
 			// Pressed fire button - setup targeting mode
 			pPlayer->pNodePlepSrc = pPlayer->pNodeCursor;
 			pPlayer->isSelectingDestination = 1;
