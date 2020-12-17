@@ -222,11 +222,12 @@ static void gamePauseGsLoop(void) {
 		const tPlayer *pPlayer = playerFromIdx(ePlayerIdx);
 		if(steerIsPlayer(pPlayer->pSteer)) {
 			steerProcess(pPlayer->pSteer);
-			if(steerDirUse(pPlayer->pSteer, DIRECTION_UP)) {
+			// Here's a dirty hack to always enable arrow keys in pause menu
+			if(steerDirUse(pPlayer->pSteer, DIRECTION_UP) || keyUse(KEY_UP)) {
 				menuListNavigate(-1);
 				isAnyPlayerMoved = 1;
 			}
-			else if(steerDirUse(pPlayer->pSteer, DIRECTION_DOWN)) {
+			else if(steerDirUse(pPlayer->pSteer, DIRECTION_DOWN) || keyUse(KEY_DOWN)) {
 				menuListNavigate(+1);
 				isAnyPlayerMoved = 1;
 			}
@@ -242,7 +243,8 @@ static void gamePauseGsLoop(void) {
 	for(tPlayerIdx ePlayerIdx = PLAYER_1; ePlayerIdx <= PLAYER_4; ++ePlayerIdx) {
 		const tPlayer *pPlayer = playerFromIdx(ePlayerIdx);
 		if(steerIsPlayer(pPlayer->pSteer) && !isAnyPlayerMoved) {
-			if(steerDirUse(pPlayer->pSteer, DIRECTION_FIRE)) {
+			// A dirty hack to always enable arrow keys continues
+			if(steerDirUse(pPlayer->pSteer, DIRECTION_FIRE) || keyUse(KEY_RETURN)) {
 				menuListEnter();
 				// Don't process anything else past this point
 				return;
