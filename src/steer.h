@@ -46,6 +46,8 @@ tSteer steerInitIdle(void);
 
 UBYTE steerIsPlayer(const tSteer *pSteer);
 
+UBYTE steerIsArrows(const tSteer *pSteer);
+
 UBYTE steerDirCheck(const tSteer *pSteer, tDirection eDir);
 
 UBYTE steerDirUse(tSteer *pSteer, tDirection eDir);

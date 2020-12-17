@@ -147,6 +147,10 @@ UBYTE steerIsPlayer(const tSteer *pSteer) {
 	return (pSteer->cbProcess == onJoy || pSteer->cbProcess == onKey);
 }
 
+UBYTE steerIsArrows(const tSteer *pSteer) {
+	return (pSteer->cbProcess == onKey && pSteer->eKeymap == KEYMAP_ARROWS);
+}
+
 UBYTE steerDirCheck(const tSteer *pSteer, tDirection eDir) {
 	return pSteer->pDirectionStates[eDir] != STEER_DIR_STATE_INACTIVE;
 }

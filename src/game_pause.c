@@ -23,6 +23,10 @@ static tBitMap *s_pBmDialog;
 static tBitMap s_sBmDlgScanline;
 static tPauseKind s_eKind;
 
+static tSteer s_sSteerPause; ///< Emergency steer in case no player uses arrows
+static tSteer *s_pSteers[4];
+static UBYTE s_ubSteerCount;
+
 static void onRestart(void);
 static void onExit(void);
 static void onBack(void);
@@ -46,6 +50,22 @@ static void pauseMenuPosDraw(
 }
 
 static void gamePauseGsCreate(void) {
+	s_ubSteerCount = 0;
+	UBYTE isArrows;
+	for(tPlayerIdx ePlayerIdx = 0; ePlayerIdx <= PLAYER_4; ++ePlayerIdx) {
+		const tPlayer *pPlayer = playerFromIdx(ePlayerIdx);
+		if(steerIsPlayer(pPlayer->pSteer)) {
+			s_pSteers[s_ubSteerCount++] = pPlayer->pSteer;
+			if(steerIsArrows(pPlayer->pSteer)) {
+				isArrows = 1;
+			}
+		}
+	}
+	if(!isArrows) {
+		s_sSteerPause = steerInitKey(KEYMAP_ARROWS);
+		s_pSteers[s_ubSteerCount++] = &s_sSteerPause;
+	}
+
 	UWORD uwDlgWidth = 192;
 	UWORD uwDlgHeight = 160;
 	s_pBmDialog = dialogCreate(
@@ -218,19 +238,17 @@ static void gamePauseGsLoop(void) {
 	// }
 
 	UBYTE isAnyPlayerMoved = 0;
-	for(tPlayerIdx ePlayerIdx = PLAYER_1; ePlayerIdx <= PLAYER_4; ++ePlayerIdx) {
-		const tPlayer *pPlayer = playerFromIdx(ePlayerIdx);
-		if(steerIsPlayer(pPlayer->pSteer)) {
-			steerProcess(pPlayer->pSteer);
-			// Here's a dirty hack to always enable arrow keys in pause menu
-			if(steerDirUse(pPlayer->pSteer, DIRECTION_UP) || keyUse(KEY_UP)) {
-				menuListNavigate(-1);
-				isAnyPlayerMoved = 1;
-			}
-			else if(steerDirUse(pPlayer->pSteer, DIRECTION_DOWN) || keyUse(KEY_DOWN)) {
-				menuListNavigate(+1);
-				isAnyPlayerMoved = 1;
-			}
+	for(UBYTE ubSteerIdx = 0; ubSteerIdx < s_ubSteerCount; ++ubSteerIdx) {
+		tSteer *pSteer = s_pSteers[ubSteerIdx];
+		steerProcess(pSteer);
+		// Here's a dirty hack to always enable arrow keys in pause menu
+		if(steerDirUse(pSteer, DIRECTION_UP)) {
+			menuListNavigate(-1);
+			isAnyPlayerMoved = 1;
+		}
+		else if(steerDirUse(pSteer, DIRECTION_DOWN)) {
+			menuListNavigate(+1);
+			isAnyPlayerMoved = 1;
 		}
 	}
 
@@ -240,11 +258,10 @@ static void gamePauseGsLoop(void) {
 	// gamePostprocess();
 
 	// Process pressing fire after gamePostProcess and only if noone moved up/down
-	for(tPlayerIdx ePlayerIdx = PLAYER_1; ePlayerIdx <= PLAYER_4; ++ePlayerIdx) {
-		const tPlayer *pPlayer = playerFromIdx(ePlayerIdx);
-		if(steerIsPlayer(pPlayer->pSteer) && !isAnyPlayerMoved) {
-			// A dirty hack to always enable arrow keys continues
-			if(steerDirUse(pPlayer->pSteer, DIRECTION_FIRE) || keyUse(KEY_RETURN)) {
+	if(!isAnyPlayerMoved) {
+		for(UBYTE ubSteerIdx = 0; ubSteerIdx < s_ubSteerCount; ++ubSteerIdx) {
+			tSteer *pSteer = s_pSteers[ubSteerIdx];
+			if(steerDirUse(pSteer, DIRECTION_FIRE) || keyUse(KEY_RETURN)) {
 				menuListEnter();
 				// Don't process anything else past this point
 				return;
