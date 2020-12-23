@@ -51,7 +51,7 @@ static void pauseMenuPosDraw(
 
 static void gamePauseGsCreate(void) {
 	s_ubSteerCount = 0;
-	UBYTE isArrows;
+	UBYTE isArrows = 0;
 	for(tPlayerIdx ePlayerIdx = 0; ePlayerIdx <= PLAYER_4; ++ePlayerIdx) {
 		const tPlayer *pPlayer = playerFromIdx(ePlayerIdx);
 		if(steerIsPlayer(pPlayer->pSteer)) {
@@ -233,15 +233,10 @@ static void gamePauseGsCreate(void) {
 }
 
 static void gamePauseGsLoop(void) {
-	// if(!gamePreprocess()) {
-	// 	return;
-	// }
-
 	UBYTE isAnyPlayerMoved = 0;
 	for(UBYTE ubSteerIdx = 0; ubSteerIdx < s_ubSteerCount; ++ubSteerIdx) {
 		tSteer *pSteer = s_pSteers[ubSteerIdx];
 		steerProcess(pSteer);
-		// Here's a dirty hack to always enable arrow keys in pause menu
 		if(steerDirUse(pSteer, DIRECTION_UP)) {
 			menuListNavigate(-1);
 			isAnyPlayerMoved = 1;
@@ -254,8 +249,6 @@ static void gamePauseGsLoop(void) {
 
 	menuListDraw();
 	dialogProcess(gameGetFrontBuffer());
-
-	// gamePostprocess();
 
 	// Process pressing fire after gamePostProcess and only if noone moved up/down
 	if(!isAnyPlayerMoved) {

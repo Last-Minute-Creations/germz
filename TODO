@@ -91,9 +91,9 @@ Done:
 	✔ Set special colors for map preview in editor using copperlist or use different special colors for HUD and hardcode map preview colors into palette @done(20-12-04 16:56)
 	✔ targeting icon on hud when fire is pressed and node is given player's @done(20-12-04 17:33)
 	✔ after defeating player, his hud doesn't disappear @done(20-12-17 16:30)
+	✔ pause menu should always be controllable using arrow keys @done(20-12-23 13:14)
 
 Now:
-	☐ pause menu should always be controllable using arrow keys
 	☐ when playing in teams, hud is not colored
 	☐ when playing in teams, crosshair icon is not shown on hud
 	☐ when restarting match, sometimes hud digits are not cleared
