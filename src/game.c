@@ -95,7 +95,11 @@ UBYTE *gameGetScores(void) {
 //-------------------------------------------------------------------- GAMESTATE
 
 UBYTE gamePreprocess(void) {
-	fadeProcess(s_pFade);
+	if(fadeProcess(s_pFade) == FADE_STATE_EVENT_FIRED) {
+		// e.g. while in gamePlay, fadeout on game restart done -> switched to
+		// gameInit, so skip executing rest of gamePlayProcess
+		return 0;
+	}
 	if(s_isQuitting) {
 		// Already quitting - inform upper state to not do anything and wait
 		// for fade end
