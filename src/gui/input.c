@@ -11,7 +11,7 @@
 tGuiInput *inputCreate(
 	UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwMaxChars,
 	const char *szLabel, char *szValueBuffer, tGuiInputCbDraw cbDraw,
-	tGuiInputCbGetHeight cbGetHeight
+	tGuiInputCbGetHeight cbGetHeight, tGuiInputCbCharAllowed cbCharAllowed
 ) {
 	systemUse();
 	tGuiInput *pInput = memAllocFast(sizeof(*pInput));
@@ -43,6 +43,7 @@ tGuiInput *inputCreate(
 	);
 	pInput->cbDraw = cbDraw;
 	pInput->cbGetHeight = cbGetHeight;
+	pInput->cbCharAllowed = cbCharAllowed;
 
 	return pInput;
 fail:
@@ -66,11 +67,7 @@ void inputProcess(tGuiInput *pInput) {
 	// Process keystrokes
 	if(pInput->isFocus && keyUse(g_sKeyManager.ubLastKey)) {
 		WORD wInput = g_pToAscii[g_sKeyManager.ubLastKey];
-		if(
-			(wInput >= 'A' && wInput <= 'Z') ||
-			(wInput >= 'a' && wInput <= 'z') ||
-			(wInput >= '0' && wInput <= '9')
-		) {
+		if(pInput->cbCharAllowed(wInput)) {
 			if(pInput->uwValueLength < pInput->uwMaxChars - 1) {
 				if(pInput->szValue[pInput->uwValueLength] == '\0') {
 					// Move null terminator one char further if editing end of string

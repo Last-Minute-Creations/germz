@@ -196,7 +196,7 @@ static void gamePlayGsLoop(void) {
 		stateChange(g_pStateMachineGame, &g_sStateEditor);
 		return;
 	}
-	if(!gamePreprocess()) {
+	if(!gamePreprocess(1)) {
 		return;
 	}
 	blobAnimQueueProcess();

@@ -89,7 +89,7 @@ static void gameInitGsCreate(void) {
 }
 
 static void gameInitGsLoop(void) {
-	if(!gamePreprocess()) {
+	if(!gamePreprocess(1)) {
 		return;
 	}
 	if(initialAnim() && gameGetFade()->eState == FADE_STATE_IDLE) {

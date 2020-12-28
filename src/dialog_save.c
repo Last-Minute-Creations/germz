@@ -31,6 +31,13 @@
 #define DLG_SAVE_WIDTH 256
 #define DLG_SAVE_HEIGHT 160
 
+#define INPUT_X (DLG_SAVE_PAD + 50)
+#define INPUT_TITLE_Y (DLG_SAVE_PAD + 10)
+#define INPUT_AUTHOR_Y (INPUT_TITLE_Y + 20)
+#define INPUT_PATH_Y (INPUT_AUTHOR_Y + 20)
+#define JSON_EXT_WIDTH 30
+#define INPUT_WIDTH (DLG_SAVE_WIDTH - DLG_SAVE_PAD - INPUT_X - JSON_EXT_WIDTH)
+
 #define BTN_WIDTH 50
 #define BTN_HEIGHT 10
 #define BTN_Y (DLG_SAVE_HEIGHT - BTN_HEIGHT - DLG_SAVE_PAD)
@@ -56,6 +63,26 @@ static char s_szFileName[30] = "";
 static char s_szFilePath[FILE_PATH_SIZE];
 
 static tState s_sStateOverwrite, s_sStateSelect, s_sStateSaving;
+
+static UBYTE onCharAllowedPath(char c) {
+	UBYTE isAllowed = (
+		('A' <= c && c <= 'Z') ||
+		('a' <= c && c <= 'z') ||
+		('0' <= c && c <= '9') ||
+		c == '/' || c == '_' || c == '-'
+	);
+	return isAllowed;
+}
+
+static UBYTE onCharAllowedName(char c) {
+	UBYTE isAllowed = (
+		('A' <= c && c <= 'Z') ||
+		('a' <= c && c <= 'z') ||
+		('0' <= c && c <= '9') ||
+		c == ' ' || c == '_' || c == '-'
+	);
+	return isAllowed;
+}
 
 static void saveDialogClear(void) {
 	dialogClear();
@@ -134,21 +161,21 @@ void dialogSaveYesNoDestroy(void) {
 void dialogSaveSelectCreate(void) {
 	saveDialogClear();
 
-	UBYTE ubPadX = 3;
-	UBYTE ubPadY = 10;
-
 	buttonListCreate(2, guiScanlinedButtonDraw);
 	s_pInputs[SAVE_INPUT_TITLE] = inputCreate(
-		ubPadX + 50, ubPadY, 100, sizeof(g_sMapData.szName), "Title",
-		g_sMapData.szName, guiScanlinedInputDraw, guiScanlinedInputGetHeight
+		INPUT_X, INPUT_TITLE_Y, INPUT_WIDTH, sizeof(g_sMapData.szName), "Title",
+		g_sMapData.szName, guiScanlinedInputDraw, guiScanlinedInputGetHeight,
+		onCharAllowedName
 	);
 	s_pInputs[SAVE_INPUT_AUTHOR] = inputCreate(
-		ubPadX + 50, ubPadY + 20, 100, sizeof(g_sMapData.szAuthor), "Author",
-		g_sMapData.szAuthor, guiScanlinedInputDraw, guiScanlinedInputGetHeight
+		INPUT_X, INPUT_AUTHOR_Y, INPUT_WIDTH, sizeof(g_sMapData.szAuthor), "Author",
+		g_sMapData.szAuthor, guiScanlinedInputDraw, guiScanlinedInputGetHeight,
+		onCharAllowedName
 	);
 	s_pInputs[SAVE_INPUT_FILENAME] = inputCreate(
-		ubPadX + 50, ubPadY + 40, 100, sizeof(s_szFileName), "File name",
-		s_szFileName, guiScanlinedInputDraw, guiScanlinedInputGetHeight
+		INPUT_X, INPUT_PATH_Y, INPUT_WIDTH, sizeof(s_szFileName), "File name",
+		s_szFileName, guiScanlinedInputDraw, guiScanlinedInputGetHeight,
+		onCharAllowedPath
 	);
 	fontDrawStr(
 		g_pFontSmall, &s_sBmDlgScanlined,
@@ -384,7 +411,7 @@ static void dialogSaveGsCreate(void) {
 }
 
 static void dialogSaveGsLoop(void) {
-	if(!gamePreprocess()) {
+	if(!gamePreprocess(0)) {
 		return;
 	}
 	stateProcess(s_pDlgStateMachine);
@@ -400,8 +427,15 @@ void dialogSaveShow(UBYTE isQuitting) {
 	statePush(g_pStateMachineGame, &g_sStateDialogSave);
 }
 
-void dialogSaveSetSaveName(const char *szName) {
-	strcpy(s_szFileName, szName);
+void dialogSaveSetSaveName(const char *szPath, const char *szName) {
+	char *szEnd = s_szFileName;
+	if(*szPath == '/') {
+		// Skip '/' before subdirectory name
+		strcpy(s_szFileName, &szPath[1]);
+		szEnd += strlen(s_szFileName);
+		*(szEnd++) = '/';
+	}
+	strcpy(szEnd, szName);
 }
 
 tState g_sStateDialogSave = {

@@ -94,7 +94,7 @@ UBYTE *gameGetScores(void) {
 
 //-------------------------------------------------------------------- GAMESTATE
 
-UBYTE gamePreprocess(void) {
+UBYTE gamePreprocess(UBYTE isAllowPause) {
 	if(fadeProcess(s_pFade) == FADE_STATE_EVENT_FIRED) {
 		// e.g. while in gamePlay, fadeout on game restart done -> switched to
 		// gameInit, so skip executing rest of gamePlayProcess
@@ -105,7 +105,7 @@ UBYTE gamePreprocess(void) {
 		// for fade end
 		return 0;
 	}
-	else if(keyUse(KEY_ESCAPE) || keyUse(KEY_P)) {
+	else if(isAllowPause && (keyUse(KEY_ESCAPE) || keyUse(KEY_P))) {
 		// TODO: if pause is triggered and text is written, be sure to restart HUD
 		// state machine 'cuz it uses global textbitmap
 		gamePauseEnable(PAUSE_KIND_BATTLE_PAUSE);

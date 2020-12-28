@@ -20,6 +20,7 @@ typedef enum _tGuiInputDrawFlags {
 	GUI_INPUT_DRAW_CURSOR = 4,
 } tGuiInputDrawFlags;
 
+typedef UBYTE (*tGuiInputCbCharAllowed)(char c);
 typedef void (*tGuiInputCbDraw)(const struct _tGuiInput *pInput);
 typedef UBYTE (*tGuiInputCbGetHeight)(const struct _tGuiInput *pInput);
 
@@ -32,6 +33,7 @@ typedef struct _tGuiInput {
 	const char *szLabel;
 	tGuiInputCbDraw cbDraw;
 	tGuiInputCbGetHeight cbGetHeight;
+	tGuiInputCbCharAllowed cbCharAllowed;
 	UBYTE isValueBufferAllocated;
 	tGuiInputDrawFlags eDrawFlags;
 	UBYTE isFocus;
@@ -40,7 +42,7 @@ typedef struct _tGuiInput {
 tGuiInput *inputCreate(
 	UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwMaxChars,
 	const char *szLabel, char *szValueBuffer, tGuiInputCbDraw cbDraw,
-	tGuiInputCbGetHeight cbGetHeight
+	tGuiInputCbGetHeight cbGetHeight, tGuiInputCbCharAllowed cbCharAllowed
 );
 
 void inputDestroy(tGuiInput *pInput);

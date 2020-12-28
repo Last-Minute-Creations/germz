@@ -193,7 +193,7 @@ static void gameEditorGsLoop(void) {
 		return;
 	}
 
-	if(!gamePreprocess()) {
+	if(!gamePreprocess(0)) {
 		return;
 	}
 

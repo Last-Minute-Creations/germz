@@ -9,6 +9,6 @@
 
 void dialogSaveShow(UBYTE isQuitting);
 
-void dialogSaveSetSaveName(const char *szName);
+void dialogSaveSetSaveName(const char *szPath, const char *szName);
 
 #endif // _GERMZ_DIALOG_SAVE_H_

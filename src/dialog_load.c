@@ -46,6 +46,8 @@ static tMapData *s_pPreview;
 static tBitMap *s_pBmDlg;
 static ULONG s_ullChangeTimer; // Inactive if set to 0.
 static tBitMap s_sBmDlgScanlined;
+static char s_szCurrentDir[100];
+static const char *s_szBasePath = "data/maps";
 
 static void invalidateMapSelection(void) {
 	clearMapInfo(&s_sBmDlgScanlined, INFO_X, INFO_Y, 0);
@@ -75,10 +77,11 @@ static void dialogLoadGsCreate(void) {
 	gameSetSpecialColors(0x333, 0x222);
 
 	// Map list
+	strcpy(s_szCurrentDir, s_szBasePath);
 	buttonListCreate(5, guiScanlinedButtonDraw);
 	s_pCtrl = mapListCreateCtl(
 		&s_sBmDlgScanlined, MAP_LIST_X, MAP_LIST_Y, MAP_LIST_WIDTH, MAP_LIST_HEIGHT,
-		"data/maps", "data/maps"
+		s_szBasePath, s_szCurrentDir
 	);
 	if(!s_pCtrl) {
 		statePop(g_pStateMachineGame);
@@ -99,7 +102,7 @@ static void dialogLoadGsCreate(void) {
 }
 
 static void dialogLoadGsLoop(void) {
-	if(!gamePreprocess()) {
+	if(!gamePreprocess(0)) {
 		return;
 	}
 
@@ -113,14 +116,42 @@ static void dialogLoadGsLoop(void) {
 	}
 	else if(eDir == DIRECTION_FIRE || keyUse(KEY_RETURN) || keyUse(KEY_NUMENTER)) {
 		// No processing via the OK button callback - code is shorter that way
-		mapListLoadMap(s_pCtrl, s_pPreview, "data/maps");
-		memcpy(&g_sMapData, s_pPreview, sizeof(g_sMapData));
-		dialogSaveSetSaveName(listCtlGetSelection(s_pCtrl)->szLabel);
-		isMapSelected = 1;
+		const tListCtlEntry *pSelection = listCtlGetSelection(s_pCtrl);
+		tMapEntryType eType = (tMapEntryType)pSelection->pData;
+		if(eType == MAP_ENTRY_TYPE_DIR) {
+			UWORD uwLenOld = strlen(s_szCurrentDir);
+			if(uwLenOld + 1 + strlen(pSelection->szLabel) < sizeof(s_szCurrentDir)) {
+				// Append subdirectory to current path, skip icon char
+				sprintf(&s_szCurrentDir[uwLenOld], "/%s", &pSelection->szLabel[1]);
+			}
+			invalidateMapSelection();
+			mapListFillWithDir(s_pCtrl, s_szCurrentDir);
+			listCtlDraw(s_pCtrl);
+			buttonDrawAll();
+		}
+		else if(eType == MAP_ENTRY_TYPE_PARENT) {
+			char *pLastPos = strrchr(s_szCurrentDir, '/');
+			if(pLastPos) {
+				*pLastPos = '\0';
+			}
+			invalidateMapSelection();
+			mapListFillWithDir(s_pCtrl, s_szCurrentDir);
+			listCtlDraw(s_pCtrl);
+			buttonDrawAll();
+		}
+		else {
+			mapListLoadMap(s_pCtrl, s_pPreview, s_szCurrentDir);
+			memcpy(&g_sMapData, s_pPreview, sizeof(g_sMapData));
+			dialogSaveSetSaveName(
+				&s_szCurrentDir[strlen(s_szBasePath)],
+				listCtlGetSelection(s_pCtrl)->szLabel
+			);
+			isMapSelected = 1;
+		}
 	}
 
 	if(s_ullChangeTimer && timerGetDelta(s_ullChangeTimer, timerGet()) >= 25) {
-		mapListLoadMap(s_pCtrl, s_pPreview, "data/maps");
+		mapListLoadMap(s_pCtrl, s_pPreview, s_szCurrentDir);
 		mapInfoDrawAuthorTitle(s_pPreview, &s_sBmDlgScanlined, INFO_X, INFO_Y);
 		mapListDrawPreview(
 			s_pPreview, &s_sBmDlgScanlined, PREVIEW_X, PREVIEW_Y, PREVIEW_TILE_SIZE

@@ -45,7 +45,7 @@ void gameInitMap(void);
 
 //------------------------------------------------------------------------ UTILS
 
-UBYTE gamePreprocess(void);
+UBYTE gamePreprocess(UBYTE isAllowPause);
 
 void gamePostprocess(void);
 
