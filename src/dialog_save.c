@@ -7,6 +7,7 @@
 #include <ace/managers/key.h>
 #include <ace/managers/state.h>
 #include <ace/utils/bmframe.h>
+#include <ace/utils/dir.h>
 #include "gui/dialog.h"
 #include "gui/input.h"
 #include "gui/button.h"
@@ -20,10 +21,8 @@
 
 #define FILE_PATH_PREFIX "data/maps/"
 #define FILE_PATH_EXTENSION ".json"
-#define FILE_PATH_SIZE ( \
-	sizeof(FILE_PATH_PREFIX) - 1 + sizeof(s_szFileName) + \
-	sizeof(FILE_PATH_EXTENSION) - 1 + 1 \
-)
+#define FILE_PATH_SIZE 100
+#define FILE_NAME_SIZE (FILE_PATH_SIZE - sizeof(FILE_PATH_PREFIX) - sizeof(FILE_PATH_EXTENSION))
 
 //----------------------------------------------------------------------- Layout
 
@@ -59,10 +58,17 @@ static tGuiButton *s_pButtonYes, *s_pButtonNo, *s_pButtonCancel;
 static tStateManager *s_pDlgStateMachine;
 static UBYTE s_isQuitting;
 
-static char s_szFileName[30] = "";
+/**
+ * @brief Buffer for file name - everything past "data/maps/" and without ".json".
+ */
+static char s_szFileName[FILE_NAME_SIZE] = "";
+
+/**
+ * @brief Buffer for whole path - including "data/maps/" and ".json".
+ */
 static char s_szFilePath[FILE_PATH_SIZE];
 
-static tState s_sStateOverwrite, s_sStateSelect, s_sStateSaving;
+static tState s_sStateOverwrite, s_sStateCreateDir, s_sStateSelect, s_sStateSaving;
 
 static UBYTE onCharAllowedPath(char c) {
 	UBYTE isAllowed = (
@@ -263,7 +269,16 @@ void dialogSaveSelectLoop(void) {
 					stateChange(s_pDlgStateMachine, &s_sStateOverwrite);
 				}
 				else {
-					stateChange(s_pDlgStateMachine, &s_sStateSaving);
+					char *pLastSlash = strrchr(s_szFilePath, '/');
+					*pLastSlash = '\0';
+					UBYTE isDirExisting = dirExists(s_szFilePath);
+					*pLastSlash = '/';
+					if(isDirExisting) {
+						stateChange(s_pDlgStateMachine, &s_sStateSaving);
+					}
+					else {
+						stateChange(s_pDlgStateMachine, &s_sStateCreateDir);
+					}
 				}
 			}
 		}
@@ -316,6 +331,44 @@ void dialogSaveOverwriteLoop(void) {
 
 static tState s_sStateOverwrite = {
 	.cbCreate = dialogSaveOverwriteCreate, .cbLoop = dialogSaveOverwriteLoop,
+	.cbDestroy = dialogSaveYesNoDestroy
+};
+
+//------------------------------------------------------------- STATE CREATE DIR
+
+void dialogSaveCreateDirCreate(void) {
+	static const char *szMessages[] = {
+		"Subdirectory doesn't exist",
+		s_szFilePath,
+		"Do you want to create it?",
+	};
+
+	char *pLastSlash = strrchr(s_szFilePath, '/');
+	*pLastSlash = '\0';
+	dialogSaveYesNoCreate(
+		szMessages, sizeof(szMessages) / sizeof(szMessages[0]), 0
+	);
+	*pLastSlash = '/';
+}
+
+void dialogSaveCreateDirLoop(void) {
+	tGuiButton *pButton = dialogSaveYesNoLoop();
+	if(pButton) {
+		if(pButton == s_pButtonYes) {
+			char *pLastSlash = strrchr(s_szFilePath, '/');
+			*pLastSlash = '\0';
+			dirCreatePath(s_szFilePath);
+			*pLastSlash = '/';
+			stateChange(s_pDlgStateMachine, &s_sStateSaving);
+		}
+		else {
+			stateChange(s_pDlgStateMachine, &s_sStateSelect);
+		}
+	}
+}
+
+static tState s_sStateCreateDir = {
+	.cbCreate = dialogSaveCreateDirCreate, .cbLoop = dialogSaveCreateDirLoop,
 	.cbDestroy = dialogSaveYesNoDestroy
 };
 

@@ -99,7 +99,7 @@ Now:
 	☐ when playing in teams, crosshair icon is not shown on hud
 	✔ arrows in list ctl buttons @done(20-12-28 09:07)
 	☐ Campaign:
-		☐ nested folder navigation in list ctl
+		✔ nested folder navigation in list ctl @done(20-12-28 13:26)
 			✔ entering subfolder @done(20-12-26 16:35)
 			✔ going to parent dir @done(20-12-26 17:10)
 			✔ don't allow going above root directory @done(20-12-26 17:11)
@@ -109,7 +109,7 @@ Now:
 			✔ persist selected directory - keep the same after going back to menu and re-entering battle menu @done(20-12-28 10:39)
 			✔ apply changes in load dialog @done(20-12-28 13:05)
 			✔ ability to write '/' in save dialog @done(20-12-28 13:05)
-			☐ create directory if not exists when saving map
+			✔ create directory if not exists when saving map @done(20-12-28 13:26)
 		☐ Start with c01.json map
 		☐ pause: retry
 		☐ Start next map after finishing map
