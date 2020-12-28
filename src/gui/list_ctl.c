@@ -9,13 +9,7 @@
 #include <ace/managers/log.h>
 #include <ace/macros.h>
 
-#define LISTCTL_BTN_WIDTH 10
-
-static int onSortAsc(const void *pA, const void *pB) {
-	const char *szA = *(const char **)pA;
-	const char *szB = *(const char **)pB;
-	return SGN(strcmp(szA, szB));
-}
+#define LISTCTL_BTN_WIDTH 7
 
 static UBYTE listCtlGetMaxVisibleEntries(const tListCtl *pCtl) {
 	return (pCtl->sRect.uwHeight - 4) / pCtl->ubEntryHeight;
@@ -99,9 +93,15 @@ static void onPressDown(void *pData) {
 	}
 }
 
+int listCtlCbSortAsc(const void *pA, const void *pB) {
+	const tListCtlEntry *pEntryA = (const tListCtlEntry*)pA;
+	const tListCtlEntry *pEntryB = (const tListCtlEntry*)pB;
+	return SGN(strcmp(pEntryA->szLabel, pEntryB->szLabel));
+}
+
 tListCtl *listCtlCreate(
 	tBitMap *pBfr, UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwHeight,
-	tFont *pFont, UWORD uwEntryMaxCnt, tTextBitMap *pTextBfr,
+	tFont *pFont, UWORD uwEntryMaxCnt, const char *szLabelUp, const char *szLabelDown,
 	tGuiListCtlCbOnSelect cbOnSelect, tGuiListCtlCbUndraw cbUndraw,
 	tGuiListCtlCbDrawPos cbDrawPos
 ) {
@@ -112,39 +112,27 @@ tListCtl *listCtlCreate(
 
 	tListCtl *pCtl = memAllocFast(sizeof(tListCtl));
 	pCtl->ubEntryHeight = pFont->uwHeight + 2;
-	pCtl->uwEntryCnt = 0;
 	pCtl->uwEntryMaxCnt = uwEntryMaxCnt;
 	pCtl->sRect.uwX = uwX;
 	pCtl->sRect.uwY = uwY;
 	pCtl->sRect.uwWidth = uwWidth;
 	pCtl->sRect.uwHeight = uwHeight;
-	pCtl->ubDrawState = LISTCTL_DRAWSTATE_NEEDS_REDRAW;
 	pCtl->pFont = pFont;
 	pCtl->pBfr = pBfr;
-	pCtl->uwEntrySel = 0;
-	pCtl->uwEntryScrollPos = 0;
 	pCtl->cbOnSelect = cbOnSelect;
 	pCtl->cbUndraw = cbUndraw;
 	pCtl->cbDrawPos = cbDrawPos;
 
-	pCtl->pEntries =  memAllocFastClear(uwEntryMaxCnt * sizeof(char*));
-
-	if(pTextBfr) {
-		pCtl->pEntryTextBfr = pTextBfr;
-		pCtl->isTextBfrAlloc = 0;
-	}
-	else {
-		pCtl->pEntryTextBfr = fontCreateTextBitMap(uwWidth, pFont->uwHeight);
-		pCtl->isTextBfrAlloc = 1;
-	}
+	pCtl->pEntries = memAllocFastClear(uwEntryMaxCnt * sizeof(*pCtl->pEntries));
+	listCtlClear(pCtl);
 
 	pCtl->pButtonUp = buttonAdd(
 		uwX + uwWidth - LISTCTL_BTN_WIDTH-2, uwY+2,
-		LISTCTL_BTN_WIDTH, LISTCTL_BTN_WIDTH, "U", onPressUp, pCtl
+		LISTCTL_BTN_WIDTH, LISTCTL_BTN_WIDTH, szLabelUp, onPressUp, pCtl
 	);
 	pCtl->pButtonDown = buttonAdd(
 		uwX + uwWidth - LISTCTL_BTN_WIDTH-2, uwY + uwHeight - LISTCTL_BTN_WIDTH -2,
-		LISTCTL_BTN_WIDTH, LISTCTL_BTN_WIDTH, "D", onPressDown, pCtl
+		LISTCTL_BTN_WIDTH, LISTCTL_BTN_WIDTH, szLabelDown, onPressDown, pCtl
 	);
 
 	logBlockEnd("listCtlCreate()");
@@ -155,26 +143,27 @@ void listCtlDestroy(tListCtl *pCtl) {
 	for(UWORD i = pCtl->uwEntryCnt; i--;) {
 		listCtlRemoveEntry(pCtl, i);
 	}
-	memFree(pCtl->pEntries, pCtl->uwEntryMaxCnt * sizeof(char*));
-	if(pCtl->isTextBfrAlloc) {
-		fontDestroyTextBitMap(pCtl->pEntryTextBfr);
-	}
+	memFree(pCtl->pEntries, pCtl->uwEntryMaxCnt * sizeof(*pCtl->pEntries));
 	memFree(pCtl, sizeof(tListCtl));
 }
 
-UWORD listCtlAddEntry(tListCtl *pCtl, const char *szTxt) {
+UWORD listCtlAddEntry(tListCtl *pCtl, const char *szTxt, void *pData) {
 	if(pCtl->uwEntryCnt >= pCtl->uwEntryMaxCnt) {
 		return LISTCTL_ENTRY_INVALID;
 	}
-	pCtl->pEntries[pCtl->uwEntryCnt] = memAllocFast(strlen(szTxt)+1);
-	strcpy(pCtl->pEntries[pCtl->uwEntryCnt], szTxt);
+	pCtl->pEntries[pCtl->uwEntryCnt].szLabel = memAllocFast(strlen(szTxt)+1);
+	pCtl->pEntries[pCtl->uwEntryCnt].pData = pData;
+	strcpy(pCtl->pEntries[pCtl->uwEntryCnt].szLabel, szTxt);
 	pCtl->ubDrawState = LISTCTL_DRAWSTATE_NEEDS_REDRAW;
 	return pCtl->uwEntryCnt++;
 }
 
 void listCtlRemoveEntry(tListCtl *pCtl, UWORD uwIdx) {
-	if(pCtl->pEntries[uwIdx])
-		memFree(pCtl->pEntries[uwIdx], strlen(pCtl->pEntries[uwIdx])+1);
+	if(pCtl->pEntries[uwIdx].szLabel) {
+		memFree(
+			pCtl->pEntries[uwIdx].szLabel, strlen(pCtl->pEntries[uwIdx].szLabel) + 1
+		);
+	}
 }
 
 void listCtlUndraw(tListCtl *pCtl) {
@@ -226,12 +215,12 @@ UBYTE listCtlSelectNext(tListCtl *pCtl) {
 	return 0;
 }
 
-void listCtlSortEntries(tListCtl *pCtl) {
-	qsort(pCtl->pEntries, pCtl->uwEntryCnt, sizeof(pCtl->pEntries[0]), onSortAsc);
+void listCtlSortEntries(tListCtl *pCtl, tGuiListCtlCbSort cbSort) {
+	qsort(pCtl->pEntries, pCtl->uwEntryCnt, sizeof(pCtl->pEntries[0]), cbSort);
 }
 
-const char *listCtlGetSelection(const tListCtl *pCtl) {
-	return pCtl->pEntries[pCtl->uwEntrySel];
+const tListCtlEntry *listCtlGetSelection(const tListCtl *pCtl) {
+	return &pCtl->pEntries[pCtl->uwEntrySel];
 }
 
 void listCtlSetSelectionIdx(tListCtl *pCtl, UWORD uwIdx) {
@@ -248,4 +237,15 @@ void listCtlSetSelectionIdx(tListCtl *pCtl, UWORD uwIdx) {
 			0, uwIdx - (ubMaxPerScreen - 1)
 		);
 	}
+}
+
+UWORD listCtlGetSelectionIdx(const tListCtl *pCtl) {
+	return pCtl->uwEntrySel;
+}
+
+void listCtlClear(tListCtl *pCtl) {
+	pCtl->uwEntryCnt = 0;
+	pCtl->uwEntrySel = 0;
+	pCtl->uwEntryScrollPos = 0;
+	pCtl->ubDrawState = LISTCTL_DRAWSTATE_NEEDS_REDRAW;
 }

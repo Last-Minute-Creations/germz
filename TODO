@@ -92,21 +92,26 @@ Done:
 	✔ targeting icon on hud when fire is pressed and node is given player's @done(20-12-04 17:33)
 	✔ after defeating player, his hud doesn't disappear @done(20-12-17 16:30)
 	✔ pause menu should always be controllable using arrow keys @done(20-12-23 13:14)
+	✔ when restarting match, sometimes hud digits are not cleared @done(20-12-23 14:10)
 
 Now:
 	☐ when playing in teams, hud is not colored
 	☐ when playing in teams, crosshair icon is not shown on hud
-	☐ when restarting match, sometimes hud digits are not cleared
-	☐ arrows in list ctl buttons
+	✔ arrows in list ctl buttons @done(20-12-28 09:07)
 	☐ Campaign:
 		☐ nested folder navigation in list ctl
-			☐ entering subfolder
-			☐ going to parent dir
-			☐ don't allow going above
-		☐ pause: retry
+			✔ entering subfolder @done(20-12-26 16:35)
+			✔ going to parent dir @done(20-12-26 17:10)
+			✔ don't allow going above root directory @done(20-12-26 17:11)
+			✔ directory icon in directory entries @done(20-12-28 09:34)
+			✔ sorting directories first -> custom sort fn in listctl @done(20-12-28 09:34)
+			☐ persist selected directory
+			☐ apply changes in load dialog
 		☐ Start with c01.json map
+		☐ pause: retry
 		☐ Start next map after finishing map
-		☐ Retry yes/no after defeat
+		☐ Retry/Exit after defeat
+		☐ outro.txt on finishing last map
 	☐ proper game init when launched from editor
 	☐ game summary when launched from editor
 	☐ Configurable match count in battle mode

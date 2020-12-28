@@ -23,6 +23,17 @@ typedef void (*tGuiListCtlCbOnSelect)(void);
 typedef void (*tGuiListCtlCbUndraw)(UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwHeight);
 typedef void (*tGuiListCtlCbDrawPos)(struct _tListCtl *pCtl, UWORD uwIdx, UBYTE ubPosOnView, UBYTE isSelected);
 
+/**
+ * @brief The sort function callback compatible with qsort() function.
+ * pA and pB are pointers to tListCtrlEntry which are to be compared.
+ */
+typedef int (*tGuiListCtlCbSort)(const void *pA, const void *pB);
+
+typedef struct _tListCtrlEntry {
+	char *szLabel;
+	void *pData;
+} tListCtlEntry;
+
 typedef struct _tListCtl {
 	tUwRect sRect;
 	UBYTE ubDrawState;
@@ -31,28 +42,26 @@ typedef struct _tListCtl {
 	UWORD uwEntryMaxCnt;
 	UWORD uwEntrySel;
 	UWORD uwEntryScrollPos;
-	char **pEntries;
+	tListCtlEntry *pEntries;
 	tFont *pFont;
 	tBitMap *pBfr;
 	tGuiListCtlCbOnSelect cbOnSelect;
 	tGuiListCtlCbUndraw cbUndraw;
 	tGuiListCtlCbDrawPos cbDrawPos;
-	tTextBitMap *pEntryTextBfr;
-	UBYTE isTextBfrAlloc;
 	tGuiButton *pButtonUp;
 	tGuiButton *pButtonDown;
 } tListCtl;
 
 tListCtl *listCtlCreate(
 	tBitMap *pBfr, UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwHeight,
-	tFont *pFont, UWORD uwEntryMaxCnt, tTextBitMap *pTextBfr,
+	tFont *pFont, UWORD uwEntryMaxCnt, const char *szLabelUp, const char *szLabelDown,
 	tGuiListCtlCbOnSelect cbOnSelect, tGuiListCtlCbUndraw cbUndraw,
 	tGuiListCtlCbDrawPos cbDrawPos
 );
 
 void listCtlDestroy(tListCtl *pCtl);
 
-UWORD listCtlAddEntry(tListCtl *pCtl, const char *szTxt);
+UWORD listCtlAddEntry(tListCtl *pCtl, const char *szTxt, void *pData);
 
 void listCtlRemoveEntry(tListCtl *pCtl, UWORD uwIdx);
 
@@ -78,11 +87,20 @@ UBYTE listCtlSelectPrev(tListCtl *pCtl);
  */
 UBYTE listCtlSelectNext(tListCtl *pCtl);
 
-void listCtlSortEntries(tListCtl *pCtl);
+void listCtlSortEntries(tListCtl *pCtl, tGuiListCtlCbSort cbSort);
 
-const char *listCtlGetSelection(const tListCtl *pCtl);
+const tListCtlEntry *listCtlGetSelection(const tListCtl *pCtl);
 
 void listCtlSetSelectionIdx(tListCtl *pCtl, UWORD uwIdx);
+
+UWORD listCtlGetSelectionIdx(const tListCtl *pCtl);
+
+void listCtlClear(tListCtl *pCtl);
+
+/**
+ * @brief The default sort handler for listCtl. Sorts by labels in ascending order.
+ */
+int listCtlCbSortAsc(const void *pA, const void *pB);
 
 #ifdef __cplusplus
 }

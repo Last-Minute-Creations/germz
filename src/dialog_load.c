@@ -48,7 +48,7 @@ static ULONG s_ullChangeTimer; // Inactive if set to 0.
 static tBitMap s_sBmDlgScanlined;
 
 static void invalidateMapSelection(void) {
-	clearMapInfo(&s_sBmDlgScanlined, INFO_X, INFO_Y);
+	clearMapInfo(&s_sBmDlgScanlined, INFO_X, INFO_Y, 0);
 	s_ullChangeTimer = timerGet();
 }
 
@@ -77,7 +77,8 @@ static void dialogLoadGsCreate(void) {
 	// Map list
 	buttonListCreate(5, guiScanlinedButtonDraw);
 	s_pCtrl = mapListCreateCtl(
-		&s_sBmDlgScanlined, MAP_LIST_X, MAP_LIST_Y, MAP_LIST_WIDTH, MAP_LIST_HEIGHT
+		&s_sBmDlgScanlined, MAP_LIST_X, MAP_LIST_Y, MAP_LIST_WIDTH, MAP_LIST_HEIGHT,
+		"data/maps"
 	);
 	if(!s_pCtrl) {
 		statePop(g_pStateMachineGame);
@@ -112,14 +113,14 @@ static void dialogLoadGsLoop(void) {
 	}
 	else if(eDir == DIRECTION_FIRE || keyUse(KEY_RETURN) || keyUse(KEY_NUMENTER)) {
 		// No processing via the OK button callback - code is shorter that way
-		mapListLoadMap(s_pCtrl, s_pPreview);
+		mapListLoadMap(s_pCtrl, s_pPreview, "data/maps");
 		memcpy(&g_sMapData, s_pPreview, sizeof(g_sMapData));
-		dialogSaveSetSaveName(listCtlGetSelection(s_pCtrl));
+		dialogSaveSetSaveName(listCtlGetSelection(s_pCtrl)->szLabel);
 		isMapSelected = 1;
 	}
 
 	if(s_ullChangeTimer && timerGetDelta(s_ullChangeTimer, timerGet()) >= 25) {
-		mapListLoadMap(s_pCtrl, s_pPreview);
+		mapListLoadMap(s_pCtrl, s_pPreview, "data/maps");
 		mapInfoDrawAuthorTitle(s_pPreview, &s_sBmDlgScanlined, INFO_X, INFO_Y);
 		mapListDrawPreview(
 			s_pPreview, &s_sBmDlgScanlined, PREVIEW_X, PREVIEW_Y, PREVIEW_TILE_SIZE

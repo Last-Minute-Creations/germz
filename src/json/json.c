@@ -9,17 +9,20 @@
 tJson *jsonCreate(const char *szFilePath) {
 	systemUse();
 	logBlockBegin("jsonCreate(szFilePath: '%s')", szFilePath);
-	tJson *pJson = memAllocFast(sizeof(tJson));
 
-	// Read whole file to string
-	LONG lFileSize = fileGetSize(szFilePath);
-	pJson->szData = memAllocFast(lFileSize+1);
+	// Open file and get its size
 	tFile *pFile = fileOpen(szFilePath, "rb");
 	if(!pFile) {
 		logWrite("ERR: File doesn't exist\n");
 		logBlockEnd("jsonCreate()");
+		systemUnuse();
 		return 0;
 	}
+	LONG lFileSize = fileGetSize(szFilePath);
+
+	// Read whole file for json processing
+	tJson *pJson = memAllocFast(sizeof(tJson));
+	pJson->szData = memAllocFast(lFileSize+1);
 	fileRead(pFile, pJson->szData, lFileSize);
 	pJson->szData[lFileSize] = '\0';
 	fileClose(pFile);

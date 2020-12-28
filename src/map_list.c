@@ -12,7 +12,38 @@
 #include "gui_scanlined.h"
 
 static const char *s_szFilePrev;
+static UBYTE s_ubBaseNestLevel;
 static UBYTE s_isMapInfoRefreshed;
+
+static UBYTE getPathNestLevel(const char *szPath) {
+	UBYTE ubNestLevel = 0;
+	UWORD uwLen = strlen(szPath);
+	for(UBYTE i = 0; i < uwLen; ++i) {
+		if(szPath[i] == '/') {
+			++ubNestLevel;
+		}
+	}
+	return ubNestLevel;
+}
+
+static int onMapListSort(const void *pA, const void *pB) {
+	const tListCtlEntry *pEntryA = (const tListCtlEntry*)pA;
+	const tListCtlEntry *pEntryB = (const tListCtlEntry*)pB;
+	tMapEntryType eEntryTypeA = (tMapEntryType)pEntryA->pData;
+	tMapEntryType eEntryTypeB = (tMapEntryType)pEntryB->pData;
+
+	// Parent directory always first
+	if(eEntryTypeA == MAP_ENTRY_TYPE_PARENT) {
+		return -1;
+	}
+	if(eEntryTypeB == MAP_ENTRY_TYPE_PARENT) {
+		return -1;
+	}
+
+	// Rest is done by sorting of strings - dirs start with dir icon which has
+	// lower code than any filename char.
+	return SGN(strcmp(pEntryA->szLabel, pEntryB->szLabel));
+}
 
 void mapListDrawPreview(
 	const tMapData *pMapData, tBitMap *pBmDest, UWORD uwX, UWORD uwY,
@@ -60,54 +91,93 @@ void mapListDrawPreview(
 }
 
 tListCtl *mapListCreateCtl(
-	tBitMap *pBmBfr, UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwHeight
+	tBitMap *pBmBfr, UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwHeight,
+	const char *szDirPath
 ) {
 	tListCtl *pCtrl = listCtlCreate(
-		pBmBfr, uwX, uwY, uwWidth, uwHeight, g_pFontSmall, 50, g_pTextBitmap, 0,
+		pBmBfr, uwX, uwY, uwWidth, uwHeight, g_pFontSmall, 50, "\x1D", "\x1E", 0,
 		guiScanlinedBgClear, guiScanlinedListCtlDrawPos
 	);
+	s_ubBaseNestLevel = getPathNestLevel(szDirPath);
+	mapListFillWithDir(pCtrl, szDirPath);
+	return pCtrl;
+}
 
-	tDir *pDir = dirOpen("data/maps");
+void mapListFillWithDir(tListCtl *pCtrl, const char *szDirPath) {
+	tDir *pDir = dirOpen(szDirPath);
 	if(!pDir) {
-		dirCreate("data/maps");
-		pDir = dirOpen("data/maps");
+		dirCreate(szDirPath);
+		pDir = dirOpen(szDirPath);
 	}
 	if(!pDir) {
 		// TODO: something better
 		logWrite("Can't open or create maps dir!\n");
-		return 0;
+		return;
 	}
 
 	// Count relevant files
+	char szFullPath[strlen(szDirPath) + MAP_FILENAME_MAX + 1];
 	char szFileName[MAP_FILENAME_MAX];
+	listCtlClear(pCtrl);
+	UBYTE ubNestLevel = getPathNestLevel(szDirPath);
+	if(ubNestLevel > s_ubBaseNestLevel) {
+		listCtlAddEntry(pCtrl, "\x1FPARENT", (void*)((ULONG)MAP_ENTRY_TYPE_PARENT));
+	}
 	while(dirRead(pDir, szFileName, MAP_FILENAME_MAX)) {
 		UWORD uwLen = strlen(szFileName);
-		if(uwLen < 20 && !strcmp(&szFileName[uwLen - 5], ".json")) {
-			// Trim extension and add to list
-			szFileName[strlen(szFileName) - strlen(".json")] = '\0';
-			if(listCtlAddEntry(pCtrl, szFileName) == LISTCTL_ENTRY_INVALID) {
+		if(uwLen < 20) {
+			sprintf(szFullPath, "%s/%s", szDirPath, szFileName);
+			tMapEntryType eEntryType = MAP_ENTRY_TYPE_MAP;
+			tDir *pOpenedAsDir = dirOpen(szFullPath);
+			if(pOpenedAsDir) {
+				dirClose(pOpenedAsDir);
+				eEntryType = MAP_ENTRY_TYPE_DIR;
+				memmove(&szFileName[1], &szFileName[0], strlen(szFileName));
+				szFileName[0] = '\x1F';
+			}
+			else if(!strcmp(&szFileName[uwLen - 5], ".json")) {
+				// Trim extension and add to list
+				szFileName[strlen(szFileName) - strlen(".json")] = '\0';
+			}
+			else {
+				continue;
+			}
+			if(listCtlAddEntry(
+				pCtrl, szFileName, (void*)((ULONG)eEntryType)
+			) == LISTCTL_ENTRY_INVALID) {
 				logWrite("ERR: map limit reached\n");
 				break;
 			}
 		}
 	}
 	dirClose(pDir);
-	listCtlSortEntries(pCtrl);
+	listCtlSortEntries(pCtrl, onMapListSort);
+
+	// Select first map which is not directory, if possible
+	UWORD uwSelection = 0;
+	while(uwSelection < pCtrl->uwEntryCnt) {
+		tMapEntryType eType = (tMapEntryType)(pCtrl->pEntries[uwSelection].pData);
+		if(eType == MAP_ENTRY_TYPE_MAP) {
+			listCtlSetSelectionIdx(pCtrl, uwSelection);
+			break;
+		}
+		++uwSelection;
+	}
 
 	s_isMapInfoRefreshed = 0;
 	s_szFilePrev = 0;
-
-	return pCtrl;
 }
 
-UBYTE mapListLoadMap(const tListCtl *pCtrl, tMapData *pMapData) {
-	const char *szFile = listCtlGetSelection(pCtrl);
+UBYTE mapListLoadMap(
+	const tListCtl *pCtrl, tMapData *pMapData, const char *szDirPath
+) {
+	const char *szFile = listCtlGetSelection(pCtrl)->szLabel;
 	if(szFile == s_szFilePrev && s_isMapInfoRefreshed) {
 		return 0;
 	}
 
 	char szPath[MAP_FILENAME_MAX];
-	sprintf(szPath, "data/maps/%s.json", szFile);
+	sprintf(szPath, "%s/%s.json", szDirPath, szFile);
 	mapDataInitFromFile(pMapData, szPath);
 
 	s_isMapInfoRefreshed = 1;
@@ -149,13 +219,13 @@ void mapInfoDrawAuthorTitle(
 	);
 }
 
-void clearMapInfo(tBitMap *pBmBuffer, UWORD uwX, UWORD uwY) {
+void clearMapInfo(tBitMap *pBmBuffer, UWORD uwX, UWORD uwY, UBYTE isDir) {
 	const UBYTE ubRowWidth = 100;
 	const UBYTE ubRowHeight = g_pFontSmall->uwHeight + 2;
 
 	guiScanlinedBgClear(uwX, uwY, ubRowWidth, ubRowHeight);
 	fontDrawStr(
-		g_pFontSmall, pBmBuffer, uwX, uwY, "Loading map...",
+		g_pFontSmall, pBmBuffer, uwX, uwY, isDir ? "Opening dir..." : "Loading map...",
 		18 >> 1, FONT_COOKIE, g_pTextBitmap
 	);
 	uwY += ubRowHeight;

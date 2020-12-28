@@ -38,13 +38,16 @@ static tTile tileFromChar(char c) {
 UBYTE mapDataInitFromFile(tMapData *pMapData, const char *szPath) {
 	systemUse();
 	logBlockBegin("mapDataInitFromFile(szPath: '%s')", szPath);
-	mapDataClear(pMapData);
+	UBYTE isOk = 0;
 	tJson *pJson = jsonCreate(szPath);
+	if(!pJson) {
+		goto end;
+	}
+	mapDataClear(pMapData);
 
 	UWORD uwTokName = jsonGetDom(pJson, "name");
 	UWORD uwTokAuthor = jsonGetDom(pJson, "author");
 	UWORD uwTokTiles = jsonGetDom(pJson, "tiles");
-	UBYTE isOk = 0;
 
 	if(!uwTokName || !uwTokAuthor || !uwTokTiles) {
 		logWrite("ERR: couldn't find all tokens\n");

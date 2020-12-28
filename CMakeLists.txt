@@ -372,14 +372,18 @@ convertAudio(
 
 convertFont(
 	TARGET ${GERMZ_EXECUTABLE} FIRST_CHAR 32
-	SOURCE ${RES_DIR}/germz_font.png DESTINATION ${DATA_DIR}/germz.fnt
+	SOURCE ${RES_DIR}/font_germz.png DESTINATION ${DATA_DIR}/germz.fnt
 )
 
-# Copy MODs, maps, fonts and defs
+convertFont(
+	TARGET ${GERMZ_EXECUTABLE} FIRST_CHAR 29
+	SOURCE ${RES_DIR}/font_uni54.png DESTINATION ${DATA_DIR}/uni54.fnt
+)
+
+# Copy MODs, maps and defs
 file(
 	COPY
-		${RES_DIR}/germz2-25.mod ${RES_DIR}/maps ${RES_DIR}/uni54.fnt
-		${RES_DIR}/defs.json
+		${RES_DIR}/germz2-25.mod ${RES_DIR}/maps ${RES_DIR}/defs.json
 	DESTINATION ${DATA_DIR}
 )
 

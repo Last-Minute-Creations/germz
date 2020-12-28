@@ -49,7 +49,7 @@ void guiScanlinedButtonDraw(tGuiButton *pButton) {
 	// Text
 	fontDrawStr(
 		g_pFontSmall, s_pBfr,
-		pRect->uwX + pRect->uwWidth/2, pRect->uwY + pRect->uwHeight/2,
+		pRect->uwX + (pRect->uwWidth + 1)/2, pRect->uwY + pRect->uwHeight/2,
 		pButton->szText, ubColor, FONT_CENTER | FONT_COOKIE, g_pTextBitmap
 	);
 }
@@ -133,7 +133,7 @@ void guiScanlinedListCtlDrawPos(
 	fontDrawStr(
 		pCtl->pFont, pCtl->pBfr,
 		pCtl->sRect.uwX+2+1, pCtl->sRect.uwY+2+1 + ubPosOnView * pCtl->ubEntryHeight,
-		pCtl->pEntries[uwIdx], COLOR_P3_BRIGHT >> 1,
-		FONT_LEFT | FONT_TOP | FONT_COOKIE, pCtl->pEntryTextBfr
+		pCtl->pEntries[uwIdx].szLabel, COLOR_P3_BRIGHT >> 1,
+		FONT_LEFT | FONT_TOP | FONT_COOKIE, g_pTextBitmap
 	);
 }

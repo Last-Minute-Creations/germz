@@ -476,7 +476,8 @@ static const char *s_pLabelsMode[] = {"SOLO", "TEAMS"};
 static const char *s_pLabelsTeam1[TEAM_CONFIG_COUNT] = {"", "", ""};
 static const char *s_pLabelsTeam2[TEAM_CONFIG_COUNT] = {"", "", ""};
 static UBYTE s_ubOptionIdxTeam1, s_ubOptionIdxTeam2;
-static UWORD s_uwBattleLastSelectedEntry = 0;
+static UWORD s_uwBattleLastSelectedEntry = 0xFFFF;
+static char s_szCurrDir[100] = "data/maps";
 
 tTeamConfig menuGetTeamConfig(void) {
 	tTeamConfig eCfg = s_ubTeamCfg;
@@ -640,8 +641,8 @@ static void battleRegenMenuList(UBYTE ubPlayerMask) {
 	s_pMenuBattleCaptions[s_ubBattleOptionCount++] = "BACK";
 }
 
-static void menumapListLoadMap(UBYTE isForce) {
-	if(mapListLoadMap(s_pMapList, &g_sMapData) || isForce) {
+static void menuMapListLoadMap(UBYTE isForce) {
+	if(mapListLoadMap(s_pMapList, &g_sMapData, s_szCurrDir) || isForce) {
 		mapInfoDrawAuthorTitle(&g_sMapData, &s_sBmFrontScanline, INFO_X, INFO_Y);
 		mapListDrawPreview(&g_sMapData, &s_sBmFrontScanline, PREVIEW_X, PREVIEW_Y, 6);
 	}
@@ -671,16 +672,21 @@ static void battleGsCreate(void) {
 	buttonListCreate(5, guiScanlinedButtonDraw);
 	s_pMapList = mapListCreateCtl(
 		&s_sBmFrontScanline, BATTLE_MENU_X, BATTLE_MENU_Y,
-		BATTLE_MENU_WIDTH, BATTLE_MENU_HEIGHT
+		BATTLE_MENU_WIDTH, BATTLE_MENU_HEIGHT, s_szCurrDir
 	);
-	listCtlSetSelectionIdx(s_pMapList, s_uwBattleLastSelectedEntry);
+	if(s_uwBattleLastSelectedEntry == 0xFFFF) {
+		s_uwBattleLastSelectedEntry = listCtlGetSelectionIdx(s_pMapList);
+	}
+	else {
+		listCtlSetSelectionIdx(s_pMapList, s_uwBattleLastSelectedEntry);
+	}
 
 	// Always start in menu loop (after ESC pressed when in map select)
 	s_sStateBattle.cbLoop = menuSubstateLoop;
 
 	s_cbOnEscape = fadeToMain;
 	menuListSetActive(4);
-	menumapListLoadMap(1);
+	menuMapListLoadMap(1);
 	battleDrawMenuList();
 	s_ullChangeTimer = timerGet();
 }
@@ -695,7 +701,7 @@ static void battleGsLoopMapSelect(void) {
 		(isEnabled34 && (joyUse(JOY3_UP) || joyUse(JOY4_UP)))
 	) {
 		listCtlSelectPrev(s_pMapList);
-		clearMapInfo(&s_sBmFrontScanline, INFO_X, INFO_Y);
+		clearMapInfo(&s_sBmFrontScanline, INFO_X, INFO_Y, 0);
 		s_ullChangeTimer = timerGet();
 	}
 	else if(
@@ -704,7 +710,7 @@ static void battleGsLoopMapSelect(void) {
 		(isEnabled34 && (joyUse(JOY3_DOWN) || joyUse(JOY4_DOWN)))
 	) {
 		listCtlSelectNext(s_pMapList);
-		clearMapInfo(&s_sBmFrontScanline, INFO_X, INFO_Y);
+		clearMapInfo(&s_sBmFrontScanline, INFO_X, INFO_Y, 0);
 		s_ullChangeTimer = timerGet();
 	}
 	else if(
@@ -712,12 +718,37 @@ static void battleGsLoopMapSelect(void) {
 		joyUse(JOY1_FIRE) || joyUse(JOY2_FIRE) ||
 		(isEnabled34 && (joyUse(JOY3_FIRE) || joyUse(JOY4_FIRE)))
 	) {
-		menumapListLoadMap(0);
-		isMapSelected = 1;
+		const tListCtlEntry *pSelection = listCtlGetSelection(s_pMapList);
+		tMapEntryType eType = (tMapEntryType)pSelection->pData;
+		if(eType == MAP_ENTRY_TYPE_DIR) {
+			UWORD uwLenOld = strlen(s_szCurrDir);
+			if(uwLenOld + 1 + strlen(pSelection->szLabel) < sizeof(s_szCurrDir)) {
+				// Append subdirectory to current path, skip icon char
+				sprintf(&s_szCurrDir[uwLenOld], "/%s", &pSelection->szLabel[1]);
+			}
+			clearMapInfo(&s_sBmFrontScanline, INFO_X, INFO_Y, 1);
+			mapListFillWithDir(s_pMapList, s_szCurrDir);
+			listCtlDraw(s_pMapList);
+			buttonDrawAll();
+		}
+		else if(eType == MAP_ENTRY_TYPE_PARENT) {
+			char *pLastPos = strrchr(s_szCurrDir, '/');
+			if(pLastPos) {
+				*pLastPos = '\0';
+			}
+			clearMapInfo(&s_sBmFrontScanline, INFO_X, INFO_Y, 1);
+			mapListFillWithDir(s_pMapList, s_szCurrDir);
+			listCtlDraw(s_pMapList);
+			buttonDrawAll();
+		}
+		else {
+			isMapSelected = 1;
+		}
+		menuMapListLoadMap(0);
 	}
 
 	if(timerGetDelta(s_ullChangeTimer, timerGet()) >= 25) {
-		menumapListLoadMap(0);
+		menuMapListLoadMap(0);
 		s_ullChangeTimer = timerGet();
 	}
 
@@ -736,7 +767,11 @@ static void battleGsLoopMapSelect(void) {
 }
 
 static void battleGsDestroy(void) {
-	s_uwBattleLastSelectedEntry = s_pMapList->uwEntrySel;
+	// Save previous selection if it wasn't a directory
+	if(!(ULONG)listCtlGetSelection(s_pMapList)->pData) {
+		s_uwBattleLastSelectedEntry = s_pMapList->uwEntrySel;
+	}
+
 	listCtlDestroy(s_pMapList);
 	buttonListDestroy();
 }
