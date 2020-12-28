@@ -105,7 +105,8 @@ Now:
 			✔ don't allow going above root directory @done(20-12-26 17:11)
 			✔ directory icon in directory entries @done(20-12-28 09:34)
 			✔ sorting directories first -> custom sort fn in listctl @done(20-12-28 09:34)
-			☐ persist selected directory
+			✔ persist selected directory - keep the same after returning from battle @done(20-12-28 10:39)
+			✔ persist selected directory - keep the same after going back to menu and re-entering battle menu @done(20-12-28 10:39)
 			☐ apply changes in load dialog
 		☐ Start with c01.json map
 		☐ pause: retry

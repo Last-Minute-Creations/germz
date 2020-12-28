@@ -78,7 +78,7 @@ static void dialogLoadGsCreate(void) {
 	buttonListCreate(5, guiScanlinedButtonDraw);
 	s_pCtrl = mapListCreateCtl(
 		&s_sBmDlgScanlined, MAP_LIST_X, MAP_LIST_Y, MAP_LIST_WIDTH, MAP_LIST_HEIGHT,
-		"data/maps"
+		"data/maps", "data/maps"
 	);
 	if(!s_pCtrl) {
 		statePop(g_pStateMachineGame);

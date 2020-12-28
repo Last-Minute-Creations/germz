@@ -18,7 +18,7 @@ typedef enum _tMapEntryType {
 
 tListCtl *mapListCreateCtl(
 	tBitMap *pBmBfr, UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwHeight,
-	const char *szDirPath
+	const char *szBaseDirPath, const char *szDirPath
 );
 
 UBYTE mapListLoadMap(

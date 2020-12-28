@@ -477,6 +477,7 @@ static const char *s_pLabelsTeam1[TEAM_CONFIG_COUNT] = {"", "", ""};
 static const char *s_pLabelsTeam2[TEAM_CONFIG_COUNT] = {"", "", ""};
 static UBYTE s_ubOptionIdxTeam1, s_ubOptionIdxTeam2;
 static UWORD s_uwBattleLastSelectedEntry = 0xFFFF;
+static const char s_szBaseDir[] = "data/maps";
 static char s_szCurrDir[100] = "data/maps";
 
 tTeamConfig menuGetTeamConfig(void) {
@@ -672,7 +673,7 @@ static void battleGsCreate(void) {
 	buttonListCreate(5, guiScanlinedButtonDraw);
 	s_pMapList = mapListCreateCtl(
 		&s_sBmFrontScanline, BATTLE_MENU_X, BATTLE_MENU_Y,
-		BATTLE_MENU_WIDTH, BATTLE_MENU_HEIGHT, s_szCurrDir
+		BATTLE_MENU_WIDTH, BATTLE_MENU_HEIGHT, s_szBaseDir, s_szCurrDir
 	);
 	if(s_uwBattleLastSelectedEntry == 0xFFFF) {
 		s_uwBattleLastSelectedEntry = listCtlGetSelectionIdx(s_pMapList);

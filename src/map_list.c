@@ -92,13 +92,13 @@ void mapListDrawPreview(
 
 tListCtl *mapListCreateCtl(
 	tBitMap *pBmBfr, UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwHeight,
-	const char *szDirPath
+	const char *szBaseDirPath, const char *szDirPath
 ) {
 	tListCtl *pCtrl = listCtlCreate(
 		pBmBfr, uwX, uwY, uwWidth, uwHeight, g_pFontSmall, 50, "\x1D", "\x1E", 0,
 		guiScanlinedBgClear, guiScanlinedListCtlDrawPos
 	);
-	s_ubBaseNestLevel = getPathNestLevel(szDirPath);
+	s_ubBaseNestLevel = getPathNestLevel(szBaseDirPath);
 	mapListFillWithDir(pCtrl, szDirPath);
 	return pCtrl;
 }
