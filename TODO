@@ -111,20 +111,19 @@ Done:
 		✔ Start next map after finishing map @done(20-12-29 17:46)
 		✔ Retry/Exit after defeat @done(20-12-29 17:46)
 		✔ outro message when there's no more maps @done(20-12-29 17:45)
+	✔ remove value_ptr stuff (separate param in menu list) @done(20-12-29 17:58)
+	✔ credits for used fonts @done(20-12-29 18:53)
 
 Now:
-	☐ when playing in teams, hud is not colored
-	☐ when playing in teams, crosshair icon is not shown on hud
-	☐ proper game init when launched from editor
-	☐ game summary when launched from editor
-	☐ Configurable match count in battle mode
-	☐ error messages before starting battle
+	☐ error messages before starting battle (parallel, same controls, etc)
 	☐ display in visible menu part how keyboard layouts have action button bound (how to play)
-	☐ Import/export to/from editor by typing in code (AmigaLive)
-	☐ remove value_ptr stuff (separate param in menu list)
-	☐ credits for used fonts
+	☐ proper handling of game init when launched from editor (which mode?)
+	☐ proper handling of game summary when launched from editor
+	☐ Configurable match count in battle mode (where to put it?)
 
 Bugs:
+	☐ when playing in teams, hud is not colored
+	☐ when playing in teams, crosshair icon is not shown on hud
 	☐ Sometimes after starting game again pleps are blinking
 	☐ fix ptplayer on higher cpu freq
 	☐ fix plep anim rotations
@@ -135,6 +134,7 @@ Bugs:
 	☐ freeze when going from menu to game (ACE)
 
 Later:
+	☐ Import/export to/from editor by typing in code (AmigaLive)
 	☐ handle map create fail in editor
 	✘ EKG on HUD @cancelled(20-11-01 14:03)
 	☐ special blobs
