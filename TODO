@@ -113,9 +113,9 @@ Done:
 		✔ outro message when there's no more maps @done(20-12-29 17:45)
 	✔ remove value_ptr stuff (separate param in menu list) @done(20-12-29 17:58)
 	✔ credits for used fonts @done(20-12-29 18:53)
+	✔ error messages before starting battle (parallel, same controls, etc) @done(20-12-29 20:51)
 
 Now:
-	☐ error messages before starting battle (parallel, same controls, etc)
 	☐ display in visible menu part how keyboard layouts have action button bound (how to play)
 	☐ proper handling of game init when launched from editor (which mode?)
 	☐ proper handling of game summary when launched from editor
@@ -134,7 +134,8 @@ Bugs:
 	☐ freeze when going from menu to game (ACE)
 
 Later:
-	☐ Import/export to/from editor by typing in code (AmigaLive)
+	☐ AmigaLive release
+		☐ Import/export to/from editor by typing in code
 	☐ handle map create fail in editor
 	✘ EKG on HUD @cancelled(20-11-01 14:03)
 	☐ special blobs

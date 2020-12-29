@@ -27,7 +27,7 @@
 #define MENU_COLOR_ACTIVE (COLOR_P3_BRIGHT)
 #define MENU_COLOR_INACTIVE (COLOR_P3_BRIGHT + 1)
 #define MENU_COLOR_SHADOW (COLOR_P3_BRIGHT + 3)
-#define MENU_COLOR_ERROR 11
+#define MENU_COLOR_ERROR (COLOR_P1_BRIGHT)
 
 #define INFO_X 46
 #define INFO_Y 28
@@ -107,11 +107,11 @@ static void onFadeoutGameStart(void) {
 static void menuErrorMsg(const char *szMsg) {
 	char szLine[80];
 	const char *szLineStart = szMsg;
-	UWORD uwOffsY = 0;
+	UWORD uwOffsY = 124;
 	UBYTE ubLineHeight = g_pFontSmall->uwHeight + 1;
-	blitCopy(
-		s_pBg, 0, uwOffsY, s_pBfr->pBack, 0, uwOffsY, 320, 2 * ubLineHeight,
-		MINTERM_COPY
+	blitRect(
+		&s_sBmFrontScanline, 48, uwOffsY, 320 - (2 * 48), ubLineHeight,
+		COLOR_CONSOLE_BG >> 1
 	);
 
 	while(szLineStart) {
@@ -129,8 +129,8 @@ static void menuErrorMsg(const char *szMsg) {
 			szLineStart = 0;
 		}
 		fontDrawStr(
-			g_pFontSmall, s_pBfr->pBack, 320/2, uwOffsY, szLine, MENU_COLOR_ERROR,
-			FONT_COOKIE | FONT_SHADOW | FONT_HCENTER, g_pTextBitmap
+			g_pFontSmall, &s_sBmFrontScanline, 320/2, uwOffsY, szLine,
+			MENU_COLOR_ERROR >> 1, FONT_COOKIE | FONT_HCENTER, g_pTextBitmap
 		);
 		uwOffsY += ubLineHeight;
 	}
@@ -149,8 +149,7 @@ static void startGame(UBYTE isEditor, UBYTE ubPlayerMask, UBYTE isCampaign) {
 				s_pPlayerSteers[i] == PLAYER_STEER_JOY_4
 			) && !joyEnableParallel()) {
 				menuErrorMsg(
-					"Can't open parallel port for joystick adapter\n"
-					"Joy 3 & 4 are not usable!"
+					"Can't open parallel port - joy 3 & 4 are not usable!"
 				);
 				return;
 			}
