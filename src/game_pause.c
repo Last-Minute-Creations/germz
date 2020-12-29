@@ -305,7 +305,11 @@ static void onBack(void) {
 }
 
 static void onNextMap(void) {
+	// Back to original state
+	statePop(g_pStateMachineGame);
 
+	// Advance the campaign state
+	gameCampaignAdvance();
 }
 
 //------------------------------------------------------------------- PUBLIC FNS

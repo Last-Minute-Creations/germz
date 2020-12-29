@@ -1,3 +1,12 @@
+20.12.29
+	- Fixed player HUD not being cleared after being defeated
+	- Fixed being able to enter targeting mode when selecting non-owned node
+	- Pause navigation is always allowed via arrows
+	- Fixed garbage being drawn on HUD when restarting game
+	- Fixed entering pause in editor
+	- Added subdirectory navigation for selecting map in battle menu and editor
+	- Added campaign mode along with outro message placeholder
+
 20.12.4
 	- HUD is now properly colored
 	- Fixed map preview's bg color in editor's load dialog

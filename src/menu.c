@@ -13,6 +13,7 @@
 #include <ace/utils/palette.h>
 #include <ace/utils/ptplayer.h>
 #include <ace/utils/bmframe.h>
+#include <ace/utils/file.h>
 #include "game.h"
 #include "build_ver.h"
 #include "fade.h"
@@ -51,6 +52,8 @@ typedef enum _tPlayerSteer {
 
 static UBYTE s_ubBattleMode;
 static UBYTE s_ubTeamCfg;
+static UBYTE s_isCampaign;
+static UBYTE s_isPendingCampaignResult = 0;
 
 static UBYTE s_pPlayerSteers[4] = {
 	PLAYER_STEER_JOY_1, PLAYER_STEER_JOY_2,
@@ -86,7 +89,9 @@ static tFade *s_pFadeMenu;
 static tCbFadeOnDone s_cbOnEscape;
 
 static tStateManager *s_pStateMachineMenu;
-static tState s_sStateMain, s_sStateBattle, s_sStateCredits, s_sStateSteer;
+static tState
+	s_sStateMain, s_sStateBattle, s_sStateCampaign, s_sStateCredits,
+	s_sStateSteer, s_sStateCampaignResult;
 
 //------------------------------------------------------------------ PRIVATE FNS
 
@@ -131,7 +136,7 @@ static void menuErrorMsg(const char *szMsg) {
 	}
 }
 
-static void startGame(UBYTE isEditor, UBYTE ubPlayerMask) {
+static void startGame(UBYTE isEditor, UBYTE ubPlayerMask, UBYTE isCampaign) {
 	if(isEditor) {
 		gameSetRules(1, BATTLE_MODE_FFA, TEAM_CONFIG_P1_P2_AND_P3_P4, 0);
 		fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, onFadeoutEditorGameStart);
@@ -165,7 +170,7 @@ static void startGame(UBYTE isEditor, UBYTE ubPlayerMask) {
 				}
 			}
 		}
-		gameSetRules(0, s_ubBattleMode, s_ubTeamCfg, 0);
+		gameSetRules(0, s_ubBattleMode, s_ubTeamCfg, isCampaign);
 		fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, onFadeoutGameStart);
 	}
 }
@@ -249,7 +254,13 @@ static void menuGsCreate(void) {
 
 	s_pStateMachineMenu = stateManagerCreate();
 	systemUnuse();
-	stateChange(s_pStateMachineMenu, &s_sStateMain);
+	if(s_isPendingCampaignResult) {
+		s_isPendingCampaignResult = 0;
+		stateChange(s_pStateMachineMenu, &s_sStateCampaignResult);
+	}
+	else {
+		stateChange(s_pStateMachineMenu, &s_sStateMain);
+	}
 
 	fadeSet(s_pFadeMenu, FADE_STATE_IN, 50, 0);
 	viewLoad(s_pView);
@@ -311,6 +322,10 @@ tSteer menuGetSteerForPlayer(UBYTE ubPlayerIdx) {
 	}
 }
 
+void menuStartWithCampaignResult(void) {
+	s_isPendingCampaignResult = 1;
+}
+
 //------------------------------------------------------------- SUBSTATE: COMMON
 
 // It needs to work on state changing instead of  pushing/popping since it needs
@@ -332,12 +347,12 @@ static void fadeToSubstate(tState *pNextSubstate) {
 }
 
 static void onCampaign(void) {
-
+	fadeToSubstate(&s_sStateCampaign);
 }
 
 static void onEditor(void) {
 	mapDataClear(&g_sMapData);
-	startGame(1, 1);
+	startGame(1, 1, 0);
 }
 
 static void onBattle(void) {
@@ -408,6 +423,44 @@ static void scanlinedMenuPosDraw(
 	);
 }
 
+static void textBasedGsLoop(void) {
+	tFadeState eFadeState = fadeProcess(s_pFadeMenu);
+
+	UBYTE isEnabled34 = joyIsParallelEnabled();
+	if(eFadeState != FADE_STATE_OUT && (
+		keyUse(KEY_RETURN) || keyUse(KEY_LSHIFT) || keyUse(KEY_RSHIFT) ||
+		joyUse(JOY1_FIRE) || joyUse(JOY2_FIRE) ||
+		(isEnabled34 && (joyUse(JOY3_FIRE) || joyUse(JOY4_FIRE)))
+	)) {
+		// menuEnter may change gamestate, so do nothing past it
+		fadeToMain();
+	}
+
+	copProcessBlocks();
+	vPortWaitForEnd(s_pVp);
+}
+
+static void textBasedGsCreate(const char **pLines, UBYTE ubLineCount) {
+	blitCopy(s_pBgSub, 0, 0, s_pBfr->pBack, 0, 0, 320, 128, MINTERM_COPY);
+	blitCopy(s_pBgSub, 0, 128, s_pBfr->pBack, 0, 128, 320, 128, MINTERM_COPY);
+
+	UBYTE ubLineWidth = g_pFontSmall->uwHeight + 1;
+	UWORD uwOffsY = 0;
+	for(UBYTE ubLine = 0; ubLine < ubLineCount; ++ubLine) {
+		// Draw only non-empty lines
+		if(pLines[ubLine][0] != '\0') {
+			fontDrawStr(
+				g_pFontSmall, s_pBfr->pBack, 0, uwOffsY, pLines[ubLine],
+				MENU_COLOR_ACTIVE, FONT_COOKIE | FONT_SHADOW, g_pTextBitmap
+			);
+		}
+
+		// Advance Y pos nonetheless
+		uwOffsY += ubLineWidth;
+	}
+	s_cbOnEscape = fadeToMain;
+}
+
 //-------------------------------------------------------------- SUBSTATE: STEER
 
 #define STEER_MENU_OPTION_MAX 8
@@ -416,27 +469,42 @@ static tMenuListOption s_pOptionsSteer[STEER_MENU_OPTION_MAX];
 static UBYTE s_ubSteerOptionCount;
 
 static void onStart(void) {
-	startGame(0, g_sMapData.ubPlayerMask);
+	startGame(0, g_sMapData.ubPlayerMask, s_isCampaign);
 }
 
 static void menuSteerGsCreate(void) {
-	// Undraw battle's menu list
-	blitRect(
-		&s_sBmFrontScanline, BATTLE_MENU_X, BATTLE_MENU_Y,
-		BATTLE_MENU_WIDTH, BATTLE_MENU_HEIGHT, COLOR_CONSOLE_BG >> 1
-	);
-
 	s_ubSteerOptionCount = 0;
 
-	// Players
-	for(UBYTE i = 0; i < 4; ++i) {
-		if(BTST(g_sMapData.ubPlayerMask, i)) {
-			s_pOptionsSteer[s_ubSteerOptionCount] = (tMenuListOption){
-				MENU_LIST_OPTION_TYPE_UINT8, .isHidden = 0, .sOptUb = {
-				.pVar = &s_pPlayerSteers[i], .ubMax = PLAYER_STEER_IDLE, .isCyclic = 1,
-				.ubDefault = PLAYER_STEER_JOY_1, .pEnumLabels = s_pMenuEnumSteer
-			}};
-			s_pMenuCaptionsSteer[s_ubSteerOptionCount++] = s_pSteerPlayerLabels[i];
+	if(s_isCampaign) {
+		// Only one player, only joy & keyboard, rest is set to AI
+		s_pPlayerSteers[0] = PLAYER_STEER_JOY_1;
+		for(UBYTE i = 1; i < 4; ++i) {
+			s_pPlayerSteers[i] = PLAYER_STEER_AI;
+		}
+		s_pOptionsSteer[s_ubSteerOptionCount] = (tMenuListOption){
+			MENU_LIST_OPTION_TYPE_UINT8, .isHidden = 0, .sOptUb = {
+			.pVar = &s_pPlayerSteers[0], .ubMax = PLAYER_STEER_KEY_ARROWS, .isCyclic = 1,
+			.ubDefault = PLAYER_STEER_JOY_1, .pEnumLabels = s_pMenuEnumSteer
+		}};
+		s_pMenuCaptionsSteer[s_ubSteerOptionCount++] = s_pSteerPlayerLabels[0];
+	}
+	else {
+		// Undraw battle's menu list
+		blitRect(
+			&s_sBmFrontScanline, BATTLE_MENU_X, BATTLE_MENU_Y,
+			BATTLE_MENU_WIDTH, BATTLE_MENU_HEIGHT, COLOR_CONSOLE_BG >> 1
+		);
+
+		// Players
+		for(UBYTE i = 0; i < 4; ++i) {
+			if(BTST(g_sMapData.ubPlayerMask, i)) {
+				s_pOptionsSteer[s_ubSteerOptionCount] = (tMenuListOption){
+					MENU_LIST_OPTION_TYPE_UINT8, .isHidden = 0, .sOptUb = {
+					.pVar = &s_pPlayerSteers[i], .ubMax = PLAYER_STEER_IDLE, .isCyclic = 1,
+					.ubDefault = PLAYER_STEER_JOY_1, .pEnumLabels = s_pMenuEnumSteer
+				}};
+				s_pMenuCaptionsSteer[s_ubSteerOptionCount++] = s_pSteerPlayerLabels[i];
+			}
 		}
 	}
 
@@ -447,9 +515,10 @@ static void menuSteerGsCreate(void) {
 	s_pMenuCaptionsSteer[s_ubSteerOptionCount++] = "INFECT";
 
 	// Back
+	UBYTE ubOptionIdxBack = s_ubSteerOptionCount;
 	s_pOptionsSteer[s_ubSteerOptionCount] = (tMenuListOption){
 		MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0,
-		.sOptCb = {.cbSelect = fadeToBattle}
+		.sOptCb = {.cbSelect = s_isCampaign ? fadeToMain : fadeToBattle}
 	};
 	s_pMenuCaptionsSteer[s_ubSteerOptionCount++] = "BACK";
 
@@ -460,7 +529,7 @@ static void menuSteerGsCreate(void) {
 	);
 	menuListSetActive(s_ubSteerOptionCount - 2);
 
-	s_cbOnEscape = fadeToBattle;
+	s_cbOnEscape = s_pOptionsSteer[ubOptionIdxBack].sOptCb.cbSelect;
 }
 
 //------------------------------------------------------------- SUBSTATE: BATTLE
@@ -662,6 +731,7 @@ static void battleDrawMenuList(void) {
 }
 
 static void battleGsCreate(void) {
+	s_isCampaign = 0;
 	s_pFadeMenu->pPaletteRef[COLOR_SPECIAL_1] = 0x333;
 	s_pFadeMenu->pPaletteRef[COLOR_SPECIAL_2] = 0x222;
 
@@ -777,6 +847,25 @@ static void battleGsDestroy(void) {
 	buttonListDestroy();
 }
 
+//------------------------------------------------------------ SUBSTATE: CAMPAIGN
+
+void campaignGsCreate(void) {
+	s_pFadeMenu->pPaletteRef[COLOR_SPECIAL_1] = 0x333;
+	s_pFadeMenu->pPaletteRef[COLOR_SPECIAL_2] = 0x222;
+
+	// Prepare current bg
+	blitCopy(s_pBgSub, 0, 0, s_pBfr->pBack, 0, 0, 320, 128, MINTERM_COPY);
+	blitCopy(s_pBgSub, 0, 128, s_pBfr->pBack, 0, 128, 320, 128, MINTERM_COPY);
+	bmFrameDraw(g_pFrameDisplay, s_pBfr->pBack, 32, 16, 16, 14, 16);
+
+	// Load first map
+	s_isCampaign = 1;
+	mapDataInitFromFile(&g_sMapData, "data/maps/campaign/c01.json");
+
+	// Call steer substate
+	stateChange(s_pStateMachineMenu, &s_sStateSteer);
+}
+
 //------------------------------------------------------------ SUBSTATE: CREDITS
 
 static const char *s_pCreditsLines[] = {
@@ -799,44 +888,22 @@ static const char *s_pCreditsLines[] = {
 	"",
 	"Thanks for playing!",
 };
-#define CREDITS_LINES_COUNT (sizeof(s_pCreditsLines) / sizeof(s_pCreditsLines[1]))
+#define CREDITS_LINES_COUNT (sizeof(s_pCreditsLines) / sizeof(s_pCreditsLines[0]))
 
 static void creditsGsCreate(void) {
-	blitCopy(s_pBgSub, 0, 0, s_pBfr->pBack, 0, 0, 320, 128, MINTERM_COPY);
-	blitCopy(s_pBgSub, 0, 128, s_pBfr->pBack, 0, 128, 320, 128, MINTERM_COPY);
-
-	UBYTE ubLineWidth = g_pFontSmall->uwHeight + 1;
-	UWORD uwOffsY = 0;
-	for(UBYTE ubLine = 0; ubLine < CREDITS_LINES_COUNT; ++ubLine) {
-		// Draw only non-empty lines
-		if(s_pCreditsLines[ubLine][0] != '\0') {
-			fontDrawStr(
-				g_pFontSmall, s_pBfr->pBack, 0, uwOffsY, s_pCreditsLines[ubLine],
-				MENU_COLOR_ACTIVE, FONT_COOKIE | FONT_SHADOW, g_pTextBitmap
-			);
-		}
-
-		// Advance Y pos nonetheless
-		uwOffsY += ubLineWidth;
-	}
-	s_cbOnEscape = fadeToMain;
+	textBasedGsCreate(s_pCreditsLines, CREDITS_LINES_COUNT);
 }
 
-static void creditsGsLoop(void) {
-	tFadeState eFadeState = fadeProcess(s_pFadeMenu);
+//---------------------------------------------------- SUBSTATE: CAMPAIGN RESULT
 
-	UBYTE isEnabled34 = joyIsParallelEnabled();
-	if(eFadeState != FADE_STATE_OUT && (
-		keyUse(KEY_RETURN) || keyUse(KEY_LSHIFT) || keyUse(KEY_RSHIFT) ||
-		joyUse(JOY1_FIRE) || joyUse(JOY2_FIRE) ||
-		(isEnabled34 && (joyUse(JOY3_FIRE) || joyUse(JOY4_FIRE)))
-	)) {
-		// menuEnter may change gamestate, so do nothing past it
-		fadeToMain();
-	}
+static const char *s_pOutroLines[] = {
+	"Congraturation!",
+	"A winrar is you!"
+};
+#define OUTRO_LINES_COUNT (sizeof(s_pOutroLines) / sizeof(s_pOutroLines[0]))
 
-	copProcessBlocks();
-	vPortWaitForEnd(s_pVp);
+static void campaignResultGsCreate(void) {
+	textBasedGsCreate(s_pOutroLines, OUTRO_LINES_COUNT);
 }
 
 //---------------------------------------------------------- SUBSTATE: MAIN MENU
@@ -904,12 +971,16 @@ tState g_sStateMenu = {
 };
 
 static tState s_sStateCredits = {
-	.cbCreate = creditsGsCreate, .cbLoop = creditsGsLoop
+	.cbCreate = creditsGsCreate, .cbLoop = textBasedGsLoop
 };
 
 static tState s_sStateBattle = {
 	.cbCreate = battleGsCreate, .cbLoop = menuSubstateLoop,
 	.cbDestroy = battleGsDestroy
+};
+
+static tState s_sStateCampaign = {
+	.cbCreate = campaignGsCreate, .cbLoop = 0, .cbDestroy = 0
 };
 
 static tState s_sStateMain = {
@@ -918,4 +989,8 @@ static tState s_sStateMain = {
 
 static tState s_sStateSteer = {
 	.cbCreate = menuSteerGsCreate, .cbLoop = menuSubstateLoop
+};
+
+static tState s_sStateCampaignResult = {
+	.cbCreate = campaignResultGsCreate, .cbLoop = textBasedGsLoop
 };

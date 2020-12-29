@@ -23,4 +23,6 @@ tSteer menuGetSteerForPlayer(UBYTE ubPlayerIdx);
  */
 UBYTE menuIsPlayerActive(UBYTE ubPlayerIdx);
 
+void menuStartWithCampaignResult(void);
+
 #endif // _GERMZ_MENU_H_

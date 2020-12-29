@@ -1,0 +1,13 @@
+{
+	"name": "Campaign 02",
+	"author": "KaiN",
+	"players": 2,
+	"tiles": [
+		".NN.....1..NN.",
+		".NN--1--2--1N."
+	],
+	"playerDefs": [
+		{"ubChargeRate": 10, "ubChargeRateSpecial": 30, "ubPower": 1},
+		{"ubChargeRate": 5, "ubChargeRateSpecial": 5, "ubPower": 2}
+	]
+}

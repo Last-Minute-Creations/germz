@@ -93,12 +93,8 @@ Done:
 	✔ after defeating player, his hud doesn't disappear @done(20-12-17 16:30)
 	✔ pause menu should always be controllable using arrow keys @done(20-12-23 13:14)
 	✔ when restarting match, sometimes hud digits are not cleared @done(20-12-23 14:10)
-
-Now:
-	☐ when playing in teams, hud is not colored
-	☐ when playing in teams, crosshair icon is not shown on hud
 	✔ arrows in list ctl buttons @done(20-12-28 09:07)
-	☐ Campaign:
+	✔ Campaign: @done(20-12-29 17:46)
 		✔ nested folder navigation in list ctl @done(20-12-28 13:26)
 			✔ entering subfolder @done(20-12-26 16:35)
 			✔ going to parent dir @done(20-12-26 17:10)
@@ -110,11 +106,15 @@ Now:
 			✔ apply changes in load dialog @done(20-12-28 13:05)
 			✔ ability to write '/' in save dialog @done(20-12-28 13:05)
 			✔ create directory if not exists when saving map @done(20-12-28 13:26)
-		☐ Start with c01.json map
-		☐ pause: retry
-		☐ Start next map after finishing map
-		☐ Retry/Exit after defeat
-		☐ outro.txt on finishing last map
+		✔ Start with campaign/c01.json map @done(20-12-28 14:05)
+		✔ pause: retry @done(20-12-29 17:46)
+		✔ Start next map after finishing map @done(20-12-29 17:46)
+		✔ Retry/Exit after defeat @done(20-12-29 17:46)
+		✔ outro message when there's no more maps @done(20-12-29 17:45)
+
+Now:
+	☐ when playing in teams, hud is not colored
+	☐ when playing in teams, crosshair icon is not shown on hud
 	☐ proper game init when launched from editor
 	☐ game summary when launched from editor
 	☐ Configurable match count in battle mode

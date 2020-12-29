@@ -78,6 +78,23 @@ static void onGameQuitFadeout(void) {
 	statePop(g_pStateMachineGame);
 }
 
+static void onGameCampaignAdvanceFadeout(void) {
+	s_isQuitting = 0;
+
+	++s_ubCampaignStage;
+	char szPath[30];
+	sprintf(szPath, "data/maps/campaign/c%02hhu.json", s_ubCampaignStage);
+	if(mapDataInitFromFile(&g_sMapData, szPath)) {
+		// Next map
+		stateChange(g_pStateMachineGame, &g_sStateGameInit);
+	}
+	else {
+		// End of campaign
+		menuStartWithCampaignResult();
+		statePop(g_pStateMachineGame);
+	}
+}
+
 void gameQuit(void) {
 	s_isQuitting = 1;
 	fadeSet(s_pFade, FADE_STATE_OUT, 50, onGameQuitFadeout);
@@ -86,6 +103,11 @@ void gameQuit(void) {
 void gameRestart(void) {
 	s_isQuitting = 1;
 	fadeSet(s_pFade, FADE_STATE_OUT, 50, onGameRestartFadeout);
+}
+
+void gameCampaignAdvance(void) {
+	s_isQuitting = 1;
+	fadeSet(s_pFade, FADE_STATE_OUT, 50, onGameCampaignAdvanceFadeout);
 }
 
 UBYTE *gameGetScores(void) {
@@ -108,7 +130,9 @@ UBYTE gamePreprocess(UBYTE isAllowPause) {
 	else if(isAllowPause && (keyUse(KEY_ESCAPE) || keyUse(KEY_P))) {
 		// TODO: if pause is triggered and text is written, be sure to restart HUD
 		// state machine 'cuz it uses global textbitmap
-		gamePauseEnable(PAUSE_KIND_BATTLE_PAUSE);
+		gamePauseEnable(
+			gameIsCampaign() ? PAUSE_KIND_CAMPAIGN_PAUSE : PAUSE_KIND_BATTLE_PAUSE
+		);
 		return 0;
 	}
 	bobNewBegin(s_pBfr->pBack);

@@ -210,6 +210,16 @@ static void gamePlayGsLoop(void) {
 	// Process end of match conditions
 	if(gameIsCampaign()) {
 		// Campaign
+		if(playerFromIdx(PLAYER_1)->isDead) {
+			gamePauseEnable(PAUSE_KIND_CAMPAIGN_DEFEAT);
+		}
+		else if(
+			playerFromIdx(PLAYER_2)->isDead &&
+			playerFromIdx(PLAYER_3)->isDead &&
+			playerFromIdx(PLAYER_4)->isDead
+		) {
+			gamePauseEnable(PAUSE_KIND_CAMPAIGN_WIN);
+		}
 	}
 	else {
 		// Battle

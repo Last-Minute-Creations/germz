@@ -43,6 +43,8 @@ tBitMap *gameGetFrontBuffer(void);
 
 void gameInitMap(void);
 
+void gameCampaignAdvance(void);
+
 //------------------------------------------------------------------------ UTILS
 
 UBYTE gamePreprocess(UBYTE isAllowPause);
