@@ -76,6 +76,7 @@ static const char *s_pMenuCaptions[] = {
 	"CAMPAIGN",
 	"BATTLE",
 	"EDITOR",
+	"HOW TO PLAY",
 	"CREDITS",
 	"CURE"
 };
@@ -91,7 +92,7 @@ static tCbFadeOnDone s_cbOnEscape;
 static tStateManager *s_pStateMachineMenu;
 static tState
 	s_sStateMain, s_sStateBattle, s_sStateCampaign, s_sStateCredits,
-	s_sStateSteer, s_sStateCampaignResult;
+	s_sStateHowTo, s_sStateSteer, s_sStateCampaignResult;
 
 //------------------------------------------------------------------ PRIVATE FNS
 
@@ -362,6 +363,10 @@ static void onCredits(void) {
 	fadeToSubstate(&s_sStateCredits);
 }
 
+static void onHowTo(void) {
+	fadeToSubstate(&s_sStateHowTo);
+}
+
 static void onFadeoutToExit(void) {
 	gameExit();
 }
@@ -374,6 +379,7 @@ static tMenuListOption s_pOptions[] = {
 	{MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onCampaign}},
 	{MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onBattle}},
 	{MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onEditor}},
+	{MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onHowTo}},
 	{MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onCredits}},
 	{MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = fadeToExit}},
 };
@@ -894,6 +900,36 @@ static void creditsGsCreate(void) {
 	textBasedGsCreate(s_pCreditsLines, CREDITS_LINES_COUNT);
 }
 
+//------------------------------------------------------------- SUBSTATE: HOW_TO
+
+static const char *s_pHowToLines[] = {
+	"Use direction keys to navigate between nodes. You can inspect power",
+	"of any node by selecting it and looking at number on your HUD.",
+	"",
+	"While being on node of your colour, hold fire to enter attack mode.",
+	"Press direction keys to use half of the node power to attack",
+	"other nodes. Your HUD also shows the power of your next offence.",
+	"You can transfer power between your nodes to reinforce your defences",
+	"and make your attacks more powerful.",
+	"",
+	"Max power of single node is 100. Nodes regenerate power over time.",
+	"If you exceed max power, it will slowly degrade towards 100.",
+	"You can also find special nodes, which have their power limits",
+	"and recharge rates increased.",
+	"",
+	"The keyboard controls use following keyboard mappings:",
+	"- 'WSAD' uses W, S, A, D keys for directions, Left Shift as fire",
+	"- 'Arrows' uses direction keys and Right Shift as fire",
+	"You can also play using the 4-joystick adapter for parallel port.",
+	"",
+	"Happy infecting!"
+};
+#define HOW_TO_LINES_COUNT (sizeof(s_pHowToLines) / sizeof(s_pHowToLines[0]))
+
+static void howToGsCreate(void) {
+	textBasedGsCreate(s_pHowToLines, HOW_TO_LINES_COUNT);
+}
+
 //---------------------------------------------------- SUBSTATE: CAMPAIGN RESULT
 
 static const char *s_pOutroLines[] = {
@@ -972,6 +1008,10 @@ tState g_sStateMenu = {
 
 static tState s_sStateCredits = {
 	.cbCreate = creditsGsCreate, .cbLoop = textBasedGsLoop
+};
+
+static tState s_sStateHowTo = {
+	.cbCreate = howToGsCreate, .cbLoop = textBasedGsLoop
 };
 
 static tState s_sStateBattle = {

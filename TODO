@@ -114,10 +114,10 @@ Done:
 	✔ remove value_ptr stuff (separate param in menu list) @done(20-12-29 17:58)
 	✔ credits for used fonts @done(20-12-29 18:53)
 	✔ error messages before starting battle (parallel, same controls, etc) @done(20-12-29 20:51)
+	✔ display in visible menu part how keyboard layouts have action button bound (how to play) @done(20-12-30 17:18)
 
 Now:
 	☐ cycle between .mod files
-	☐ display in visible menu part how keyboard layouts have action button bound (how to play)
 	☐ proper handling of game init when launched from editor (which mode?)
 	☐ proper handling of game summary when launched from editor
 	☐ Configurable match count in battle mode (where to put it?)
