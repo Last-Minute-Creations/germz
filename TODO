@@ -116,14 +116,16 @@ Done:
 	✔ error messages before starting battle (parallel, same controls, etc) @done(20-12-29 20:51)
 
 Now:
+	☐ cycle between .mod files
 	☐ display in visible menu part how keyboard layouts have action button bound (how to play)
 	☐ proper handling of game init when launched from editor (which mode?)
 	☐ proper handling of game summary when launched from editor
 	☐ Configurable match count in battle mode (where to put it?)
+	☐ Setting single-player game params in editor
 
 Bugs:
-	☐ when playing in teams, hud is not colored
-	☐ when playing in teams, crosshair icon is not shown on hud
+	✘ when playing in teams, hud is not colored @cancelled(20-12-30 10:50)
+	✘ when playing in teams, crosshair icon is not shown on hud @cancelled(20-12-30 10:50)
 	☐ Sometimes after starting game again pleps are blinking
 	☐ fix ptplayer on higher cpu freq
 	☐ fix plep anim rotations

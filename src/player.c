@@ -151,10 +151,12 @@ UBYTE playerProcess(void) {
 			ptplayerSfxPlay(g_pSfxPlep1, 3, PTPLAYER_VOLUME_MAX, 1);
 		}
 		else if(steerDirCheck(pPlayer->pSteer, DIRECTION_FIRE)) {
-			// Holding fire button - process targeting mode
-			tDirection eDir = steerGetPressedDir(pPlayer->pSteer);
-			if(steerDirUse(pPlayer->pSteer, eDir) && playerSpawnPlep(pPlayer, eDir)) {
-				ptplayerSfxPlay(g_pSfxPlep2, 3, PTPLAYER_VOLUME_MAX, 2);
+			if(pPlayer->isSelectingDestination) {
+				// Holding fire button - process targeting mode
+				tDirection eDir = steerGetPressedDir(pPlayer->pSteer);
+				if(steerDirUse(pPlayer->pSteer, eDir) && playerSpawnPlep(pPlayer, eDir)) {
+					ptplayerSfxPlay(g_pSfxPlep2, 3, PTPLAYER_VOLUME_MAX, 2);
+				}
 			}
 		}
 		else {
