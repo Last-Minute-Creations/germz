@@ -224,8 +224,8 @@ static void gameEditorGsLoop(void) {
 		--s_ubTileDrawCount;
 		for(BYTE bDy = -1; bDy <= 1; ++bDy) {
 			for(BYTE bDx = -1; bDx <= 1; ++bDx) {
-				UBYTE ubX = CLAMP(s_sPlayer.ubX + bDx, 0, MAP_SIZE);
-				UBYTE ubY = CLAMP(s_sPlayer.ubY + bDy, 0, MAP_SIZE);
+				UBYTE ubX = CLAMP(s_sPlayer.ubX + bDx, 0, MAP_SIZE - 1);
+				UBYTE ubY = CLAMP(s_sPlayer.ubY + bDy, 0, MAP_SIZE - 1);
 				if(tileIsLink(g_sMapData.pTiles[ubX][ubY])) {
 					mapDataRecalculateLinkTileAt(&g_sMapData, ubX, ubY);
 				}

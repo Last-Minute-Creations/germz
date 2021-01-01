@@ -117,6 +117,7 @@ Done:
 	✔ display in visible menu part how keyboard layouts have action button bound (how to play) @done(20-12-30 17:18)
 
 Now:
+	☐ Better autoalignment of roads - fix two parallel left-right or up-down ones
 	☐ cycle between .mod files
 	☐ proper handling of game init when launched from editor (which mode?)
 	☐ proper handling of game summary when launched from editor
@@ -137,7 +138,11 @@ Bugs:
 
 Later:
 	☐ AmigaLive release
-		☐ Import/export to/from editor by typing in code
+		✘ Import/export to/from editor by typing in code @cancelled(20-12-31 15:53)
+		☐ Disable campaign
+		☐ Disable editor
+		☐ Disable exiting to OS
+		☐ Enabled by launching using `-amigalive` switch
 	☐ handle map create fail in editor
 	✘ EKG on HUD @cancelled(20-11-01 14:03)
 	☐ special blobs
