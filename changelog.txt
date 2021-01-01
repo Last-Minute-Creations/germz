@@ -1,3 +1,9 @@
+21.1.1
+	- Added "how to play screen"
+	- Fixed going out of bounds in editor
+	- When testing map, ESC/P buttons bring back the editor
+	- Better autocalculating path direction in editor, unoptimized a bit
+
 20.12.29
 	- Fixed player HUD not being cleared after being defeated
 	- Fixed being able to enter targeting mode when selecting non-owned node
