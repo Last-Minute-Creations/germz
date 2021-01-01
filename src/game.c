@@ -128,11 +128,20 @@ UBYTE gamePreprocess(UBYTE isAllowPause) {
 		return 0;
 	}
 	else if(isAllowPause && (keyUse(KEY_ESCAPE) || keyUse(KEY_P))) {
-		// TODO: if pause is triggered and text is written, be sure to restart HUD
-		// state machine 'cuz it uses global textbitmap
-		gamePauseEnable(
-			gameIsCampaign() ? PAUSE_KIND_CAMPAIGN_PAUSE : PAUSE_KIND_BATTLE_PAUSE
-		);
+		if(s_isEditor) {
+			// Ensure that player pushes off that button so it won't bug editor
+			while(keyCheck(KEY_ESCAPE) || keyCheck(KEY_P)) {
+				keyProcess();
+			}
+			stateChange(g_pStateMachineGame, &g_sStateEditor);
+		}
+		else {
+			// TODO: if pause is triggered and text is written, be sure to restart HUD
+			// state machine 'cuz it uses global textbitmap
+			gamePauseEnable(
+				gameIsCampaign() ? PAUSE_KIND_CAMPAIGN_PAUSE : PAUSE_KIND_BATTLE_PAUSE
+			);
+		}
 		return 0;
 	}
 	bobNewBegin(s_pBfr->pBack);

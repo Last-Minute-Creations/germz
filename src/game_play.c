@@ -188,14 +188,6 @@ static void gamePlayGsCreate(void) {
 }
 
 static void gamePlayGsLoop(void) {
-	if(keyUse(KEY_F1)) {
-		// Ensure that player pushes off that button so it won't bug editor
-		while(keyCheck(KEY_F1)) {
-			keyProcess();
-		}
-		stateChange(g_pStateMachineGame, &g_sStateEditor);
-		return;
-	}
 	if(!gamePreprocess(1)) {
 		return;
 	}
