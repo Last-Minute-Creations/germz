@@ -206,33 +206,59 @@ UBYTE mapDataSaveToFile(const tMapData *pMapData, const char *szPath) {
 	return 1;
 }
 
-void mapDataRecalculateLinkTileAt(tMapData *pMapData, UBYTE ubX, UBYTE ubY) {
+UBYTE mapDataRecalculateLinkTileAt(tMapData *pMapData, UBYTE ubX, UBYTE ubY) {
 	UBYTE isHorizontal = 0, isVertical = 0;
 	tTile eTile;
-	if(ubX > 0) {
-		eTile = pMapData->pTiles[ubX - 1][ubY];
-		if(tileIsLink(eTile) || tileIsNode(eTile)) {
+
+	// Test for connection with node to the left
+	BYTE bTestX = ubX;
+	while(--bTestX > 0) {
+		eTile = pMapData->pTiles[bTestX][ubY];
+		if(tileIsNode(eTile)) {
 			isHorizontal = 1;
+			break;
 		}
-	}
-	if(ubX < MAP_SIZE - 1) {
-		eTile = pMapData->pTiles[ubX + 1][ubY];
-		if(tileIsLink(eTile) || tileIsNode(eTile)) {
-			isHorizontal = 1;
+		else if(!tileIsLink(eTile)) {
+			break;
 		}
 	}
 
-	if(ubY > 0) {
-		eTile = pMapData->pTiles[ubX][ubY - 1];
-		if(tileIsLink(eTile) || tileIsNode(eTile)) {
-			isVertical = 1;
+	// Test for connection with node to the right
+	bTestX = ubX;
+	while(++bTestX < MAP_SIZE) {
+		eTile = pMapData->pTiles[bTestX][ubY];
+		if(tileIsNode(eTile)) {
+			isHorizontal = 1;
+			break;
+		}
+		else if(!tileIsLink(eTile)) {
+			break;
 		}
 	}
 
-	if(ubY < MAP_SIZE - 1) {
-		eTile = pMapData->pTiles[ubX][ubY + 1];
-		if(tileIsLink(eTile) || tileIsNode(eTile)) {
+	// Test for connection with node upwards
+	BYTE bTestY = ubY;
+	while(--bTestY > 0) {
+		eTile = pMapData->pTiles[ubX][bTestY];
+		if(tileIsNode(eTile)) {
 			isVertical = 1;
+			break;
+		}
+		else if(!tileIsLink(eTile)) {
+			break;
+		}
+	}
+
+	// Test for connection with node downwards
+	bTestY = ubY;
+	while(++bTestY < MAP_SIZE) {
+		eTile = pMapData->pTiles[ubX][bTestY];
+		if(tileIsNode(eTile)) {
+			isVertical = 1;
+			break;
+		}
+		else if(!tileIsLink(eTile)) {
+			break;
 		}
 	}
 
@@ -246,7 +272,9 @@ void mapDataRecalculateLinkTileAt(tMapData *pMapData, UBYTE ubX, UBYTE ubY) {
 		eTile = TILE_PATH_V1;
 	}
 	eTile += ((ubX + ubY) & 3);
+	UBYTE isTileChanged = (pMapData->pTiles[ubX][ubY] != eTile);
 	pMapData->pTiles[ubX][ubY] = eTile;
+	return isTileChanged;
 }
 
 UBYTE mapDataGetPlayerCount(const tMapData *pMapData) {

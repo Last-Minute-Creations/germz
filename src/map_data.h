@@ -66,7 +66,7 @@ UBYTE tileIsNode(tTile eTile);
 
 void mapDataRecalculateStuff(tMapData *pMapData);
 
-void mapDataRecalculateLinkTileAt(tMapData *pMapData, UBYTE ubX, UBYTE ubY);
+UBYTE mapDataRecalculateLinkTileAt(tMapData *pMapData, UBYTE ubX, UBYTE ubY);
 
 UBYTE mapDataGetPlayerCount(const tMapData *pMapData);
 

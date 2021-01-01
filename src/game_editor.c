@@ -48,7 +48,14 @@ static tBobNew s_sBobBtnTile, s_sBobLedTile, s_sBobBtnFn, s_sBobLedColor;
 static UBYTE s_ubCurrentColor;
 static UBYTE s_ubTileDrawCount, s_ubPaletteDrawCount;
 
-static void editorDrawMapTileAt(tUbCoordYX sPosTile) {
+static UBYTE editorDrawMapTileAt(tUbCoordYX sPosTile) {
+	UBYTE isUpdated = 1;
+	if(
+		tileIsLink(g_sMapData.pTiles[sPosTile.ubX][sPosTile.ubY]) &&
+		!mapDataRecalculateLinkTileAt(&g_sMapData, sPosTile.ubX, sPosTile.ubY)
+	) {
+		// isUpdated = 0;
+	}
 	const UBYTE ubFrame = BLOB_FRAME_COUNT - 1;
 	blitRect(
 		gameGetBackBuffer(), sPosTile.ubX * MAP_TILE_SIZE, sPosTile.ubY * MAP_TILE_SIZE,
@@ -59,6 +66,7 @@ static void editorDrawMapTileAt(tUbCoordYX sPosTile) {
 		sPosTile.ubX * MAP_TILE_SIZE, sPosTile.ubY * MAP_TILE_SIZE, ubFrame
 	);
 	gameDrawMapTileAt(sPosTile, ubFrame);
+	return isUpdated;
 }
 
 static void setPaletteBlobColor(UBYTE ubColor) {
@@ -222,15 +230,32 @@ static void gameEditorGsLoop(void) {
 	}
 	else if(s_ubTileDrawCount) {
 		--s_ubTileDrawCount;
-		for(BYTE bDy = -1; bDy <= 1; ++bDy) {
-			for(BYTE bDx = -1; bDx <= 1; ++bDx) {
-				UBYTE ubX = CLAMP(s_sPlayer.ubX + bDx, 0, MAP_SIZE - 1);
-				UBYTE ubY = CLAMP(s_sPlayer.ubY + bDy, 0, MAP_SIZE - 1);
-				if(tileIsLink(g_sMapData.pTiles[ubX][ubY])) {
-					mapDataRecalculateLinkTileAt(&g_sMapData, ubX, ubY);
-				}
-				tUbCoordYX sPos = {.ubX = ubX, .ubY = ubY};
-				editorDrawMapTileAt(sPos);
+
+		tUbCoordYX sPosCurr = {.ubX = s_sPlayer.ubX, .ubY = s_sPlayer.ubY};
+		editorDrawMapTileAt(sPosCurr);
+
+		for(BYTE bX = s_sPlayer.ubX; --bX > 0;) {
+			tUbCoordYX sPos = {.ubX = bX, .ubY = s_sPlayer.ubY};
+			if(!editorDrawMapTileAt(sPos)) {
+				break;
+			}
+		}
+		for(BYTE bX = s_sPlayer.ubX; ++bX < MAP_SIZE;) {
+			tUbCoordYX sPos = {.ubX = bX, .ubY = s_sPlayer.ubY};
+			if(!editorDrawMapTileAt(sPos)) {
+				break;
+			}
+		}
+		for(BYTE bY = s_sPlayer.ubY; --bY > 0;) {
+			tUbCoordYX sPos = {.ubX = s_sPlayer.ubX, .ubY = bY};
+			if(!editorDrawMapTileAt(sPos)) {
+				break;
+			}
+		}
+		for(BYTE bY = s_sPlayer.ubY; ++bY < MAP_SIZE;) {
+			tUbCoordYX sPos = {.ubX = s_sPlayer.ubX, .ubY = bY};
+			if(!editorDrawMapTileAt(sPos)) {
+				break;
 			}
 		}
 	}
