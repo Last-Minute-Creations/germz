@@ -1,3 +1,13 @@
+21.1.4
+	- Added special nodes with global effect - effect scales per each controlled node
+	- Added special attack node which adds flat boost to attack power
+	- Added special tick node which shortens node power regen period
+	- Special capacity node increases max capacity of each controlled node
+	- Disabled auto alignment of paths in editor
+	- Removed support for map's per-player initial stats
+	- Changed format of defs.json to reflect above changes
+	- Regen ticks are now defined as 1 tick = 1 frame (was: 1 tick = 5 frames)
+
 21.1.1
 	- Added "how to play screen"
 	- Fixed going out of bounds in editor
