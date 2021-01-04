@@ -12,15 +12,14 @@
 #define BLOB_COLOR_COUNT 5
 #define BLOB_FRAME_COUNT 9
 
-typedef struct _tDefsNode {
+typedef struct _tNodeModsBase {
 	UBYTE ubChargeRate;
 	UBYTE ubChargeRateNeutral;
 	WORD wCapacity;
-} tDefsNode;
+} tNodeModsBase;
 
 typedef struct _tDefs {
-	tDefsNode sNodeBasic;
-	tDefsNode sNodeSpecial;
+	tNodeModsBase sBaseMods;
 } tDefs;
 
 /**

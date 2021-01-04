@@ -115,9 +115,29 @@ Done:
 	✔ credits for used fonts @done(20-12-29 18:53)
 	✔ error messages before starting battle (parallel, same controls, etc) @done(20-12-29 20:51)
 	✔ display in visible menu part how keyboard layouts have action button bound (how to play) @done(20-12-30 17:18)
+	✔ Special blobs revamp @done(21-01-04 11:17)
+		✔ 3 types: charge, capacity, power @done(21-01-04 09:30)
+		✔ charge: less ticks per regen @done(21-01-04 11:17)
+		✔ capacity: max capacity after ticks @done(21-01-04 11:17)
+		✔ power: flat attack bonus in takeovers @done(21-01-04 11:17)
+		✔ improve/impair bonus per capture of special node @done(21-01-04 11:17)
+			✔ each type grants global bonuses which increase depending how many are captured @done(21-01-04 11:17)
+			✔ improve on capture for given player @done(21-01-04 11:17)
+			✔ impair when player loses node @done(21-01-04 11:17)
+		✔ editor @done(21-01-04 11:17)
+			✔ add buttons to palette @done(21-01-04 09:30)
+			✔ cycle colors when changing player @done(21-01-04 09:30)
+			✔ export to map file @done(21-01-04 09:30)
+			✔ import from map file - ascii codes @done(21-01-04 09:30)
+		✔ neutral specials don't affect other neutral blobs @done(21-01-04 11:17)
+		✔ colored special nodes are recognized as owned by proper player @done(21-01-04 11:17)
+		✔ each player starts with same base values of modifiers @done(21-01-04 11:17)
+	✔ Manual path layout @done(21-01-04 11:17)
+		✔ Editor: buttons for selecting horizontal, vertical, crossroad @done(21-01-04 11:17)
+		✔ disable autoalignemnt of paths in editor @done(21-01-04 11:17)
+	✘ Better autoalignment of roads - fix two parallel left-right or up-down ones @cancelled(21-01-04 11:17)
 
 Now:
-	☐ Better autoalignment of roads - fix two parallel left-right or up-down ones
 	☐ cycle between .mod files
 	☐ proper handling of game init when launched from editor (which mode?)
 	☐ proper handling of game summary when launched from editor

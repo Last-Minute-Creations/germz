@@ -10,16 +10,26 @@
 
 static const char s_pTileToChar[TILE_COUNT] = {'\0',
 	[TILE_BLANK] = '.',
-	[TILE_BLOB_NEUTRAL] = 'N',
 	[TILE_BLOB_P1] = '1',
 	[TILE_BLOB_P2] = '2',
 	[TILE_BLOB_P3] = '3',
 	[TILE_BLOB_P4] = '4',
-	[TILE_SUPER_P1] = 'A',
-	[TILE_SUPER_P2] = 'B',
-	[TILE_SUPER_P3] = 'C',
-	[TILE_SUPER_P4] = 'D',
-	[TILE_SUPER_NEUTRAL] = 'X',
+	[TILE_BLOB_NEUTRAL] = 'N',
+	[TILE_SUPER_CAP_P1] = 'A',
+	[TILE_SUPER_CAP_P2] = 'B',
+	[TILE_SUPER_CAP_P3] = 'C',
+	[TILE_SUPER_CAP_P4] = 'D',
+	[TILE_SUPER_CAP_NEUTRAL] = 'X',
+	[TILE_SUPER_TICK_P1] = 'E',
+	[TILE_SUPER_TICK_P2] = 'F',
+	[TILE_SUPER_TICK_P3] = 'G',
+	[TILE_SUPER_TICK_P4] = 'H',
+	[TILE_SUPER_TICK_NEUTRAL] = 'Y',
+	[TILE_SUPER_ATK_P1] = 'J',
+	[TILE_SUPER_ATK_P2] = 'K',
+	[TILE_SUPER_ATK_P3] = 'L',
+	[TILE_SUPER_ATK_P4] = 'M',
+	[TILE_SUPER_ATK_NEUTRAL] = 'Z',
 	[TILE_PATH_H1...TILE_PATH_H4] = '-',
 	[TILE_PATH_V1...TILE_PATH_V4] = '|',
 	[TILE_PATH_X1...TILE_PATH_X4] = '+',
@@ -89,39 +99,6 @@ UBYTE mapDataInitFromFile(tMapData *pMapData, const char *szPath) {
 				logWrite("ERR: Can't find tile for '%c' at %hu,%hu\n", pRow[x], x, y);
 				goto end;
 			}
-		}
-	}
-
-	for(UBYTE i = 0; i < 4; ++i) {
-		char szDom[40];
-		sprintf(szDom, "playerData[%hhu].ubChargeRate", i);
-		UWORD uwTokPlayerRate = jsonGetDom(pJson, szDom);
-		if(uwTokPlayerRate) {
-			ULONG ulVal = jsonTokToUlong(pJson, uwTokPlayerRate);
-			pMapData->pPlayerData[i].ubChargeRate = ulVal;
-		}
-		else {
-			pMapData->pPlayerData[i].ubChargeRate = g_sDefs.sNodeBasic.ubChargeRate;
-		}
-
-		sprintf(szDom, "playerData[%hhu].ubChargeRateSpecial", i);
-		UWORD uwTokPlayerRateSpecial = jsonGetDom(pJson, szDom);
-		if(uwTokPlayerRateSpecial) {
-			ULONG ulVal = jsonTokToUlong(pJson, uwTokPlayerRateSpecial);
-			pMapData->pPlayerData[i].ubChargeRateSpecial = ulVal;
-		}
-		else {
-			pMapData->pPlayerData[i].ubChargeRateSpecial = g_sDefs.sNodeSpecial.ubChargeRate;
-		}
-
-		sprintf(szDom, "playerData[%hhu].ubPower", i);
-		UWORD uwTokPower = jsonGetDom(pJson, szDom);
-		if(uwTokPower) {
-			ULONG ulVal = jsonTokToUlong(pJson, uwTokPower);
-			pMapData->pPlayerData[i].ubPower = ulVal;
-		}
-		else {
-			pMapData->pPlayerData[i].ubPower = 1;
 		}
 	}
 
@@ -204,77 +181,6 @@ UBYTE mapDataSaveToFile(const tMapData *pMapData, const char *szPath) {
 	logBlockEnd("mapDataSaveToFile()");
 	systemUnuse();
 	return 1;
-}
-
-UBYTE mapDataRecalculateLinkTileAt(tMapData *pMapData, UBYTE ubX, UBYTE ubY) {
-	UBYTE isHorizontal = 0, isVertical = 0;
-	tTile eTile;
-
-	// Test for connection with node to the left
-	BYTE bTestX = ubX;
-	while(--bTestX > 0) {
-		eTile = pMapData->pTiles[bTestX][ubY];
-		if(tileIsNode(eTile)) {
-			isHorizontal = 1;
-			break;
-		}
-		else if(!tileIsLink(eTile)) {
-			break;
-		}
-	}
-
-	// Test for connection with node to the right
-	bTestX = ubX;
-	while(++bTestX < MAP_SIZE) {
-		eTile = pMapData->pTiles[bTestX][ubY];
-		if(tileIsNode(eTile)) {
-			isHorizontal = 1;
-			break;
-		}
-		else if(!tileIsLink(eTile)) {
-			break;
-		}
-	}
-
-	// Test for connection with node upwards
-	BYTE bTestY = ubY;
-	while(--bTestY > 0) {
-		eTile = pMapData->pTiles[ubX][bTestY];
-		if(tileIsNode(eTile)) {
-			isVertical = 1;
-			break;
-		}
-		else if(!tileIsLink(eTile)) {
-			break;
-		}
-	}
-
-	// Test for connection with node downwards
-	bTestY = ubY;
-	while(++bTestY < MAP_SIZE) {
-		eTile = pMapData->pTiles[ubX][bTestY];
-		if(tileIsNode(eTile)) {
-			isVertical = 1;
-			break;
-		}
-		else if(!tileIsLink(eTile)) {
-			break;
-		}
-	}
-
-	if(isHorizontal && isVertical) {
-		eTile = TILE_PATH_X1;
-	}
-	else if(isHorizontal) {
-		eTile = TILE_PATH_H1;
-	}
-	else { // isVertical
-		eTile = TILE_PATH_V1;
-	}
-	eTile += ((ubX + ubY) & 3);
-	UBYTE isTileChanged = (pMapData->pTiles[ubX][ubY] != eTile);
-	pMapData->pTiles[ubX][ubY] = eTile;
-	return isTileChanged;
 }
 
 UBYTE mapDataGetPlayerCount(const tMapData *pMapData) {

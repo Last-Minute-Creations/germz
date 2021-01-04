@@ -45,24 +45,24 @@ static UBYTE plepSinkInNode(tPlep *pPlep) {
 	}
 	else {
 		// logWrite("Attacking blob %hd with plep %hd\n", pNode->wCharges, pPlep->wCharges);
-		// Attack with plep's charges!
-		UBYTE ubPower = pPlep->pPlayer->pMapData->ubPower;
-		pNode->wCharges -= pPlep->wCharges * ubPower;
+		// Attack with plep's charges! Attack bonus only helps in bringing to neutral
+		UBYTE ubPower = pPlep->pPlayer->pMods->ubPower;
+		WORD wDefenderCharges = pNode->wCharges;
+		pNode->wCharges -= pPlep->wCharges + ubPower;
 		if(pNode->wCharges <= 0) {
-			// Negative charge - downgrade power and check if blob is really captured
-			pNode->wCharges = -pNode->wCharges;
-			if(pNode->wCharges < ubPower) {
-				// Zero charges in blob or too little to survive downgrade - make it neutral
+			// Negative charge - omit power bonus and check if blob is really captured
+			if(wDefenderCharges >= pPlep->wCharges) {
+				// Blob alone is stronger than plep -> make it neutral
 				if(pNode->pPlayer) {
 					// logWrite("Draw! To neutral\n");
+					pNode->wCharges = 0;
 					nodeChangeOwnership(pNode, 0);
-					// TODO: if player is selecting from that blob, remove selection
-					// TODO: test it
+					// TODO: if player is selecting from that blob, remove selection - test it!
 				}
 			}
 			else {
 				// Blob captured
-				pNode->wCharges = (UWORD)pNode->wCharges / ubPower;
+				pNode->wCharges = -pNode->wCharges;
 				nodeChangeOwnership(pNode, pPlep->pPlayer);
 				isCaptureSuccess = 1;
 				// logWrite("Capture! %hd\n", pNode->wCharges);

@@ -15,7 +15,10 @@
 
 typedef enum _tNodeType {
 	NODE_TYPE_NORMAL,
-	NODE_TYPE_SUPER,
+	NODE_TYPE_SUPER_CAP,
+	NODE_TYPE_SUPER_TICK,
+	NODE_TYPE_SUPER_ATK,
+	NODE_TYPE_COUNT
 } tNodeType;
 
 typedef struct _tNode {
@@ -24,9 +27,7 @@ typedef struct _tNode {
 	struct _tPlayer *pPlayer;
 	struct _tNode *pNeighbors[DIRECTION_COUNT - 1];
 	WORD wCharges;
-	WORD wCapacity; ///< Max amount of charges.
 	UBYTE ubChargeClock;
-	UBYTE ubChargeRate; ///< How many ticks before gaining next charge, 1 unit is MAP_TICK_RATE frames.
 	tNodeType eType;
 } tNode;
 

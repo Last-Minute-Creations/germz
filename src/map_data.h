@@ -17,11 +17,21 @@ typedef enum _tTile {
 	TILE_BLOB_P3,
 	TILE_BLOB_P4,
 	TILE_BLOB_NEUTRAL,
-	TILE_SUPER_P1,
-	TILE_SUPER_P2,
-	TILE_SUPER_P3,
-	TILE_SUPER_P4,
-	TILE_SUPER_NEUTRAL,
+	TILE_SUPER_CAP_P1,
+	TILE_SUPER_CAP_P2,
+	TILE_SUPER_CAP_P3,
+	TILE_SUPER_CAP_P4,
+	TILE_SUPER_CAP_NEUTRAL,
+	TILE_SUPER_TICK_P1,
+	TILE_SUPER_TICK_P2,
+	TILE_SUPER_TICK_P3,
+	TILE_SUPER_TICK_P4,
+	TILE_SUPER_TICK_NEUTRAL,
+	TILE_SUPER_ATK_P1,
+	TILE_SUPER_ATK_P2,
+	TILE_SUPER_ATK_P3,
+	TILE_SUPER_ATK_P4,
+	TILE_SUPER_ATK_NEUTRAL,
 	TILE_BLOB_COUNT,
 	TILE_BLANK = TILE_BLOB_COUNT,
 	TILE_EDITOR_BLANK,
@@ -40,18 +50,18 @@ typedef enum _tTile {
 	TILE_COUNT
 } tTile;
 
-typedef struct _tMapPlayerData {
+typedef struct _tPlayerMapModifiers {
 	UBYTE ubChargeRate;
-	UBYTE ubChargeRateSpecial;
-	UBYTE ubPower;
-} tMapPlayerData;
+	UBYTE ubPower; ///< Flat attack bonus.
+	WORD wCapacity; ///< Capacity of each node.
+} tPlayerMapModifiers;
 
 typedef struct _tMapData {
 	char szName[MAP_NAME_MAX];
 	char szAuthor[MAP_AUTHOR_MAX];
 	UBYTE ubPlayerMask;
 	tTile pTiles[MAP_SIZE][MAP_SIZE];
-	tMapPlayerData pPlayerData[4];
+	tPlayerMapModifiers pPlayerData[4];
 } tMapData;
 
 UBYTE mapDataInitFromFile(tMapData *pMapData, const char *szPath);
@@ -65,8 +75,6 @@ UBYTE tileIsLink(tTile eTile);
 UBYTE tileIsNode(tTile eTile);
 
 void mapDataRecalculateStuff(tMapData *pMapData);
-
-UBYTE mapDataRecalculateLinkTileAt(tMapData *pMapData, UBYTE ubX, UBYTE ubY);
 
 UBYTE mapDataGetPlayerCount(const tMapData *pMapData);
 

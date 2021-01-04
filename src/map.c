@@ -11,23 +11,16 @@
 #include "blob_anim.h"
 #include "assets.h"
 
-static void nodeUpdateChargeRate(tNode *pNode) {
-	if(pNode->pPlayer) {
-		if(pNode->eType == NODE_TYPE_SUPER) {
-			pNode->ubChargeRate = pNode->pPlayer->pMapData->ubChargeRateSpecial;
-		}
-		else {
-			pNode->ubChargeRate = pNode->pPlayer->pMapData->ubChargeRate;
-		}
-	}
-	else {
-		if(pNode->eType == NODE_TYPE_SUPER) {
-			pNode->ubChargeRate = g_sDefs.sNodeSpecial.ubChargeRateNeutral;
-		}
-		else {
-			pNode->ubChargeRate = g_sDefs.sNodeBasic.ubChargeRateNeutral;
-		}
-	}
+static void recalcMods(tPlayer *pPlayer) {
+	BYTE bCntTick = pPlayer->pNodeTypeCounts[NODE_TYPE_SUPER_TICK];
+	BYTE bCntCap = pPlayer->pNodeTypeCounts[NODE_TYPE_SUPER_CAP];
+	BYTE bCntAtk = pPlayer->pNodeTypeCounts[NODE_TYPE_SUPER_ATK];
+
+	pPlayer->pMods->ubChargeRate = MAX(
+		5, g_sDefs.sBaseMods.ubChargeRate - (5 * bCntTick)
+	);
+	pPlayer->pMods->wCapacity = g_sDefs.sBaseMods.wCapacity + 20 * bCntCap;
+	pPlayer->pMods->ubPower = bCntAtk * 3;
 }
 
 static tNode *nodeAdd(UBYTE ubX, UBYTE ubY, tTile eTile) {
@@ -43,14 +36,6 @@ static tNode *nodeAdd(UBYTE ubX, UBYTE ubY, tTile eTile) {
 	}
 	pNode->pPlayer = playerFromTile(eTile);
 	pNode->eType = nodeTypeFromTile(eTile);
-
-	if(pNode->eType == NODE_TYPE_SUPER) {
-		pNode->wCapacity = g_sDefs.sNodeSpecial.wCapacity;
-	}
-	else {
-		pNode->wCapacity = g_sDefs.sNodeBasic.wCapacity;
-	}
-
 	pNode->ubChargeClock = 0;
 	if(pNode->pPlayer) {
 		pNode->wCharges = 60;
@@ -59,7 +44,6 @@ static tNode *nodeAdd(UBYTE ubX, UBYTE ubY, tTile eTile) {
 	else {
 		pNode->wCharges = 20;
 	}
-	nodeUpdateChargeRate(pNode);
 
 	pNode->ubIdx = g_sMap.uwNodeCount;
 	++g_sMap.uwNodeCount;
@@ -145,48 +129,65 @@ void mapInitFromMapData(void) {
 }
 
 void mapProcessNodes(void) {
-	++g_sMap.ubChargeClock;
-	if(g_sMap.ubChargeClock >= 5) {
-		g_sMap.ubChargeClock = 0;
+	// ++g_sMap.ubChargeClock;
+	// if(g_sMap.ubChargeClock >= 5) {
+	// 	g_sMap.ubChargeClock = 0;
 		for(UBYTE i = 0; i < g_sMap.uwNodeCount; ++i) {
 			tNode *pNode = &g_sMap.pNodes[i];
 			++pNode->ubChargeClock;
-			if(
-				pNode->wCharges < pNode->wCapacity &&
-				pNode->ubChargeClock >= pNode->ubChargeRate
-			) {
+			WORD wCapacity;
+			UBYTE ubChargeRate;
+			if(pNode->pPlayer) {
+				const tPlayerMapModifiers *pNodeMods = pNode->pPlayer->pMods;
+				ubChargeRate = pNodeMods->ubChargeRate;
+				wCapacity = pNodeMods->wCapacity;
+			}
+			else {
+				ubChargeRate = g_sDefs.sBaseMods.ubChargeRateNeutral;
+				wCapacity = g_sDefs.sBaseMods.wCapacity;
+			}
+			if(pNode->wCharges < wCapacity && pNode->ubChargeClock >= ubChargeRate) {
 				pNode->ubChargeClock = 0;
 				++pNode->wCharges;
 			}
-			else if (
-				pNode->wCharges > pNode->wCapacity &&
-				++pNode->ubChargeClock >= 100
-			) {
+			else if (pNode->wCharges > wCapacity && pNode->ubChargeClock >= 100) {
 				pNode->ubChargeClock = 0;
 				--pNode->wCharges;
 			}
 		}
-	}
+	// }
 }
 
 void nodeChangeOwnership(tNode *pNode, tPlayer *pPlayer) {
 	if(pNode->pPlayer) {
 		--pNode->pPlayer->bNodeCount;
+		--pNode->pPlayer->pNodeTypeCounts[pNode->eType];
+		if(pNode->eType != NODE_TYPE_NORMAL) {
+			recalcMods(pNode->pPlayer);
+		}
 		playerUpdateDead(pNode->pPlayer);
 	}
 	pNode->pPlayer = pPlayer;
 	if(pPlayer) {
 		++pPlayer->bNodeCount;
+		++pPlayer->pNodeTypeCounts[pNode->eType];
+		if(pNode->eType != NODE_TYPE_NORMAL) {
+			recalcMods(pPlayer);
+		}
 	}
-	nodeUpdateChargeRate(pNode);
 	blobAnimAddToQueue(pNode);
 }
 
 void mapUpdateNodeCountForPlayers(void) {
 	for(UBYTE i = 0; i < g_sMap.uwNodeCount; ++i) {
-		if(g_sMap.pNodes[i].pPlayer) {
-			++g_sMap.pNodes[i].pPlayer->bNodeCount;
+		tNode *pNode = &g_sMap.pNodes[i];
+		if(pNode->pPlayer) {
+			++pNode->pPlayer->bNodeCount;
+			++pNode->pPlayer->pNodeTypeCounts[pNode->eType];
 		}
+	}
+	for(tPlayerIdx ePlayerIdx = PLAYER_1; ePlayerIdx <= PLAYER_4; ++ePlayerIdx) {
+		recalcMods(playerFromIdx(ePlayerIdx));
 	}
 }
 
@@ -194,24 +195,36 @@ tMapData g_sMapData;
 tMap g_sMap;
 
 tNodeType nodeTypeFromTile(tTile eTile) {
-	if(eTile <= TILE_BLOB_NEUTRAL) {
-		return NODE_TYPE_NORMAL;
+	if(eTile >= TILE_SUPER_ATK_P1) {
+		return NODE_TYPE_SUPER_ATK;
 	}
-	else { // eTile <= TILE_SUPER_NEUTRAL
-		return NODE_TYPE_SUPER;
+	else if(eTile >= TILE_SUPER_TICK_P1) {
+		return NODE_TYPE_SUPER_TICK;
+	}
+	else if(eTile >= TILE_SUPER_CAP_P1) {
+		return NODE_TYPE_SUPER_CAP;
+	}
+	else { // eTile >= TILE_BLOB_P1
+		return NODE_TYPE_NORMAL;
 	}
 }
 
 tTile nodeToTile(const tNode *pNode) {
 	tTile eTile;
 	switch(pNode->eType) {
-		case NODE_TYPE_SUPER:
-			eTile = TILE_SUPER_P1;
+		case NODE_TYPE_SUPER_CAP:
+			eTile = TILE_SUPER_CAP_P1;
+			break;
+		case NODE_TYPE_SUPER_TICK:
+			eTile = TILE_SUPER_TICK_P1;
+			break;
+		case NODE_TYPE_SUPER_ATK:
+			eTile = TILE_SUPER_ATK_P1;
 			break;
 		default:
 			eTile = TILE_BLOB_P1;
 			break;
 	}
-	eTile +=  playerToIdx(pNode->pPlayer) - PLAYER_1;
+	eTile += playerToIdx(pNode->pPlayer) - PLAYER_1;
 	return eTile;
 }

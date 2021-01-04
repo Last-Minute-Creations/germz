@@ -11,29 +11,17 @@ void assetsGlobalCreate(void) {
 	// Defs
 	tJson *pJsonDefs = jsonCreate("data/defs.json");
 
-	UWORD uwTokJson = jsonGetDom(pJsonDefs, "nodes.basic.ubChargeRate");
+	UWORD uwTokJson = jsonGetDom(pJsonDefs, "baseMods.ubChargeRate");
 	ULONG ulVal = jsonTokToUlong(pJsonDefs, uwTokJson);
-	g_sDefs.sNodeBasic.ubChargeRate = ulVal;
+	g_sDefs.sBaseMods.ubChargeRate = ulVal;
 
-	uwTokJson = jsonGetDom(pJsonDefs, "nodes.basic.ubChargeRateNeutral");
+	uwTokJson = jsonGetDom(pJsonDefs, "baseMods.ubChargeRateNeutral");
 	ulVal = jsonTokToUlong(pJsonDefs, uwTokJson);
-	g_sDefs.sNodeBasic.ubChargeRateNeutral = ulVal;
+	g_sDefs.sBaseMods.ubChargeRateNeutral = ulVal;
 
-	uwTokJson = jsonGetDom(pJsonDefs, "nodes.basic.wCapacity");
+	uwTokJson = jsonGetDom(pJsonDefs, "baseMods.wCapacity");
 	ulVal = jsonTokToUlong(pJsonDefs, uwTokJson);
-	g_sDefs.sNodeBasic.wCapacity = ulVal;
-
-	uwTokJson = jsonGetDom(pJsonDefs, "nodes.special.ubChargeRate");
-	ulVal = jsonTokToUlong(pJsonDefs, uwTokJson);
-	g_sDefs.sNodeSpecial.ubChargeRate = ulVal;
-
-	uwTokJson = jsonGetDom(pJsonDefs, "nodes.special.ubChargeRateNeutral");
-	ulVal = jsonTokToUlong(pJsonDefs, uwTokJson);
-	g_sDefs.sNodeSpecial.ubChargeRateNeutral = ulVal;
-
-	uwTokJson = jsonGetDom(pJsonDefs, "nodes.special.wCapacity");
-	ulVal = jsonTokToUlong(pJsonDefs, uwTokJson);
-	g_sDefs.sNodeSpecial.wCapacity = ulVal;
+	g_sDefs.sBaseMods.wCapacity = ulVal;
 
 	jsonDestroy(pJsonDefs);
 

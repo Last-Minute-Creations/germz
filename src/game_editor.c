@@ -37,8 +37,8 @@ static tSteer s_sSteerKey, s_sSteerJoy;
 static ULONG s_ulRepeatCounter;
 
 static tTile s_pMenuTiles[] = {
-	TILE_BLOB_P1, TILE_SUPER_P1, TILE_PATH_X1, TILE_BLANK, TILE_BLANK, TILE_BLANK,
-	TILE_BLANK, TILE_BLANK, TILE_BLANK
+	TILE_BLOB_P1, TILE_SUPER_CAP_P1, TILE_SUPER_TICK_P1, TILE_SUPER_ATK_P1,
+	TILE_PATH_H1, TILE_PATH_V1, TILE_PATH_X1, TILE_BLANK, TILE_BLANK
 };
 static const UBYTE s_ubMenuPosCount = sizeof(s_pMenuTiles) / sizeof(s_pMenuTiles[0]);
 
@@ -48,14 +48,7 @@ static tBobNew s_sBobBtnTile, s_sBobLedTile, s_sBobBtnFn, s_sBobLedColor;
 static UBYTE s_ubCurrentColor;
 static UBYTE s_ubTileDrawCount, s_ubPaletteDrawCount;
 
-static UBYTE editorDrawMapTileAt(tUbCoordYX sPosTile) {
-	UBYTE isUpdated = 1;
-	if(
-		tileIsLink(g_sMapData.pTiles[sPosTile.ubX][sPosTile.ubY]) &&
-		!mapDataRecalculateLinkTileAt(&g_sMapData, sPosTile.ubX, sPosTile.ubY)
-	) {
-		// isUpdated = 0;
-	}
+static void editorDrawMapTileAt(tUbCoordYX sPosTile) {
 	const UBYTE ubFrame = BLOB_FRAME_COUNT - 1;
 	blitRect(
 		gameGetBackBuffer(), sPosTile.ubX * MAP_TILE_SIZE, sPosTile.ubY * MAP_TILE_SIZE,
@@ -66,13 +59,14 @@ static UBYTE editorDrawMapTileAt(tUbCoordYX sPosTile) {
 		sPosTile.ubX * MAP_TILE_SIZE, sPosTile.ubY * MAP_TILE_SIZE, ubFrame
 	);
 	gameDrawMapTileAt(sPosTile, ubFrame);
-	return isUpdated;
 }
 
 static void setPaletteBlobColor(UBYTE ubColor) {
 	s_ubCurrentColor = ubColor;
 	s_pMenuTiles[0] = TILE_BLOB_P1 + ubColor;
-	s_pMenuTiles[1] = TILE_SUPER_P1 + ubColor;
+	s_pMenuTiles[1] = TILE_SUPER_CAP_P1 + ubColor;
+	s_pMenuTiles[2] = TILE_SUPER_TICK_P1 + ubColor;
+	s_pMenuTiles[3] = TILE_SUPER_ATK_P1 + ubColor;
 	bobNewSetBitMapOffset(&s_sBobLedColor, 10 * ubColor);
 	s_ubPaletteDrawCount = 2;
 }
@@ -233,31 +227,6 @@ static void gameEditorGsLoop(void) {
 
 		tUbCoordYX sPosCurr = {.ubX = s_sPlayer.ubX, .ubY = s_sPlayer.ubY};
 		editorDrawMapTileAt(sPosCurr);
-
-		for(BYTE bX = s_sPlayer.ubX; --bX > 0;) {
-			tUbCoordYX sPos = {.ubX = bX, .ubY = s_sPlayer.ubY};
-			if(!editorDrawMapTileAt(sPos)) {
-				break;
-			}
-		}
-		for(BYTE bX = s_sPlayer.ubX; ++bX < MAP_SIZE;) {
-			tUbCoordYX sPos = {.ubX = bX, .ubY = s_sPlayer.ubY};
-			if(!editorDrawMapTileAt(sPos)) {
-				break;
-			}
-		}
-		for(BYTE bY = s_sPlayer.ubY; --bY > 0;) {
-			tUbCoordYX sPos = {.ubX = s_sPlayer.ubX, .ubY = bY};
-			if(!editorDrawMapTileAt(sPos)) {
-				break;
-			}
-		}
-		for(BYTE bY = s_sPlayer.ubY; ++bY < MAP_SIZE;) {
-			tUbCoordYX sPos = {.ubX = s_sPlayer.ubX, .ubY = bY};
-			if(!editorDrawMapTileAt(sPos)) {
-				break;
-			}
-		}
 	}
 	else {
 		// Hackty hack

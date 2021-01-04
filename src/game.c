@@ -268,7 +268,7 @@ void gameInitMap(void) {
 	// This is needed here because mapInitFromMapData sets charge rate
 	// This codebase is a mess!
 	for(UBYTE i = 0; i < 4; ++i) {
-		playerFromIdx(i)->pMapData = &g_sMapData.pPlayerData[i];
+		playerFromIdx(i)->pMods = &g_sMapData.pPlayerData[i];
 	}
 
 	// Reset map

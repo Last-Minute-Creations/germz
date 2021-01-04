@@ -86,6 +86,10 @@ void playerReset(tPlayerIdx eIdx, tNode *pStartNode) {
 	pPlayer->pSteer = gameGetSteerForPlayer(eIdx);
 	pPlayer->isDead = 0;
 	pPlayer->bNodeCount = 0;
+	pPlayer->pNodeTypeCounts[NODE_TYPE_NORMAL] = 0;
+	pPlayer->pNodeTypeCounts[NODE_TYPE_SUPER_CAP] = 0;
+	pPlayer->pNodeTypeCounts[NODE_TYPE_SUPER_TICK] = 0;
+	pPlayer->pNodeTypeCounts[NODE_TYPE_SUPER_ATK] = 0;
 	pPlayer->ulRepeatCounter = timerGet();
 	pPlayer->pTeamMate = 0;
 
@@ -96,8 +100,33 @@ void playerReset(tPlayerIdx eIdx, tNode *pStartNode) {
 
 tPlayer *playerFromTile(tTile eTile) {
 	tPlayer *pPlayer = 0;
-	if(eTile < TILE_BLOB_NEUTRAL) {
-		pPlayer = &s_pPlayers[eTile - TILE_BLOB_P1];
+	switch(eTile) {
+		case TILE_BLOB_P1:
+		case TILE_SUPER_CAP_P1:
+		case TILE_SUPER_TICK_P1:
+		case TILE_SUPER_ATK_P1:
+			pPlayer = &s_pPlayers[PLAYER_1];
+			break;
+		case TILE_BLOB_P2:
+		case TILE_SUPER_CAP_P2:
+		case TILE_SUPER_TICK_P2:
+		case TILE_SUPER_ATK_P2:
+			pPlayer = &s_pPlayers[PLAYER_2];
+			break;
+		case TILE_BLOB_P3:
+		case TILE_SUPER_CAP_P3:
+		case TILE_SUPER_TICK_P3:
+		case TILE_SUPER_ATK_P3:
+			pPlayer = &s_pPlayers[PLAYER_3];
+			break;
+		case TILE_BLOB_P4:
+		case TILE_SUPER_CAP_P4:
+		case TILE_SUPER_TICK_P4:
+		case TILE_SUPER_ATK_P4:
+			pPlayer = &s_pPlayers[PLAYER_4];
+			break;
+		default:
+			pPlayer = 0;
 	}
 	return pPlayer;
 }

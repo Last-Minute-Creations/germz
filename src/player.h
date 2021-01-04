@@ -29,9 +29,10 @@ typedef struct _tPlayer {
 	struct _tNode *pNodePlepSrc;
 	struct _tPlep pPleps[PLEPS_PER_PLAYER];
 	BYTE bNodeCount;
+	BYTE pNodeTypeCounts[NODE_TYPE_COUNT];
 	UBYTE isSelectingDestination;
 	UBYTE isDead;
-	const tMapPlayerData *pMapData;
+	tPlayerMapModifiers *pMods;
 } tPlayer;
 
 void playerCreate(void);
