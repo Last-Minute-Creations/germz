@@ -204,6 +204,7 @@ static void gamePlayGsLoop(void) {
 		// Campaign
 		if(playerFromIdx(PLAYER_1)->isDead) {
 			gamePauseEnable(PAUSE_KIND_CAMPAIGN_DEFEAT);
+			return;
 		}
 		else if(
 			playerFromIdx(PLAYER_2)->isDead &&
@@ -211,6 +212,7 @@ static void gamePlayGsLoop(void) {
 			playerFromIdx(PLAYER_4)->isDead
 		) {
 			gamePauseEnable(PAUSE_KIND_CAMPAIGN_WIN);
+			return;
 		}
 	}
 	else {
