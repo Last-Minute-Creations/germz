@@ -139,8 +139,14 @@ void mapDataRecalculateStuff(tMapData *pMapData) {
 	for(UBYTE x = 0; x < MAP_SIZE; ++x) {
 		for(UBYTE y = 0; y < MAP_SIZE; ++y) {
 			tTile eTile = pMapData->pTiles[x][y];
-			if(tileIsNode(eTile) && eTile != TILE_BLOB_NEUTRAL) {
-				pMapData->ubPlayerMask |= BV(eTile - TILE_BLOB_P1);
+			if(tileIsNode(eTile)) {
+				// Convert to plain node type
+				while(eTile >= TILE_SUPER_CAP_P1) {
+					eTile -= TILE_SUPER_CAP_P1;
+				}
+				if(eTile != TILE_BLOB_NEUTRAL) {
+					pMapData->ubPlayerMask |= BV(eTile - TILE_BLOB_P1);
+				}
 			}
 		}
 	}
