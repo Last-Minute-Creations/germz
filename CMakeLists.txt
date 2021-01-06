@@ -30,6 +30,16 @@ else()
 	add_executable(${GERMZ_EXECUTABLE} ${SOURCES})
 endif()
 
+# Version stuff
+string(TIMESTAMP YEAR "%y")
+string(TIMESTAMP DAY "%d")
+string(TIMESTAMP MONTH "%m")
+MATH(EXPR VER_MAJOR "0 + ${YEAR}")
+MATH(EXPR VER_MINOR "0 + ${MONTH}")
+MATH(EXPR VER_FIX "0 + ${DAY}")
+set(VERSION "${VER_MAJOR}.${VER_MINOR}.${VER_FIX}")
+target_compile_definitions(${GERMZ_EXECUTABLE} PRIVATE GERMZ_VERSION="${VERSION}")
+
 target_include_directories(${GERMZ_EXECUTABLE} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_compile_options(${GERMZ_EXECUTABLE} PUBLIC -Wall)
 target_link_libraries(${GERMZ_EXECUTABLE} ace)
@@ -401,7 +411,7 @@ file(
 )
 
 # Generating ZIP
-set(GERMZ_ZIP_NAME ${CMAKE_PROJECT_NAME})
+set(GERMZ_ZIP_NAME "${CMAKE_PROJECT_NAME} ${VER_MAJOR}_${VER_MINOR}_${VER_FIX}")
 add_custom_target(generateZip COMMAND
 	${CMAKE_COMMAND} -E tar "cf" "${GERMZ_ZIP_NAME}.zip" --format=zip
 	"${CMAKE_CURRENT_BINARY_DIR}/${GERMZ_OUTPUT_EXECUTABLE}" "${DATA_DIR}"

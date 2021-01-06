@@ -15,7 +15,6 @@
 #include <ace/utils/bmframe.h>
 #include <ace/utils/file.h>
 #include "game.h"
-#include "build_ver.h"
 #include "fade.h"
 #include "germz.h"
 #include "assets.h"
@@ -1110,8 +1109,7 @@ static void mainGsCreate(void) {
 		g_pFontBig, 120, 120, mainMenuUndraw, mainMenuPosDraw
 	);
 
-	char szVersion[15];
-	sprintf(szVersion, "V.%d.%d.%d", BUILD_YEAR, BUILD_MONTH, BUILD_DAY);
+	static const char szVersion[15] = "V." GERMZ_VERSION;
 	fontDrawStr(
 		g_pFontSmall, s_pBfr->pBack, 320, 0, szVersion,
 		MENU_COLOR_INACTIVE, FONT_RIGHT | FONT_COOKIE, g_pTextBitmap
