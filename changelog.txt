@@ -1,3 +1,8 @@
+21.1.6
+	- Improved "how to play" submenu
+	- Fixed displaying steer options for players in battle menu, which aren't available on given map
+	- Probably fixed graphical glitches in campaign summary
+
 21.1.4
 	- Added special nodes with global effect - effect scales per each controlled node
 	- Added special attack node which adds flat boost to attack power
