@@ -50,11 +50,6 @@
 				"cwd": "${workspaceFolder}/build"
 			},
 			"problemMatcher": []
-		},
-		{
-			"label": "release",
-			"group": "build",
-			"command": "release.bat"
 		}
 	]
 }
