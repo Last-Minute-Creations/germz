@@ -36,6 +36,13 @@ void assetsGlobalCreate(void) {
 	// Bitmaps
 	g_pFrameDisplay = bitmapCreateFromFile("data/display.bm", 0);
 
+	// Bitmaps for howto submoenu
+	g_pBmHudTarget = bitmapCreateFromFile("data/hud_target.bm", 0);
+	g_pBmBlobs[0] = bitmapCreateFromFile("data/blob0.bm", 0);
+	g_pBmBlobMask = bitmapCreateFromFile("data/blob_mask.bm", 0);
+	g_pCursors = bitmapCreateFromFile("data/cursors.bm", 0);
+	g_pCursorsMask = bitmapCreateFromFile("data/cursors_mask.bm", 0);
+
 	tGuiConfig *pConfig = guiGetConfig();
 	pConfig->ubColorLight = 20 >> 1;
 	pConfig->ubColorDark = 20 >> 1;
@@ -54,58 +61,47 @@ void assetsGlobalDestroy(void) {
 
 	// Bitmaps
 	bitmapDestroy(g_pFrameDisplay);
+	bitmapDestroy(g_pBmHudTarget);
+	bitmapDestroy(g_pBmBlobs[0]);
+	bitmapDestroy(g_pBmBlobMask);
+	bitmapDestroy(g_pCursors);
+	bitmapDestroy(g_pCursorsMask);
 }
 
 void assetsGameCreate(void) {
 	systemUse();
 	// Blob gfx
-	for(UBYTE i = 0; i < BLOB_COLOR_COUNT; ++i) {
+	for(UBYTE i = 1; i < BLOB_COLOR_COUNT; ++i) {
 		char szName[15];
 		sprintf(szName, "data/blob%hhu.bm", i);
 		g_pBmBlobs[i] = bitmapCreateFromFile(szName, 0);
 	}
-	g_pBmBlobMask = bitmapCreateFromFile("data/blob_mask.bm", 0);
 
 	// Blob links
 	g_pBmLinks = bitmapCreateFromFile("data/links.bm", 0);
 	g_pBmLinksMask = bitmapCreateFromFile("data/links_mask.bm", 0);
 	systemUnuse();
 
-	// Cursors
-	g_pCursors = bitmapCreateFromFile("data/cursors.bm", 0);
-	g_pCursorsMask = bitmapCreateFromFile("data/cursors_mask.bm", 0);
-
 	// Sounds
 	g_pSfxPlep1 = ptplayerSfxCreateFromFile("data/sfx/plep1.sfx");
 	g_pSfxPlep2 = ptplayerSfxCreateFromFile("data/sfx/plep2.sfx");
-
-	// HUD icon
-	g_pBmHudTarget = bitmapCreateFromFile("data/hud_target.bm", 0);
 }
 
 void assetsGameDestroy(void) {
 	systemUse();
 	logBlockBegin("gameAssetsDestroy()");
 	// Blob gfx
-	for(UBYTE i = 0; i < BLOB_COLOR_COUNT; ++i) {
+	for(UBYTE i = 1; i < BLOB_COLOR_COUNT; ++i) {
 		bitmapDestroy(g_pBmBlobs[i]);
 	}
-	bitmapDestroy(g_pBmBlobMask);
 
 	// Blob links
 	bitmapDestroy(g_pBmLinks);
 	bitmapDestroy(g_pBmLinksMask);
 
-	// Cursors
-	bitmapDestroy(g_pCursors);
-	bitmapDestroy(g_pCursorsMask);
-
 	// Sounds
 	ptplayerSfxDestroy(g_pSfxPlep1);
 	ptplayerSfxDestroy(g_pSfxPlep2);
-
-	// HUD icon
-	bitmapDestroy(g_pBmHudTarget);
 
 	systemUnuse();
 	logBlockEnd("gameAssetsDestroy()");
@@ -117,10 +113,10 @@ tFont *g_pFontSmall, *g_pFontBig;
 tTextBitMap *g_pTextBitmap;
 tBitMap *g_pFrameDisplay;
 tDefs g_sDefs;
+tBitMap *g_pCursors, *g_pCursorsMask;
+tBitMap *g_pBmHudTarget;
 
 // Game assets
 tBitMap *g_pBmBlobs[BLOB_COLOR_COUNT], *g_pBmBlobMask;
-tBitMap *g_pCursors, *g_pCursorsMask;
 tBitMap *g_pBmLinks, *g_pBmLinksMask;
-tBitMap *g_pBmHudTarget;
 tPtplayerSfx *g_pSfxPlep1, *g_pSfxPlep2;

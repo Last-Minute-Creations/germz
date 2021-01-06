@@ -23,6 +23,7 @@
 #include "menu_list.h"
 #include "color.h"
 #include "gui_scanlined.h"
+#include <bartman/gcc8_c_support.h>
 
 #define MENU_COLOR_ACTIVE (COLOR_P3_BRIGHT)
 #define MENU_COLOR_INACTIVE (COLOR_P3_BRIGHT + 1)
@@ -281,7 +282,9 @@ static void menuGsLoop(void) {
 	}
 
 	copProcessBlocks();
+	debug_start_idle();
 	vPortWaitForEnd(s_pVp);
+	debug_stop_idle();
 }
 
 static void menuGsDestroy(void) {
@@ -442,27 +445,40 @@ static void textBasedGsLoop(void) {
 	}
 
 	copProcessBlocks();
+	debug_start_idle();
 	vPortWaitForEnd(s_pVp);
+	debug_stop_idle();
+}
+
+#define TEXT_ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))
+
+static UWORD drawTextArray(
+	UWORD uwOffsX, UWORD uwOffsY, const char **pLines, UBYTE ubLineCount,
+	UBYTE ubLineHeight
+) {
+	for(UBYTE ubLine = 0; ubLine < ubLineCount; ++ubLine) {
+		// Draw only non-empty lines
+		if(pLines[ubLine][0] != '\0') {
+			fontDrawStr(
+				g_pFontSmall, s_pBfr->pBack, uwOffsX, uwOffsY, pLines[ubLine],
+				MENU_COLOR_ACTIVE, FONT_COOKIE | FONT_SHADOW, g_pTextBitmap
+			);
+		}
+
+		// Advance Y pos nonetheless
+		uwOffsY += ubLineHeight;
+	}
+	return uwOffsY;
 }
 
 static void textBasedGsCreate(const char **pLines, UBYTE ubLineCount) {
 	blitCopy(s_pBgSub, 0, 0, s_pBfr->pBack, 0, 0, 320, 128, MINTERM_COPY);
 	blitCopy(s_pBgSub, 0, 128, s_pBfr->pBack, 0, 128, 320, 128, MINTERM_COPY);
 
-	UBYTE ubLineWidth = g_pFontSmall->uwHeight + 1;
+	UBYTE ubLineHeight = g_pFontSmall->uwHeight + 1;
 	UWORD uwOffsY = 0;
-	for(UBYTE ubLine = 0; ubLine < ubLineCount; ++ubLine) {
-		// Draw only non-empty lines
-		if(pLines[ubLine][0] != '\0') {
-			fontDrawStr(
-				g_pFontSmall, s_pBfr->pBack, 0, uwOffsY, pLines[ubLine],
-				MENU_COLOR_ACTIVE, FONT_COOKIE | FONT_SHADOW, g_pTextBitmap
-			);
-		}
+	drawTextArray(0, uwOffsY, pLines, ubLineCount, ubLineHeight);
 
-		// Advance Y pos nonetheless
-		uwOffsY += ubLineWidth;
-	}
 	s_cbOnEscape = fadeToMain;
 }
 
@@ -902,32 +918,148 @@ static void creditsGsCreate(void) {
 
 //------------------------------------------------------------- SUBSTATE: HOW_TO
 
-static const char *s_pHowToLines[] = {
-	"Use direction keys to navigate between nodes. You can inspect power",
-	"of any node by selecting it and looking at number on your HUD.",
-	"",
-	"While being on node of your colour, hold fire to enter attack mode.",
-	"Press direction keys to use half of the node power to attack",
-	"other nodes. Your HUD also shows the power of your next offence.",
-	"You can transfer power between your nodes to reinforce your defences",
-	"and make your attacks more powerful.",
-	"",
-	"Max power of single node is 100. Nodes regenerate power over time.",
-	"If you exceed max power, it will slowly degrade towards 100.",
-	"You can also find special nodes, which have their power limits",
-	"and recharge rates increased.",
-	"",
-	"The keyboard controls use following keyboard mappings:",
-	"- 'WSAD' uses W, S, A, D keys for directions, Left Shift as fire",
-	"- 'Arrows' uses direction keys and Right Shift as fire",
-	"You can also play using the 4-joystick adapter for parallel port.",
-	"",
-	"Happy infecting!"
-};
-#define HOW_TO_LINES_COUNT (sizeof(s_pHowToLines) / sizeof(s_pHowToLines[0]))
-
 static void howToGsCreate(void) {
-	textBasedGsCreate(s_pHowToLines, HOW_TO_LINES_COUNT);
+	// Bg
+	blitCopy(s_pBgSub, 0, 0, s_pBfr->pBack, 0, 0, 320, 128, MINTERM_COPY);
+	blitCopy(s_pBgSub, 0, 128, s_pBfr->pBack, 0, 128, 320, 128, MINTERM_COPY);
+
+	UBYTE ubLineHeight = g_pFontSmall->uwHeight + 1;
+	UBYTE ubQuartLine = ubLineHeight / 4;
+	UWORD uwOffsY = 0;
+
+	// Cursor
+	blitCopyMask(
+		g_pCursors, 0, 0, s_pBfr->pBack, 8, uwOffsY, 16, 16,
+		(UWORD*)g_pCursorsMask->Planes[0]
+	);
+	static const char *pLinesCursor[] = {
+		"Move frame with controller to select a cell."
+	};
+	uwOffsY = drawTextArray(
+		32, uwOffsY + ubQuartLine, pLinesCursor, TEXT_ARRAY_SIZE(pLinesCursor),
+		ubLineHeight
+	) + ubLineHeight + ubQuartLine;
+
+	// Attack icon - convert 1bpp bitmap to multi-bpp draw it in color.
+	// Color 11 is 0b1011, so 3 bitplanes need to be filled.
+	tBitMap sAttackSrc = {
+		.BytesPerRow = g_pBmHudTarget->BytesPerRow,
+		.Rows = g_pBmHudTarget->Rows,
+		.Depth = 3,
+		.Planes = {
+			[0] = g_pBmHudTarget->Planes[0],
+			[1] = g_pBmHudTarget->Planes[0],
+			[2] = g_pBmHudTarget->Planes[0],
+		}
+	};
+	tBitMap sAttackDst = {
+		.BytesPerRow = s_pBfr->pBack->BytesPerRow,
+		.Rows = s_pBfr->pBack->Rows,
+		.Depth = 3,
+		.Planes = {
+			[0] = s_pBfr->pBack->Planes[0],
+			[1] = s_pBfr->pBack->Planes[1],
+			[2] = s_pBfr->pBack->Planes[3],
+		}
+	};
+	blitCopyMask(
+		&sAttackSrc, 0, 0, &sAttackDst,
+		(32 - 9) / 2, uwOffsY + (2 * ubLineHeight - 9) / 2, 9, 9,
+		(UWORD*)g_pBmHudTarget->Planes[0]
+	);
+	static const char *pLinesAttack[] = {
+		"Hold FIRE button to enter attack mode. Use controller to send",
+		"virions and infect others or reinforce your own cells."
+	};
+	uwOffsY = drawTextArray(
+		32, uwOffsY, pLinesAttack, TEXT_ARRAY_SIZE(pLinesAttack), ubLineHeight
+	) + ubLineHeight;
+
+	// Count
+	fontDrawStr(
+		g_pFontBig, s_pBfr->pBack, 16, uwOffsY + ubLineHeight, "21",
+		COLOR_P1_BRIGHT + 1, FONT_COOKIE | FONT_CENTER, g_pTextBitmap
+	);
+	static const char *pLinesCounter[] = {
+		"The upper number on your HUD is virion count of selected cell.",
+		"In attack mode, lower number shows your attack strength."
+	};
+	uwOffsY = drawTextArray(
+		32, uwOffsY, pLinesCounter, TEXT_ARRAY_SIZE(pLinesCounter), ubLineHeight
+	) + ubLineHeight;
+
+	// Normal node
+	blitCopyMask(
+		g_pBmBlobs[0], 0, 16 * 8, s_pBfr->pBack, 8, uwOffsY, 16, 16,
+		(UWORD*)g_pBmBlobMask->Planes[0]
+	);
+	static const char *pLinesNodeNormal[] = {
+		"This is an ordinary cell."
+	};
+	uwOffsY = drawTextArray(
+		32, uwOffsY + ubQuartLine, pLinesNodeNormal, TEXT_ARRAY_SIZE(pLinesNodeNormal),
+		ubLineHeight
+	) + ubLineHeight + ubQuartLine;
+
+	// Special node - cap
+	blitCopyMask(
+		g_pBmBlobs[0], 0, 16 * 9, s_pBfr->pBack, 8, uwOffsY, 16, 16,
+		(UWORD*)g_pBmBlobMask->Planes[0]
+	);
+	static const char *pLinesNodeCap[] = {
+		"This cell's viral strain increases capacity of all your cells."
+	};
+	uwOffsY = drawTextArray(
+		32, uwOffsY + ubQuartLine, pLinesNodeCap, TEXT_ARRAY_SIZE(pLinesNodeCap),
+		ubLineHeight
+	) + ubLineHeight + ubQuartLine;
+
+	// Special node - tick
+	blitCopyMask(
+		g_pBmBlobs[0], 0, 16 * 10, s_pBfr->pBack, 8, uwOffsY, 16, 16,
+		(UWORD*)g_pBmBlobMask->Planes[0]
+	);
+	static const char *pLinesNodeTick[] = {
+		"This cell's viral strain increses the speed your virions multiply."
+	};
+	uwOffsY = drawTextArray(
+		32, uwOffsY + ubQuartLine, pLinesNodeTick, TEXT_ARRAY_SIZE(pLinesNodeTick),
+		ubLineHeight
+	) + ubLineHeight + ubQuartLine;
+
+	// Special node - attack
+	blitCopyMask(
+		g_pBmBlobs[0], 0, 16 * 11, s_pBfr->pBack, 8, uwOffsY, 16, 16,
+		(UWORD*)g_pBmBlobMask->Planes[0]
+	);
+	static const char *pLinesNodeAttack[] = {
+		"This cell's viral strain increases strength of your attacks."
+	};
+	uwOffsY = drawTextArray(
+		32, uwOffsY + ubQuartLine, pLinesNodeAttack, TEXT_ARRAY_SIZE(pLinesNodeAttack),
+		ubLineHeight
+	) + ubLineHeight + ubQuartLine;
+
+	// Effect stacking
+	static const char *pLinesEffectStacking[] = {
+		"Effects of multiple viral strains stack together.",
+		"The more special cells you control, the greater the effect."
+	};
+	uwOffsY = drawTextArray(
+		32, uwOffsY, pLinesEffectStacking, TEXT_ARRAY_SIZE(pLinesEffectStacking),
+		ubLineHeight
+	) + ubLineHeight;
+
+	// Control layouts
+	static const char *pLinesControls[] = {
+		"You can play together using up to 4 joysticks and keyboard.",
+		"Keyboard controls: WSAD + Left Shift, Arrows + Right Shift."
+	};
+	uwOffsY = drawTextArray(
+		32, uwOffsY, pLinesControls, TEXT_ARRAY_SIZE(pLinesControls), ubLineHeight
+	) + ubLineHeight;
+
+	s_cbOnEscape = fadeToMain;
 }
 
 //---------------------------------------------------- SUBSTATE: CAMPAIGN RESULT

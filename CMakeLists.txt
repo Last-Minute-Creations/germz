@@ -254,7 +254,6 @@ foreach(player RANGE 3)
 			DESTINATION ${GEN_DIR}/plep${player}_down/${i}.png TRANSFORM -mirror x
 		)
 	endforeach()
-
 endforeach()
 
 # Group small gfx into bigger tile sheets

@@ -138,6 +138,8 @@ Done:
 	✘ Better autoalignment of roads - fix two parallel left-right or up-down ones @cancelled(21-01-04 11:17)
 
 Now:
+	☐ process shift in input controls
+	☐ system-friendly audio interrupts
 	☐ cycle between .mod files
 	☐ proper handling of game init when launched from editor (which mode?)
 	☐ proper handling of game summary when launched from editor
