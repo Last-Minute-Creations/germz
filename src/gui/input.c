@@ -5,6 +5,7 @@
 #include "input.h"
 #include <ace/managers/system.h>
 #include <ace/managers/key.h>
+#include <ace/utils/string.h>
 #include "config.h"
 #include "border.h"
 
@@ -67,6 +68,9 @@ void inputProcess(tGuiInput *pInput) {
 	// Process keystrokes
 	if(pInput->isFocus && keyUse(g_sKeyManager.ubLastKey)) {
 		WORD wInput = g_pToAscii[g_sKeyManager.ubLastKey];
+		if(keyCheck(KEY_LSHIFT) || keyCheck(KEY_RSHIFT)) {
+			wInput = charToUpper(wInput);
+		}
 		if(pInput->cbCharAllowed(wInput)) {
 			if(pInput->uwValueLength < pInput->uwMaxChars - 1) {
 				if(pInput->szValue[pInput->uwValueLength] == '\0') {
