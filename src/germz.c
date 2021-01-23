@@ -20,7 +20,7 @@ void genericCreate(void) {
 	ptplayerCreate(1);
 	assetsGlobalCreate();
 	ptplayerLoadMod(g_pMod, 0, 0);
-	statePush(g_pStateMachineGame, &g_sStateMenu);
+	statePush(g_pStateMachineGame, &g_sStateLogo);
 }
 
 void genericProcess(void) {

@@ -150,6 +150,7 @@ void lmcWait(void) {
 	}
 	else if(s_ubFrame == 1){
 		ptplayerSfxPlay(s_pSfxLmc, -1, PTPLAYER_VOLUME_MAX, 1);
+		// s_eFadeState = FADE_STATE_OUT; // FOR DEBUGGING SFX GLITCHES
 	}
 }
 

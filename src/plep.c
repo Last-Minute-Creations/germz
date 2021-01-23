@@ -53,9 +53,9 @@ static UBYTE plepSinkInNode(tPlep *pPlep) {
 			// Negative charge - omit power bonus and check if blob is really captured
 			if(wDefenderCharges >= pPlep->wCharges) {
 				// Blob alone is stronger than plep -> make it neutral
+				pNode->wCharges = 0;
 				if(pNode->pPlayer) {
 					// logWrite("Draw! To neutral\n");
-					pNode->wCharges = 0;
 					nodeChangeOwnership(pNode, 0);
 					// TODO: if player is selecting from that blob, remove selection - test it!
 				}

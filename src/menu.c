@@ -1051,7 +1051,7 @@ static void howToGsCreate(void) {
 
 	// Control layouts
 	static const char *pLinesControls[] = {
-		"You can play together using up to 4 joysticks and keyboard.",
+		"You can play together using up to 4 joysticks or keyboard.",
 		"Keyboard controls: WSAD + Left Shift, Arrows + Right Shift."
 	};
 	uwOffsY = drawTextArray(
