@@ -233,20 +233,10 @@ void clearMapInfo(tBitMap *pBmBuffer, UWORD uwX, UWORD uwY, UBYTE isDir) {
 	const UBYTE ubRowWidth = 100;
 	const UBYTE ubRowHeight = g_pFontSmall->uwHeight + 2;
 
-	guiScanlinedBgClear(uwX, uwY, ubRowWidth, ubRowHeight);
+	guiScanlinedBgClear(uwX, uwY, ubRowWidth, ubRowHeight * 4);
 	fontDrawStr(
 		g_pFontSmall, pBmBuffer, uwX, uwY, isDir ? "Opening dir..." : "Loading map...",
 		18 >> 1, FONT_COOKIE, g_pTextBitmap
 	);
-	uwY += ubRowHeight;
-
-	guiScanlinedBgClear(uwX, uwY, ubRowWidth, ubRowHeight);
-	uwY += ubRowHeight;
-
-	guiScanlinedBgClear(uwX, uwY, ubRowWidth, ubRowHeight);
-	uwY += ubRowHeight;
-
-	guiScanlinedBgClear(uwX, uwY, ubRowWidth, ubRowHeight);
-
 	s_isMapInfoRefreshed = 0;
 }

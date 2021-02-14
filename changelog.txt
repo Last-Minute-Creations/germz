@@ -1,3 +1,10 @@
+21.2.14
+	- Hopefully fixed waiting for LMC morse code sfx playback
+
+21.2.08
+	- Fixed memory corruption when opening maps with nodes on first/last column and row
+	- Minor speedup of map description display in battle menu
+
 21.1.23
 	- Fixed nodes having negative charges and related to it on-screen garbage
 	- Fixed crash when exiting logo screen before LMC jingle fully played back

@@ -155,6 +155,7 @@ void lmcWait(void) {
 }
 
 UBYTE lmcFadeOut(void) {
+	ptplayerWaitForSfx();
 	ptplayerSfxDestroy(s_pSfxLmc);
 	stateChange(g_pStateMachineGame, &g_sStateMenu);
 	return 1;

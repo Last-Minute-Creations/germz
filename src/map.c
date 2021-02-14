@@ -71,7 +71,7 @@ static void nodeFindNeighbor(tNode *pNode, tDirection eDir) {
 	do {
 		x += pDeltas[eDir].bX;
 		y += pDeltas[eDir].bY;
-		if(x < 0 || MAP_SIZE < x || y < 0 || MAP_SIZE < y) {
+		if(x < 0 || MAP_SIZE <= x || y < 0 || MAP_SIZE <= y) {
 			// logWrite("No more tiles on dir %d\n", eDir);
 			return;
 		}
@@ -105,6 +105,8 @@ static void nodeCalculateNeighbors(void) {
 void mapInitFromMapData(void) {
 	logBlockBegin("mapInitFromMapData()");
 	g_sMap.uwNodeCount = 0;
+
+	// Populate map matrix with node pointers
 	for(UBYTE x = 0; x < MAP_SIZE; ++x) {
 		for(UBYTE y = 0; y < MAP_SIZE; ++y) {
 			g_sMap.pNodesOnTiles[x][y] = 0;
@@ -122,8 +124,12 @@ void mapInitFromMapData(void) {
 			}
 		}
 	}
+	logWrite("Node count: %hu", g_sMap.uwNodeCount);
 
+	// Reset stuff
 	g_sMap.ubChargeClock = 0;
+
+	// Now that the node matrix is filled, determine neighbors for each node
 	nodeCalculateNeighbors();
 	logBlockEnd("mapInitFromMapData()");
 }
