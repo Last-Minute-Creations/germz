@@ -1,5 +1,6 @@
 21.2.14
 	- Hopefully fixed waiting for LMC morse code sfx playback
+	- Added c01-c05, kriss, kross and cube maps
 
 21.2.08
 	- Fixed memory corruption when opening maps with nodes on first/last column and row
