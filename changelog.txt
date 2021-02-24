@@ -1,3 +1,8 @@
+21.2.24
+	- fixed freeze when returning from map test back to the editor
+	- fixed game screen flicker before fade when testing map from the editor
+	- fixed sample repeat issue in music playback
+
 21.2.14
 	- Hopefully fixed waiting for LMC morse code sfx playback
 	- Added c01-c05, kriss, kross and cube maps
