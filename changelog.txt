@@ -1,3 +1,8 @@
+21.3.3
+	- re-enabled logo display, fixed waiting for LMC jingle
+	- added new version of LMC jingle
+	- .mod and sfx replay should be mostly bugless by now
+
 21.2.24
 	- fixed freeze when returning from map test back to the editor
 	- fixed game screen flicker before fade when testing map from the editor

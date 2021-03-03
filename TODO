@@ -149,10 +149,10 @@ Now:
 Bugs:
 	✘ when playing in teams, hud is not colored @cancelled(20-12-30 10:50)
 	✘ when playing in teams, crosshair icon is not shown on hud @cancelled(20-12-30 10:50)
+	✔ Crash when skipping LMC logo and sfx is still playing @done(21-02-25 12:06)
+	✔ fix ptplayer on higher cpu freq @done(21-03-03 12:06)
 	☐ Sometimes after starting game again pleps are blinking
-	☐ fix ptplayer on higher cpu freq
 	☐ fix plep anim rotations
-	☐ Crash when skipping LMC logo and sfx is still playing
 	☐ Something gets bugged when staying in credits for too long
 	☐ fix 060 (ACE)
 	☐ fix ks1.3 (ACE)
@@ -171,7 +171,7 @@ Later:
 	☐ ensure sprites are disabled
 	☐ put final gfx!
 	☐ check if MPL2 license is in every file
-	☐ README
+	☐ github README.md
 		☐ build instructions
 		☐ link to itch.io
 		☐ credits
