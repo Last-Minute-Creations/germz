@@ -234,6 +234,7 @@ static void menuGsCreate(void) {
 		TAG_SIMPLEBUFFER_VPORT, s_pVp,
 		TAG_SIMPLEBUFFER_BITMAP_FLAGS, BMF_INTERLEAVED,
 		TAG_SIMPLEBUFFER_IS_DBLBUF, 0,
+		TAG_SIMPLEBUFFER_USE_X_SCROLLING, 0,
 		TAG_END
 	);
 	s_pBg = bitmapCreateFromFile("data/menu_main.bm", 0);

@@ -225,7 +225,8 @@ static void gameEditorGsLoop(void) {
 		--s_ubPaletteDrawCount;
 		for(UBYTE i = 0; i < s_ubMenuPosCount; ++i) {
 			gameDrawTileAt(
-				s_pMenuTiles[i], HUD_OFFS_X + 6, 7 + i * MAP_TILE_SIZE, BLOB_FRAME_COUNT - 1
+				s_pMenuTiles[i], HUD_OFFS_X + 6, 7 + i * (MAP_TILE_SIZE + 1),
+				BLOB_FRAME_COUNT - 1
 			);
 		}
 	}
