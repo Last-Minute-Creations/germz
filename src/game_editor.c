@@ -281,17 +281,11 @@ static void gameEditorGsLoop(void) {
 	bobNewPush(&s_sBobLedTile);
 	bobNewPush(&s_sBobLedColor);
 
-	for(UBYTE ubPlayer = 0; ubPlayer < 4; ++ubPlayer) {
-		tSteer *pSteer = gameGetSteerForPlayer(ubPlayer);
-		if(!steerIsPlayer(pSteer)) {
-			continue;
-		}
+	tBobNew *pBobCursor = gameGetCursorBob(0);
+	pBobCursor->sPos.uwX = s_sPlayer.ubX * MAP_TILE_SIZE;
+	pBobCursor->sPos.uwY = s_sPlayer.ubY * MAP_TILE_SIZE;
+	bobNewPush(pBobCursor);
 
-		tBobNew *pBobCursor = gameGetCursorBob(ubPlayer);
-		pBobCursor->sPos.uwX = s_sPlayer.ubX * MAP_TILE_SIZE;
-		pBobCursor->sPos.uwY = s_sPlayer.ubY * MAP_TILE_SIZE;
-		bobNewPush(pBobCursor);
-	}
 	gamePostprocess();
 }
 
