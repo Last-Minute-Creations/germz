@@ -184,17 +184,18 @@ static tDirection aiProcessPlanningDefensive(tAi *pAi) {
 }
 
 static tDirection aiProcessRouting(tAi *pAi) {
+	tAstarData *pNav = s_pAstar[pAi->ubPlayerIdx];
 	if(pAi->isAstarStarted) {
-		if(astarProcess(s_pAstar[pAi->ubPlayerIdx])) {
+		if(astarProcess(pNav)) {
 			logWriteAi(
 				"[AI] Found route with %hhu steps\n",
-				s_pAstar[pAi->ubPlayerIdx]->sRoute.bNodeCount
+				pNav->sRoute.bNodeCount
 			);
-			for(UBYTE i = s_pAstar[pAi->ubPlayerIdx]->sRoute.bNodeCount; i--;) {
+			for(UBYTE i = pNav->sRoute.bNodeCount; i--;) {
 				logWriteAi(
-					"-> %hhu@%p (%hhu,%hhu)", i, s_pAstar[pAi->ubPlayerIdx]->sRoute.pNodes[i],
-					s_pAstar[pAi->ubPlayerIdx]->sRoute.pNodes[i]->sPosTile.ubX,
-					s_pAstar[pAi->ubPlayerIdx]->sRoute.pNodes[i]->sPosTile.ubY
+					"-> %hhu@%p (%hhu,%hhu)", i, pNav->sRoute.pNodes[i],
+					pNav->sRoute.pNodes[i]->sPosTile.ubX,
+					pNav->sRoute.pNodes[i]->sPosTile.ubY
 				);
 			}
 			logWriteAi("\n");
@@ -204,7 +205,7 @@ static tDirection aiProcessRouting(tAi *pAi) {
 	}
 	else {
 		const tPlayer *pPlayer = playerFromIdx(pAi->ubPlayerIdx);
-		astarStart(s_pAstar[pAi->ubPlayerIdx], pPlayer->pNodeCursor, pAi->pTargetSrc);
+		astarStart(pNav, pPlayer->pNodeCursor, pAi->pTargetSrc);
 		pAi->isAstarStarted = 1;
 	}
 	return DIRECTION_COUNT;

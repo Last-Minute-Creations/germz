@@ -106,6 +106,27 @@ static void onIdle(UNUSED_ARG tSteer *pSteer) {
 
 //------------------------------------------------------------------- PUBLIC FNS
 
+tSteer steerInitFromMode(tSteerMode eMode, UBYTE ubPlayerIdx) {
+	switch(eMode) {
+		case STEER_MODE_JOY_1:
+			return steerInitJoy(JOY1);
+		case STEER_MODE_JOY_2:
+			return steerInitJoy(JOY2);
+		case STEER_MODE_JOY_3:
+			return steerInitJoy(JOY3);
+		case STEER_MODE_JOY_4:
+			return steerInitJoy(JOY4);
+		case STEER_MODE_KEY_ARROWS:
+			return steerInitKey(KEYMAP_ARROWS);
+		case STEER_MODE_KEY_WSAD:
+			return steerInitKey(KEYMAP_WSAD);
+		case STEER_MODE_AI:
+			return steerInitAi(ubPlayerIdx);
+		default:
+			return steerInitIdle();
+	}
+}
+
 tSteer steerInitJoy(UBYTE ubJoy) {
 	tSteer sSteer = {
 		.cbProcess = onJoy,
@@ -185,3 +206,7 @@ void steerResetAi(tSteer *pSteer) {
 		aiInit(&pSteer->sAi, pSteer->sAi.ubPlayerIdx);
 	}
 }
+
+const char *g_pSteerModeLabels[STEER_MODE_COUNT] = {
+	"JOY 1", "JOY 2", "JOY 3", "JOY 4", "WSAD", "ARROWS", "CPU", "IDLE", "OFF"
+};

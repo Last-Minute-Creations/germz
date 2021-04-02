@@ -201,6 +201,7 @@ static void gameGsCreate(void) {
 		TAG_SIMPLEBUFFER_BITMAP_FLAGS, BMF_CLEAR | BMF_INTERLEAVED,
 		TAG_SIMPLEBUFFER_COPLIST_OFFSET, 0,
 		TAG_SIMPLEBUFFER_IS_DBLBUF, 1,
+		TAG_SIMPLEBUFFER_USE_X_SCROLLING, 0,
 		TAG_END
 	);
 
@@ -209,11 +210,6 @@ static void gameGsCreate(void) {
 	s_pFade = fadeCreate(s_pView, pPalette, 32);
 
 	assetsGameCreate();
-
-	// Load settings from menu
-	for(UBYTE i = 0; i < 4; ++i) {
-		s_pSteers[i] = menuGetSteerForPlayer(i);
-	}
 
 	playerCreate();
 	aiCreate(&g_sMap);
@@ -387,12 +383,15 @@ void gameInitCursorBobs(void) {
 
 void gameSetRules(
 	UBYTE isEditor, tBattleMode eBattleMode, tTeamConfig eTeamCfg,
-	UBYTE isCampaign
+	UBYTE isCampaign, tSteerMode *pSteerModes
 ) {
 	s_isEditor = isEditor;
 	s_eBattleMode = eBattleMode;
 	s_eTeamCfg = eTeamCfg;
 	s_ubCampaignStage = isCampaign;
+	for(UBYTE i = 0; i < 4; ++i) {
+		s_pSteers[i] = steerInitFromMode(pSteerModes[i], i);
+	}
 }
 
 tFade *gameGetFade(void) {

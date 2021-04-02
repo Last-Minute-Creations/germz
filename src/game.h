@@ -63,7 +63,7 @@ void gameInitCursorBobs(void);
 
 void gameSetRules(
 	UBYTE isEditor, tBattleMode eBattleMode, tTeamConfig eTeamCfg,
-	UBYTE isCampaign
+	UBYTE isCampaign, tSteerMode *pSteerModes
 );
 
 tBobNew *gameGetCursorBob(UBYTE ubIdx);

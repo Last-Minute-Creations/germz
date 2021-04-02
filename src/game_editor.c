@@ -11,6 +11,7 @@
 #include "assets.h"
 #include "dialog_load.h"
 #include "dialog_save.h"
+#include "dialog_test.h"
 #include "game.h"
 #include "game_init.h"
 #include "blob_anim.h"
@@ -144,15 +145,7 @@ static void onReset(void) {
 }
 
 static void onTest(void) {
-	mapDataRecalculateStuff(&g_sMapData);
-
-	// Simulate fadeout to prevent flicker on gameInit
-	for(UBYTE i = 0 ; i < 32; ++i) {
-		gameGetFade()->pView->pFirstVPort->pPalette[i] = 0;
-	}
-	viewUpdateCLUT(gameGetFade()->pView);
-
-	stateChange(g_pStateMachineGame, &g_sStateGameInit);
+	dialogTestShow();
 }
 
 static void onLoad(void) {
@@ -326,3 +319,15 @@ tState g_sStateEditor = {
 	.cbCreate = gameEditorGsCreate, .cbLoop = gameEditorGsLoop,
 	.cbDestroy = gameEditorGsDestroy
 };
+
+void editorStart(void) {
+	mapDataRecalculateStuff(&g_sMapData);
+
+	// Simulate fadeout to prevent flicker on gameInit
+	for(UBYTE i = 0 ; i < 32; ++i) {
+		gameGetFade()->pView->pFirstVPort->pPalette[i] = 0;
+	}
+	viewUpdateCLUT(gameGetFade()->pView);
+
+	stateChange(g_pStateMachineGame, &g_sStateGameInit);
+}

@@ -9,6 +9,19 @@
 #include "direction.h"
 #include "ai.h"
 
+typedef enum _tSteerMode {
+	STEER_MODE_JOY_1,
+	STEER_MODE_JOY_2,
+	STEER_MODE_JOY_3,
+	STEER_MODE_JOY_4,
+	STEER_MODE_KEY_WSAD,
+	STEER_MODE_KEY_ARROWS,
+	STEER_MODE_AI,
+	STEER_MODE_IDLE,
+	STEER_MODE_OFF,
+	STEER_MODE_COUNT,
+} tSteerMode;
+
 struct _tSteer;
 
 typedef void (*tCbSteerProcess)(struct _tSteer *pSteer);
@@ -34,6 +47,8 @@ typedef struct _tSteer {
 	};
 } tSteer;
 
+tSteer steerInitFromMode(tSteerMode eMode, UBYTE ubPlayerIdx);
+
 tSteer steerInitJoy(UBYTE ubJoy);
 
 tSteer steerInitKey(tKeymap eKeymap);
@@ -55,5 +70,7 @@ UBYTE steerDirUse(tSteer *pSteer, tDirection eDir);
 tDirection steerGetPressedDir(const tSteer *pSteer);
 
 void steerResetAi(tSteer *pSteer);
+
+extern const char *g_pSteerModeLabels[STEER_MODE_COUNT];
 
 #endif // _GERMZ_STEER_H_

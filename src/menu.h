@@ -11,14 +11,6 @@
  * @brief
  *
  * @param ubPlayerIdx 0: P1
- * @return tSteer
- */
-tSteer menuGetSteerForPlayer(UBYTE ubPlayerIdx);
-
-/**
- * @brief
- *
- * @param ubPlayerIdx 0: P1
  * @return UBYTE
  */
 UBYTE menuIsPlayerActive(UBYTE ubPlayerIdx);

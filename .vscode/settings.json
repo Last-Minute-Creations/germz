@@ -4,6 +4,8 @@
 		"*.cmake": "cmake",
 		"game_summary.h": "c",
 		"game_init.h": "c",
-		"game_pause.h": "c"
+		"game_pause.h": "c",
+		"germz.h": "c",
+		"assets.h": "c"
 	}
 }

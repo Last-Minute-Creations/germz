@@ -9,4 +9,6 @@
 
 tDirection gameEditorProcessSteer(void);
 
+void editorStart(void);
+
 #endif // _GERMZ_GAME_EDITOR_H_

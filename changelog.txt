@@ -1,3 +1,6 @@
+21.4.2
+	- added steer selection on running game from the editor
+
 21.3.3
 	- re-enabled logo display, fixed waiting for LMC jingle
 	- added new version of LMC jingle

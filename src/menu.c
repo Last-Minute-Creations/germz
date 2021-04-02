@@ -16,6 +16,7 @@
 #include <ace/utils/file.h>
 #include "game.h"
 #include "fade.h"
+#include "steer.h"
 #include "germz.h"
 #include "assets.h"
 #include "map_list.h"
@@ -38,26 +39,14 @@
 #define BATTLE_MENU_WIDTH 180
 #define BATTLE_MENU_HEIGHT 93
 
-typedef enum _tPlayerSteer {
-	PLAYER_STEER_JOY_1,
-	PLAYER_STEER_JOY_2,
-	PLAYER_STEER_JOY_3,
-	PLAYER_STEER_JOY_4,
-	PLAYER_STEER_KEY_WSAD,
-	PLAYER_STEER_KEY_ARROWS,
-	PLAYER_STEER_AI,
-	PLAYER_STEER_IDLE,
-	PLAYER_STEER_OFF,
-} tPlayerSteer;
-
 static UBYTE s_ubBattleMode;
 static UBYTE s_ubTeamCfg;
 static UBYTE s_isCampaign;
 static UBYTE s_isPendingCampaignResult = 0;
 
 static UBYTE s_pPlayerSteers[4] = {
-	PLAYER_STEER_JOY_1, PLAYER_STEER_JOY_2,
-	PLAYER_STEER_KEY_WSAD, PLAYER_STEER_KEY_ARROWS
+	STEER_MODE_JOY_1, STEER_MODE_JOY_2,
+	STEER_MODE_KEY_WSAD, STEER_MODE_KEY_ARROWS
 };
 
 	// [0:P1 .. 3:P4][0: inactive, 1: active]
@@ -66,10 +55,6 @@ static const UBYTE s_pScanlinedMenuColors[][2] = {
 	{(COLOR_P2_BRIGHT + 2) >> 1, COLOR_P2_BRIGHT >> 1},
 	{(COLOR_P3_BRIGHT + 2) >> 1, COLOR_P3_BRIGHT >> 1},
 	{(COLOR_P4_BRIGHT + 2) >> 1, COLOR_P4_BRIGHT >> 1},
-};
-
-static const char *s_pMenuEnumSteer[] = {
-	"JOY 1", "JOY 2", "JOY 3", "JOY 4", "WSAD", "ARROWS", "CPU", "IDLE", "OFF"
 };
 
 static const char *s_pMenuCaptions[] = {
@@ -138,16 +123,22 @@ static void menuErrorMsg(const char *szMsg) {
 }
 
 static void startGame(UBYTE isEditor, UBYTE ubPlayerMask, UBYTE isCampaign) {
+	// Menulist uses UBYTE[], gameSetRules expects tSteerMode[], so convert
+	tSteerMode pSteers[4] = {
+		s_pPlayerSteers[0], s_pPlayerSteers[1],
+		s_pPlayerSteers[2], s_pPlayerSteers[3]
+	};
+
 	if(isEditor) {
-		gameSetRules(1, BATTLE_MODE_FFA, TEAM_CONFIG_P1_P2_AND_P3_P4, 0);
+		gameSetRules(1, BATTLE_MODE_FFA, TEAM_CONFIG_P1_P2_AND_P3_P4, 0, pSteers);
 		fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, onFadeoutEditorGameStart);
 	}
 	else {
-		UBYTE pSteerToPlayer[PLAYER_STEER_AI] = {0};
+		UBYTE pSteerToPlayer[STEER_MODE_AI] = {0};
 		for(UBYTE i = 0; i < 4; ++i) {
 			if((
-				s_pPlayerSteers[i] == PLAYER_STEER_JOY_3 ||
-				s_pPlayerSteers[i] == PLAYER_STEER_JOY_4
+				s_pPlayerSteers[i] == STEER_MODE_JOY_3 ||
+				s_pPlayerSteers[i] == STEER_MODE_JOY_4
 			) && !joyEnableParallel()) {
 				menuErrorMsg(
 					"Can't open parallel port - joy 3 & 4 are not usable!"
@@ -155,7 +146,7 @@ static void startGame(UBYTE isEditor, UBYTE ubPlayerMask, UBYTE isCampaign) {
 				return;
 			}
 
-			if(s_pPlayerSteers[i] < PLAYER_STEER_AI && BTST(ubPlayerMask, i)) {
+			if(s_pPlayerSteers[i] < STEER_MODE_AI && BTST(ubPlayerMask, i)) {
 				if(!pSteerToPlayer[s_pPlayerSteers[i]]) {
 					pSteerToPlayer[s_pPlayerSteers[i]] = 1;
 				}
@@ -163,14 +154,14 @@ static void startGame(UBYTE isEditor, UBYTE ubPlayerMask, UBYTE isCampaign) {
 					char szMsg[80];
 					sprintf(
 						szMsg, "Controller %s is bound to more than 1 player",
-						s_pMenuEnumSteer[s_pPlayerSteers[i]]
+						g_pSteerModeLabels[s_pPlayerSteers[i]]
 					);
 					menuErrorMsg(szMsg);
 					return;
 				}
 			}
 		}
-		gameSetRules(0, s_ubBattleMode, s_ubTeamCfg, isCampaign);
+		gameSetRules(0, s_ubBattleMode, s_ubTeamCfg, isCampaign, pSteers);
 		fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, onFadeoutGameStart);
 	}
 }
@@ -298,31 +289,10 @@ static void menuGsDestroy(void) {
 }
 
 UBYTE menuIsPlayerActive(UBYTE ubPlayerIdx) {
-	if(s_pPlayerSteers[ubPlayerIdx] == PLAYER_STEER_OFF) {
+	if(s_pPlayerSteers[ubPlayerIdx] == STEER_MODE_OFF) {
 		return 0;
 	}
 	return 1;
-}
-
-tSteer menuGetSteerForPlayer(UBYTE ubPlayerIdx) {
-	switch(s_pPlayerSteers[ubPlayerIdx]) {
-		case PLAYER_STEER_JOY_1:
-			return steerInitJoy(JOY1);
-		case PLAYER_STEER_JOY_2:
-			return steerInitJoy(JOY2);
-		case PLAYER_STEER_JOY_3:
-			return steerInitJoy(JOY3);
-		case PLAYER_STEER_JOY_4:
-			return steerInitJoy(JOY4);
-		case PLAYER_STEER_KEY_ARROWS:
-			return steerInitKey(KEYMAP_ARROWS);
-		case PLAYER_STEER_KEY_WSAD:
-			return steerInitKey(KEYMAP_WSAD);
-		case PLAYER_STEER_AI:
-			return steerInitAi(ubPlayerIdx);
-		default:
-			return steerInitIdle();
-	}
 }
 
 void menuStartWithCampaignResult(void) {
@@ -498,14 +468,14 @@ static void menuSteerGsCreate(void) {
 
 	if(s_isCampaign) {
 		// Only one player, only joy & keyboard, rest is set to AI
-		s_pPlayerSteers[0] = PLAYER_STEER_JOY_1;
+		s_pPlayerSteers[0] = STEER_MODE_JOY_1;
 		for(UBYTE i = 1; i < 4; ++i) {
-			s_pPlayerSteers[i] = PLAYER_STEER_AI;
+			s_pPlayerSteers[i] = STEER_MODE_AI;
 		}
 		s_pOptionsSteer[s_ubSteerOptionCount] = (tMenuListOption){
 			MENU_LIST_OPTION_TYPE_UINT8, .isHidden = 0, .sOptUb = {
-			.pVar = &s_pPlayerSteers[0], .ubMax = PLAYER_STEER_KEY_ARROWS, .isCyclic = 1,
-			.ubDefault = PLAYER_STEER_JOY_1, .pEnumLabels = s_pMenuEnumSteer
+			.pVar = &s_pPlayerSteers[0], .ubMax = STEER_MODE_KEY_ARROWS, .isCyclic = 1,
+			.ubDefault = STEER_MODE_JOY_1, .pEnumLabels = g_pSteerModeLabels
 		}};
 		s_pMenuCaptionsSteer[s_ubSteerOptionCount++] = s_pSteerPlayerLabels[0];
 	}
@@ -521,8 +491,8 @@ static void menuSteerGsCreate(void) {
 			if(BTST(g_sMapData.ubPlayerMask, i)) {
 				s_pOptionsSteer[s_ubSteerOptionCount] = (tMenuListOption){
 					MENU_LIST_OPTION_TYPE_UINT8, .isHidden = 0, .sOptUb = {
-					.pVar = &s_pPlayerSteers[i], .ubMax = PLAYER_STEER_IDLE, .isCyclic = 1,
-					.ubDefault = PLAYER_STEER_JOY_1, .pEnumLabels = s_pMenuEnumSteer
+					.pVar = &s_pPlayerSteers[i], .ubMax = STEER_MODE_IDLE, .isCyclic = 1,
+					.ubDefault = STEER_MODE_JOY_1, .pEnumLabels = g_pSteerModeLabels
 				}};
 				s_pMenuCaptionsSteer[s_ubSteerOptionCount++] = s_pSteerPlayerLabels[i];
 			}
