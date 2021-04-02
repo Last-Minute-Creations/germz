@@ -1,5 +1,6 @@
 21.4.2
 	- added steer selection on running game from the editor
+	- added c06 and c07 maps
 
 21.3.3
 	- re-enabled logo display, fixed waiting for LMC jingle
