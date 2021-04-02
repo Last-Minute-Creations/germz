@@ -454,6 +454,10 @@ void gameSetSpecialColors(UWORD uwSpecial1, UWORD uwSpecial2) {
 	}
 }
 
+UBYTE gameIsStartedByEditor(void) {
+	return s_isEditor;
+}
+
 tState g_sStateGame = {
 	.cbCreate = gameGsCreate, .cbLoop = gameGsLoop, .cbDestroy = gameGsDestroy
 };

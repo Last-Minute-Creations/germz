@@ -139,11 +139,11 @@ Done:
 	✔ process shift in input controls @done(21-01-08 11:58)
 	✘ Setting single-player game params in editor @cancelled(21-01-08 12:43)
 	✘ system-friendly audio interrupts @cancelled(21-01-23 13:53)
+	✔ proper handling of game init when launched from editor @done(21-04-02 14:43)
+	✔ proper handling of game summary when launched from editor @done(21-04-02 14:43)
 
 Now:
 	☐ cycle between .mod files
-	☐ proper handling of game init when launched from editor (which mode?)
-	☐ proper handling of game summary when launched from editor
 	☐ Configurable match count in battle mode (where to put it?)
 	☐ fixed muffled ingame sounds
 	☐ fix plep animation rotations

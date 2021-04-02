@@ -92,4 +92,6 @@ tCopCmd *gameGetColorCopperlist(void);
 
 void gameSetSpecialColors(UWORD uwSpecial1, UWORD uwSpecial2);
 
+UBYTE gameIsStartedByEditor(void);
+
 #endif // _GERMZ_GAME_H_

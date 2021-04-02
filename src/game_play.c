@@ -221,9 +221,14 @@ static void gamePlayGsLoop(void) {
 			// Teams
 			tTeamIdx eTeam  = gameGetWinnerTeams();
 			if(eTeam != TEAM_NONE) {
-				UBYTE *pScores = gameGetScores();
-				pScores[eTeam] = MIN(pScores[eTeam] + 1, 99);
-				gamePauseEnable(PAUSE_KIND_BATTLE_SUMMARY);
+				if(gameIsStartedByEditor()) {
+					stateChange(g_pStateMachineGame, &g_sStateEditor);
+				}
+				else {
+					UBYTE *pScores = gameGetScores();
+					pScores[eTeam] = MIN(pScores[eTeam] + 1, 99);
+					gamePauseEnable(PAUSE_KIND_BATTLE_SUMMARY);
+				}
 				return;
 			}
 		}
@@ -232,9 +237,14 @@ static void gamePlayGsLoop(void) {
 			if(ubAliveCount <= 1) {
 				tPlayerIdx eWinner = gameGetWinnerFfa();
 				if(eWinner != PLAYER_NONE) {
-					UBYTE *pScores = gameGetScores();
-					pScores[eWinner] = MIN(pScores[eWinner] + 1, 99);
-					gamePauseEnable(PAUSE_KIND_BATTLE_SUMMARY);
+					if(gameIsStartedByEditor()) {
+						stateChange(g_pStateMachineGame, &g_sStateEditor);
+					}
+					else {
+						UBYTE *pScores = gameGetScores();
+						pScores[eWinner] = MIN(pScores[eWinner] + 1, 99);
+						gamePauseEnable(PAUSE_KIND_BATTLE_SUMMARY);
+					}
 					return;
 				}
 			}
