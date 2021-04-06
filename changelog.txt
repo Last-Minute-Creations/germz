@@ -1,3 +1,6 @@
+21.4.6
+	- fixed being able to attack other nodes even if road is in different direction
+
 21.4.2
 	- added steer selection on running game from the editor
 	- added c06 and c07 maps

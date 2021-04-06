@@ -64,10 +64,19 @@ static void nodeFindNeighbor(tNode *pNode, tDirection eDir) {
 		[DIRECTION_RIGHT] = {.bX =  1, .bY =  0},
 		[DIRECTION_FIRE]  = {.bX =  0, .bY =  0}, // SHOULDN'T HAPPEN!
 	};
+	static const tTile pAllowedPaths[DIRECTION_COUNT] = {
+		[DIRECTION_UP]    = TILE_PATH_V1,
+		[DIRECTION_DOWN]  = TILE_PATH_V1,
+		[DIRECTION_LEFT]  = TILE_PATH_H1,
+		[DIRECTION_RIGHT] = TILE_PATH_H1,
+		[DIRECTION_FIRE]  = TILE_PATH_H1, // SHOULDN'T HAPPEN!
+	};
 
 	// Find next blob in line or give up
 	BYTE x = pNode->sPosTile.ubX;
 	BYTE y = pNode->sPosTile.ubY;
+	tTile eTile;
+	tTile eAllowedPath = pAllowedPaths[eDir];
 	do {
 		x += pDeltas[eDir].bX;
 		y += pDeltas[eDir].bY;
@@ -75,7 +84,8 @@ static void nodeFindNeighbor(tNode *pNode, tDirection eDir) {
 			// logWrite("No more tiles on dir %d\n", eDir);
 			return;
 		}
-	} while(tileIsLink(g_sMapData.pTiles[x][y]));
+		eTile = g_sMapData.pTiles[x][y];
+	} while(tileIsVariantOfPath(eTile, eAllowedPath) || tileIsJunction(eTile));
 
 	if(tileIsNode(g_sMapData.pTiles[x][y])) {
 		// Mark given node as neigbor

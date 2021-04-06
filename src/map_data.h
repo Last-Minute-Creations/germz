@@ -70,7 +70,9 @@ UBYTE mapDataSaveToFile(const tMapData *pMapData, const char *szPath);
 
 void mapDataClear(tMapData *pMapData);
 
-UBYTE tileIsLink(tTile eTile);
+UBYTE tileIsJunction(tTile eTile);
+
+UBYTE tileIsVariantOfPath(tTile eTile, tTile eAllowedPath);
 
 UBYTE tileIsNode(tTile eTile);
 

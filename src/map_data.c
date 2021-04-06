@@ -124,9 +124,14 @@ void mapDataClear(tMapData *pMapData) {
 	pMapData->ubPlayerMask = 0;
 }
 
-UBYTE tileIsLink(tTile eTile) {
-	UBYTE isMovable = (eTile >= TILE_PATH_H1);
+UBYTE tileIsJunction(tTile eTile) {
+	UBYTE isMovable = (eTile >= TILE_PATH_X1);
 	return isMovable;
+}
+
+UBYTE tileIsVariantOfPath(tTile eTile, tTile eAllowedPath) {
+	UBYTE isAllowed = (eAllowedPath <= eTile && eTile <= eAllowedPath);
+	return isAllowed;
 }
 
 UBYTE tileIsNode(tTile eTile) {
