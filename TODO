@@ -143,20 +143,20 @@ Done:
 	✔ proper handling of game summary when launched from editor @done(21-04-02 14:43)
 	✔ fixed muffled ingame sounds @done(21-04-12 12:20)
 	✔ fix plep animation rotations @done(21-04-12 14:33)
+	✔ cycle between .mod files @done(21-04-16 12:53)
 
 Now:
-	☐ cycle between .mod files
 	☐ Configurable match count in battle mode (where to put it?)
 
-	Bugs:
-		✘ when playing in teams, hud is not colored @cancelled(20-12-30 10:50)
-		✘ when playing in teams, crosshair icon is not shown on hud @cancelled(20-12-30 10:50)
+Bugs:
+	✘ when playing in teams, hud is not colored @cancelled(20-12-30 10:50)
+	✘ when playing in teams, crosshair icon is not shown on hud @cancelled(20-12-30 10:50)
 	✘ Sometimes after starting game again pleps are blinking @cancelled(21-04-12 12:24)
 	✔ Crash when skipping LMC logo and sfx is still playing @done(21-02-25 12:06)
 	✔ fix ptplayer on higher cpu freq @done(21-03-03 12:06)
 	☐ Something gets bugged when staying in credits for too long
 	☐ fix 060 (ACE)
-	☐ fix ks1.3 (ACE)
+	☐ fix ks1.3 boot from floppy (ACE)
 	☐ freeze when going from menu to game (ACE)
 
 Later:

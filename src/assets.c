@@ -5,7 +5,11 @@
 #include "assets.h"
 #include "gui/config.h"
 #include <ace/managers/system.h>
+#include <ace/utils/file.h>
 #include <json/json.h>
+
+static ULONG s_ulSampleSize;
+UWORD *g_pModSamples;
 
 void assetsGlobalCreate(void) {
 	// Defs
@@ -26,7 +30,13 @@ void assetsGlobalCreate(void) {
 	jsonDestroy(pJsonDefs);
 
 	// Mods
-	g_pMod = ptplayerModCreate("data/germz2-25.mod");
+	g_pMods[0] = ptplayerModCreate("data/germz1.mod");
+	g_pMods[1] = ptplayerModCreate("data/germz2.mod");
+	s_ulSampleSize = fileGetSize("data/samples.samplepack");
+	g_pModSamples = memAllocChip(s_ulSampleSize);
+	tFile *pFileSamples = fileOpen("data/samples.samplepack", "rb");
+	fileRead(pFileSamples, g_pModSamples, s_ulSampleSize);
+	fileClose(pFileSamples);
 
 	// Font
 	g_pFontSmall = fontCreate("data/uni54.fnt");
@@ -52,7 +62,9 @@ void assetsGlobalCreate(void) {
 
 void assetsGlobalDestroy(void) {
 	// Mods
-	ptplayerModDestroy(g_pMod);
+	ptplayerModDestroy(g_pMods[0]);
+	ptplayerModDestroy(g_pMods[1]);
+	memFree(g_pModSamples, s_ulSampleSize);
 
 	// Font
 	fontDestroy(g_pFontSmall);
@@ -108,7 +120,7 @@ void assetsGameDestroy(void) {
 }
 
 // Global assets
-tPtplayerMod *g_pMod;
+tPtplayerMod *g_pMods[MOD_COUNT];
 tFont *g_pFontSmall, *g_pFontBig;
 tTextBitMap *g_pTextBitmap;
 tBitMap *g_pFrameDisplay;

@@ -13,13 +13,24 @@
 
 tStateManager *g_pStateMachineGame;
 
+static UBYTE s_ubCurrentMod = 0;
+
+static void onSongEnd(void) {
+	if(++s_ubCurrentMod >= MOD_COUNT) {
+		s_ubCurrentMod = 0;
+	}
+	ptplayerLoadMod(g_pMods[s_ubCurrentMod], g_pModSamples, 0);
+	ptplayerEnableMusic(1);
+}
+
 void genericCreate(void) {
 	g_pStateMachineGame = stateManagerCreate();
 	keyCreate();
 	joyOpen();
 	ptplayerCreate(1);
 	assetsGlobalCreate();
-	ptplayerLoadMod(g_pMod, 0, 0);
+	ptplayerLoadMod(g_pMods[s_ubCurrentMod], g_pModSamples, 0);
+	ptplayerConfigureSongRepeat(0, onSongEnd);
 	statePush(g_pStateMachineGame, &g_sStateLogo);
 }
 

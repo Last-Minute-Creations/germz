@@ -11,6 +11,7 @@
 
 #define BLOB_COLOR_COUNT 5
 #define BLOB_FRAME_COUNT 9
+#define MOD_COUNT 2
 
 typedef struct _tNodeModsBase {
 	UBYTE ubChargeRate;
@@ -42,7 +43,8 @@ void assetsGameCreate(void);
 void assetsGameDestroy(void);
 
 // Global assets
-extern tPtplayerMod *g_pMod;
+extern tPtplayerMod *g_pMods[MOD_COUNT];
+extern UWORD *g_pModSamples;
 extern tFont *g_pFontSmall, *g_pFontBig;
 extern tTextBitMap *g_pTextBitmap;
 extern tBitMap *g_pFrameDisplay;

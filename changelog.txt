@@ -1,3 +1,9 @@
+21.4.16
+	- ingame music now cycles between two tracks
+
+21.4.12
+	- fixed audio filter being enabled when playing sfx
+
 21.4.6
 	- fixed being able to attack other nodes even if road is in different direction
 

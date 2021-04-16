@@ -403,10 +403,17 @@ convertFont(
 	SOURCE ${RES_DIR}/font_uni54.png DESTINATION ${DATA_DIR}/uni54.fnt
 )
 
-# Copy MODs, maps and defs
+mergeMods(
+	TARGET ${GERMZ_EXECUTABLE}
+	SOURCES ${RES_DIR}/germz1.mod ${RES_DIR}/germz2.mod
+	DESTINATIONS ${DATA_DIR}/germz1.mod ${DATA_DIR}/germz2.mod
+	SAMPLE_PACK ${DATA_DIR}/samples.samplepack
+)
+
+# Copy maps and defs
 file(
 	COPY
-		${RES_DIR}/germz2-25.mod ${RES_DIR}/maps ${RES_DIR}/defs.json
+		${RES_DIR}/maps ${RES_DIR}/defs.json
 	DESTINATION ${DATA_DIR}
 )
 
