@@ -1,5 +1,9 @@
-#ifndef GUARD_OF_JSON_H
-#define GUARD_OF_JSON_H
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#ifndef _JSON_JSON_H_
+#define _JSON_JSON_H_
 
 #define JSMN_STRICT       /* Strict JSON parsing */
 // JSMN_PARENT_LINKS breaks things up!
@@ -35,4 +39,4 @@ UWORD jsonTokStrCpy(
 	UWORD uwMaxBytes
 );
 
-#endif // GUARD_OF_JSON_H
+#endif // _JSON_JSON_H_
