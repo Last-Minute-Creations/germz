@@ -171,7 +171,7 @@ Later:
 	☐ special blobs
 	☐ ensure sprites are disabled
 	☐ put final gfx!
-	☐ check if MPL2 license is in every file
+	✔ check if MPL2 license is in every file @done(21-04-17 11:29)
 	☐ github README.md
 		☐ build instructions
 		☐ link to itch.io

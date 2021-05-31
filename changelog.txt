@@ -1,3 +1,6 @@
+21.5.31
+	- added confirmation screen before clearing map
+
 21.4.16
 	- ingame music now cycles between two tracks
 

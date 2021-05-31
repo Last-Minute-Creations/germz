@@ -68,6 +68,7 @@ static void dialogLoadGsCreate(void) {
 	s_sBmDlgScanlined.BytesPerRow = s_pBmDlg->BytesPerRow;
 	s_sBmDlgScanlined.Rows = s_pBmDlg->Rows;
 	s_sBmDlgScanlined.Depth = 4;
+	s_sBmDlgScanlined.Flags = BMF_INTERLEAVED;
 	s_sBmDlgScanlined.Planes[0] = s_pBmDlg->Planes[1];
 	s_sBmDlgScanlined.Planes[1] = s_pBmDlg->Planes[2];
 	s_sBmDlgScanlined.Planes[2] = s_pBmDlg->Planes[3];

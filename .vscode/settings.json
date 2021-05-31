@@ -2,10 +2,21 @@
 	"files.associations": {
 		"*.make": "makefile",
 		"*.cmake": "cmake",
+		"*.nsi.in": "bridlensis",
+		"*.ld.in": "linkerscript",
 		"game_summary.h": "c",
 		"game_init.h": "c",
 		"game_pause.h": "c",
 		"germz.h": "c",
-		"assets.h": "c"
+		"assets.h": "c",
+		"gcc8_c_support.h": "c",
+		"gfxmacros.h": "c",
+		"dialog_test.h": "c",
+		"dialog_clear.h": "c",
+		"dialog.h": "c",
+		"gui_scanlined.h": "c",
+		"color.h": "c",
+		"font.h": "c",
+		"game_editor.h": "c"
 	}
 }

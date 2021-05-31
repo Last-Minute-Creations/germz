@@ -12,6 +12,7 @@
 #include "dialog_load.h"
 #include "dialog_save.h"
 #include "dialog_test.h"
+#include "dialog_clear.h"
 #include "game.h"
 #include "game_init.h"
 #include "blob_anim.h"
@@ -27,6 +28,7 @@ typedef struct _tEditorPlayer {
 typedef enum _tDialogResult {
 	DIALOG_RESULT_NONE,
 	DIALOG_RESULT_RELOAD_MAP,
+	DIALOG_RESULT_CLEAR_MAP,
 	DIALOG_RESULT_EXIT,
 } tDialogResult;
 
@@ -36,6 +38,7 @@ static tEditorPlayer s_sPlayer;
 static tDialogResult s_eDialogResult;
 static tSteer s_sSteerKey, s_sSteerJoy;
 static ULONG s_ulRepeatCounter;
+static UBYTE s_isClear;
 
 static tTile s_pMenuTiles[] = {
 	TILE_BLOB_P1, TILE_SUPER_CAP_P1, TILE_SUPER_TICK_P1, TILE_SUPER_ATK_P1,
@@ -125,6 +128,7 @@ static void gameEditorGsCreate(void) {
 
 	s_sSteerKey = steerInitKey(KEYMAP_ARROWS);
 	s_sSteerJoy = steerInitJoy(JOY1);
+	s_isClear = 0;
 
 	s_sPlayer.ubPaletteOption = 0;
 	s_sPlayer.ubX = 0;
@@ -139,9 +143,9 @@ static void onChangeColor(void) {
 	setPaletteBlobColor((s_ubCurrentColor + 1) % 5);
 }
 
-static void onReset(void) {
-	mapDataClear(&g_sMapData);
-	editorInitialDraw();
+static void onClear(void) {
+	dialogClearShow(&s_isClear);
+	s_eDialogResult = DIALOG_RESULT_CLEAR_MAP;
 }
 
 static void onTest(void) {
@@ -162,7 +166,7 @@ static void onQuit(void) {
 }
 
 static const tCbFn s_pFnCallbacks[] = {
-	onChangeColor, onReset, onTest, onSave, onLoad, onQuit
+	onChangeColor, onClear, onTest, onSave, onLoad, onQuit
 };
 static const UBYTE s_ubFnBtnCount = sizeof(s_pFnCallbacks) / sizeof(s_pFnCallbacks[0]);
 
@@ -174,6 +178,13 @@ static void gameEditorGsLoop(void) {
 
 	if(s_eDialogResult != DIALOG_RESULT_NONE) {
 		if(s_eDialogResult == DIALOG_RESULT_RELOAD_MAP) {
+			editorInitialDraw();
+		}
+		else if(s_eDialogResult == DIALOG_RESULT_CLEAR_MAP) {
+			if(s_isClear) {
+				s_isClear = 0;
+				mapDataClear(&g_sMapData);
+			}
 			editorInitialDraw();
 		}
 		s_eDialogResult = DIALOG_RESULT_NONE;

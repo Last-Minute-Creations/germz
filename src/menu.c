@@ -23,7 +23,6 @@
 #include "menu_list.h"
 #include "color.h"
 #include "gui_scanlined.h"
-#include <bartman/gcc8_c_support.h>
 
 #define MENU_COLOR_ACTIVE (COLOR_P3_BRIGHT)
 #define MENU_COLOR_INACTIVE (COLOR_P3_BRIGHT + 1)
@@ -273,9 +272,9 @@ static void menuGsLoop(void) {
 	}
 
 	copProcessBlocks();
-	debug_start_idle();
+	systemIdleBegin();
 	vPortWaitForEnd(s_pVp);
-	debug_stop_idle();
+	systemIdleEnd();
 }
 
 static void menuGsDestroy(void) {
@@ -415,9 +414,9 @@ static void textBasedGsLoop(void) {
 	}
 
 	copProcessBlocks();
-	debug_start_idle();
+	systemIdleBegin();
 	vPortWaitForEnd(s_pVp);
-	debug_stop_idle();
+	systemIdleEnd();
 }
 
 #define TEXT_ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))

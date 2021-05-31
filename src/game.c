@@ -20,7 +20,6 @@
 #include "game_pause.h"
 #include "germz.h"
 #include "color.h"
-#include <bartman/gcc8_c_support.h>
 
 #define GAME_COPPERLIST_COLOR_CHANGES 4
 
@@ -152,9 +151,9 @@ void gamePostprocess(void) {
 	bobNewEnd();
 	viewProcessManagers(s_pView);
 	copProcessBlocks();
-	debug_start_idle();
+	systemIdleBegin();
 	vPortWaitUntilEnd(s_pVp);
-	debug_stop_idle();
+	systemIdleEnd();
 	if(s_isDump) {
 		s_isDump = 0;
 		static char szPath[30];
