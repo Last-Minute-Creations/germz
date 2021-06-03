@@ -3,6 +3,4 @@ build
 *.adf
 *.gif
 
-.vscode/SYMBOLS.DB
-.vscode/SYMBOLS.DB-shm
-.vscode/SYMBOLS.DB-wal
+.vscode/SYMBOLS*.DB*

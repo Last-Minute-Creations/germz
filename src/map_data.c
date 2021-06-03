@@ -184,7 +184,11 @@ UBYTE mapDataSaveToFile(const tMapData *pMapData, const char *szPath) {
 			char c = s_pTileToChar[pMapData->pTiles[ubX][ubY]];
 			fileWrite(pFile, &c, 1);
 		}
-		fileWriteStr(pFile, "\",\n");
+		fileWriteStr(pFile, "\"");
+		if(ubY < MAP_SIZE - 1) {
+			fileWriteStr(pFile, ",");
+		}
+		fileWriteStr(pFile, "\n");
 	}
 	fileWriteStr(pFile, "\t]\n}\n");
 
