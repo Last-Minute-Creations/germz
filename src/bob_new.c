@@ -160,8 +160,10 @@ UBYTE bobNewProcessNext(void) {
 	if(s_ubBobsSaved < s_ubBobsPushed) {
 		tBobQueue *pQueue = &s_pQueues[s_ubBufferCurr];
 		if(!s_ubBobsSaved) {
-			// Prepare for saving
-			// Bltcon0/1, bltaxwm could be reset between Begin and ProcessNext
+			// Prepare for saving.
+			// Bltcon0/1, bltaxwm could be reset between Begin and ProcessNext.
+			// I tried to change A->D to C->D bug afwm/alwm need to be set
+			// for mask-copying bobs, so there's no perf to be gained.
 			UWORD uwBltCon0 = USEA|USED | MINTERM_A;
 			g_pCustom->bltcon0 = uwBltCon0;
 			g_pCustom->bltcon1 = 0;
