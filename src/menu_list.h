@@ -40,8 +40,8 @@ typedef struct _tMenuListOption {
 	union {
 		struct {
 			UBYTE *pVar;
+			UBYTE ubMin;
 			UBYTE ubMax;
-			UBYTE ubDefault;
 			UBYTE isCyclic;
 			const char **pEnumLabels;
 			tOptionValChangeCb cbOnValChange;

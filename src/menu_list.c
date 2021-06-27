@@ -108,9 +108,16 @@ UBYTE menuListNavigate(BYTE bDir) {
 UBYTE menuListToggle(BYTE bDelta) {
 	if(s_pOptions[s_ubActiveOption].eOptionType == MENU_LIST_OPTION_TYPE_UINT8) {
 		WORD wNewVal = *s_pOptions[s_ubActiveOption].sOptUb.pVar + bDelta;
-		if(wNewVal < 0 || wNewVal > s_pOptions[s_ubActiveOption].sOptUb.ubMax) {
+		if(
+			wNewVal < s_pOptions[s_ubActiveOption].sOptUb.ubMin ||
+			wNewVal > s_pOptions[s_ubActiveOption].sOptUb.ubMax
+		) {
 			if(s_pOptions[s_ubActiveOption].sOptUb.isCyclic) {
-				wNewVal = wNewVal < 0 ? s_pOptions[s_ubActiveOption].sOptUb.ubMax : 0;
+				wNewVal = (
+					wNewVal < s_pOptions[s_ubActiveOption].sOptUb.ubMin ?
+					s_pOptions[s_ubActiveOption].sOptUb.ubMax :
+					s_pOptions[s_ubActiveOption].sOptUb.ubMin
+				);
 			}
 			else {
 				return 0; // Out of bounds on non-cyclic option

@@ -115,7 +115,7 @@ static void dialogTestGsCreate(void) {
 			s_pOptionsSteer[s_ubSteerOptionCount] = (tMenuListOption){
 				MENU_LIST_OPTION_TYPE_UINT8, .isHidden = 0, .sOptUb = {
 				.pVar = &s_pTestSteers[i], .ubMax = STEER_MODE_IDLE, .isCyclic = 1,
-				.ubDefault = STEER_MODE_JOY_1, .pEnumLabels = g_pSteerModeLabels
+				.pEnumLabels = g_pSteerModeLabels
 			}};
 			s_pMenuCaptionsSteer[s_ubSteerOptionCount++] = s_pSteerPlayerLabels[i];
 		// }

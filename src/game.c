@@ -382,14 +382,21 @@ void gameInitCursorBobs(void) {
 
 void gameSetRules(
 	UBYTE isEditor, tBattleMode eBattleMode, tTeamConfig eTeamCfg,
-	UBYTE isCampaign, tSteerMode *pSteerModes
+	UBYTE ubCampaignStage, tSteerMode *pSteerModes
 ) {
 	s_isEditor = isEditor;
 	s_eBattleMode = eBattleMode;
 	s_eTeamCfg = eTeamCfg;
-	s_ubCampaignStage = isCampaign;
+	s_ubCampaignStage = ubCampaignStage;
 	for(UBYTE i = 0; i < 4; ++i) {
 		s_pSteers[i] = steerInitFromMode(pSteerModes[i], i);
+	}
+
+	if(s_ubCampaignStage) {
+		// Load first campaign map
+		char szMapPath[30];
+		sprintf(szMapPath, "data/maps/campaign/c%02hhu.json", s_ubCampaignStage);
+		mapDataInitFromFile(&g_sMapData, szMapPath);
 	}
 }
 

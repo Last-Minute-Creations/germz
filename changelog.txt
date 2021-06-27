@@ -1,3 +1,6 @@
+21.5.27
+	- added "starting level" option to campaign menu
+
 21.5.31
 	- added confirmation screen before clearing map
 

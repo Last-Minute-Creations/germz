@@ -61,9 +61,18 @@ void gameDrawTileAt(tTile eTile, UWORD uwX, UWORD uwY, UBYTE ubFrame);
 
 void gameInitCursorBobs(void);
 
+/**
+ * @brief
+ *
+ * @param isEditor
+ * @param eBattleMode
+ * @param eTeamCfg
+ * @param ubCampaignStage 0 for non-campaign, 1+ for specifying starting campaign map
+ * @param pSteerModes
+ */
 void gameSetRules(
 	UBYTE isEditor, tBattleMode eBattleMode, tTeamConfig eTeamCfg,
-	UBYTE isCampaign, tSteerMode *pSteerModes
+	UBYTE ubCampaignStage, tSteerMode *pSteerModes
 );
 
 tBobNew *gameGetCursorBob(UBYTE ubIdx);

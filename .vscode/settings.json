@@ -17,6 +17,7 @@
 		"gui_scanlined.h": "c",
 		"color.h": "c",
 		"font.h": "c",
-		"game_editor.h": "c"
+		"game_editor.h": "c",
+		"main.h": "c"
 	}
 }

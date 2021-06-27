@@ -42,6 +42,7 @@ static UBYTE s_ubBattleMode;
 static UBYTE s_ubTeamCfg;
 static UBYTE s_isCampaign;
 static UBYTE s_isPendingCampaignResult = 0;
+static UBYTE s_ubMapCount;
 
 static UBYTE s_pPlayerSteers[4] = {
 	STEER_MODE_JOY_1, STEER_MODE_JOY_2,
@@ -121,7 +122,7 @@ static void menuErrorMsg(const char *szMsg) {
 	}
 }
 
-static void startGame(UBYTE isEditor, UBYTE ubPlayerMask, UBYTE isCampaign) {
+static void startGame(UBYTE isEditor, UBYTE ubPlayerMask, UBYTE ubCampaignStage) {
 	// Menulist uses UBYTE[], gameSetRules expects tSteerMode[], so convert
 	tSteerMode pSteers[4] = {
 		s_pPlayerSteers[0], s_pPlayerSteers[1],
@@ -160,7 +161,7 @@ static void startGame(UBYTE isEditor, UBYTE ubPlayerMask, UBYTE isCampaign) {
 				}
 			}
 		}
-		gameSetRules(0, s_ubBattleMode, s_ubTeamCfg, isCampaign, pSteers);
+		gameSetRules(0, s_ubBattleMode, s_ubTeamCfg, ubCampaignStage, pSteers);
 		fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, onFadeoutGameStart);
 	}
 }
@@ -244,6 +245,21 @@ static void menuGsCreate(void) {
 	s_pFadeMenu = fadeCreate(s_pView, pPalette, 32);
 
 	s_pStateMachineMenu = stateManagerCreate();
+
+	// Get number of maps
+	char szPath[30];
+	s_ubMapCount = 1;
+	do {
+		sprintf(szPath, "data/maps/campaign/c%02hhu.json", s_ubMapCount);
+		tFile *pMapFile = fileOpen(szPath, "rb");
+		if(!pMapFile) {
+			break;
+		}
+		fileClose(pMapFile);
+	}
+	while(++s_ubMapCount < 100);
+	logWrite("Campaign map count: %hhu", s_ubMapCount);
+
 	systemUnuse();
 	if(s_isPendingCampaignResult) {
 		s_isPendingCampaignResult = 0;
@@ -457,44 +473,30 @@ static void textBasedGsCreate(const char **pLines, UBYTE ubLineCount) {
 static const char *s_pMenuCaptionsSteer[STEER_MENU_OPTION_MAX];
 static tMenuListOption s_pOptionsSteer[STEER_MENU_OPTION_MAX];
 static UBYTE s_ubSteerOptionCount;
+static UBYTE s_ubStartingLevel = 1;
 
 static void onStart(void) {
-	startGame(0, g_sMapData.ubPlayerMask, s_isCampaign);
+	startGame(0, g_sMapData.ubPlayerMask, s_isCampaign ? s_ubStartingLevel : 0);
 }
 
 static void menuSteerGsCreate(void) {
 	s_ubSteerOptionCount = 0;
 
-	if(s_isCampaign) {
-		// Only one player, only joy & keyboard, rest is set to AI
-		s_pPlayerSteers[0] = STEER_MODE_JOY_1;
-		for(UBYTE i = 1; i < 4; ++i) {
-			s_pPlayerSteers[i] = STEER_MODE_AI;
-		}
-		s_pOptionsSteer[s_ubSteerOptionCount] = (tMenuListOption){
-			MENU_LIST_OPTION_TYPE_UINT8, .isHidden = 0, .sOptUb = {
-			.pVar = &s_pPlayerSteers[0], .ubMax = STEER_MODE_KEY_ARROWS, .isCyclic = 1,
-			.ubDefault = STEER_MODE_JOY_1, .pEnumLabels = g_pSteerModeLabels
-		}};
-		s_pMenuCaptionsSteer[s_ubSteerOptionCount++] = s_pSteerPlayerLabels[0];
-	}
-	else {
-		// Undraw battle's menu list
-		blitRect(
-			&s_sBmFrontScanline, BATTLE_MENU_X, BATTLE_MENU_Y,
-			BATTLE_MENU_WIDTH, BATTLE_MENU_HEIGHT, COLOR_CONSOLE_BG >> 1
-		);
+	// Undraw battle's menu list
+	blitRect(
+		&s_sBmFrontScanline, BATTLE_MENU_X, BATTLE_MENU_Y,
+		BATTLE_MENU_WIDTH, BATTLE_MENU_HEIGHT, COLOR_CONSOLE_BG >> 1
+	);
 
-		// Players
-		for(UBYTE i = 0; i < 4; ++i) {
-			if(BTST(g_sMapData.ubPlayerMask, i)) {
-				s_pOptionsSteer[s_ubSteerOptionCount] = (tMenuListOption){
-					MENU_LIST_OPTION_TYPE_UINT8, .isHidden = 0, .sOptUb = {
-					.pVar = &s_pPlayerSteers[i], .ubMax = STEER_MODE_IDLE, .isCyclic = 1,
-					.ubDefault = STEER_MODE_JOY_1, .pEnumLabels = g_pSteerModeLabels
-				}};
-				s_pMenuCaptionsSteer[s_ubSteerOptionCount++] = s_pSteerPlayerLabels[i];
-			}
+	// Players
+	for(UBYTE i = 0; i < 4; ++i) {
+		if(BTST(g_sMapData.ubPlayerMask, i)) {
+			s_pOptionsSteer[s_ubSteerOptionCount] = (tMenuListOption){
+				MENU_LIST_OPTION_TYPE_UINT8, .isHidden = 0, .sOptUb = {
+				.pVar = &s_pPlayerSteers[i], .ubMax = STEER_MODE_IDLE, .isCyclic = 1,
+				.pEnumLabels = g_pSteerModeLabels
+			}};
+			s_pMenuCaptionsSteer[s_ubSteerOptionCount++] = s_pSteerPlayerLabels[i];
 		}
 	}
 
@@ -508,7 +510,7 @@ static void menuSteerGsCreate(void) {
 	UBYTE ubOptionIdxBack = s_ubSteerOptionCount;
 	s_pOptionsSteer[s_ubSteerOptionCount] = (tMenuListOption){
 		MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0,
-		.sOptCb = {.cbSelect = s_isCampaign ? fadeToMain : fadeToBattle}
+		.sOptCb = {.cbSelect = fadeToBattle}
 	};
 	s_pMenuCaptionsSteer[s_ubSteerOptionCount++] = "BACK";
 
@@ -651,7 +653,7 @@ static void battleRegenMenuList(UBYTE ubPlayerMask) {
 	s_pOptionsBattle[s_ubBattleOptionCount] = (tMenuListOption){
 		.eOptionType = MENU_LIST_OPTION_TYPE_UINT8, .isHidden = 0, .sOptUb = {
 			.isCyclic = 1, .pEnumLabels = s_pLabelsMode, .pVar = &s_ubBattleMode,
-			.ubMax = 0, .ubDefault = 0, .cbOnValChange = onModeChange
+			.ubMax = 0, .cbOnValChange = onModeChange
 		}
 	};
 	if(isTeamsAllowed) {
@@ -665,8 +667,7 @@ static void battleRegenMenuList(UBYTE ubPlayerMask) {
 	s_pOptionsBattle[s_ubBattleOptionCount] = (tMenuListOption){
 		.eOptionType = MENU_LIST_OPTION_TYPE_UINT8, .isHidden = 1, .sOptUb = {
 			.isCyclic = 1, .pEnumLabels = s_pLabelsTeam1, .pVar = &s_ubTeamCfg,
-			.ubDefault = 0, .ubMax = 2, .cbOnValChange = onTeamChange,
-			.cbOnValDraw = onTeamDraw
+			.ubMax = 2, .cbOnValChange = onTeamChange, .cbOnValDraw = onTeamDraw
 		}
 	};
 	if(isTeamsAllowed && s_ubBattleMode) {
@@ -679,8 +680,7 @@ static void battleRegenMenuList(UBYTE ubPlayerMask) {
 	s_pOptionsBattle[s_ubBattleOptionCount] = (tMenuListOption){
 		.eOptionType = MENU_LIST_OPTION_TYPE_UINT8, .isHidden = 1, .sOptUb = {
 			.isCyclic = 1, .pEnumLabels = s_pLabelsTeam2, .pVar = &s_ubTeamCfg,
-			.ubDefault = 0, .ubMax = 2, .cbOnValChange = onTeamChange,
-			.cbOnValDraw = onTeamDraw
+			.ubMax = 2, .cbOnValChange = onTeamChange, .cbOnValDraw = onTeamDraw
 		}
 	};
 	if(isTeamsAllowed && s_ubBattleMode) {
@@ -839,6 +839,7 @@ static void battleGsDestroy(void) {
 
 //------------------------------------------------------------ SUBSTATE: CAMPAIGN
 
+
 void campaignGsCreate(void) {
 	s_pFadeMenu->pPaletteRef[COLOR_SPECIAL_1] = 0x333;
 	s_pFadeMenu->pPaletteRef[COLOR_SPECIAL_2] = 0x222;
@@ -848,12 +849,54 @@ void campaignGsCreate(void) {
 	blitCopy(s_pBgSub, 0, 128, s_pBfr->pBack, 0, 128, 320, 128, MINTERM_COPY);
 	bmFrameDraw(g_pFrameDisplay, s_pBfr->pBack, 32, 16, 16, 14, 16);
 
-	// Load first map
 	s_isCampaign = 1;
-	mapDataInitFromFile(&g_sMapData, "data/maps/campaign/c01.json");
 
-	// Call steer substate
-	stateChange(s_pStateMachineMenu, &s_sStateSteer);
+	// Copypasta from steer substate, with some changes
+	s_ubSteerOptionCount = 0;
+
+	// Only one player, only joy & keyboard, rest is set to AI
+	s_pPlayerSteers[0] = STEER_MODE_JOY_1;
+	for(UBYTE i = 1; i < 4; ++i) {
+		s_pPlayerSteers[i] = STEER_MODE_AI;
+	}
+	s_pOptionsSteer[s_ubSteerOptionCount] = (tMenuListOption){
+		MENU_LIST_OPTION_TYPE_UINT8, .isHidden = 0, .sOptUb = {
+		.pVar = &s_pPlayerSteers[0], .ubMax = STEER_MODE_KEY_ARROWS, .isCyclic = 1,
+		.pEnumLabels = g_pSteerModeLabels
+	}};
+	s_pMenuCaptionsSteer[s_ubSteerOptionCount++] = s_pSteerPlayerLabels[0];
+
+	// Starting level
+	s_pOptionsSteer[s_ubSteerOptionCount] = (tMenuListOption){
+		MENU_LIST_OPTION_TYPE_UINT8, .isHidden = 0, .sOptUb = {
+			.isCyclic = 1, .ubMin = 1, .ubMax = s_ubMapCount - 1,
+			.pVar = &s_ubStartingLevel
+		}
+	};
+	s_pMenuCaptionsSteer[s_ubSteerOptionCount++] = "STARTING LEVEL";
+
+	// Infect
+	s_pOptionsSteer[s_ubSteerOptionCount] = (tMenuListOption){
+		MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0, .sOptCb = {.cbSelect = onStart}
+	};
+	s_pMenuCaptionsSteer[s_ubSteerOptionCount++] = "INFECT";
+
+	// Back
+	UBYTE ubOptionIdxBack = s_ubSteerOptionCount;
+	s_pOptionsSteer[s_ubSteerOptionCount] = (tMenuListOption){
+		MENU_LIST_OPTION_TYPE_CALLBACK, .isHidden = 0,
+		.sOptCb = {.cbSelect = fadeToMain}
+	};
+	s_pMenuCaptionsSteer[s_ubSteerOptionCount++] = "BACK";
+
+	menuListInit(
+		s_pOptionsSteer, s_pMenuCaptionsSteer, s_ubSteerOptionCount,
+		g_pFontBig, BATTLE_MENU_X, BATTLE_MENU_Y, scanlinedMenuUndraw,
+		scanlinedMenuPosDraw
+	);
+	menuListSetActive(s_ubSteerOptionCount - 2);
+
+	s_cbOnEscape = s_pOptionsSteer[ubOptionIdxBack].sOptCb.cbSelect;
 }
 
 //------------------------------------------------------------ SUBSTATE: CREDITS
@@ -1120,7 +1163,7 @@ static tState s_sStateBattle = {
 };
 
 static tState s_sStateCampaign = {
-	.cbCreate = campaignGsCreate, .cbLoop = 0, .cbDestroy = 0
+	.cbCreate = campaignGsCreate, .cbLoop = menuSubstateLoop, .cbDestroy = 0
 };
 
 static tState s_sStateMain = {
