@@ -45,7 +45,8 @@ target_compile_options(${GERMZ_EXECUTABLE} PUBLIC -Wall)
 target_link_libraries(${GERMZ_EXECUTABLE} ace)
 if(GAME_DEBUG)
 	target_compile_definitions(${GERMZ_EXECUTABLE} PRIVATE GAME_DEBUG)
-	target_compile_definitions(ace PUBLIC ACE_DEBUG_ALL ACE_DEBUG_UAE)
+	target_compile_definitions(ace PUBLIC ACE_DEBUG_UAE)
+	# target_compile_definitions(ace PUBLIC ACE_DEBUG_PTPLAYER)
 endif()
 if(GAME_DEBUG_AI)
 	target_compile_definitions(${GERMZ_EXECUTABLE} PRIVATE GAME_DEBUG_AI)
@@ -405,8 +406,8 @@ convertFont(
 
 mergeMods(
 	TARGET ${GERMZ_EXECUTABLE}
-	SOURCES ${RES_DIR}/germz1.mod ${RES_DIR}/germz2.mod
-	DESTINATIONS ${DATA_DIR}/germz1.mod ${DATA_DIR}/germz2.mod
+	SOURCES ${RES_DIR}/germz1.mod ${RES_DIR}/germz2.mod ${RES_DIR}/germz4.mod
+	DESTINATIONS ${DATA_DIR}/germz1.mod ${DATA_DIR}/germz2.mod ${DATA_DIR}/germz4.mod
 	SAMPLE_PACK ${DATA_DIR}/samples.samplepack
 )
 

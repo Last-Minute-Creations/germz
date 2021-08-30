@@ -11,7 +11,7 @@
 
 #define BLOB_COLOR_COUNT 5
 #define BLOB_FRAME_COUNT 9
-#define MOD_COUNT 2
+#define MOD_COUNT 3
 
 typedef struct _tNodeModsBase {
 	UBYTE ubChargeRate;

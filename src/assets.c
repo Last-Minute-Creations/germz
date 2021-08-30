@@ -32,6 +32,7 @@ void assetsGlobalCreate(void) {
 	// Mods
 	g_pMods[0] = ptplayerModCreate("data/germz1.mod");
 	g_pMods[1] = ptplayerModCreate("data/germz2.mod");
+	g_pMods[2] = ptplayerModCreate("data/germz4.mod");
 	s_ulSampleSize = fileGetSize("data/samples.samplepack");
 	g_pModSamples = memAllocChip(s_ulSampleSize);
 	tFile *pFileSamples = fileOpen("data/samples.samplepack", "rb");
@@ -64,6 +65,7 @@ void assetsGlobalDestroy(void) {
 	// Mods
 	ptplayerModDestroy(g_pMods[0]);
 	ptplayerModDestroy(g_pMods[1]);
+	ptplayerModDestroy(g_pMods[2]);
 	memFree(g_pModSamples, s_ulSampleSize);
 
 	// Font
