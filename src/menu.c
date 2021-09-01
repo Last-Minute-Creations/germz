@@ -1129,13 +1129,13 @@ static void mainGsCreate(void) {
 	);
 
 	fontDrawStr(
-		g_pFontSmall, s_pBfr->pBack, 320/2, 256 - 20,
+		g_pFontSmall, s_pBfr->pBack, SCREEN_PAL_WIDTH / 2, SCREEN_PAL_HEIGHT - 20,
 		"A game by Last Minute Creations",
 		MENU_COLOR_INACTIVE, FONT_HCENTER | FONT_COOKIE, g_pTextBitmap
 	);
 
 	fontDrawStr(
-		g_pFontSmall, s_pBfr->pBack, 320/2, 256 - 10,
+		g_pFontSmall, s_pBfr->pBack, SCREEN_PAL_WIDTH / 2, SCREEN_PAL_HEIGHT - 10,
 		"lastminutecreations.itch.io/germz",
 		MENU_COLOR_INACTIVE, FONT_HCENTER | FONT_COOKIE, g_pTextBitmap
 	);

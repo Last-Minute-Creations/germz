@@ -5,6 +5,7 @@
 #include "dialog.h"
 #include <ace/managers/blit.h>
 #include <ace/managers/system.h>
+#include <ace/generic/screen.h>
 #include <gui/border.h>
 
 static tBitMap *s_pBmDialog, *s_pBmDialogBgFirst, *s_pBmDialogBgSecond;
@@ -16,8 +17,8 @@ tBitMap *dialogCreate(
 ) {
 	s_uwWidth = uwWidth;
 	s_uwHeight = uwHeight;
-	s_uwOffsX = (320 - s_uwWidth) / 2;
-	s_uwOffsY = (256 - s_uwHeight) / 2;
+	s_uwOffsX = (SCREEN_PAL_WIDTH - s_uwWidth) / 2;
+	s_uwOffsY = (SCREEN_PAL_HEIGHT - s_uwHeight) / 2;
 
 	UBYTE ubFlags = (bitmapIsInterleaved(pBack) ? BMF_INTERLEAVED : 0);
 	systemUse();

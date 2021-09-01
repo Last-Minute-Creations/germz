@@ -7,13 +7,14 @@
 
 #include "map_data.h"
 #include <ace/utils/font.h>
+#include <ace/generic/screen.h>
 #include "steer.h"
 #include "bob_new.h"
 #include "fade.h"
 #include "player.h"
 
-#define HUD_OFFS_X 256
 #define HUD_MONITOR_SIZE 64
+#define HUD_OFFS_X (SCREEN_PAL_WIDTH - HUD_MONITOR_SIZE)
 
 typedef enum _tTeamConfig {
 	TEAM_CONFIG_P1_P2_AND_P3_P4,

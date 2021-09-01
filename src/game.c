@@ -181,10 +181,10 @@ static void gameGsCreate(void) {
 	tCopCmd *pColorCmdsBack = &s_pView->pCopList->pBackBfr->pList[s_uwCopColorCmdOffset];
 	tCopCmd *pColorCmdsFront = &s_pView->pCopList->pFrontBfr->pList[s_uwCopColorCmdOffset];
 	for(tPlayerIdx ePlayer = PLAYER_1; ePlayer <= PLAYER_4; ++ePlayer) {
-		copSetWait(&pColorCmdsBack[3 * ePlayer + 0].sWait, 0, 0x2C + ePlayer * HUD_MONITOR_SIZE);
+		copSetWait(&pColorCmdsBack[3 * ePlayer + 0].sWait, 0, s_pView->ubPosY + ePlayer * HUD_MONITOR_SIZE);
 		copSetMove(&pColorCmdsBack[3 * ePlayer + 1].sMove, &g_pCustom->color[COLOR_SPECIAL_1], 0);
 		copSetMove(&pColorCmdsBack[3 * ePlayer + 2].sMove, &g_pCustom->color[COLOR_SPECIAL_2], 0);
-		copSetWait(&pColorCmdsFront[3 * ePlayer + 0].sWait, 0, 0x2C + ePlayer * HUD_MONITOR_SIZE);
+		copSetWait(&pColorCmdsFront[3 * ePlayer + 0].sWait, 0, s_pView->ubPosY + ePlayer * HUD_MONITOR_SIZE);
 		copSetMove(&pColorCmdsFront[3 * ePlayer + 1].sMove, &g_pCustom->color[COLOR_SPECIAL_1], 0);
 		copSetMove(&pColorCmdsFront[3 * ePlayer + 2].sMove, &g_pCustom->color[COLOR_SPECIAL_2], 0);
 	}

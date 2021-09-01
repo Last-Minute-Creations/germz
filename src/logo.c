@@ -40,6 +40,7 @@ static void logoGsCreate(void) {
 
 	s_pView = viewCreate(0,
 		TAG_VIEW_GLOBAL_CLUT, 1,
+		TAG_VIEW_WINDOW_HEIGHT, 172,
 	TAG_END);
 
 	s_pVp = vPortCreate(0,
