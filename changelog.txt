@@ -1,8 +1,13 @@
-21.5.27
-	- added "starting level" option to campaign menu
+21.9.1
+	- added maps c11-15
+	- starting level option in campaign menu
+	- added germz4.mod
 
 21.5.31
 	- added confirmation screen before clearing map
+
+21.5.27
+	- added "starting level" option to campaign menu
 
 21.4.16
 	- ingame music now cycles between two tracks

@@ -23,6 +23,7 @@
 #include "menu_list.h"
 #include "color.h"
 #include "gui_scanlined.h"
+#include "cutscene.h"
 
 #define MENU_COLOR_ACTIVE (COLOR_P3_BRIGHT)
 #define MENU_COLOR_INACTIVE (COLOR_P3_BRIGHT + 1)
@@ -87,7 +88,13 @@ static void onFadeoutEditorGameStart(void) {
 
 static void onFadeoutGameStart(void) {
 	statePop(g_pStateMachineGame); // Pop from map select to main menu
-	stateChange(g_pStateMachineGame, &g_sStateGame);
+	if(s_isCampaign) {
+		cutsceneSetup("intro", &g_sStateGame);
+		stateChange(g_pStateMachineGame, &g_sStateCutscene);
+	}
+	else {
+		stateChange(g_pStateMachineGame, &g_sStateGame);
+	}
 }
 
 static void menuErrorMsg(const char *szMsg) {

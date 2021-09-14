@@ -18,6 +18,10 @@
 		"color.h": "c",
 		"font.h": "c",
 		"game_editor.h": "c",
-		"main.h": "c"
+		"main.h": "c",
+		"system.h": "c",
+		"screen.h": "c",
+		"state.h": "c",
+		"joy.h": "c"
 	}
 }
