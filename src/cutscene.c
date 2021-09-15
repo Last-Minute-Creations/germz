@@ -20,7 +20,8 @@
 #define SLIDE_POS_Y ((SCREEN_PAL_HEIGHT - SLIDE_SIZE) / 4)
 #define TEXT_POS_X (SCREEN_PAL_WIDTH / 2)
 #define TEXT_POS_Y (SLIDE_POS_Y + SLIDE_SIZE + 16)
-#define SLIDE_RECT_SIZE 8
+#define TEXT_LINE_HEIGHT (10 + 2)
+#define SLIDE_ANIM_COLS 2
 
 static const char *s_pLines[][LINES_PER_SLIDE_MAX] = {
 	{
@@ -74,63 +75,26 @@ static tFade *s_pFade;
 static UBYTE s_ubSlideCount, s_ubCurrentSlide, s_ubCurrentLine;
 static const char *s_szDirName;
 static tState *s_pNextState;
+static UWORD s_uwFontColorVal;
+static UBYTE s_ubFadeStep;
 
 static tBitMap *s_pSlides[SLIDES_MAX];
 
-// see res/slide_anim.py
-static const UBYTE s_pCoords[] = {
-	0xFD, 0x42, 0x91, 0x8C, 0xB1, 0x5D, 0xC1, 0xC0,
-	0xC3, 0x05, 0xD8, 0x00, 0xF9, 0x6E, 0x67, 0x9F,
-	0xFE, 0x73, 0x65, 0x2B, 0x46, 0x23, 0xD6, 0x94,
-	0x4F, 0xBB, 0xAE, 0x1C, 0x4A, 0x45, 0x99, 0x48,
-	0xEC, 0x8A, 0x2D, 0xDE, 0x7B, 0x15, 0xE4, 0x0B,
-	0xE8, 0x1F, 0xEF, 0x2F, 0x07, 0xC6, 0x89, 0x0D,
-	0x83, 0x35, 0x66, 0x3D, 0x2A, 0x55, 0xCD, 0xE6,
-	0xBA, 0xAC, 0xB8, 0x14, 0x84, 0x1E, 0x0A, 0x50,
-	0xA9, 0x9D, 0x95, 0x93, 0xD5, 0x39, 0xA6, 0xD3,
-	0x90, 0xF6, 0x6C, 0x44, 0xD9, 0x03, 0x31, 0x19,
-	0x57, 0x8D, 0xA0, 0x24, 0xC5, 0xCA, 0x0E, 0xCF,
-	0xFF, 0x75, 0x60, 0x82, 0x7C, 0x5B, 0x1B, 0x10,
-	0x6A, 0xD1, 0x79, 0xD2, 0xB4, 0xAB, 0x77, 0x1A,
-	0x53, 0x4E, 0x17, 0xF1, 0x5F, 0x13, 0x3E, 0xB5,
-	0x76, 0x56, 0xC2, 0x1D, 0x7A, 0x49, 0xA7, 0x3F,
-	0x37, 0x32, 0xA3, 0x30, 0xB6, 0x4C, 0x74, 0xE1,
-	0x06, 0xE3, 0x6D, 0x34, 0x78, 0x6B, 0x09, 0x12,
-	0xEA, 0x38, 0xAF, 0xBC, 0x8B, 0x62, 0xF2, 0xEE,
-	0xF3, 0x54, 0x0C, 0xC4, 0x3A, 0x08, 0xD0, 0x98,
-	0x9E, 0xDA, 0xBE, 0x51, 0x43, 0xCE, 0x18, 0x9C,
-	0x41, 0x81, 0x9B, 0x80, 0xB0, 0xA8, 0x5A, 0xE2,
-	0x26, 0x20, 0x72, 0xE9, 0x97, 0xAD, 0x64, 0x21,
-	0xB2, 0x86, 0xCB, 0x92, 0xC7, 0x69, 0x85, 0xBF,
-	0x3B, 0xE0, 0xCC, 0x63, 0xD4, 0x02, 0x5C, 0x2C,
-	0x88, 0xD7, 0x11, 0x70, 0x71, 0xC8, 0xB7, 0xBD,
-	0xFA, 0x7D, 0x40, 0xE5, 0xB3, 0x4D, 0x7E, 0xF4,
-	0xED, 0xF0, 0x22, 0xEB, 0xF7, 0xDC, 0x96, 0xA2,
-	0x52, 0xE7, 0xDB, 0x4B, 0x2E, 0x58, 0xA4, 0x5E,
-	0x47, 0xDD, 0x27, 0x3C, 0xA5, 0x36, 0x61, 0x7F,
-	0x04, 0xF5, 0x59, 0xA1, 0x87, 0xF8, 0xAA, 0x8F,
-	0x68, 0x29, 0x28, 0xFB, 0x6F, 0x16, 0x8E, 0xDF,
-	0xFC, 0x01, 0x9A, 0xC9, 0x33, 0x0F, 0xB9, 0x25,
-};
+static tCopBlock *s_pBlockAboveLine, *s_pBlockBelowLine, *s_pBlockAfterLines;
 
 static void drawSlide(void) {
 	UWORD uwLineEraseCurr = TEXT_POS_Y;
-	UWORD uwLineEraseEnd = uwLineEraseCurr + s_ubCurrentLine * (g_pFontSmall->uwHeight + 2);
+	UWORD uwLineEraseEnd = uwLineEraseCurr + s_ubCurrentLine * TEXT_LINE_HEIGHT;
 
 	// Draw slide
-	UWORD uwRect = 0;
-	while(uwRect < sizeof(s_pCoords)) {
-		for(UBYTE i = 0; i < 4; ++i) {
-			UBYTE x = s_pCoords[uwRect] >> 4;
-			UBYTE y = s_pCoords[uwRect] & 0xF;
-			blitCopy(
-				s_pSlides[s_ubCurrentSlide],
-				x * SLIDE_RECT_SIZE, y * SLIDE_RECT_SIZE, s_pBuffer->pBack,
-				SLIDE_POS_X + x * SLIDE_RECT_SIZE, SLIDE_POS_Y + y * SLIDE_RECT_SIZE,
-				SLIDE_RECT_SIZE, SLIDE_RECT_SIZE, MINTERM_COOKIE
-			);
-			++uwRect;
-		}
+	UWORD uwCol = 0;
+	while(uwCol < SLIDE_SIZE) {
+		blitCopy(
+			s_pSlides[s_ubCurrentSlide], uwCol, 0, s_pBuffer->pBack,
+			SLIDE_POS_X + uwCol, SLIDE_POS_Y, SLIDE_ANIM_COLS, SLIDE_SIZE,
+			MINTERM_COOKIE
+		);
+		uwCol += SLIDE_ANIM_COLS;
 
 		// Erase old text
 		if(s_ubCurrentLine && uwLineEraseCurr < uwLineEraseEnd) {
@@ -143,14 +107,40 @@ static void drawSlide(void) {
 
 		vPortWaitForEnd(s_pVp);
 	}
+}
 
-	// Draw first portion of text
+static void initSlideText(void) {
+	// Reset copblocks
 	s_ubCurrentLine = 0;
-	const char *szLine = s_pLines[s_ubCurrentSlide][s_ubCurrentLine];
-	fontDrawStr(
-		g_pFontSmall, s_pBuffer->pBack, TEXT_POS_X, TEXT_POS_Y, szLine,
-		COLOR_P3_BRIGHT, FONT_LAZY | FONT_HCENTER, g_pTextBitmap
-	);
+	copBlockWait(s_pView->pCopList, s_pBlockAboveLine, 0, s_pView->ubPosY + TEXT_POS_Y + TEXT_LINE_HEIGHT * s_ubCurrentLine);
+	copBlockWait(s_pView->pCopList, s_pBlockBelowLine, 0, s_pView->ubPosY + TEXT_POS_Y + TEXT_LINE_HEIGHT * (s_ubCurrentLine + 1) - 1);
+	s_pBlockAboveLine->uwCurrCount = 0;
+	copMove(s_pView->pCopList, s_pBlockAboveLine, &g_pCustom->color[COLOR_P3_BRIGHT], 0x000);
+	copProcessBlocks();
+	s_ubFadeStep = 0;
+
+	// Draw text
+	while(s_pLines[s_ubCurrentSlide][s_ubCurrentLine]) {
+		const char *szLine = s_pLines[s_ubCurrentSlide][s_ubCurrentLine];
+		if(szLine) {
+			// Draw next portion of text
+			fontDrawStr(
+				g_pFontSmall, s_pBuffer->pBack, TEXT_POS_X,
+				TEXT_POS_Y + TEXT_LINE_HEIGHT * s_ubCurrentLine, szLine,
+				COLOR_P3_BRIGHT, FONT_LAZY | FONT_HCENTER, g_pTextBitmap
+			);
+			++s_ubCurrentLine;
+		}
+	}
+
+	s_ubCurrentLine = 0;
+}
+
+static void onFadeIn(void) {
+	copBlockEnable(s_pView->pCopList, s_pBlockAboveLine);
+	copBlockEnable(s_pView->pCopList, s_pBlockBelowLine);
+	copBlockEnable(s_pView->pCopList, s_pBlockAfterLines);
+	initSlideText();
 }
 
 static void cutsceneGsCreate(void) {
@@ -169,10 +159,24 @@ static void cutsceneGsCreate(void) {
 		TAG_SIMPLEBUFFER_IS_DBLBUF, 0,
 	TAG_END);
 
+
 	// Load palette
 	UWORD pPalette[32];
 	paletteLoad("data/germz.plt", pPalette, 32);
 	s_pFade = fadeCreate(s_pView, pPalette, 32);
+
+	s_uwFontColorVal = pPalette[COLOR_P3_BRIGHT];
+	s_pBlockAboveLine = copBlockCreate(s_pView->pCopList, 1, 0, 0); //TEXT_POS_Y);
+	s_pBlockBelowLine = copBlockCreate(s_pView->pCopList, 1, 0, 0); // TEXT_POS_Y + TEXT_LINE_HEIGHT);
+	s_pBlockAfterLines = copBlockCreate(
+		s_pView->pCopList, 1, 0,
+		s_pView->ubPosY + TEXT_POS_Y + (LINES_PER_SLIDE_MAX - 1) * TEXT_LINE_HEIGHT
+	);
+	copMove(s_pView->pCopList, s_pBlockBelowLine, &g_pCustom->color[COLOR_P3_BRIGHT], 0x000);
+	copMove(s_pView->pCopList, s_pBlockAfterLines, &g_pCustom->color[COLOR_P3_BRIGHT], s_uwFontColorVal);
+	copBlockDisable(s_pView->pCopList, s_pBlockAboveLine);
+	copBlockDisable(s_pView->pCopList, s_pBlockBelowLine);
+	copBlockDisable(s_pView->pCopList, s_pBlockAfterLines);
 
 	// Load slides
 	char szPath[30];
@@ -191,7 +195,7 @@ static void cutsceneGsCreate(void) {
 
 	// Draw first slide
 	drawSlide();
-	fadeSet(s_pFade, FADE_STATE_IN, 50, 0);
+	fadeSet(s_pFade, FADE_STATE_IN, 50, onFadeIn);
 	viewLoad(s_pView);
 }
 
@@ -207,31 +211,52 @@ static void onCutsceneFadeOut(void) {
 
 static void cutsceneGsLoop(void) {
 	tFadeState eFadeState = fadeProcess(s_pFade);
+	if(eFadeState != FADE_STATE_IDLE) {
+		return;
+	}
 
+	vPortWaitForEnd(s_pVp);
 	UBYTE isEnabled34 = joyIsParallelEnabled();
-	if(eFadeState != FADE_STATE_OUT && (
+	if(s_ubFadeStep <= 0x10) {
+		// Increment color
+		s_pBlockAboveLine->uwCurrCount = 0;
+		copMove(
+			s_pView->pCopList, s_pBlockAboveLine, &g_pCustom->color[COLOR_P3_BRIGHT],
+			s_ubFadeStep < 0x10 ? (s_ubFadeStep << 8 | s_ubFadeStep << 4 | s_ubFadeStep) : s_uwFontColorVal
+		);
+		++s_ubFadeStep;
+
+		// Refresh copperlist
+		copProcessBlocks();
+	}
+	else if(
 		keyUse(KEY_RETURN) || keyUse(KEY_LSHIFT) || keyUse(KEY_RSHIFT) ||
 		joyUse(JOY1_FIRE) || joyUse(JOY2_FIRE) ||
 		(isEnabled34 && (joyUse(JOY3_FIRE) || joyUse(JOY4_FIRE)))
-	)) {
+	) {
 		// Advance line
 		++s_ubCurrentLine;
-		const char *szLine = s_pLines[s_ubCurrentSlide][s_ubCurrentLine];
-		if(szLine) {
-			// Draw next portion of text
-			fontDrawStr(
-				g_pFontSmall, s_pBuffer->pBack, TEXT_POS_X,
-				TEXT_POS_Y + (g_pFontSmall->uwHeight + 2) * s_ubCurrentLine, szLine,
-				COLOR_P3_BRIGHT, FONT_LAZY | FONT_HCENTER, g_pTextBitmap
-			);
+		if(s_pLines[s_ubCurrentSlide][s_ubCurrentLine]) {
+			// Draw next portion of text - move copBlocks and reset fadeStep
+			copBlockWait(s_pView->pCopList, s_pBlockAboveLine, 0, s_pView->ubPosY + TEXT_POS_Y + TEXT_LINE_HEIGHT * s_ubCurrentLine);
+			copBlockWait(s_pView->pCopList, s_pBlockBelowLine, 0, s_pView->ubPosY + TEXT_POS_Y + TEXT_LINE_HEIGHT * (s_ubCurrentLine + 1) - 1);
+			s_pBlockAboveLine->uwCurrCount = 0;
+			copMove(s_pView->pCopList, s_pBlockAboveLine, &g_pCustom->color[COLOR_P3_BRIGHT], 0x000);
+			copProcessBlocks();
+			s_ubFadeStep = 0;
 		}
 		else {
 			if(++s_ubCurrentSlide < s_ubSlideCount) {
 				// Draw next slide
 				drawSlide();
+				initSlideText();
 			}
 			else {
 				// Quit the cutscene
+				copBlockDisable(s_pView->pCopList, s_pBlockAboveLine);
+				copBlockDisable(s_pView->pCopList, s_pBlockBelowLine);
+				copBlockDisable(s_pView->pCopList, s_pBlockAfterLines);
+				copProcessBlocks();
 				fadeSet(s_pFade, FADE_STATE_OUT, 50, onCutsceneFadeOut);
 			}
 		}
