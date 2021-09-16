@@ -218,6 +218,7 @@ static void cutsceneGsLoop(void) {
 	vPortWaitForEnd(s_pVp);
 	UBYTE isEnabled34 = joyIsParallelEnabled();
 	if(s_ubFadeStep <= 0x10) {
+		// Process text fade-in
 		// Increment color
 		s_pBlockAboveLine->uwCurrCount = 0;
 		copMove(
@@ -229,12 +230,8 @@ static void cutsceneGsLoop(void) {
 		// Refresh copperlist
 		copProcessBlocks();
 	}
-	else if(
-		keyUse(KEY_RETURN) || keyUse(KEY_LSHIFT) || keyUse(KEY_RSHIFT) ||
-		joyUse(JOY1_FIRE) || joyUse(JOY2_FIRE) ||
-		(isEnabled34 && (joyUse(JOY3_FIRE) || joyUse(JOY4_FIRE)))
-	) {
-		// Advance line
+	else if(s_pLines[s_ubCurrentSlide][s_ubCurrentLine]) {
+		// Start fade-in for next line
 		++s_ubCurrentLine;
 		if(s_pLines[s_ubCurrentSlide][s_ubCurrentLine]) {
 			// Draw next portion of text - move copBlocks and reset fadeStep
@@ -245,20 +242,24 @@ static void cutsceneGsLoop(void) {
 			copProcessBlocks();
 			s_ubFadeStep = 0;
 		}
+	}
+	else if(
+		keyUse(KEY_RETURN) || keyUse(KEY_LSHIFT) || keyUse(KEY_RSHIFT) ||
+		joyUse(JOY1_FIRE) || joyUse(JOY2_FIRE) ||
+		(isEnabled34 && (joyUse(JOY3_FIRE) || joyUse(JOY4_FIRE)))
+	) {
+		if(++s_ubCurrentSlide < s_ubSlideCount) {
+			// Draw next slide
+			drawSlide();
+			initSlideText();
+		}
 		else {
-			if(++s_ubCurrentSlide < s_ubSlideCount) {
-				// Draw next slide
-				drawSlide();
-				initSlideText();
-			}
-			else {
-				// Quit the cutscene
-				copBlockDisable(s_pView->pCopList, s_pBlockAboveLine);
-				copBlockDisable(s_pView->pCopList, s_pBlockBelowLine);
-				copBlockDisable(s_pView->pCopList, s_pBlockAfterLines);
-				copProcessBlocks();
-				fadeSet(s_pFade, FADE_STATE_OUT, 50, onCutsceneFadeOut);
-			}
+			// Quit the cutscene
+			copBlockDisable(s_pView->pCopList, s_pBlockAboveLine);
+			copBlockDisable(s_pView->pCopList, s_pBlockBelowLine);
+			copBlockDisable(s_pView->pCopList, s_pBlockAfterLines);
+			copProcessBlocks();
+			fadeSet(s_pFade, FADE_STATE_OUT, 50, onCutsceneFadeOut);
 		}
 	}
 }
