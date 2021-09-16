@@ -36,7 +36,7 @@ void fadeDestroy(tFade *pFade) {
 }
 
 void fadeSet(
-	tFade *pFade, tFadeState eState, UBYTE ubFramesToFullFade,
+	tFade *pFade, tFadeState eState, UBYTE ubFramesToFullFade, UBYTE isMusic,
 	tCbFadeOnDone cbOnDone
 ) {
 	logBlockBegin(
@@ -47,6 +47,7 @@ void fadeSet(
 	pFade->ubCnt = 0;
 	pFade->ubCntEnd = ubFramesToFullFade;
 	pFade->cbOnDone = cbOnDone;
+	pFade->isMusic = isMusic;
 	logBlockEnd("fadeSet()");
 }
 
@@ -67,8 +68,10 @@ tFadeState fadeProcess(tFade *pFade) {
 		);
 		viewUpdateCLUT(pFade->pView);
 
-		UBYTE ubVolume = (64 * ubCnt) / pFade->ubCntEnd;
-		ptplayerSetMasterVolume(ubVolume);
+		if(pFade->isMusic) {
+			UBYTE ubVolume = (64 * ubCnt) / pFade->ubCntEnd;
+			ptplayerSetMasterVolume(ubVolume);
+		}
 
 		if(pFade->ubCnt >= pFade->ubCntEnd) {
 			pFade->eState = FADE_STATE_EVENT_FIRED;

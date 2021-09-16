@@ -21,6 +21,7 @@ typedef struct _tFade {
 	UBYTE ubColorCount;
 	UBYTE ubCnt;
 	UBYTE ubCntEnd;
+	UBYTE isMusic;
 	UWORD pPaletteRef[32];
 	tCbFadeOnDone cbOnDone;
 	tView *pView;
@@ -31,7 +32,7 @@ tFade *fadeCreate(tView *pView, UWORD *pPalette, UBYTE ubColorCount);
 void fadeDestroy(tFade *pFade);
 
 void fadeSet(
-	tFade *pFade, tFadeState eState, UBYTE ubFramesToFullFade,
+	tFade *pFade, tFadeState eState, UBYTE ubFramesToFullFade, UBYTE isMusic,
 	tCbFadeOnDone cbOnDone
 );
 

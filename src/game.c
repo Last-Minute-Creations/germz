@@ -96,17 +96,17 @@ static void onGameCampaignAdvanceFadeout(void) {
 
 void gameQuit(void) {
 	s_isQuitting = 1;
-	fadeSet(s_pFade, FADE_STATE_OUT, 50, onGameQuitFadeout);
+	fadeSet(s_pFade, FADE_STATE_OUT, 50, 1, onGameQuitFadeout);
 }
 
 void gameRestart(void) {
 	s_isQuitting = 1;
-	fadeSet(s_pFade, FADE_STATE_OUT, 50, onGameRestartFadeout);
+	fadeSet(s_pFade, FADE_STATE_OUT, 50, 1, onGameRestartFadeout);
 }
 
 void gameCampaignAdvance(void) {
 	s_isQuitting = 1;
-	fadeSet(s_pFade, FADE_STATE_OUT, 50, onGameCampaignAdvanceFadeout);
+	fadeSet(s_pFade, FADE_STATE_OUT, 50, 1, onGameCampaignAdvanceFadeout);
 }
 
 UBYTE *gameGetScores(void) {
@@ -217,7 +217,7 @@ static void gameGsCreate(void) {
 	bobNewManagerCreate(s_pBfr->pFront, s_pBfr->pBack, s_pBfr->uBfrBounds.uwY);
 
 	if(s_isEditor) {
-		fadeSet(s_pFade, FADE_STATE_IN, 50, 0);
+		fadeSet(s_pFade, FADE_STATE_IN, 50, 1, 0);
 		statePush(g_pStateMachineGame, &g_sStateEditor);
 	}
 	else {
@@ -310,7 +310,7 @@ void gameInitMap(void) {
 	// Now that players are initialized, update node counts for all of them
 	mapUpdateNodeCountForPlayers();
 
-	fadeSet(s_pFade, FADE_STATE_IN, 50, 0);
+	fadeSet(s_pFade, FADE_STATE_IN, 50, 1, 0);
 }
 
 tBitMap *gameGetBackBuffer(void) {

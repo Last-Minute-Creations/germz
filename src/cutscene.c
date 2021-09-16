@@ -48,7 +48,7 @@ static const char *s_pLines[][LINES_PER_SLIDE_MAX] = {
 	},
 	{
 		"Ignored by most,",
-		"but welcomed by curious inhabitants",
+		"but welcomed by some curious inhabitants",
 		0,
 	},
 	{
@@ -83,30 +83,17 @@ static tBitMap *s_pSlides[SLIDES_MAX];
 static tCopBlock *s_pBlockAboveLine, *s_pBlockBelowLine, *s_pBlockAfterLines;
 
 static void drawSlide(void) {
-	UWORD uwLineEraseCurr = TEXT_POS_Y;
-	UWORD uwLineEraseEnd = uwLineEraseCurr + s_ubCurrentLine * TEXT_LINE_HEIGHT;
-
 	// Draw slide
-	UWORD uwCol = 0;
-	while(uwCol < SLIDE_SIZE) {
-		blitCopy(
-			s_pSlides[s_ubCurrentSlide], uwCol, 0, s_pBuffer->pBack,
-			SLIDE_POS_X + uwCol, SLIDE_POS_Y, SLIDE_ANIM_COLS, SLIDE_SIZE,
-			MINTERM_COOKIE
-		);
-		uwCol += SLIDE_ANIM_COLS;
+	blitCopyAligned(
+		s_pSlides[s_ubCurrentSlide], 0, 0, s_pBuffer->pBack,
+		SLIDE_POS_X, SLIDE_POS_Y, SLIDE_SIZE, SLIDE_SIZE
+	);
 
-		// Erase old text
-		if(s_ubCurrentLine && uwLineEraseCurr < uwLineEraseEnd) {
-			blitRect(
-				s_pBuffer->pBack, 0, uwLineEraseCurr,
-				SCREEN_PAL_WIDTH, 1, 0
-			);
-			++uwLineEraseCurr;
-		}
-
-		vPortWaitForEnd(s_pVp);
-	}
+	// Erase old text
+	blitRect(
+		s_pBuffer->pBack, 0, TEXT_POS_Y,
+		SCREEN_PAL_WIDTH, LINES_PER_SLIDE_MAX * TEXT_LINE_HEIGHT, 0
+	);
 }
 
 static void initSlideText(void) {
@@ -117,6 +104,7 @@ static void initSlideText(void) {
 	s_pBlockAboveLine->uwCurrCount = 0;
 	copMove(s_pView->pCopList, s_pBlockAboveLine, &g_pCustom->color[COLOR_P3_BRIGHT], 0x000);
 	copProcessBlocks();
+	vPortWaitForEnd(s_pVp);
 	s_ubFadeStep = 0;
 
 	// Draw text
@@ -195,7 +183,7 @@ static void cutsceneGsCreate(void) {
 
 	// Draw first slide
 	drawSlide();
-	fadeSet(s_pFade, FADE_STATE_IN, 50, onFadeIn);
+	fadeSet(s_pFade, FADE_STATE_IN, 50, 1, onFadeIn);
 	viewLoad(s_pView);
 }
 
@@ -207,6 +195,11 @@ static void onCutsceneFadeOut(void) {
 	else {
 		stateChange(g_pStateMachineGame, s_pNextState);
 	}
+}
+
+static void onFadeOutSlide(void) {
+	drawSlide();
+	fadeSet(s_pFade, FADE_STATE_IN, 15, 0, onFadeIn);
 }
 
 static void cutsceneGsLoop(void) {
@@ -242,6 +235,13 @@ static void cutsceneGsLoop(void) {
 			copProcessBlocks();
 			s_ubFadeStep = 0;
 		}
+		else {
+			// Last line was displayed - copblocks are no longer needed
+			copBlockDisable(s_pView->pCopList, s_pBlockAboveLine);
+			copBlockDisable(s_pView->pCopList, s_pBlockBelowLine);
+			copBlockDisable(s_pView->pCopList, s_pBlockAfterLines);
+			copProcessBlocks();
+		}
 	}
 	else if(
 		keyUse(KEY_RETURN) || keyUse(KEY_LSHIFT) || keyUse(KEY_RSHIFT) ||
@@ -250,16 +250,11 @@ static void cutsceneGsLoop(void) {
 	) {
 		if(++s_ubCurrentSlide < s_ubSlideCount) {
 			// Draw next slide
-			drawSlide();
-			initSlideText();
+			fadeSet(s_pFade, FADE_STATE_OUT, 15, 0, onFadeOutSlide);
 		}
 		else {
 			// Quit the cutscene
-			copBlockDisable(s_pView->pCopList, s_pBlockAboveLine);
-			copBlockDisable(s_pView->pCopList, s_pBlockBelowLine);
-			copBlockDisable(s_pView->pCopList, s_pBlockAfterLines);
-			copProcessBlocks();
-			fadeSet(s_pFade, FADE_STATE_OUT, 50, onCutsceneFadeOut);
+			fadeSet(s_pFade, FADE_STATE_OUT, 50, 1, onCutsceneFadeOut);
 		}
 	}
 }

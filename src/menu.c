@@ -138,7 +138,7 @@ static void startGame(UBYTE isEditor, UBYTE ubPlayerMask, UBYTE ubCampaignStage)
 
 	if(isEditor) {
 		gameSetRules(1, BATTLE_MODE_FFA, TEAM_CONFIG_P1_P2_AND_P3_P4, 0, pSteers);
-		fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, onFadeoutEditorGameStart);
+		fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, 1, onFadeoutEditorGameStart);
 	}
 	else {
 		UBYTE pSteerToPlayer[STEER_MODE_AI] = {0};
@@ -169,7 +169,7 @@ static void startGame(UBYTE isEditor, UBYTE ubPlayerMask, UBYTE ubCampaignStage)
 			}
 		}
 		gameSetRules(0, s_ubBattleMode, s_ubTeamCfg, ubCampaignStage, pSteers);
-		fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, onFadeoutGameStart);
+		fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, 1, onFadeoutGameStart);
 	}
 }
 
@@ -276,7 +276,7 @@ static void menuGsCreate(void) {
 		stateChange(s_pStateMachineMenu, &s_sStateMain);
 	}
 
-	fadeSet(s_pFadeMenu, FADE_STATE_IN, 50, 0);
+	fadeSet(s_pFadeMenu, FADE_STATE_IN, 50, 1, 0);
 	viewLoad(s_pView);
 	ptplayerEnableMusic(1);
 }
@@ -333,12 +333,12 @@ static const char *s_pSteerPlayerLabels[] = {
 
 static void onFadeToSubstate(void) {
 	stateChange(s_pStateMachineMenu, s_pNextSubstate);
-	fadeSet(s_pFadeMenu, FADE_STATE_IN, 50, 0);
+	fadeSet(s_pFadeMenu, FADE_STATE_IN, 50, 1, 0);
 }
 
 static void fadeToSubstate(tState *pNextSubstate) {
 	s_pNextSubstate = pNextSubstate;
-	fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, onFadeToSubstate);
+	fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, 1, onFadeToSubstate);
 }
 
 static void onCampaign(void) {
@@ -367,7 +367,7 @@ static void onFadeoutToExit(void) {
 }
 
 static void fadeToExit(void) {
-	fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, onFadeoutToExit);
+	fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, 1, onFadeoutToExit);
 }
 
 static tMenuListOption s_pOptions[] = {
