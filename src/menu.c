@@ -217,7 +217,6 @@ static UBYTE menuProcessList(UBYTE isEnabled34) {
 
 static void menuGsCreate(void) {
 	s_pView = viewCreate(0,
-		TAG_VIEW_COPLIST_MODE, COPPER_MODE_BLOCK,
 		TAG_VIEW_GLOBAL_CLUT, 1,
 		TAG_END
 	);
