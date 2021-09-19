@@ -38,6 +38,7 @@ void musicLoadPreset(tMusicPreset ePreset) {
 				ptplayerConfigureSongRepeat(0, onSongEnd);
 				break;
 		}
+		ptplayerSetMasterVolume(0); // Will be faded-in
 		ptplayerEnableMusic(1);
 		s_eLastMusicPreset = ePreset;
 	}

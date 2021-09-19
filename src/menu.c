@@ -37,6 +37,7 @@
 #define PREVIEW_Y INFO_Y
 #define BATTLE_MENU_X 75
 #define BATTLE_MENU_Y 134
+#define CAMPAIGN_MENU_Y 80
 #define BATTLE_MENU_WIDTH 180
 #define BATTLE_MENU_HEIGHT 93
 
@@ -45,6 +46,7 @@ static UBYTE s_ubTeamCfg;
 static UBYTE s_isCampaign;
 static UBYTE s_isPendingCampaignResult = 0;
 static UBYTE s_ubMapCount;
+static UBYTE s_ubStartingLevel = 1;
 
 static UBYTE s_pPlayerSteers[4] = {
 	STEER_MODE_JOY_1, STEER_MODE_JOY_2,
@@ -90,8 +92,15 @@ static void onFadeoutEditorGameStart(void) {
 static void onFadeoutGameStart(void) {
 	statePop(g_pStateMachineGame); // Pop from map select to main menu
 	if(s_isCampaign) {
-		cutsceneSetup(0, &g_sStateGame);
-		stateChange(g_pStateMachineGame, &g_sStateCutscene);
+		if(s_ubStartingLevel == 1) {
+			// Only intro when starting first level
+			cutsceneSetup(0, &g_sStateGame);
+			stateChange(g_pStateMachineGame, &g_sStateCutscene);
+		}
+		else {
+			// Skip intro for later levels
+			stateChange(g_pStateMachineGame, &g_sStateGame);
+		}
 	}
 	else {
 		stateChange(g_pStateMachineGame, &g_sStateGame);
@@ -481,7 +490,6 @@ static void textBasedGsCreate(const char **pLines, UBYTE ubLineCount) {
 static const char *s_pMenuCaptionsSteer[STEER_MENU_OPTION_MAX];
 static tMenuListOption s_pOptionsSteer[STEER_MENU_OPTION_MAX];
 static UBYTE s_ubSteerOptionCount;
-static UBYTE s_ubStartingLevel = 1;
 
 static void onStart(void) {
 	startGame(0, g_sMapData.ubPlayerMask, s_isCampaign ? s_ubStartingLevel : 0);
@@ -855,7 +863,7 @@ void campaignGsCreate(void) {
 	// Prepare current bg
 	blitCopy(s_pBgSub, 0, 0, s_pBfr->pBack, 0, 0, 320, 128, MINTERM_COPY);
 	blitCopy(s_pBgSub, 0, 128, s_pBfr->pBack, 0, 128, 320, 128, MINTERM_COPY);
-	bmFrameDraw(g_pFrameDisplay, s_pBfr->pBack, 32, 16, 16, 14, 16);
+	bmFrameDraw(g_pFrameDisplay, s_pBfr->pBack, 32, 4 * 16, 16, 6, 16);
 
 	s_isCampaign = 1;
 
@@ -899,7 +907,7 @@ void campaignGsCreate(void) {
 
 	menuListInit(
 		s_pOptionsSteer, s_pMenuCaptionsSteer, s_ubSteerOptionCount,
-		g_pFontBig, BATTLE_MENU_X, BATTLE_MENU_Y, scanlinedMenuUndraw,
+		g_pFontBig, BATTLE_MENU_X, CAMPAIGN_MENU_Y, scanlinedMenuUndraw,
 		scanlinedMenuPosDraw
 	);
 	menuListSetActive(s_ubSteerOptionCount - 2);

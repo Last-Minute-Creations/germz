@@ -145,10 +145,13 @@ Done:
 	✔ fix plep animation rotations @done(21-04-12 14:33)
 	✔ cycle between .mod files @done(21-04-16 12:53)
 	✔ cutscene for intro @done(21-09-19 11:45)
+	✔ resize campaign settings @done(21-09-19 12:10)
+	✔ intro cutscene only when starting first map @done(21-09-19 12:09)
 
 Now:
 	☐ Configurable match count in battle mode (where to put it?)
 	☐ cutscene for outro
+	☐ outro cutscene only when finishing last map
 
 Bugs:
 	✘ when playing in teams, hud is not colored @cancelled(20-12-30 10:50)

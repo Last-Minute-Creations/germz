@@ -20,7 +20,6 @@ void genericCreate(void) {
 	joyOpen();
 	ptplayerCreate(1);
 	assetsGlobalCreate();
-	musicLoadPreset(MUSIC_PRESET_MENU);
 	statePush(g_pStateMachineGame, &g_sStateLogo);
 }
 
