@@ -22,6 +22,7 @@
 		"system.h": "c",
 		"screen.h": "c",
 		"state.h": "c",
-		"joy.h": "c"
+		"joy.h": "c",
+		"cutscene.h": "c"
 	}
 }

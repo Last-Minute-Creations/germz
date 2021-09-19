@@ -16,9 +16,14 @@ if(ELF2HUNK)
 	set(GERMZ_OUTPUT_EXECUTABLE germz.exe)
 	add_executable(${GERMZ_EXECUTABLE} ${SOURCES})
 	target_link_libraries(${GERMZ_EXECUTABLE} -Wl,-Map=germz.map)
+
+	if(NOT (CMAKE_BUILD_TYPE STREQUAL "Debug") AND NOT (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo"))
+		set(ELF2HUNK_ARGS ${ELF2HUNK_ARGS} -s)
+	endif()
+
 	add_custom_command(
 		TARGET ${GERMZ_EXECUTABLE} POST_BUILD
-		COMMAND ${ELF2HUNK} ${GERMZ_EXECUTABLE} ${GERMZ_OUTPUT_EXECUTABLE}
+		COMMAND ${ELF2HUNK} ${GERMZ_EXECUTABLE} ${GERMZ_OUTPUT_EXECUTABLE} ${ELF2HUNK_ARGS}
 	)
 	add_custom_command(
 		TARGET ${GERMZ_EXECUTABLE} POST_BUILD
@@ -386,7 +391,7 @@ convertBitmaps(
 
 convertAudio(
 	TARGET ${GERMZ_EXECUTABLE} SOURCE ${RES_DIR}/sfx/ace.wav
-	DESTINATION ${DATA_DIR}/ace.sfx
+	DESTINATION ${DATA_DIR}/sfx/ace.sfx
 )
 convertAudio(
 	TARGET ${GERMZ_EXECUTABLE} SOURCE ${RES_DIR}/sfx/lmc.wav
@@ -413,8 +418,10 @@ convertFont(
 
 mergeMods(
 	TARGET ${GERMZ_EXECUTABLE}
-	SOURCES ${RES_DIR}/germz1.mod ${RES_DIR}/germz2.mod ${RES_DIR}/germz4.mod
-	DESTINATIONS ${DATA_DIR}/germz1.mod ${DATA_DIR}/germz2.mod ${DATA_DIR}/germz4.mod
+	SOURCES ${RES_DIR}/germz1.mod ${RES_DIR}/germz2.mod ${RES_DIR}/germz3.mod
+	${RES_DIR}/germz4.mod ${RES_DIR}/germz5.mod ${RES_DIR}/germz6.mod
+	DESTINATIONS ${DATA_DIR}/germz1.mod ${DATA_DIR}/germz2.mod ${DATA_DIR}/germz3.mod
+	${DATA_DIR}/germz4.mod ${DATA_DIR}/germz5.mod ${DATA_DIR}/germz6.mod
 	SAMPLE_PACK ${DATA_DIR}/samples.samplepack
 )
 

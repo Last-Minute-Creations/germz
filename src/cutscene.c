@@ -12,6 +12,7 @@
 #include "germz.h"
 #include "assets.h"
 #include "color.h"
+#include "music.h"
 
 #define SLIDES_MAX 10
 #define LINES_PER_SLIDE_MAX 5
@@ -73,7 +74,7 @@ static tVPort *s_pVp;
 static tSimpleBufferManager *s_pBuffer;
 static tFade *s_pFade;
 static UBYTE s_ubSlideCount, s_ubCurrentSlide, s_ubCurrentLine;
-static const char *s_szDirName;
+static UBYTE s_isOutro;
 static tState *s_pNextState;
 static UWORD s_uwFontColorVal;
 static UBYTE s_ubFadeStep;
@@ -154,8 +155,8 @@ static void cutsceneGsCreate(void) {
 	s_pFade = fadeCreate(s_pView, pPalette, 32);
 
 	s_uwFontColorVal = pPalette[COLOR_P3_BRIGHT];
-	s_pBlockAboveLine = copBlockCreate(s_pView->pCopList, 1, 0, 0); //TEXT_POS_Y);
-	s_pBlockBelowLine = copBlockCreate(s_pView->pCopList, 1, 0, 0); // TEXT_POS_Y + TEXT_LINE_HEIGHT);
+	s_pBlockAboveLine = copBlockCreate(s_pView->pCopList, 1, 0, 0);
+	s_pBlockBelowLine = copBlockCreate(s_pView->pCopList, 1, 0, 0);
 	s_pBlockAfterLines = copBlockCreate(
 		s_pView->pCopList, 1, 0,
 		s_pView->ubPosY + TEXT_POS_Y + (LINES_PER_SLIDE_MAX - 1) * TEXT_LINE_HEIGHT
@@ -170,7 +171,7 @@ static void cutsceneGsCreate(void) {
 	char szPath[30];
 	s_ubSlideCount = 0;
 	for(s_ubSlideCount = 0; s_ubSlideCount < 10; ++s_ubSlideCount) {
-		sprintf(szPath, "data/%s/%hhu.bm", s_szDirName, s_ubSlideCount);
+		sprintf(szPath, "data/%s/%hhu.bm", s_isOutro ? "outro" : "intro", s_ubSlideCount);
 		s_pSlides[s_ubSlideCount] = bitmapCreateFromFile(szPath, 0);
 		if(!s_pSlides[s_ubSlideCount]) {
 			break;
@@ -180,6 +181,7 @@ static void cutsceneGsCreate(void) {
 	// Load text array
 
 	systemUnuse();
+	musicLoadPreset(s_isOutro ? MUSIC_PRESET_OUTRO : MUSIC_PRESET_INTRO);
 
 	// Draw first slide
 	drawSlide();
@@ -274,8 +276,8 @@ static void cutsceneGsDestroy(void) {
 
 }
 
-void cutsceneSetup(const char *szName, tState *pNextState) {
-	s_szDirName = szName;
+void cutsceneSetup(UBYTE isOutro, tState *pNextState) {
+	s_isOutro = isOutro;
 	s_ubCurrentSlide = 0;
 	s_ubCurrentLine = 0;
 	s_pNextState = pNextState;

@@ -20,6 +20,7 @@
 #include "game_pause.h"
 #include "germz.h"
 #include "color.h"
+#include "music.h"
 
 #define GAME_COPPERLIST_COLOR_CHANGES 4
 
@@ -215,6 +216,7 @@ static void gameGsCreate(void) {
 	s_isQuitting = 0;
 
 	bobNewManagerCreate(s_pBfr->pFront, s_pBfr->pBack, s_pBfr->uBfrBounds.uwY);
+	musicLoadPreset(MUSIC_PRESET_GAME);
 
 	if(s_isEditor) {
 		fadeSet(s_pFade, FADE_STATE_IN, 50, 1, 0);

@@ -24,6 +24,7 @@
 #include "color.h"
 #include "gui_scanlined.h"
 #include "cutscene.h"
+#include "music.h"
 
 #define MENU_COLOR_ACTIVE (COLOR_P3_BRIGHT)
 #define MENU_COLOR_INACTIVE (COLOR_P3_BRIGHT + 1)
@@ -267,6 +268,7 @@ static void menuGsCreate(void) {
 	logWrite("Campaign map count: %hhu", s_ubMapCount);
 
 	systemUnuse();
+	musicLoadPreset(MUSIC_PRESET_MENU);
 	if(s_isPendingCampaignResult) {
 		s_isPendingCampaignResult = 0;
 		stateChange(s_pStateMachineMenu, &s_sStateCampaignResult);

@@ -11,7 +11,17 @@
 
 #define BLOB_COLOR_COUNT 5
 #define BLOB_FRAME_COUNT 9
-#define MOD_COUNT 3
+
+typedef enum _tAssetMods {
+	ASSET_MOD_MENU,
+	ASSET_MOD_GAME1,
+	ASSET_MOD_GAME2,
+	ASSET_MOD_GAME3,
+	ASSET_MOD_GAME_COUNT,
+	ASSET_MOD_INTRO = ASSET_MOD_GAME_COUNT,
+	ASSET_MOD_OUTRO,
+	ASSET_MOD_COUNT
+} tAssetMods;
 
 typedef struct _tNodeModsBase {
 	UBYTE ubChargeRate;
@@ -43,7 +53,7 @@ void assetsGameCreate(void);
 void assetsGameDestroy(void);
 
 // Global assets
-extern tPtplayerMod *g_pMods[MOD_COUNT];
+extern tPtplayerMod *g_pMods[ASSET_MOD_COUNT];
 extern UWORD *g_pModSamples;
 extern tFont *g_pFontSmall, *g_pFontBig;
 extern tTextBitMap *g_pTextBitmap;

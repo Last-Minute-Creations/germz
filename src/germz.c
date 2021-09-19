@@ -10,18 +10,9 @@
 #include "germz.h"
 #include "logo.h"
 #include "assets.h"
+#include "music.h"
 
 tStateManager *g_pStateMachineGame;
-
-static UBYTE s_ubCurrentMod = 0;
-
-static void onSongEnd(void) {
-	if(++s_ubCurrentMod >= MOD_COUNT) {
-		s_ubCurrentMod = 0;
-	}
-	ptplayerLoadMod(g_pMods[s_ubCurrentMod], g_pModSamples, 0);
-	ptplayerEnableMusic(1);
-}
 
 void genericCreate(void) {
 	g_pStateMachineGame = stateManagerCreate();
@@ -29,8 +20,7 @@ void genericCreate(void) {
 	joyOpen();
 	ptplayerCreate(1);
 	assetsGlobalCreate();
-	ptplayerLoadMod(g_pMods[s_ubCurrentMod], g_pModSamples, 0);
-	ptplayerConfigureSongRepeat(0, onSongEnd);
+	musicLoadPreset(MUSIC_PRESET_MENU);
 	statePush(g_pStateMachineGame, &g_sStateLogo);
 }
 

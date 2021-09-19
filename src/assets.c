@@ -30,9 +30,11 @@ void assetsGlobalCreate(void) {
 	jsonDestroy(pJsonDefs);
 
 	// Mods
-	g_pMods[0] = ptplayerModCreate("data/germz1.mod");
-	g_pMods[1] = ptplayerModCreate("data/germz2.mod");
-	g_pMods[2] = ptplayerModCreate("data/germz4.mod");
+	for(UBYTE i = 0; i < ASSET_MOD_COUNT; ++i) {
+		char szPath[20];
+		sprintf(szPath, "data/germz%hhu.mod", i);
+		g_pMods[i] = ptplayerModCreate(szPath);
+	}
 	s_ulSampleSize = fileGetSize("data/samples.samplepack");
 	g_pModSamples = memAllocChip(s_ulSampleSize);
 	tFile *pFileSamples = fileOpen("data/samples.samplepack", "rb");
@@ -63,9 +65,9 @@ void assetsGlobalCreate(void) {
 
 void assetsGlobalDestroy(void) {
 	// Mods
-	ptplayerModDestroy(g_pMods[0]);
-	ptplayerModDestroy(g_pMods[1]);
-	ptplayerModDestroy(g_pMods[2]);
+	for(UBYTE i = ASSET_MOD_COUNT; i--;) {
+		ptplayerModDestroy(g_pMods[i]);
+	}
 	memFree(g_pModSamples, s_ulSampleSize);
 
 	// Font
@@ -122,7 +124,7 @@ void assetsGameDestroy(void) {
 }
 
 // Global assets
-tPtplayerMod *g_pMods[MOD_COUNT];
+tPtplayerMod *g_pMods[ASSET_MOD_COUNT];
 tFont *g_pFontSmall, *g_pFontBig;
 tTextBitMap *g_pTextBitmap;
 tBitMap *g_pFrameDisplay;
