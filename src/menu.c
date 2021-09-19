@@ -90,7 +90,7 @@ static void onFadeoutEditorGameStart(void) {
 static void onFadeoutGameStart(void) {
 	statePop(g_pStateMachineGame); // Pop from map select to main menu
 	if(s_isCampaign) {
-		cutsceneSetup("intro", &g_sStateGame);
+		cutsceneSetup(0, &g_sStateGame);
 		stateChange(g_pStateMachineGame, &g_sStateCutscene);
 	}
 	else {

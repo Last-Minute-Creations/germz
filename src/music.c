@@ -38,6 +38,7 @@ void musicLoadPreset(tMusicPreset ePreset) {
 				ptplayerConfigureSongRepeat(0, onSongEnd);
 				break;
 		}
+		ptplayerEnableMusic(1);
 		s_eLastMusicPreset = ePreset;
 	}
 }

@@ -7,6 +7,6 @@
 
 #include <ace/managers/state.h>
 
-void cutsceneSetup(const char *szName, tState *pNextState);
+void cutsceneSetup(UBYTE isOutro, tState *pNextState);
 
 #endif // _GERMZ_CUTSCENE_H_

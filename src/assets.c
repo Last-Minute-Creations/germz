@@ -32,7 +32,7 @@ void assetsGlobalCreate(void) {
 	// Mods
 	for(UBYTE i = 0; i < ASSET_MOD_COUNT; ++i) {
 		char szPath[20];
-		sprintf(szPath, "data/germz%hhu.mod", i);
+		sprintf(szPath, "data/germz%hhu.mod", i + 1);
 		g_pMods[i] = ptplayerModCreate(szPath);
 	}
 	s_ulSampleSize = fileGetSize("data/samples.samplepack");
