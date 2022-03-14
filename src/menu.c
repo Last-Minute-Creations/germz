@@ -11,7 +11,7 @@
 #include <ace/managers/viewport/simplebuffer.h>
 #include <ace/utils/font.h>
 #include <ace/utils/palette.h>
-#include <ace/utils/ptplayer.h>
+#include <ace/managers/ptplayer.h>
 #include <ace/utils/bmframe.h>
 #include <ace/utils/file.h>
 #include "game.h"
@@ -37,7 +37,7 @@
 #define PREVIEW_Y INFO_Y
 #define BATTLE_MENU_X 75
 #define BATTLE_MENU_Y 134
-#define CAMPAIGN_MENU_Y 80
+#define CAMPAIGN_MENU_Y 68
 #define BATTLE_MENU_WIDTH 180
 #define BATTLE_MENU_HEIGHT 93
 
@@ -863,7 +863,7 @@ void campaignGsCreate(void) {
 	// Prepare current bg
 	blitCopy(s_pBgSub, 0, 0, s_pBfr->pBack, 0, 0, 320, 128, MINTERM_COPY);
 	blitCopy(s_pBgSub, 0, 128, s_pBfr->pBack, 0, 128, 320, 128, MINTERM_COPY);
-	bmFrameDraw(g_pFrameDisplay, s_pBfr->pBack, 32, 4 * 16, 16, 6, 16);
+	bmFrameDraw(g_pFrameDisplay, s_pBfr->pBack, 32, 4 * 16 - 8, 16, 6, 16);
 
 	s_isCampaign = 1;
 

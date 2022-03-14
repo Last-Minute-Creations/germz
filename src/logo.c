@@ -10,7 +10,7 @@
 #include <ace/managers/key.h>
 #include <ace/managers/blit.h>
 #include <ace/utils/palette.h>
-#include <ace/utils/ptplayer.h>
+#include <ace/managers/ptplayer.h>
 #include "menu.h"
 #include "fade.h"
 #include "germz.h"

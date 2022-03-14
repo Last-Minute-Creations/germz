@@ -23,6 +23,7 @@
 		"screen.h": "c",
 		"state.h": "c",
 		"joy.h": "c",
-		"cutscene.h": "c"
+		"cutscene.h": "c",
+		"ptplayer.h": "c"
 	}
 }

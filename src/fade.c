@@ -4,7 +4,7 @@
 
 #include "fade.h"
 #include <ace/utils/palette.h>
-#include <ace/utils/ptplayer.h>
+#include <ace/managers/ptplayer.h>
 
 tFade *fadeCreate(tView *pView, UWORD *pPalette, UBYTE ubColorCount) {
 	logBlockBegin(
