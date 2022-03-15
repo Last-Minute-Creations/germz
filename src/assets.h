@@ -6,7 +6,7 @@
 #define _GERMZ_ASSETS_H_
 
 #include <ace/utils/font.h>
-#include <ace/utils/ptplayer.h>
+#include <ace/managers/ptplayer.h>
 #include "map.h"
 
 #define BLOB_COLOR_COUNT 5
