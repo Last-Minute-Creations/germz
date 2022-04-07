@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _GUI_INPUT_H_
-#define _GUI_INPUT_H_
+#ifndef GUI_INPUT_H
+#define GUI_INPUT_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -12,19 +12,19 @@ extern "C" {
 #include <ace/types.h>
 #include <ace/utils/font.h>
 
-struct _tGuiInput;
+struct tGuiInput;
 
-typedef enum _tGuiInputDrawFlags {
+typedef enum tGuiInputDrawFlags {
 	GUI_INPUT_DRAW_BORDER = 1,
 	GUI_INPUT_DRAW_TEXT = 2,
 	GUI_INPUT_DRAW_CURSOR = 4,
 } tGuiInputDrawFlags;
 
 typedef UBYTE (*tGuiInputCbCharAllowed)(char c);
-typedef void (*tGuiInputCbDraw)(const struct _tGuiInput *pInput);
-typedef UBYTE (*tGuiInputCbGetHeight)(const struct _tGuiInput *pInput);
+typedef void (*tGuiInputCbDraw)(const struct tGuiInput *pInput);
+typedef UBYTE (*tGuiInputCbGetHeight)(const struct tGuiInput *pInput);
 
-typedef struct _tGuiInput {
+typedef struct tGuiInput {
 	tUwCoordYX sPos;
 	UWORD uwMaxChars;
 	UWORD uwValueLength;
@@ -61,4 +61,4 @@ void inputSetFocus(tGuiInput *pInput);
 }
 #endif
 
-#endif // _GUI_INPUT_H_
+#endif // GUI_INPUT_H

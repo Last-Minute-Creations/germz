@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _GUI_BACKGROUND_H_
-#define _GUI_BACKGROUND_H_
+#ifndef GUI_BACKGROUND_H
+#define GUI_BACKGROUND_H
 
 #include <ace/utils/bitmap.h>
 
 // I'm still not sure if this shouldn't be a callback to x,y,width,height drawing fn, defined individually for each case.
 
-typedef struct _tGuiBackground {
+typedef struct tGuiBackground {
 	const tBitMap *pBm;
 	UBYTE ubColorIdx;
 } tGuiBackground;
@@ -19,4 +19,4 @@ void guiBackgroundClear(
 	UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwHeight
 );
 
-#endif // _GUI_BACKGROUND_H_
+#endif // GUI_BACKGROUND_H

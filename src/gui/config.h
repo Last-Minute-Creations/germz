@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _GUI_CONFIG_H_
-#define _GUI_CONFIG_H_
+#ifndef GUI_CONFIG_H
+#define GUI_CONFIG_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -11,7 +11,7 @@ extern "C" {
 
 #include <ace/types.h>
 
-typedef struct _tGuiConfig {
+typedef struct tGuiConfig {
 	UBYTE ubColorLight;
 	UBYTE ubColorDark;
 	UBYTE ubColorFill;
@@ -25,4 +25,4 @@ tGuiConfig *guiGetConfig(void);
 }
 #endif
 
-#endif // _GUI_CONFIG_H_
+#endif // GUI_CONFIG_H

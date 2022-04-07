@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _GERMZ_MAP_DATA_H_
-#define _GERMZ_MAP_DATA_H_
+#ifndef GERMZ_MAP_DATA_H
+#define GERMZ_MAP_DATA_H
 
 #include <ace/types.h>
 
@@ -11,7 +11,7 @@
 #define MAP_AUTHOR_MAX 20
 #define MAP_SIZE 16
 
-typedef enum _tTile {
+typedef enum tTile {
 	TILE_BLOB_P1,
 	TILE_BLOB_P2,
 	TILE_BLOB_P3,
@@ -50,13 +50,13 @@ typedef enum _tTile {
 	TILE_COUNT
 } tTile;
 
-typedef struct _tPlayerMapModifiers {
+typedef struct tPlayerMapModifiers {
 	UBYTE ubChargeRate;
 	UBYTE ubPower; ///< Flat attack bonus.
 	WORD wCapacity; ///< Capacity of each node.
 } tPlayerMapModifiers;
 
-typedef struct _tMapData {
+typedef struct tMapData {
 	char szName[MAP_NAME_MAX];
 	char szAuthor[MAP_AUTHOR_MAX];
 	UBYTE ubPlayerMask;
@@ -80,4 +80,4 @@ void mapDataRecalculateStuff(tMapData *pMapData);
 
 UBYTE mapDataGetPlayerCount(const tMapData *pMapData);
 
-#endif // _GERMZ_MAP_DATA_H_
+#endif // GERMZ_MAP_DATA_H

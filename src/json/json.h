@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _JSON_JSON_H_
-#define _JSON_JSON_H_
+#ifndef JSON_JSON_H
+#define JSON_JSON_H
 
 #define JSMN_STRICT       /* Strict JSON parsing */
 // JSMN_PARENT_LINKS breaks things up!
@@ -12,7 +12,7 @@
 #include "utf8_remap.h"
 #include <ace/types.h>
 
-typedef struct _tJson {
+typedef struct tJson {
 	char *szData;
 	jsmntok_t *pTokens;
 	FWORD fwTokenCount;
@@ -39,4 +39,4 @@ UWORD jsonTokStrCpy(
 	UWORD uwMaxBytes
 );
 
-#endif // _JSON_JSON_H_
+#endif // JSON_JSON_H

@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _GUI_LIST_CTL_H_
-#define _GUI_LIST_CTL_H_
+#ifndef GUI_LIST_CTL_H
+#define GUI_LIST_CTL_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,11 +17,11 @@ extern "C" {
 #define LISTCTL_DRAWSTATE_OK 0
 #define LISTCTL_DRAWSTATE_NEEDS_REDRAW 1
 
-struct _tListCtl;
+struct tListCtl;
 
 typedef void (*tGuiListCtlCbOnSelect)(void);
 typedef void (*tGuiListCtlCbUndraw)(UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwHeight);
-typedef void (*tGuiListCtlCbDrawPos)(struct _tListCtl *pCtl, UWORD uwIdx, UBYTE ubPosOnView, UBYTE isSelected);
+typedef void (*tGuiListCtlCbDrawPos)(struct tListCtl *pCtl, UWORD uwIdx, UBYTE ubPosOnView, UBYTE isSelected);
 
 /**
  * @brief The sort function callback compatible with qsort() function.
@@ -29,12 +29,12 @@ typedef void (*tGuiListCtlCbDrawPos)(struct _tListCtl *pCtl, UWORD uwIdx, UBYTE 
  */
 typedef int (*tGuiListCtlCbSort)(const void *pA, const void *pB);
 
-typedef struct _tListCtrlEntry {
+typedef struct tListCtrlEntry {
 	char *szLabel;
 	void *pData;
 } tListCtlEntry;
 
-typedef struct _tListCtl {
+typedef struct tListCtl {
 	tUwRect sRect;
 	UBYTE ubDrawState;
 	UBYTE ubEntryHeight;
@@ -106,4 +106,4 @@ int listCtlCbSortAsc(const void *pA, const void *pB);
 }
 #endif
 
-#endif // _GUI_LIST_CTL_H_
+#endif // GUI_LIST_CTL_H

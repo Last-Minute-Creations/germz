@@ -452,7 +452,7 @@ static void textBasedGsLoop(void) {
 	systemIdleEnd();
 }
 
-#define TEXT_ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))
+#define TEXT_ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 
 static UWORD drawTextArray(
 	UWORD uwOffsX, UWORD uwOffsY, const char **pLines, UBYTE ubLineCount,
@@ -1083,9 +1083,9 @@ static void howToGsCreate(void) {
 		"You can play together using up to 4 joysticks or keyboard.",
 		"Keyboard controls: WSAD + Left Shift, Arrows + Right Shift."
 	};
-	uwOffsY = drawTextArray(
+	drawTextArray(
 		32, uwOffsY, pLinesControls, TEXT_ARRAY_SIZE(pLinesControls), ubLineHeight
-	) + ubLineHeight;
+	);
 
 	s_cbOnEscape = fadeToMain;
 }

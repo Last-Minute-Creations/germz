@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _GERMZ_STEER_H_
-#define _GERMZ_STEER_H_
+#ifndef GERMZ_STEER_H
+#define GERMZ_STEER_H
 
 #include <ace/managers/joy.h> // for steerInitJoy() param
 #include "direction.h"
 #include "ai.h"
 
-typedef enum _tSteerMode {
+typedef enum tSteerMode {
 	STEER_MODE_JOY_1,
 	STEER_MODE_JOY_2,
 	STEER_MODE_JOY_3,
@@ -22,22 +22,22 @@ typedef enum _tSteerMode {
 	STEER_MODE_COUNT,
 } tSteerMode;
 
-struct _tSteer;
+struct tSteer;
 
-typedef void (*tCbSteerProcess)(struct _tSteer *pSteer);
+typedef void (*tCbSteerProcess)(struct tSteer *pSteer);
 
-typedef enum _tSteerDirState {
+typedef enum tSteerDirState {
 	STEER_DIR_STATE_INACTIVE,
 	STEER_DIR_STATE_USED,
 	STEER_DIR_STATE_ACTIVE,
 } tSteerDirState;
 
-typedef enum _tKeymap {
+typedef enum tKeymap {
 	KEYMAP_WSAD,
 	KEYMAP_ARROWS
 } tKeymap;
 
-typedef struct _tSteer {
+typedef struct tSteer {
 	tCbSteerProcess cbProcess;
 	tSteerDirState pDirectionStates[DIRECTION_COUNT];
 	union {
@@ -73,4 +73,4 @@ void steerResetAi(tSteer *pSteer);
 
 extern const char *g_pSteerModeLabels[STEER_MODE_COUNT];
 
-#endif // _GERMZ_STEER_H_
+#endif // GERMZ_STEER_H

@@ -44,7 +44,7 @@
 
 //------------------------------------------------------------------- Layout end
 
-typedef enum _tSaveInput {
+typedef enum tSaveInput {
 	SAVE_INPUT_TITLE,
 	SAVE_INPUT_AUTHOR,
 	SAVE_INPUT_FILENAME,

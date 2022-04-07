@@ -115,7 +115,7 @@ static void gamePauseGsCreate(void) {
 				}
 				else {
 					ubColor = COLOR_P1_BRIGHT + 4 * playerToIdx(gameGetTeamLeaders()[eTeam]);
-					sprintf(szWins, "TEAM %hhu WINS", eTeam + 1);
+					sprintf(szWins, "TEAM %d WINS", eTeam + 1);
 				}
 			}
 			else {
@@ -126,7 +126,7 @@ static void gamePauseGsCreate(void) {
 				}
 				else {
 					ubColor = COLOR_P1_BRIGHT + 4 * ePlayer;
-					sprintf(szWins, "PLAYER %hhu WINS", ePlayer + 1);
+					sprintf(szWins, "PLAYER %d WINS", ePlayer + 1);
 				}
 			}
 			fontDrawStr(

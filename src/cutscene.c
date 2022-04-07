@@ -24,6 +24,8 @@
 #define TEXT_LINE_HEIGHT (10 + 2)
 #define SLIDE_ANIM_COLS 2
 
+#define GRAYSCALE(ubValue) ((ubValue) << 8 | (ubValue) << 4 | (ubValue))
+
 static const char *s_pLines[][LINES_PER_SLIDE_MAX] = {
 	{
 		"The great entity created its offspring",
@@ -100,10 +102,19 @@ static void drawSlide(void) {
 static void initSlideText(void) {
 	// Reset copblocks
 	s_ubCurrentLine = 0;
-	copBlockWait(s_pView->pCopList, s_pBlockAboveLine, 0, s_pView->ubPosY + TEXT_POS_Y + TEXT_LINE_HEIGHT * s_ubCurrentLine);
-	copBlockWait(s_pView->pCopList, s_pBlockBelowLine, 0, s_pView->ubPosY + TEXT_POS_Y + TEXT_LINE_HEIGHT * (s_ubCurrentLine + 1) - 1);
+	copBlockWait(
+		s_pView->pCopList, s_pBlockAboveLine, 0,
+		s_pView->ubPosY + TEXT_POS_Y + TEXT_LINE_HEIGHT * s_ubCurrentLine
+	);
+	copBlockWait(
+		s_pView->pCopList, s_pBlockBelowLine, 0,
+		s_pView->ubPosY + TEXT_POS_Y + TEXT_LINE_HEIGHT * (s_ubCurrentLine + 1) - 1
+	);
 	s_pBlockAboveLine->uwCurrCount = 0;
-	copMove(s_pView->pCopList, s_pBlockAboveLine, &g_pCustom->color[COLOR_P3_BRIGHT], 0x000);
+	copMove(
+		s_pView->pCopList, s_pBlockAboveLine,
+		&g_pCustom->color[COLOR_P3_BRIGHT], 0x000
+	);
 	copProcessBlocks();
 	vPortWaitForEnd(s_pVp);
 	s_ubFadeStep = 0;
@@ -161,8 +172,14 @@ static void cutsceneGsCreate(void) {
 		s_pView->pCopList, 1, 0,
 		s_pView->ubPosY + TEXT_POS_Y + (LINES_PER_SLIDE_MAX - 1) * TEXT_LINE_HEIGHT
 	);
-	copMove(s_pView->pCopList, s_pBlockBelowLine, &g_pCustom->color[COLOR_P3_BRIGHT], 0x000);
-	copMove(s_pView->pCopList, s_pBlockAfterLines, &g_pCustom->color[COLOR_P3_BRIGHT], s_uwFontColorVal);
+	copMove(
+		s_pView->pCopList, s_pBlockBelowLine,
+		&g_pCustom->color[COLOR_P3_BRIGHT], 0x000
+	);
+	copMove(
+		s_pView->pCopList, s_pBlockAfterLines,
+		&g_pCustom->color[COLOR_P3_BRIGHT], s_uwFontColorVal
+	);
 	copBlockDisable(s_pView->pCopList, s_pBlockAboveLine);
 	copBlockDisable(s_pView->pCopList, s_pBlockBelowLine);
 	copBlockDisable(s_pView->pCopList, s_pBlockAfterLines);
@@ -218,7 +235,7 @@ static void cutsceneGsLoop(void) {
 		s_pBlockAboveLine->uwCurrCount = 0;
 		copMove(
 			s_pView->pCopList, s_pBlockAboveLine, &g_pCustom->color[COLOR_P3_BRIGHT],
-			s_ubFadeStep < 0x10 ? (s_ubFadeStep << 8 | s_ubFadeStep << 4 | s_ubFadeStep) : s_uwFontColorVal
+			s_ubFadeStep < 0x10 ? GRAYSCALE(s_ubFadeStep) : s_uwFontColorVal
 		);
 		++s_ubFadeStep;
 
@@ -230,10 +247,19 @@ static void cutsceneGsLoop(void) {
 		++s_ubCurrentLine;
 		if(s_pLines[s_ubCurrentSlide][s_ubCurrentLine]) {
 			// Draw next portion of text - move copBlocks and reset fadeStep
-			copBlockWait(s_pView->pCopList, s_pBlockAboveLine, 0, s_pView->ubPosY + TEXT_POS_Y + TEXT_LINE_HEIGHT * s_ubCurrentLine);
-			copBlockWait(s_pView->pCopList, s_pBlockBelowLine, 0, s_pView->ubPosY + TEXT_POS_Y + TEXT_LINE_HEIGHT * (s_ubCurrentLine + 1) - 1);
+			copBlockWait(
+				s_pView->pCopList, s_pBlockAboveLine, 0,
+				s_pView->ubPosY + TEXT_POS_Y + TEXT_LINE_HEIGHT * s_ubCurrentLine
+			);
+			copBlockWait(
+				s_pView->pCopList, s_pBlockBelowLine, 0,
+				s_pView->ubPosY + TEXT_POS_Y + TEXT_LINE_HEIGHT * (s_ubCurrentLine + 1) - 1
+			);
 			s_pBlockAboveLine->uwCurrCount = 0;
-			copMove(s_pView->pCopList, s_pBlockAboveLine, &g_pCustom->color[COLOR_P3_BRIGHT], 0x000);
+			copMove(
+				s_pView->pCopList, s_pBlockAboveLine,
+				&g_pCustom->color[COLOR_P3_BRIGHT], 0x000
+			);
 			copProcessBlocks();
 			s_ubFadeStep = 0;
 		}

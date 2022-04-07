@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _GERMZ_CUTSCENE_H_
-#define _GERMZ_CUTSCENE_H_
+#ifndef GERMZ_CUTSCENE_H
+#define GERMZ_CUTSCENE_H
 
 #include <ace/managers/state.h>
 
 void cutsceneSetup(UBYTE isOutro, tState *pNextState);
 
-#endif // _GERMZ_CUTSCENE_H_
+#endif // GERMZ_CUTSCENE_H

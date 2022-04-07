@@ -19,13 +19,13 @@
 #include "steer.h"
 #include "germz.h"
 
-typedef struct _tEditorPlayer {
+typedef struct tEditorPlayer {
 	UBYTE ubX;
 	UBYTE ubY;
 	UBYTE ubPaletteOption;
 } tEditorPlayer;
 
-typedef enum _tDialogResult {
+typedef enum tDialogResult {
 	DIALOG_RESULT_NONE,
 	DIALOG_RESULT_RELOAD_MAP,
 	DIALOG_RESULT_CLEAR_MAP,

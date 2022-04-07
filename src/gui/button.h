@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _GUI_BUTTON_H_
-#define _GUI_BUTTON_H_
+#ifndef GUI_BUTTON_H
+#define GUI_BUTTON_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,12 +16,12 @@ extern "C" {
 #define BUTTON_MAX_TEXT 20
 #define BUTTON_INVALID 0xFF
 
-struct _tGuiButton;
+struct tGuiButton;
 
 typedef void (*tGuiBtnOnClick)(void *pData);
-typedef void (*tGuiBtnOnDraw)(struct _tGuiButton *pButton);
+typedef void (*tGuiBtnOnDraw)(struct tGuiButton *pButton);
 
-typedef struct _tGuiButton {
+typedef struct tGuiButton {
 	tUwRect sRect;
 	char szText[BUTTON_MAX_TEXT];
 	tGuiBtnOnClick onClick;
@@ -57,4 +57,4 @@ UBYTE buttonIsSelected(const tGuiButton *pButton);
 }
 #endif
 
-#endif // _GUI_BUTTON_H_
+#endif // GUI_BUTTON_H

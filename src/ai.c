@@ -227,10 +227,8 @@ static tDirection aiProcessGettingToSourceBlob(tAi *pAi) {
 				pAi->isPressingFire = 1;
 				return DIRECTION_COUNT;
 			}
-			else {
-				logWriteAi("[AI] Source node's no longer ours - start again\n");
-				aiTransitToPlanning(pAi);
-			}
+			logWriteAi("[AI] Source node's no longer ours - start again\n");
+			aiTransitToPlanning(pAi);
 		}
 		else {
 			logWrite(
@@ -277,20 +275,18 @@ static tDirection aiProcessTargetingTarget(tAi *pAi) {
 		pAi->eState = AI_STATE_CONFIRMING_TARGET;
 		return pAi->eNeighborIdx;
 	}
-	else {
-		if(++pAi->eNeighborIdx >= 4) {
-			logWrite(
-				"[AI] ERR: AI lost target node! While checking if target src %p (%hhu,%hhu) neighbors with target %p (%hhu,%hhu)\n",
-				pAi->pTargetSrc, pAi->pTargetSrc->sPosTile.ubX, pAi->pTargetSrc->sPosTile.ubY,
-				pAi->pTarget, pAi->pTarget->sPosTile.ubX, pAi->pTarget->sPosTile.ubY
-			);
-			logPushIndent();
-			for(UBYTE i = 0; i < 4; ++i) {
-				logWriteAi("[AI] Neighbor at dir %hhu: %p\n", i, pAi->pTargetSrc->pNeighbors[i]);
-			}
-			logPopIndent();
-			aiTransitToPlanning(pAi);
+	if(++pAi->eNeighborIdx >= 4) {
+		logWrite(
+			"[AI] ERR: AI lost target node! While checking if target src %p (%hhu,%hhu) neighbors with target %p (%hhu,%hhu)\n",
+			pAi->pTargetSrc, pAi->pTargetSrc->sPosTile.ubX, pAi->pTargetSrc->sPosTile.ubY,
+			pAi->pTarget, pAi->pTarget->sPosTile.ubX, pAi->pTarget->sPosTile.ubY
+		);
+		logPushIndent();
+		for(UBYTE i = 0; i < 4; ++i) {
+			logWriteAi("[AI] Neighbor at dir %hhu: %p\n", i, pAi->pTargetSrc->pNeighbors[i]);
 		}
+		logPopIndent();
+		aiTransitToPlanning(pAi);
 	}
 	return DIRECTION_COUNT;
 }

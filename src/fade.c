@@ -6,7 +6,7 @@
 #include <ace/utils/palette.h>
 #include <ace/managers/ptplayer.h>
 
-tFade *fadeCreate(tView *pView, UWORD *pPalette, UBYTE ubColorCount) {
+tFade *fadeCreate(tView *pView, const UWORD *pPalette, UBYTE ubColorCount) {
 	logBlockBegin(
 		"fadeCreate(pView: %p, pPalette: %p, ubColorCount: %hhu)",
 		pView, pPalette, ubColorCount

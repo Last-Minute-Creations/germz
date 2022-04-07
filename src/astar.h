@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _GERMZ_ASTAR_H_
-#define _GERMZ_ASTAR_H_
+#ifndef GERMZ_ASTAR_H
+#define GERMZ_ASTAR_H
 
 #include <ace/types.h>
 #include "map.h"
@@ -20,7 +20,7 @@
  * Nodes are in reverse order - index zero is always destination.
  * TOOD implement as stack
  */
-typedef struct _tRoute {
+typedef struct tRoute {
 	BYTE bNodeCount; ///< Number of nodes in route.
 	BYTE bCurrNode; ///< Currently processed route node idx.
 	const tNode *pNodes[ASTAR_ROUTE_NODE_MAX]; ///< First is dest
@@ -72,4 +72,4 @@ void astarStart(tAstarData *pNav, const tNode *pNodeSrc, const tNode *pNodeDst);
  */
 UBYTE astarProcess(tAstarData *pNav);
 
-#endif // _GERMZ_ASTAR_H_
+#endif // GERMZ_ASTAR_H

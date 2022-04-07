@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _GERMZ_MAP_H_
-#define _GERMZ_MAP_H_
+#ifndef GERMZ_MAP_H
+#define GERMZ_MAP_H
 
 #include "direction.h"
 #include "map_data.h"
@@ -13,7 +13,7 @@
 // #define MAP_TICK_RATE 25
 #define MAP_TICK_RATE 5
 
-typedef enum _tNodeType {
+typedef enum tNodeType {
 	NODE_TYPE_NORMAL,
 	NODE_TYPE_SUPER_CAP,
 	NODE_TYPE_SUPER_TICK,
@@ -21,17 +21,17 @@ typedef enum _tNodeType {
 	NODE_TYPE_COUNT
 } tNodeType;
 
-typedef struct _tNode {
+typedef struct tNode {
 	UBYTE ubIdx;
 	tUbCoordYX sPosTile;
-	struct _tPlayer *pPlayer;
-	struct _tNode *pNeighbors[DIRECTION_COUNT - 1];
+	struct tPlayer *pPlayer;
+	struct tNode *pNeighbors[DIRECTION_COUNT - 1];
 	WORD wCharges;
 	UBYTE ubChargeClock;
 	tNodeType eType;
 } tNode;
 
-typedef struct _tMap {
+typedef struct tMap {
 	tNode pNodes[MAP_NODES_MAX];
 	tNode *pNodesOnTiles[MAP_SIZE][MAP_SIZE];
 	UWORD uwNodeCount;
@@ -43,7 +43,7 @@ void mapInitFromMapData(void);
 
 void mapProcessNodes(void);
 
-void nodeChangeOwnership(tNode *pNode, struct _tPlayer *pPlayer);
+void nodeChangeOwnership(tNode *pNode, struct tPlayer *pPlayer);
 
 void mapUpdateNodeCountForPlayers(void);
 
@@ -54,4 +54,4 @@ tTile nodeToTile(const tNode *pNode);
 extern tMapData g_sMapData;
 extern tMap g_sMap;
 
-#endif // _GERMZ_MAP_H_
+#endif // GERMZ_MAP_H

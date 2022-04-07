@@ -54,9 +54,9 @@ const void *heapPop(tHeap *pHeap) {
 
 	const void *pRet = pEntries[0].pData;
 	UWORD uwIdx = --pHeap->uwCount;
-	if(!pHeap->uwCount)
+	if(!pHeap->uwCount) {
 		return pRet;
-
+	}
 
 	// Replace the root of the heap with the last element on the last level.
 	pEntries[0].pData = pEntries[uwIdx].pData;

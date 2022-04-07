@@ -4,7 +4,7 @@
 
 #include <ace/utils/bitmap.h>
 
-typedef enum _tDialogYesNoResult {
+typedef enum tDialogYesNoResult {
 	DIALOG_YES_NO_RESULT_BUSY,
 	DIALOG_YES_NO_RESULT_YES,
 	DIALOG_YES_NO_RESULT_NO,

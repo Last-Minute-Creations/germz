@@ -10,13 +10,13 @@
 
 #define QUEUE_ELEMENTS_MAX 10
 
-typedef struct _tQueueElement {
+typedef struct tQueueElement {
 	tNode *pNode;
 	UBYTE isDrawnOnce;
 	BYTE bFrame;
 } tQueueElement;
 
-typedef struct _tQueue {
+typedef struct tQueue {
 	tQueueElement *pBeg, *pEnd, *pWrap;
 	tQueueElement pElements[QUEUE_ELEMENTS_MAX];
 } tQueue;
