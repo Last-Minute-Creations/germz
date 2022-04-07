@@ -36,6 +36,10 @@ void fadeSet(
 	tCbFadeOnDone cbOnDone
 );
 
+void fadeChangeRefPalette(
+	tFade *pFade, const UWORD *pPalette, UBYTE ubColorCount
+);
+
 /**
  * @brief Processes fade-in or fade-out.
  * @param pFade Fade definition to be processed.

@@ -363,9 +363,6 @@ convertBitmaps(
 		${RES_DIR}/menu_main.png ${RES_DIR}/menu_sub.png
 		${RES_DIR}/lmc.png ${RES_DIR}/ace.png ${GEN_DIR}/game_bg.png
 		${GEN_DIR}/display.png
-		${RES_DIR}/intro/0.png ${RES_DIR}/intro/1.png ${RES_DIR}/intro/2.png
-		${RES_DIR}/intro/3.png ${RES_DIR}/intro/4.png ${RES_DIR}/intro/5.png
-		${RES_DIR}/intro/6.png ${RES_DIR}/intro/7.png
 	DESTINATIONS
 		${DATA_DIR}/blob1.bm ${DATA_DIR}/blob2.bm ${DATA_DIR}/blob3.bm
 		${DATA_DIR}/blob4.bm ${DATA_DIR}/game_hud.bm
@@ -379,10 +376,19 @@ convertBitmaps(
 		${DATA_DIR}/menu_main.bm ${DATA_DIR}/menu_sub.bm
 		${DATA_DIR}/lmc.bm ${DATA_DIR}/ace.bm ${DATA_DIR}/game_bg.bm
 		${DATA_DIR}/display.bm
-		${DATA_DIR}/intro/0.bm ${DATA_DIR}/intro/1.bm ${DATA_DIR}/intro/2.bm
-		${DATA_DIR}/intro/3.bm ${DATA_DIR}/intro/4.bm ${DATA_DIR}/intro/5.bm
-		${DATA_DIR}/intro/6.bm ${DATA_DIR}/intro/7.bm
 )
+
+foreach(intro_idx RANGE 7)
+	convertPalette(
+		${GERMZ_EXECUTABLE}
+		${RES_DIR}/intro/${intro_idx}.pal ${DATA_DIR}/intro/${intro_idx}.plt
+	)
+	convertBitmaps(
+		TARGET ${GERMZ_EXECUTABLE} PALETTE ${RES_DIR}/intro/${intro_idx}.pal
+		SOURCES ${RES_DIR}/intro/${intro_idx}.png
+		INTERLEAVED DESTINATIONS ${DATA_DIR}/intro/${intro_idx}.bm
+	)
+endforeach()
 
 convertBitmaps(
 	TARGET ${GERMZ_EXECUTABLE} PALETTE ${MONO_PLT_PATH}

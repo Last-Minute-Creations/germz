@@ -14,19 +14,7 @@ tFade *fadeCreate(tView *pView, const UWORD *pPalette, UBYTE ubColorCount) {
 	tFade *pFade = memAllocFastClear(sizeof(*pFade));
 	pFade->eState = FADE_STATE_IDLE;
 	pFade->pView = pView;
-	pFade->ubColorCount = ubColorCount;
-	const UBYTE ubMaxColors = (
-		sizeof(pFade->pPaletteRef) / sizeof(pFade->pPaletteRef[0])
-	);
-	if(ubColorCount > ubMaxColors) {
-		logWrite(
-			"ERR: Unsupported palette size: %hhu, max: %hhu",
-			ubColorCount, ubMaxColors
-		);
-	}
-	for(UBYTE i = 0; i < ubColorCount; ++i) {
-		pFade->pPaletteRef[i] = pPalette[i];
-	}
+	fadeChangeRefPalette(pFade, pPalette, ubColorCount);
 	logBlockEnd("fadeCreate()");
 	return pFade;
 }
@@ -87,4 +75,22 @@ tFadeState fadeProcess(tFade *pFade) {
 		eState = pFade->eState;
 	}
 	return eState;
+}
+
+void fadeChangeRefPalette(
+	tFade *pFade, const UWORD *pPalette, UBYTE ubColorCount
+) {
+	pFade->ubColorCount = ubColorCount;
+	const UBYTE ubMaxColors = (
+		sizeof(pFade->pPaletteRef) / sizeof(pFade->pPaletteRef[0])
+	);
+	if(ubColorCount > ubMaxColors) {
+		logWrite(
+			"ERR: Unsupported palette size: %hhu, max: %hhu",
+			ubColorCount, ubMaxColors
+		);
+	}
+	for(UBYTE i = 0; i < ubColorCount; ++i) {
+		pFade->pPaletteRef[i] = pPalette[i];
+	}
 }
