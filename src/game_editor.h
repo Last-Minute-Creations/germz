@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _GERMZ_GAME_EDITOR_H_
-#define _GERMZ_GAME_EDITOR_H_
+#ifndef GERMZ_GAME_EDITOR_H
+#define GERMZ_GAME_EDITOR_H
 
 #include "direction.h"
 
@@ -11,4 +11,4 @@ tDirection gameEditorProcessSteer(void);
 
 void editorStart(void);
 
-#endif // _GERMZ_GAME_EDITOR_H_
+#endif // GERMZ_GAME_EDITOR_H

@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _GUI_BORDER_H_
-#define _GUI_BORDER_H_
+#ifndef GUI_BORDER_H
+#define GUI_BORDER_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,4 +27,4 @@ static inline void guiDraw3dBorder(
 }
 #endif
 
-#endif // _GUI_BORDER_H_
+#endif // GUI_BORDER_H

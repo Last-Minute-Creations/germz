@@ -2,17 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _GERMZ_HEAP_H_
-#define _GERMZ_HEAP_H_
+#ifndef GERMZ_HEAP_H
+#define GERMZ_HEAP_H
 
 #include <ace/types.h>
 
-typedef struct _tHeapEntry {
+typedef struct tHeapEntry {
 	UWORD uwPriority;
 	const void *pData;
 } tHeapEntry;
 
-typedef struct _tHeap {
+typedef struct tHeap {
 	UWORD uwMaxEntries;
 	UWORD uwCount;
 	tHeapEntry *pEntries;
@@ -30,4 +30,4 @@ static inline void heapClear(tHeap *pHeap) {
 	pHeap->uwCount = 0;
 }
 
-#endif // _GERMZ_HEAP_H_
+#endif // GERMZ_HEAP_H

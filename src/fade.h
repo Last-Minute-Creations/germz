@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _GERMZ_FADE_H_
-#define _GERMZ_FADE_H_
+#ifndef GERMZ_FADE_H
+#define GERMZ_FADE_H
 
 #include <ace/utils/extview.h>
 
-typedef enum _tFadeState {
+typedef enum tFadeState {
 	FADE_STATE_IN,
 	FADE_STATE_OUT,
 	FADE_STATE_IDLE,
@@ -16,7 +16,7 @@ typedef enum _tFadeState {
 
 typedef void (*tCbFadeOnDone)(void);
 
-typedef struct _tFade {
+typedef struct tFade {
 	tFadeState eState;
 	UBYTE ubColorCount;
 	UBYTE ubCnt;
@@ -27,13 +27,17 @@ typedef struct _tFade {
 	tView *pView;
 } tFade;
 
-tFade *fadeCreate(tView *pView, UWORD *pPalette, UBYTE ubColorCount);
+tFade *fadeCreate(tView *pView, const UWORD *pPalette, UBYTE ubColorCount);
 
 void fadeDestroy(tFade *pFade);
 
 void fadeSet(
 	tFade *pFade, tFadeState eState, UBYTE ubFramesToFullFade, UBYTE isMusic,
 	tCbFadeOnDone cbOnDone
+);
+
+void fadeChangeRefPalette(
+	tFade *pFade, const UWORD *pPalette, UBYTE ubColorCount
 );
 
 /**
@@ -46,4 +50,4 @@ void fadeSet(
  */
 tFadeState fadeProcess(tFade *pFade);
 
-#endif // _GERMZ_FADE_H_
+#endif // GERMZ_FADE_H

@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _GERMZ_GAME_H_
-#define _GERMZ_GAME_H_
+#ifndef GERMZ_GAME_H
+#define GERMZ_GAME_H
 
 #include "map_data.h"
 #include <ace/utils/font.h>
@@ -16,19 +16,19 @@
 #define HUD_MONITOR_SIZE 64
 #define HUD_OFFS_X (SCREEN_PAL_WIDTH - HUD_MONITOR_SIZE)
 
-typedef enum _tTeamConfig {
+typedef enum tTeamConfig {
 	TEAM_CONFIG_P1_P2_AND_P3_P4,
 	TEAM_CONFIG_P1_P3_AND_P2_P4,
 	TEAM_CONFIG_P1_P4_AND_P2_P3,
 	TEAM_CONFIG_COUNT
 } tTeamConfig;
 
-typedef enum _tBattleMode {
+typedef enum tBattleMode {
 	BATTLE_MODE_FFA,
 	BATTLE_MODE_TEAMS,
 } tBattleMode;
 
-typedef enum _tTeamIdx {
+typedef enum tTeamIdx {
 	TEAM_1,
 	TEAM_2,
 	TEAM_NONE,
@@ -104,4 +104,4 @@ void gameSetSpecialColors(UWORD uwSpecial1, UWORD uwSpecial2);
 
 UBYTE gameIsStartedByEditor(void);
 
-#endif // _GERMZ_GAME_H_
+#endif // GERMZ_GAME_H

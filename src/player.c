@@ -12,7 +12,7 @@
 
 //------------------------------------------------------------------------ TYPES
 
-typedef struct _tCursorField {
+typedef struct tCursorField {
 	tUbCoordYX sPosTile;
 	UBYTE ubCurrentCursor;
 	UBYTE ubCursorCount;
@@ -143,7 +143,7 @@ tPlayerIdx playerIdxFromTile(tTile eTile) {
 	while(eTile > TILE_BLOB_NEUTRAL) {
 		eTile -= TILE_BLOB_NEUTRAL + 1;
 	}
-	return eTile;
+	return (tPlayerIdx)eTile;
 }
 
 tPlayer *playerFromIdx(tPlayerIdx eIdx) {
@@ -223,7 +223,7 @@ UBYTE playerProcess(void) {
 				pField->sPosTile.uwYX = pPlayer->pNodeCursor->sPosTile.uwYX;
 				break;
 			}
-			else if(pField->sPosTile.uwYX == pPlayer->pNodeCursor->sPosTile.uwYX) {
+			if(pField->sPosTile.uwYX == pPlayer->pNodeCursor->sPosTile.uwYX) {
 				break;
 			}
 		}

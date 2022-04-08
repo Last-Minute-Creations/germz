@@ -2,17 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _GERMZ_MENU_LIST_H_
-#define _GERMZ_MENU_LIST_H_
+#ifndef GERMZ_MENU_LIST_H
+#define GERMZ_MENU_LIST_H
 
 #include <ace/utils/font.h>
 
-typedef enum _tMenuListOptionType {
+typedef enum tMenuListOptionType {
 	MENU_LIST_OPTION_TYPE_UINT8,
 	MENU_LIST_OPTION_TYPE_CALLBACK
 } tMenuListOptionType;
 
-typedef enum _tMenuListDirty {
+typedef enum tMenuListDirty {
 	MENU_LIST_DIRTY_NONE = 0,
 	MENU_LIST_DIRTY_VAL_CHANGE = 1,
 	MENU_LIST_DIRTY_SELECTION = 2,
@@ -32,7 +32,7 @@ typedef void (*tCbMenuListDrawPos)(
 );
 
 // All options are uint8_t, enums or numbers
-typedef struct _tMenuListOption {
+typedef struct tMenuListOption {
 	tMenuListOptionType eOptionType;
 	UBYTE isHidden;
 	tMenuListDirty eDirty;
@@ -83,6 +83,6 @@ void menuListHidePos(UBYTE ubPos, UBYTE isHidden);
 
 UBYTE menuListGetActive(void);
 
-void menuListSetActive(UBYTE ubPos);
+void menuListSetActive(UBYTE ubNewPos);
 
-#endif // _GERMZ_MENU_LIST_H_
+#endif // GERMZ_MENU_LIST_H

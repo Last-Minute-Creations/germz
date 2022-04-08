@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _GERMZ_DIALOG_CLEAR_H_
-#define _GERMZ_DIALOG_CLEAR_H_
+#ifndef GERMZ_DIALOG_CLEAR_H
+#define GERMZ_DIALOG_CLEAR_H
 
 #include <ace/types.h>
 
 void dialogClearShow(UBYTE *pResult);
 
-#endif // _GERMZ_DIALOG_CLEAR_H_
+#endif // GERMZ_DIALOG_CLEAR_H

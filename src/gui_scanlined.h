@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _GUI_SCANLINED_H_
-#define _GUI_SCANLINE_H_
+#ifndef GUI_SCANLINED_H
+#define GUI_SCANLINED_H
 
 // Function callbacks to draw/processed scanlined ingame gui
 
@@ -25,4 +25,4 @@ void guiScanlinedListCtlDrawPos(
 	tListCtl *pCtl, UWORD uwIdx, UBYTE ubPosOnView, UBYTE isSelected
 );
 
-#endif // _GUI_SCANLINE_H_
+#endif // GUI_SCANLINED_H

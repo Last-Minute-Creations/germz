@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _GERMZ_AI_H_
-#define _GERMZ_AI_H_
+#ifndef GERMZ_AI_H
+#define GERMZ_AI_H
 
 #include <ace/types.h>
 #include "direction.h"
 #include "map.h"
 
-typedef enum _tAiState {
+typedef enum tAiState {
 	AI_STATE_PLANNING_AGGRESIVE,
 	AI_STATE_PLANNING_DEFENSIVE,
 	AI_STATE_ROUTING,
@@ -18,17 +18,17 @@ typedef enum _tAiState {
 	AI_STATE_CONFIRMING_TARGET,
 } tAiState;
 
-typedef struct _tAi {
+typedef struct tAi {
 	UBYTE ubPlayerIdx;
 	UWORD uwCurrNode;
 	UBYTE wasLastAggresive;
 	UBYTE isAstarStarted;
 	//
 	WORD wBiggestDelta;
-	const struct _tNode *pTargetSrc, *pTarget;
+	const struct tNode *pTargetSrc, *pTarget;
 	//
 	WORD wBiggestDeltaCurrNode;
-	const struct _tNode *pTargetCurrNode;
+	const struct tNode *pTargetCurrNode;
 	tAiState eState;
 	tDirection eNeighborIdx;
 	UBYTE ubCnt;
@@ -46,4 +46,4 @@ void aiInit(tAi *pAi, UBYTE ubPlayerIdx);
 
 tDirection aiProcess(tAi *pAi);
 
-#endif // _GERMZ_AI_H_
+#endif // GERMZ_AI_H

@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _BOB_NEW_H_
-#define _BOB_NEW_H_
+#ifndef BOB_NEW_H
+#define BOB_NEW_H
 
 #include <ace/types.h>
 #include <ace/managers/blit.h>
@@ -52,14 +52,14 @@
  * You can safely change sPos to set new position. Rest is read-only and should
  * only be changed by provided fns.
  */
-typedef struct _tBobNew {
+typedef struct tBobNew {
+	tBitMap *pBitmap;
+	tBitMap *pMask;
 	tUwCoordYX pOldPositions[2];
 	tUwCoordYX sPos;
 	UWORD uwWidth;
 	UWORD uwHeight;
 	UBYTE isUndrawRequired;
-	tBitMap *pBitmap;
-	tBitMap *pMask;
 	UWORD uwOffsetY;
 	// Platform-dependent private fields. Don't rely on them externally.
 	UWORD _uwBlitSize;
@@ -187,4 +187,4 @@ void bobNewEnd(void);
 
 void bobNewDiscardUndraw(void);
 
-#endif // _BOB_NEW_H_
+#endif // BOB_NEW_H

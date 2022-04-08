@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _GERMZ_PLAYER_H_
-#define _GERMZ_PLAYER_H_
+#ifndef GERMZ_PLAYER_H
+#define GERMZ_PLAYER_H
 
 #include "bob_new.h"
 #include "map.h"
@@ -12,7 +12,7 @@
 
 #define PLEPS_PER_PLAYER 3
 
-typedef enum _tPlayerIdx {
+typedef enum tPlayerIdx {
 	PLAYER_1,
 	PLAYER_2,
 	PLAYER_3,
@@ -20,14 +20,14 @@ typedef enum _tPlayerIdx {
 	PLAYER_NONE,
 } tPlayerIdx;
 
-typedef struct _tPlayer {
+typedef struct tPlayer {
 	tBobNew *pBobCursor;
 	ULONG ulRepeatCounter;
-	struct _tPlayer *pTeamMate;
-	struct _tSteer *pSteer;
-	struct _tNode *pNodeCursor;
-	struct _tNode *pNodePlepSrc;
-	struct _tPlep pPleps[PLEPS_PER_PLAYER];
+	struct tPlayer *pTeamMate;
+	struct tSteer *pSteer;
+	struct tNode *pNodeCursor;
+	struct tNode *pNodePlepSrc;
+	struct tPlep pPleps[PLEPS_PER_PLAYER];
 	BYTE bNodeCount;
 	BYTE pNodeTypeCounts[NODE_TYPE_COUNT];
 	UBYTE isSelectingDestination;
@@ -39,7 +39,7 @@ void playerCreate(void);
 
 void playerDestroy(void);
 
-void playerReset(tPlayerIdx eIdx, struct _tNode *pStartNode);
+void playerReset(tPlayerIdx eIdx, struct tNode *pStartNode);
 
 /**
  * @brief
@@ -48,7 +48,7 @@ void playerReset(tPlayerIdx eIdx, struct _tNode *pStartNode);
  */
 UBYTE playerProcess(void);
 
-tPlayer *playerFromTile(enum _tTile eTile);
+tPlayer *playerFromTile(enum tTile eTile);
 
 tPlayerIdx playerToIdx(const tPlayer *pPlayer);
 
@@ -64,4 +64,4 @@ void playerPushCursors(void);
 
 UBYTE playerHasFreePlep(const tPlayer *pPlayer);
 
-#endif // _GERMZ_PLAYER_H_
+#endif // GERMZ_PLAYER_H

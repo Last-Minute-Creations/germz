@@ -24,6 +24,7 @@
 		"state.h": "c",
 		"joy.h": "c",
 		"cutscene.h": "c",
-		"ptplayer.h": "c"
+		"ptplayer.h": "c",
+		"types.h": "c"
 	}
 }

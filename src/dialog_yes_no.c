@@ -77,14 +77,12 @@ tDialogYesNoResult dialogYesNoLoop(void) {
 		if(buttonGetSelected() == s_pButtonYes) {
 			return DIALOG_YES_NO_RESULT_YES;
 		}
-		else if(buttonGetSelected() == s_pButtonNo) {
+		if(buttonGetSelected() == s_pButtonNo) {
 			return DIALOG_YES_NO_RESULT_NO;
 		}
-		else { // if(buttonGetSelected() == s_pButtonCancel)
-			return DIALOG_YES_NO_RESULT_CANCEL;
-		}
+		return DIALOG_YES_NO_RESULT_CANCEL;
 	}
-	else if(keyUse(KEY_ESCAPE)) {
+	if(keyUse(KEY_ESCAPE)) {
 		return DIALOG_YES_NO_RESULT_CANCEL;
 	}
 	return DIALOG_YES_NO_RESULT_BUSY;

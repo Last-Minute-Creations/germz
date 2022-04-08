@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _GERMZ_ASSETS_H_
-#define _GERMZ_ASSETS_H_
+#ifndef GERMZ_ASSETS_H
+#define GERMZ_ASSETS_H
 
 #include <ace/utils/font.h>
 #include <ace/managers/ptplayer.h>
@@ -12,7 +12,7 @@
 #define BLOB_COLOR_COUNT 5
 #define BLOB_FRAME_COUNT 9
 
-typedef enum _tAssetMods {
+typedef enum tAssetMods {
 	ASSET_MOD_MENU,
 	ASSET_MOD_GAME1,
 	ASSET_MOD_GAME2,
@@ -23,13 +23,13 @@ typedef enum _tAssetMods {
 	ASSET_MOD_COUNT
 } tAssetMods;
 
-typedef struct _tNodeModsBase {
+typedef struct tNodeModsBase {
 	UBYTE ubChargeRate;
 	UBYTE ubChargeRateNeutral;
 	WORD wCapacity;
 } tNodeModsBase;
 
-typedef struct _tDefs {
+typedef struct tDefs {
 	tNodeModsBase sBaseMods;
 } tDefs;
 
@@ -67,4 +67,4 @@ extern tBitMap *g_pBmBlobs[BLOB_COLOR_COUNT], *g_pBmBlobMask;
 extern tBitMap *g_pBmLinks, *g_pBmLinksMask;
 extern tPtplayerSfx *g_pSfxPlep1, *g_pSfxPlep2;
 
-#endif // _GERMZ_GAME_ASSETS_H_
+#endif // GERMZ_GAME_ASSETS_H

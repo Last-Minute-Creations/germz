@@ -2,15 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _GERMZ_MAP_LIST_H_
-#define _GERMZ_MAP_LIST_H_
+#ifndef GERMZ_MAP_LIST_H
+#define GERMZ_MAP_LIST_H
 
 #include "gui/list_ctl.h"
 #include "map_data.h"
 
 #define MAP_FILENAME_MAX 100
 
-typedef enum _tMapEntryType {
+typedef enum tMapEntryType {
 	MAP_ENTRY_TYPE_MAP,
 	MAP_ENTRY_TYPE_DIR,
 	MAP_ENTRY_TYPE_PARENT,
@@ -38,4 +38,4 @@ void mapListDrawPreview(
 
 void mapListFillWithDir(tListCtl *pCtrl, const char *szDirPath);
 
-#endif // _GERMZ_MAP_LIST_H_
+#endif // GERMZ_MAP_LIST_H

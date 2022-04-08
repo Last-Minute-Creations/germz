@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _GERMZ_GAME_PLAY_H_
-#define _GERMZ_GAME_PLAY_H_
+#ifndef GERMZ_GAME_PLAY_H
+#define GERMZ_GAME_PLAY_H
 
-#endif // _GERMZ_GAME_PLAY_H_
+#endif // GERMZ_GAME_PLAY_H

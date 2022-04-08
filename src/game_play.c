@@ -25,7 +25,7 @@
 #define HUD_UNDRAW_WIDTH_GRAB 44
 #define HUD_UNDRAW_HEIGHT 10
 
-typedef enum _tHudState {
+typedef enum tHudState {
 	HUD_STATE_PLEPS_DRAW,
 	HUD_STATE_GRABBED_PLEPS_DRAW,
 	HUD_STATE_NEXT_PLAYER,
@@ -79,13 +79,11 @@ static void hudProcess(void) {
 						&s_sBmHudAlias, uwMonitorX, uwMonitorY + HUD_COPY_DELTA_Y,
 						HUD_UNDRAW_WIDTH, HUD_UNDRAW_HEIGHT, 0
 					);
-					if(pPlayer->pNodeCursor) {
-						char szBfr[6];
-						stringDecimalFromULong(pPlayer->pNodeCursor->wCharges, szBfr);
-						fontDrawStr1bpp(
-							g_pFontBig, &s_sBmHudAlias, uwMonitorX, uwMonitorY, szBfr
-						);
-					}
+					char szBfr[6];
+					stringDecimalFromULong(pPlayer->pNodeCursor->wCharges, szBfr);
+					fontDrawStr1bpp(
+						g_pFontBig, &s_sBmHudAlias, uwMonitorX, uwMonitorY, szBfr
+					);
 				}
 				else {
 					blitCopy(
@@ -206,7 +204,7 @@ static void gamePlayGsLoop(void) {
 			gamePauseEnable(PAUSE_KIND_CAMPAIGN_DEFEAT);
 			return;
 		}
-		else if(
+		if(
 			playerFromIdx(PLAYER_2)->isDead &&
 			playerFromIdx(PLAYER_3)->isDead &&
 			playerFromIdx(PLAYER_4)->isDead

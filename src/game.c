@@ -127,7 +127,7 @@ UBYTE gamePreprocess(UBYTE isAllowPause) {
 		// for fade end
 		return 0;
 	}
-	else if(isAllowPause && (keyUse(KEY_ESCAPE) || keyUse(KEY_P))) {
+	if(isAllowPause && (keyUse(KEY_ESCAPE) || keyUse(KEY_P))) {
 		if(s_isEditor) {
 			// Ensure that player pushes off that button so it won't bug editor
 			while(keyCheck(KEY_ESCAPE) || keyCheck(KEY_P)) {
@@ -455,10 +455,10 @@ void gameSetSpecialColors(UWORD uwSpecial1, UWORD uwSpecial2) {
 	tCopCmd *pColorCmdsBack = &s_pView->pCopList->pBackBfr->pList[s_uwCopColorCmdOffset];
 	tCopCmd *pColorCmdsFront = &s_pView->pCopList->pFrontBfr->pList[s_uwCopColorCmdOffset];
 	for(UBYTE i = 0; i < 4; ++i) {
-		pColorCmdsBack[i * 3 + 1].sMove.bfValue = 0x333;
-		pColorCmdsBack[i * 3 + 2].sMove.bfValue = 0x222;
-		pColorCmdsFront[i * 3 + 1].sMove.bfValue = 0x333;
-		pColorCmdsFront[i * 3 + 2].sMove.bfValue = 0x222;
+		pColorCmdsBack[i * 3 + 1].sMove.bfValue = uwSpecial1;
+		pColorCmdsBack[i * 3 + 2].sMove.bfValue = uwSpecial2;
+		pColorCmdsFront[i * 3 + 1].sMove.bfValue = uwSpecial1;
+		pColorCmdsFront[i * 3 + 2].sMove.bfValue = uwSpecial2;
 	}
 }
 

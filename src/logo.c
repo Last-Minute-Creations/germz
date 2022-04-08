@@ -96,9 +96,7 @@ static void logoGsLoop(void) {
 			if(s_cbFadeOut && s_cbFadeOut()) {
 				return;
 			}
-			else {
-				s_eFadeState = FADE_STATE_IN;
-			}
+			s_eFadeState = FADE_STATE_IN;
 		}
 		else {
 			--s_ubFadeoutCnt;
