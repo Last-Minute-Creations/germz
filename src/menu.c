@@ -178,7 +178,10 @@ static void startGame(UBYTE isEditor, UBYTE ubPlayerMask, UBYTE ubCampaignStage)
 				}
 			}
 		}
-		gameSetRules(0, s_ubBattleMode, s_ubTeamCfg, ubCampaignStage, pSteers);
+		gameSetRules(
+			0, s_isCampaign ? BATTLE_MODE_FFA : s_ubBattleMode, s_ubTeamCfg,
+			ubCampaignStage, pSteers
+		);
 		fadeSet(s_pFadeMenu, FADE_STATE_OUT, 50, 1, onFadeoutGameStart);
 	}
 }
