@@ -23,6 +23,7 @@
 #define TEXT_POS_Y (SLIDE_POS_Y + SLIDE_SIZE + 16)
 #define TEXT_LINE_HEIGHT (10 + 2)
 #define SLIDE_ANIM_COLS 2
+#define COLOR_TEXT COLOR_P3_BRIGHT
 
 #define GRAYSCALE(ubValue) ((ubValue) << 8 | (ubValue) << 4 | (ubValue))
 
@@ -107,7 +108,7 @@ static void drawSlide(void) {
 	fadeChangeRefPalette(s_pFade, s_pSlides[s_ubCurrentSlide].pPalette, 32);
 
 	// Update the color used by copper to match the palette
-	s_pBlockAfterLines->pCmds[0].sMove.bfValue = s_pSlides[s_ubCurrentSlide].pPalette[COLOR_P3_BRIGHT];
+	s_pBlockAfterLines->pCmds[0].sMove.bfValue = s_pSlides[s_ubCurrentSlide].pPalette[COLOR_TEXT];
 }
 
 static void initSlideText(void) {
@@ -124,7 +125,7 @@ static void initSlideText(void) {
 	s_pBlockAboveLine->uwCurrCount = 0;
 	copMove(
 		s_pView->pCopList, s_pBlockAboveLine,
-		&g_pCustom->color[COLOR_P3_BRIGHT], 0x000
+		&g_pCustom->color[COLOR_TEXT], 0x000
 	);
 	copProcessBlocks();
 	vPortWaitForEnd(s_pVp);
@@ -138,7 +139,7 @@ static void initSlideText(void) {
 			fontDrawStr(
 				g_pFontSmall, s_pBuffer->pBack, TEXT_POS_X,
 				TEXT_POS_Y + TEXT_LINE_HEIGHT * s_ubCurrentLine, szLine,
-				COLOR_P3_BRIGHT, FONT_LAZY | FONT_HCENTER, g_pTextBitmap
+				COLOR_TEXT, FONT_LAZY | FONT_HCENTER, g_pTextBitmap
 			);
 			++s_ubCurrentLine;
 		}
@@ -176,7 +177,7 @@ static void cutsceneGsCreate(void) {
 	paletteLoad("data/germz.plt", pPalette, 32);
 	s_pFade = fadeCreate(s_pView, pPalette, 32);
 
-	s_uwFontColorVal = pPalette[COLOR_P3_BRIGHT];
+	s_uwFontColorVal = pPalette[COLOR_TEXT];
 	s_pBlockAboveLine = copBlockCreate(s_pView->pCopList, 1, 0, 0);
 	s_pBlockBelowLine = copBlockCreate(s_pView->pCopList, 1, 0, 0);
 	s_pBlockAfterLines = copBlockCreate(
@@ -185,11 +186,11 @@ static void cutsceneGsCreate(void) {
 	);
 	copMove(
 		s_pView->pCopList, s_pBlockBelowLine,
-		&g_pCustom->color[COLOR_P3_BRIGHT], 0x000
+		&g_pCustom->color[COLOR_TEXT], 0x000
 	);
 	copMove(
 		s_pView->pCopList, s_pBlockAfterLines,
-		&g_pCustom->color[COLOR_P3_BRIGHT], s_uwFontColorVal
+		&g_pCustom->color[COLOR_TEXT], s_uwFontColorVal
 	);
 	copBlockDisable(s_pView->pCopList, s_pBlockAboveLine);
 	copBlockDisable(s_pView->pCopList, s_pBlockBelowLine);
@@ -206,6 +207,7 @@ static void cutsceneGsCreate(void) {
 		}
 		sprintf(szPath, "data/%s/%hhu.plt", s_isOutro ? "outro" : "intro", s_ubSlideCount);
 		paletteLoad(szPath, s_pSlides[s_ubSlideCount].pPalette, 32);
+		s_pSlides[s_ubSlideCount].pPalette[COLOR_TEXT] = s_uwFontColorVal;
 	}
 
 	// Load text array
@@ -247,7 +249,7 @@ static void cutsceneGsLoop(void) {
 		// Increment color
 		s_pBlockAboveLine->uwCurrCount = 0;
 		copMove(
-			s_pView->pCopList, s_pBlockAboveLine, &g_pCustom->color[COLOR_P3_BRIGHT],
+			s_pView->pCopList, s_pBlockAboveLine, &g_pCustom->color[COLOR_TEXT],
 			s_ubFadeStep < 0x10 ? GRAYSCALE(s_ubFadeStep) : s_uwFontColorVal
 		);
 		++s_ubFadeStep;
@@ -271,7 +273,7 @@ static void cutsceneGsLoop(void) {
 			s_pBlockAboveLine->uwCurrCount = 0;
 			copMove(
 				s_pView->pCopList, s_pBlockAboveLine,
-				&g_pCustom->color[COLOR_P3_BRIGHT], 0x000
+				&g_pCustom->color[COLOR_TEXT], 0x000
 			);
 			copProcessBlocks();
 			s_ubFadeStep = 0;
