@@ -15,6 +15,4 @@
  */
 UBYTE menuIsPlayerActive(UBYTE ubPlayerIdx);
 
-void menuStartWithCampaignResult(void);
-
 #endif // GERMZ_MENU_H

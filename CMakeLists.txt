@@ -390,6 +390,18 @@ foreach(intro_idx RANGE 7)
 	)
 endforeach()
 
+foreach(outro_idx RANGE 3)
+	convertPalette(
+		${GERMZ_EXECUTABLE}
+		${RES_DIR}/outro/${outro_idx}.pal ${DATA_DIR}/outro/${outro_idx}.plt
+	)
+	convertBitmaps(
+		TARGET ${GERMZ_EXECUTABLE} PALETTE ${RES_DIR}/outro/${outro_idx}.pal
+		SOURCES ${RES_DIR}/outro/${outro_idx}.png
+		INTERLEAVED DESTINATIONS ${DATA_DIR}/outro/${outro_idx}.bm
+	)
+endforeach()
+
 convertBitmaps(
 	TARGET ${GERMZ_EXECUTABLE} PALETTE ${MONO_PLT_PATH}
 	SOURCES ${GEN_DIR}/hud_target.png DESTINATIONS ${DATA_DIR}/hud_target.bm

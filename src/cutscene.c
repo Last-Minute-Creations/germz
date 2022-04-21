@@ -32,7 +32,7 @@ typedef struct tSlide {
 	UWORD pPalette[32];
 } tSlide;
 
-static const char *s_pLines[][LINES_PER_SLIDE_MAX] = {
+static const char *s_pLinesIntro[][LINES_PER_SLIDE_MAX] = {
 	{
 		"The great entity created its offspring",
 		"and scattered them across the universe",
@@ -77,6 +77,29 @@ static const char *s_pLines[][LINES_PER_SLIDE_MAX] = {
 	},
 };
 
+static const char *s_pLinesOutro[][LINES_PER_SLIDE_MAX] = {
+	{
+		"SLIDE 1A",
+		"SLIDE 1B",
+		0,
+	},
+	{
+		"SLIDE 2A",
+		"SLIDE 2B",
+		0,
+	},
+	{
+		"SLIDE 3A",
+		"SLIDE 3B",
+		0,
+	},
+	{
+		"SLIDE 4A",
+		"SLIDE 4B",
+		0,
+	}
+};
+
 static tView *s_pView;
 static tVPort *s_pVp;
 static tSimpleBufferManager *s_pBuffer;
@@ -90,6 +113,11 @@ static UBYTE s_ubFadeStep;
 static tSlide s_pSlides[SLIDES_MAX];
 
 static tCopBlock *s_pBlockAboveLine, *s_pBlockBelowLine, *s_pBlockAfterLines;
+
+static const char *getLine(UBYTE ubSlide, UBYTE ubLine) {
+	const char *pLine = (s_isOutro ? s_pLinesOutro : s_pLinesIntro)[ubSlide][ubLine];
+	return pLine;
+}
 
 static void drawSlide(void) {
 	// Draw slide
@@ -132,17 +160,15 @@ static void initSlideText(void) {
 	s_ubFadeStep = 0;
 
 	// Draw text
-	while(s_pLines[s_ubCurrentSlide][s_ubCurrentLine]) {
-		const char *szLine = s_pLines[s_ubCurrentSlide][s_ubCurrentLine];
-		if(szLine) {
-			// Draw next portion of text
-			fontDrawStr(
-				g_pFontSmall, s_pBuffer->pBack, TEXT_POS_X,
-				TEXT_POS_Y + TEXT_LINE_HEIGHT * s_ubCurrentLine, szLine,
-				COLOR_TEXT, FONT_LAZY | FONT_HCENTER, g_pTextBitmap
-			);
-			++s_ubCurrentLine;
-		}
+	while(getLine(s_ubCurrentSlide, s_ubCurrentLine)) {
+		const char *szLine = getLine(s_ubCurrentSlide, s_ubCurrentLine);
+		// Draw next portion of text
+		fontDrawStr(
+			g_pFontSmall, s_pBuffer->pBack, TEXT_POS_X,
+			TEXT_POS_Y + TEXT_LINE_HEIGHT * s_ubCurrentLine, szLine,
+			COLOR_TEXT, FONT_LAZY | FONT_HCENTER, g_pTextBitmap
+		);
+		++s_ubCurrentLine;
 	}
 
 	s_ubCurrentLine = 0;
@@ -257,10 +283,10 @@ static void cutsceneGsLoop(void) {
 		// Refresh copperlist
 		copProcessBlocks();
 	}
-	else if(s_pLines[s_ubCurrentSlide][s_ubCurrentLine]) {
+	else if(getLine(s_ubCurrentSlide, s_ubCurrentLine)) {
 		// Start fade-in for next line
 		++s_ubCurrentLine;
-		if(s_pLines[s_ubCurrentSlide][s_ubCurrentLine]) {
+		if(getLine(s_ubCurrentSlide, s_ubCurrentLine)) {
 			// Draw next portion of text - move copBlocks and reset fadeStep
 			copBlockWait(
 				s_pView->pCopList, s_pBlockAboveLine, 0,

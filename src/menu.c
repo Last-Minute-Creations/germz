@@ -44,7 +44,6 @@
 static UBYTE s_ubBattleMode;
 static UBYTE s_ubTeamCfg;
 static UBYTE s_isCampaign;
-static UBYTE s_isPendingCampaignResult = 0;
 static UBYTE s_ubMapCount;
 static UBYTE s_ubStartingLevel = 1;
 
@@ -81,7 +80,7 @@ static tCbFadeOnDone s_cbOnEscape;
 static tStateManager *s_pStateMachineMenu;
 static tState
 	s_sStateMain, s_sStateBattle, s_sStateCampaign, s_sStateCredits,
-	s_sStateHowTo, s_sStateSteer, s_sStateCampaignResult;
+	s_sStateHowTo, s_sStateSteer;
 
 //------------------------------------------------------------------ PRIVATE FNS
 
@@ -281,13 +280,7 @@ static void menuGsCreate(void) {
 
 	systemUnuse();
 	musicLoadPreset(MUSIC_PRESET_MENU);
-	if(s_isPendingCampaignResult) {
-		s_isPendingCampaignResult = 0;
-		stateChange(s_pStateMachineMenu, &s_sStateCampaignResult);
-	}
-	else {
-		stateChange(s_pStateMachineMenu, &s_sStateMain);
-	}
+	stateChange(s_pStateMachineMenu, &s_sStateMain);
 
 	fadeSet(s_pFadeMenu, FADE_STATE_IN, 50, 1, 0);
 	viewLoad(s_pView);
@@ -328,10 +321,6 @@ UBYTE menuIsPlayerActive(UBYTE ubPlayerIdx) {
 		return 0;
 	}
 	return 1;
-}
-
-void menuStartWithCampaignResult(void) {
-	s_isPendingCampaignResult = 1;
 }
 
 //------------------------------------------------------------- SUBSTATE: COMMON
@@ -1093,18 +1082,6 @@ static void howToGsCreate(void) {
 	s_cbOnEscape = fadeToMain;
 }
 
-//---------------------------------------------------- SUBSTATE: CAMPAIGN RESULT
-
-static const char *s_pOutroLines[] = {
-	"Congraturation!",
-	"A winrar is you!"
-};
-#define OUTRO_LINES_COUNT (sizeof(s_pOutroLines) / sizeof(s_pOutroLines[0]))
-
-static void campaignResultGsCreate(void) {
-	textBasedGsCreate(s_pOutroLines, OUTRO_LINES_COUNT);
-}
-
 //---------------------------------------------------------- SUBSTATE: MAIN MENU
 
 static void mainMenuUndraw(UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwHeight) {
@@ -1191,8 +1168,4 @@ static tState s_sStateMain = {
 
 static tState s_sStateSteer = {
 	.cbCreate = menuSteerGsCreate, .cbLoop = menuSubstateLoop
-};
-
-static tState s_sStateCampaignResult = {
-	.cbCreate = campaignResultGsCreate, .cbLoop = textBasedGsLoop
 };
