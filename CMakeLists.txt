@@ -75,10 +75,12 @@ file(
 )
 
 # Palette
-set(PLT_PATH ${DATA_DIR}/germz.plt)
+set(GERMZ_PLT_PATH ${DATA_DIR}/germz.plt)
+set(LMC_PLT_PATH ${DATA_DIR}/lmc.plt)
 set(MONO_PLT_PATH ${RES_DIR}/mono.gpl)
 set(TRANSPARENCY_HEX "#000000")
-convertPalette(${GERMZ_EXECUTABLE} ${RES_DIR}/germz.gpl ${PLT_PATH})
+convertPalette(${GERMZ_EXECUTABLE} ${RES_DIR}/germz.gpl ${GERMZ_PLT_PATH})
+convertPalette(${GERMZ_EXECUTABLE} ${RES_DIR}/lmc.gpl ${LMC_PLT_PATH})
 
 # Extract smaller gfx from bigger gfx sheet
 extractBitmaps(TARGET ${GERMZ_EXECUTABLE} SOURCE 	${RES_DIR}/gfx.png
@@ -324,7 +326,7 @@ endforeach()
 
 # Convert to .bm
 convertBitmaps(
-	TARGET ${GERMZ_EXECUTABLE} PALETTE ${PLT_PATH} MASK_COLOR ${TRANSPARENCY_HEX}
+	TARGET ${GERMZ_EXECUTABLE} PALETTE ${GERMZ_PLT_PATH} MASK_COLOR ${TRANSPARENCY_HEX}
 	INTERLEAVED SOURCES
 		${GEN_DIR}/cursors.png ${GEN_DIR}/blob0.png
 		${GEN_DIR}/plep0_right.png ${GEN_DIR}/plep0_left.png
@@ -349,7 +351,7 @@ convertBitmaps(
 )
 
 convertBitmaps(
-	TARGET ${GERMZ_EXECUTABLE} PALETTE ${PLT_PATH}
+	TARGET ${GERMZ_EXECUTABLE} PALETTE ${GERMZ_PLT_PATH}
 	INTERLEAVED SOURCES
 		${GEN_DIR}/blob1.png ${GEN_DIR}/blob2.png ${GEN_DIR}/blob3.png
 		${GEN_DIR}/blob4.png ${GEN_DIR}/game_hud.png
@@ -361,7 +363,7 @@ convertBitmaps(
 		${GEN_DIR}/plep3_up.png ${GEN_DIR}/plep3_down.png
 		${GEN_DIR}/editor_hud.png ${GEN_DIR}/game_bg.png
 		${RES_DIR}/menu_main.png ${RES_DIR}/menu_sub.png
-		${RES_DIR}/lmc.png ${RES_DIR}/ace.png ${GEN_DIR}/game_bg.png
+		${RES_DIR}/ace.png ${GEN_DIR}/game_bg.png
 		${GEN_DIR}/display.png
 	DESTINATIONS
 		${DATA_DIR}/blob1.bm ${DATA_DIR}/blob2.bm ${DATA_DIR}/blob3.bm
@@ -374,8 +376,13 @@ convertBitmaps(
 		${DATA_DIR}/plep3_up.bm ${DATA_DIR}/plep3_down.bm
 		${DATA_DIR}/editor_hud.bm ${DATA_DIR}/game_bg.bm
 		${DATA_DIR}/menu_main.bm ${DATA_DIR}/menu_sub.bm
-		${DATA_DIR}/lmc.bm ${DATA_DIR}/ace.bm ${DATA_DIR}/game_bg.bm
+		${DATA_DIR}/ace.bm ${DATA_DIR}/game_bg.bm
 		${DATA_DIR}/display.bm
+)
+
+convertBitmaps(
+	TARGET ${GERMZ_EXECUTABLE} PALETTE ${LMC_PLT_PATH}
+	INTERLEAVED SOURCES ${RES_DIR}/lmc.png DESTINATIONS ${DATA_DIR}/lmc.bm
 )
 
 foreach(intro_idx RANGE 7)
