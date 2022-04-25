@@ -31,6 +31,7 @@ static tSimpleBufferManager *s_pBfr;
 static tBobNew s_pCursorBobs[4];
 static tFade *s_pFade;
 static UBYTE s_isQuitting; // TODO: do quitting state instead
+static UBYTE s_isCampaignEnd;
 static UBYTE s_pScores[4];
 static tBattleMode s_eBattleMode;
 static tTeamConfig s_eTeamCfg;
@@ -90,7 +91,7 @@ static void onGameCampaignAdvanceFadeout(void) {
 	}
 	else {
 		// End of campaign
-		menuStartWithCampaignResult();
+		s_isCampaignEnd = 1;
 		statePop(g_pStateMachineGame);
 	}
 }
@@ -169,7 +170,10 @@ void gamePostprocess(void) {
 }
 
 static void gameGsCreate(void) {
-	UWORD uwCopListLength = simpleBufferGetRawCopperlistInstructionCount(5) + 2 + (3 * GAME_COPPERLIST_COLOR_CHANGES);
+	UWORD uwCopListLength = (
+		simpleBufferGetRawCopperlistInstructionCount(5) + 2 +
+		(3 * GAME_COPPERLIST_COLOR_CHANGES)
+	);
 
 	s_pView = viewCreate(0,
 		TAG_VIEW_COPLIST_MODE, COPPER_MODE_RAW,
@@ -214,6 +218,7 @@ static void gameGsCreate(void) {
 	playerCreate();
 	aiCreate(&g_sMap);
 	s_isQuitting = 0;
+	s_isCampaignEnd = 0;
 
 	bobNewManagerCreate(s_pBfr->pFront, s_pBfr->pBack, s_pBfr->uBfrBounds.uwY);
 	musicLoadPreset(MUSIC_PRESET_GAME);
@@ -237,8 +242,14 @@ static void gameGsCreate(void) {
 
 static void gameGsLoop(void) {
 	// If game reaches this code then init/play/summary state has popped.
-	// Go to menu.
-	stateChange(g_pStateMachineGame, &g_sStateMenu);
+	// Go to menu or trigger outro cutscene.
+	if(s_isCampaignEnd) {
+		cutsceneSetup(1, &g_sStateMenu);
+		stateChange(g_pStateMachineGame, &g_sStateCutscene);
+	}
+	else {
+		stateChange(g_pStateMachineGame, &g_sStateMenu);
+	}
 }
 
 static void gameGsDestroy(void) {

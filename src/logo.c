@@ -44,7 +44,7 @@ static void logoGsCreate(void) {
 	TAG_END);
 
 	s_pVp = vPortCreate(0,
-		TAG_VPORT_BPP, 5,
+		TAG_VPORT_BPP, 3,
 		TAG_VPORT_VIEW, s_pView,
 	TAG_END);
 
@@ -117,21 +117,20 @@ static void logoGsDestroy(void) {
 
 //-------------------------------------------------------------------------- LMC
 
-#define LOGO_WIDTH 128
-#define LOGO_HEIGHT 171
-
 void lmcFadeIn(void) {
 	if(s_ubFadeoutCnt == 0) {
 		systemUse();
-		paletteLoad("data/germz.plt", s_pPaletteRef, 1 << s_pVp->ubBPP);
+		paletteLoad("data/lmc.plt", s_pPaletteRef, 1 << s_pVp->ubBPP);
 		tBitMap *pLogo = bitmapCreateFromFile("data/lmc.bm", 0);
 		s_pSfxLmc = ptplayerSfxCreateFromFile("data/sfx/lmc.sfx");
 		systemUnuse();
 
+		UWORD uwLogoWdith = bitmapGetByteWidth(pLogo) * 8;
+		UWORD uwLogoHeight = pLogo->Rows;
 		blitCopy(
 			pLogo, 0, 0, s_pBfr->pBack,
-			(s_pVp->uwWidth - LOGO_WIDTH) / 2, (s_pVp->uwHeight - LOGO_HEIGHT) / 2,
-			LOGO_WIDTH, LOGO_HEIGHT, MINTERM_COOKIE
+			(s_pVp->uwWidth - uwLogoWdith) / 2, (s_pVp->uwHeight - uwLogoHeight) / 2,
+			uwLogoWdith, uwLogoHeight, MINTERM_COOKIE
 		);
 
 		systemUse();
