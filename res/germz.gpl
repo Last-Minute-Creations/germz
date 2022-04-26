@@ -12,14 +12,14 @@ Columns: 4
 255 255 255 Special 2
 102 119 102 Neutral 3
  68  85  68 Neutral 4
-255  85  85 Red 1
-204  51  51 Red 2
-136  34  34 Red 3
- 68  17  17 Red 4
  68 255 153 Green 1
  51 204 119 Green 2
  34 136  68 Green 3
  17  68  34 Green 4
+255  85  85 Red 1
+204  51  51 Red 2
+136  34  34 Red 3
+ 68  17  17 Red 4
 255 221 102 Yellow 1
 204 170  68 Yellow 2
 136 102  34 Yellow 3

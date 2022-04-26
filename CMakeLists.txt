@@ -85,36 +85,36 @@ convertPalette(${GERMZ_EXECUTABLE} ${RES_DIR}/lmc.gpl ${LMC_PLT_PATH})
 # Extract smaller gfx from bigger gfx sheet
 extractBitmaps(TARGET ${GERMZ_EXECUTABLE} SOURCE 	${RES_DIR}/gfx.png
 	DESTINATIONS
-		${GEN_DIR}/cursors/0.png  96   0 16 16
-		${GEN_DIR}/cursors/1.png 112   0 16 16
+		${GEN_DIR}/cursors/0.png 112   0 16 16
+		${GEN_DIR}/cursors/1.png  96   0 16 16
 		${GEN_DIR}/cursors/2.png  96  16 16 16
 		${GEN_DIR}/cursors/3.png 112  16 16 16
-		# Blob anim 0 - red
-		${GEN_DIR}/blob0/0.png    0 160 16 16
-		${GEN_DIR}/blob0/1.png   16 160 16 16
-		${GEN_DIR}/blob0/2.png   32 160 16 16
-		${GEN_DIR}/blob0/3.png   48 160 16 16
-		${GEN_DIR}/blob0/4.png   64 160 16 16
-		${GEN_DIR}/blob0/5.png   80 160 16 16
-		${GEN_DIR}/blob0/6.png   96 160 16 16
-		${GEN_DIR}/blob0/7.png  112 160 16 16
-		${GEN_DIR}/blob0/8.png  128 160 16 16 # Full - default
-		${GEN_DIR}/blob0/9.png   80  64 16 16 # Full - capacity
-		${GEN_DIR}/blob0/10.png  48  64 16 16 # Full - tick
-		${GEN_DIR}/blob0/11.png  64  64 16 16 # Full - attack
-		# Blob anim 1 - green
-		${GEN_DIR}/blob1/0.png    0 176 16 16
-		${GEN_DIR}/blob1/1.png   16 176 16 16
-		${GEN_DIR}/blob1/2.png   32 176 16 16
-		${GEN_DIR}/blob1/3.png   48 176 16 16
-		${GEN_DIR}/blob1/4.png   64 176 16 16
-		${GEN_DIR}/blob1/5.png   80 176 16 16
-		${GEN_DIR}/blob1/6.png   96 176 16 16
-		${GEN_DIR}/blob1/7.png  112 176 16 16
-		${GEN_DIR}/blob1/8.png  128 176 16 16 # Full - default
-		${GEN_DIR}/blob1/9.png   80  48 16 16 # Full - capacity
-		${GEN_DIR}/blob1/10.png  48  48 16 16 # Full - tick
-		${GEN_DIR}/blob1/11.png  64  48 16 16 # Full - attack
+		# Blob anim 0 - green
+		${GEN_DIR}/blob0/0.png    0 176 16 16
+		${GEN_DIR}/blob0/1.png   16 176 16 16
+		${GEN_DIR}/blob0/2.png   32 176 16 16
+		${GEN_DIR}/blob0/3.png   48 176 16 16
+		${GEN_DIR}/blob0/4.png   64 176 16 16
+		${GEN_DIR}/blob0/5.png   80 176 16 16
+		${GEN_DIR}/blob0/6.png   96 176 16 16
+		${GEN_DIR}/blob0/7.png  112 176 16 16
+		${GEN_DIR}/blob0/8.png  128 176 16 16 # Full - default
+		${GEN_DIR}/blob0/9.png   80  48 16 16 # Full - capacity
+		${GEN_DIR}/blob0/10.png  48  48 16 16 # Full - tick
+		${GEN_DIR}/blob0/11.png  64  48 16 16 # Full - attack
+		# Blob anim 1 - red
+		${GEN_DIR}/blob1/0.png    0 160 16 16
+		${GEN_DIR}/blob1/1.png   16 160 16 16
+		${GEN_DIR}/blob1/2.png   32 160 16 16
+		${GEN_DIR}/blob1/3.png   48 160 16 16
+		${GEN_DIR}/blob1/4.png   64 160 16 16
+		${GEN_DIR}/blob1/5.png   80 160 16 16
+		${GEN_DIR}/blob1/6.png   96 160 16 16
+		${GEN_DIR}/blob1/7.png  112 160 16 16
+		${GEN_DIR}/blob1/8.png  128 160 16 16 # Full - default
+		${GEN_DIR}/blob1/9.png   80  64 16 16 # Full - capacity
+		${GEN_DIR}/blob1/10.png  48  64 16 16 # Full - tick
+		${GEN_DIR}/blob1/11.png  64  64 16 16 # Full - attack
 		# Blob anim 2 - yellow
 		${GEN_DIR}/blob2/0.png    0 192 16 16
 		${GEN_DIR}/blob2/1.png   16 192 16 16
@@ -195,8 +195,8 @@ extractBitmaps(TARGET ${GERMZ_EXECUTABLE} SOURCE 	${RES_DIR}/editor_gfx.png
 		# Editor led small
 		${GEN_DIR}/led_small.png    0  44 16 10
 		# Editor led big
-		${GEN_DIR}/led_big/1.png    0  66 32 10
-		${GEN_DIR}/led_big/0.png    0  77 32 10
+		${GEN_DIR}/led_big/0.png    0  66 32 10
+		${GEN_DIR}/led_big/1.png    0  77 32 10
 		${GEN_DIR}/led_big/2.png    0  88 32 10
 		${GEN_DIR}/led_big/3.png    0  99 32 10
 		${GEN_DIR}/led_big/4.png    0 110 32 10
