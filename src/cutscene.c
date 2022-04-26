@@ -15,7 +15,7 @@
 #include "music.h"
 
 #define SLIDES_MAX 10
-#define LINES_PER_SLIDE_MAX 5
+#define LINES_PER_SLIDE_MAX 6
 #define SLIDE_SIZE 128
 #define SLIDE_POS_X ((SCREEN_PAL_WIDTH - SLIDE_SIZE) / 2)
 #define SLIDE_POS_Y ((SCREEN_PAL_HEIGHT - SLIDE_SIZE) / 4)
@@ -79,25 +79,31 @@ static const char *s_pLinesIntro[][LINES_PER_SLIDE_MAX] = {
 
 static const char *s_pLinesOutro[][LINES_PER_SLIDE_MAX] = {
 	{
-		"SLIDE 1A",
-		"SLIDE 1B",
+		"Your struggle only increased your power",
+		"and allowed you to conquer the host",
 		0,
 	},
 	{
-		"SLIDE 2A",
-		"SLIDE 2B",
+		"You took over more and more",
+		"until you've conquered all",
+		"and soon the whole planet",
+		"sung the hymn to your creator",
 		0,
 	},
 	{
-		"SLIDE 3A",
-		"SLIDE 3B",
+		"L' nog c' gnaiih",
+		"C' l' uln ymg'",
+		"C' ymg' ilyaa",
+		"Nog ng c' na'ah'ehye",
 		0,
 	},
 	{
-		"SLIDE 4A",
-		"SLIDE 4B",
+		"Your call was answered",
+		"and the gate has opened",
+		"the entity has arrived",
+		"and devoured whole life",
 		0,
-	}
+	},
 };
 
 static tView *s_pView;
@@ -235,8 +241,6 @@ static void cutsceneGsCreate(void) {
 		paletteLoad(szPath, s_pSlides[s_ubSlideCount].pPalette, 32);
 		s_pSlides[s_ubSlideCount].pPalette[COLOR_TEXT] = s_uwFontColorVal;
 	}
-
-	// Load text array
 
 	systemUnuse();
 	musicLoadPreset(s_isOutro ? MUSIC_PRESET_OUTRO : MUSIC_PRESET_INTRO);
