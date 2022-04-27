@@ -42,8 +42,8 @@ static tBitMap s_sBmHudAlias, s_sBmHudAliasFront;
 
 static void hudProcess(void) {
 	static const UWORD pPlayerColors[][2] = {
-		{RGB8TO4(255, 85, 85), RGB8TO4(204, 51, 51)},
 		{RGB8TO4(68, 255, 153), RGB8TO4(51, 204, 119)},
+		{RGB8TO4(255, 85, 85), RGB8TO4(204, 51, 51)},
 		{RGB8TO4(255, 221, 102), RGB8TO4(204, 170, 68)},
 		{RGB8TO4(17, 119, 255), RGB8TO4(0, 85, 204)},
 		{RGB8TO4(170, 187, 170), RGB8TO4(136, 153, 136)},
