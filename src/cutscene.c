@@ -21,6 +21,7 @@
 #define SLIDE_POS_Y ((SCREEN_PAL_HEIGHT - SLIDE_SIZE) / 4)
 #define TEXT_POS_X (SCREEN_PAL_WIDTH / 2)
 #define TEXT_POS_Y (SLIDE_POS_Y + SLIDE_SIZE + 16)
+#define TEXT_FINALE_POS_Y (SCREEN_PAL_HEIGHT / 2)
 #define TEXT_LINE_HEIGHT (10 + 2)
 #define SLIDE_ANIM_COLS 2
 #define COLOR_TEXT COLOR_P3_BRIGHT
@@ -100,8 +101,9 @@ static const char *s_pLinesOutro[][LINES_PER_SLIDE_MAX] = {
 	{
 		"Your call was answered",
 		"and the gate has opened",
-		"the entity has arrived",
-		"and devoured whole life",
+		"your Creator arrived",
+		"and claimed the sacrifice",
+		"of all planet's life",
 		0,
 	},
 };
@@ -112,6 +114,7 @@ static tSimpleBufferManager *s_pBuffer;
 static tFade *s_pFade;
 static UBYTE s_ubSlideCount, s_ubCurrentSlide, s_ubCurrentLine;
 static UBYTE s_isOutro;
+static UBYTE s_isFinale;
 static tState *s_pNextState;
 static UWORD s_uwFontColorVal;
 static UBYTE s_ubFadeStep;
@@ -251,7 +254,68 @@ static void cutsceneGsCreate(void) {
 	viewLoad(s_pView);
 }
 
+static void veryNastyOutroHack() {
+	// I'm going to hell for this
+
+	// clear slide
+	blitRect(
+		s_pBuffer->pBack, SLIDE_POS_X, SLIDE_POS_Y, SLIDE_SIZE, SLIDE_SIZE, 0
+	);
+
+	// Erase old text
+	blitRect(
+		s_pBuffer->pBack, 0, TEXT_POS_Y,
+		SCREEN_PAL_WIDTH, LINES_PER_SLIDE_MAX * TEXT_LINE_HEIGHT, 0
+	);
+
+	// Draw new text
+	static const char *szLines[] = {
+		"SACRIFICE",
+		"TO",
+		"YOG SOTHOTH"
+	};
+
+	copBlockEnable(s_pView->pCopList, s_pBlockAboveLine);
+	copBlockEnable(s_pView->pCopList, s_pBlockBelowLine);
+	copBlockEnable(s_pView->pCopList, s_pBlockAfterLines);
+
+	// Reset copblocks
+	s_ubCurrentLine = 0;
+	copBlockWait(
+		s_pView->pCopList, s_pBlockAboveLine, 0,
+		s_pView->ubPosY + TEXT_FINALE_POS_Y + TEXT_LINE_HEIGHT * 2 * (s_ubCurrentLine - 1)
+	);
+	copBlockWait(
+		s_pView->pCopList, s_pBlockBelowLine, 0,
+		s_pView->ubPosY + TEXT_FINALE_POS_Y + TEXT_LINE_HEIGHT * 2 * (s_ubCurrentLine - 1 + 1) - 1
+	);
+	s_pBlockAboveLine->uwCurrCount = 0;
+	copMove(
+		s_pView->pCopList, s_pBlockAboveLine,
+		&g_pCustom->color[COLOR_TEXT], 0x000
+	);
+	copProcessBlocks();
+	vPortWaitForEnd(s_pVp);
+	s_ubFadeStep = 0;
+
+	for(BYTE i = 0; i < 3; ++i) {
+		fontDrawStr(
+			g_pFontSmall, s_pBuffer->pBack, TEXT_POS_X,
+			TEXT_FINALE_POS_Y + 2 * TEXT_LINE_HEIGHT * (i - 1), szLines[i],
+			COLOR_TEXT, FONT_LAZY | FONT_HCENTER, g_pTextBitmap
+		);
+	}
+
+	fadeChangeRefPalette(s_pFade, s_pSlides[0].pPalette, 32);
+}
+
 static void onCutsceneFadeOut(void) {
+		if(s_isOutro && !s_isFinale) {
+			s_isFinale = 1;
+			veryNastyOutroHack();
+			return;
+		}
+
 	// Pop to previous state or change to next state
 	if(!s_pNextState) {
 		statePop(g_pStateMachineGame);
@@ -266,7 +330,74 @@ static void onFadeOutSlide(void) {
 	fadeSet(s_pFade, FADE_STATE_IN, 15, 0, onFadeIn);
 }
 
+static void cutsceneLoopFinale(void) {
+	tFadeState eFadeState = fadeProcess(s_pFade);
+	if(eFadeState != FADE_STATE_IDLE) {
+		return;
+	}
+
+	vPortWaitForEnd(s_pVp);
+	UBYTE isEnabled34 = joyIsParallelEnabled();
+	if(s_ubFadeStep <= 0x10) {
+		// Process text fade-in
+		// Increment color
+		s_pBlockAboveLine->uwCurrCount = 0;
+		copMove(
+			s_pView->pCopList, s_pBlockAboveLine, &g_pCustom->color[COLOR_TEXT],
+			s_ubFadeStep < 0x10 ? GRAYSCALE(s_ubFadeStep) : s_uwFontColorVal
+		);
+		++s_ubFadeStep;
+
+		// Refresh copperlist
+		copProcessBlocks();
+	}
+	else if(s_ubCurrentLine < 3) {
+		// Start fade-in for next line
+		++s_ubCurrentLine;
+		if(s_ubCurrentLine < 3) {
+			// Draw next portion of text - move copBlocks and reset fadeStep
+			copBlockWait(
+				s_pView->pCopList, s_pBlockAboveLine, 0,
+				s_pView->ubPosY + TEXT_FINALE_POS_Y + TEXT_LINE_HEIGHT * 2 * (s_ubCurrentLine - 1)
+			);
+			copBlockWait(
+				s_pView->pCopList, s_pBlockBelowLine, 0,
+				s_pView->ubPosY + TEXT_FINALE_POS_Y + TEXT_LINE_HEIGHT * 2 * (s_ubCurrentLine - 1 + 1) - 1
+			);
+			s_pBlockAboveLine->uwCurrCount = 0;
+			copMove(
+				s_pView->pCopList, s_pBlockAboveLine,
+				&g_pCustom->color[COLOR_TEXT], 0x000
+			);
+			copProcessBlocks();
+			s_ubFadeStep = 0;
+			for(UBYTE i = 0; i < 50; ++i) {
+				vPortWaitForEnd(s_pVp);
+			}
+		}
+		else {
+			// Last line was displayed - copblocks are no longer needed
+			copBlockDisable(s_pView->pCopList, s_pBlockAboveLine);
+			copBlockDisable(s_pView->pCopList, s_pBlockBelowLine);
+			copBlockDisable(s_pView->pCopList, s_pBlockAfterLines);
+			copProcessBlocks();
+		}
+	}
+	else if(
+		keyUse(KEY_RETURN) || keyUse(KEY_LSHIFT) || keyUse(KEY_RSHIFT) ||
+		joyUse(JOY1_FIRE) || joyUse(JOY2_FIRE) ||
+		(isEnabled34 && (joyUse(JOY3_FIRE) || joyUse(JOY4_FIRE)))
+	) {
+		// Quit the cutscene
+		fadeSet(s_pFade, FADE_STATE_OUT, 50, 1, onCutsceneFadeOut);
+	}
+}
+
 static void cutsceneGsLoop(void) {
+	if(s_isFinale) {
+		cutsceneLoopFinale();
+		return;
+	}
 	tFadeState eFadeState = fadeProcess(s_pFade);
 	if(eFadeState != FADE_STATE_IDLE) {
 		return;
@@ -327,7 +458,7 @@ static void cutsceneGsLoop(void) {
 		}
 		else {
 			// Quit the cutscene
-			fadeSet(s_pFade, FADE_STATE_OUT, 50, 1, onCutsceneFadeOut);
+			fadeSet(s_pFade, FADE_STATE_OUT, 50, !s_isOutro, onCutsceneFadeOut);
 		}
 	}
 }
@@ -349,6 +480,7 @@ static void cutsceneGsDestroy(void) {
 
 void cutsceneSetup(UBYTE isOutro, tState *pNextState) {
 	s_isOutro = isOutro;
+	s_isFinale = 0;
 	s_ubCurrentSlide = 0;
 	s_ubCurrentLine = 0;
 	s_pNextState = pNextState;
