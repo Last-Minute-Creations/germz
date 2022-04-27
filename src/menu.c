@@ -910,13 +910,14 @@ void campaignGsCreate(void) {
 //------------------------------------------------------------ SUBSTATE: CREDITS
 
 static const char *s_pCreditsLines[] = {
-	"GermZ by Last Minute Creations",
+	"GermZ by Last Minute Creations ( lastminutecreations.itch.io/germz )",
 	"  Graphics: Softiron",
 	"  Sound & Music: Luc3k",
 	"  Code: KaiN",
-	"Alpha tests: Sordan, Renton, Tomu\x85",
+	"Alpha tests: Sordan, Renton, Tomu\x84",
 	"",
-	"Game preview released on 2020.04.25 Retronizacja 3.9 Zoom meeting.",
+	"Preview released on 2020.04.25 RETROnizacja 3.9 Zoom meeting.",
+	"Final version released on 2022.04.30 RETROnizacja 4 Party.",
 	"",
 	"GermZ source code is available on:",
 	"  github.com/Last-Minute-Creations/germz",
@@ -1125,14 +1126,8 @@ static void mainGsCreate(void) {
 	);
 
 	fontDrawStr(
-		g_pFontSmall, s_pBfr->pBack, SCREEN_PAL_WIDTH / 2, SCREEN_PAL_HEIGHT - 20,
-		"A game by Last Minute Creations",
-		MENU_COLOR_INACTIVE, FONT_HCENTER | FONT_COOKIE, g_pTextBitmap
-	);
-
-	fontDrawStr(
 		g_pFontSmall, s_pBfr->pBack, SCREEN_PAL_WIDTH / 2, SCREEN_PAL_HEIGHT - 10,
-		"lastminutecreations.itch.io/germz",
+		"A game by Last Minute Creations",
 		MENU_COLOR_INACTIVE, FONT_HCENTER | FONT_COOKIE, g_pTextBitmap
 	);
 
