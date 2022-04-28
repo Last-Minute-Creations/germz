@@ -14,12 +14,12 @@
 
 static UBYTE s_isDrawnOnce;
 static UBYTE s_ubCurrY;
-static UBYTE s_ubFrame = 0;
+static UBYTE s_ubWaitFrame = 0;
 
 static UBYTE initialAnim(void) {
 	UBYTE isDrawnAnyBlob = 0;
 	UBYTE ubY = s_ubCurrY;
-	UBYTE ubFrame = s_ubFrame;
+	UBYTE ubFrame = s_ubWaitFrame;
 	while(!isDrawnAnyBlob && ubY < MAP_SIZE) {
 		for(UBYTE ubX = 0; ubX < MAP_SIZE; ++ubX) {
 			tTile eTile = g_sMapData.pTiles[ubX][ubY];
@@ -39,7 +39,7 @@ static UBYTE initialAnim(void) {
 
 	if(s_isDrawnOnce) {
 		s_ubCurrY = ubY;
-		s_ubFrame = ubFrame;
+		s_ubWaitFrame = ubFrame;
 		if(ubY >= MAP_SIZE) {
 			return 1;
 		}
@@ -53,7 +53,7 @@ static UBYTE initialAnim(void) {
 static void gameInitGsCreate(void) {
 	s_isDrawnOnce = 0;
 	s_ubCurrY = 0;
-	s_ubFrame = 0;
+	s_ubWaitFrame = 0;
 	tBitMap *pDisplay = gameGetBackBuffer();
 
 	bobNewDiscardUndraw();

@@ -6,15 +6,15 @@
 #include <ace/utils/palette.h>
 #include <ace/managers/ptplayer.h>
 
-tFade *fadeCreate(tView *pView, const UWORD *pPalette, UBYTE ubColorCount) {
+tFade *fadeCreate(tView *pView, const UWORD *pPaletteRef, UBYTE ubColorCount) {
 	logBlockBegin(
-		"fadeCreate(pView: %p, pPalette: %p, ubColorCount: %hhu)",
-		pView, pPalette, ubColorCount
+		"fadeCreate(pView: %p, pPaletteRef: %p, ubColorCount: %hhu)",
+		pView, pPaletteRef, ubColorCount
 	);
 	tFade *pFade = memAllocFastClear(sizeof(*pFade));
 	pFade->eState = FADE_STATE_IDLE;
 	pFade->pView = pView;
-	fadeChangeRefPalette(pFade, pPalette, ubColorCount);
+	fadeChangeRefPalette(pFade, pPaletteRef, ubColorCount);
 	logBlockEnd("fadeCreate()");
 	return pFade;
 }
@@ -78,7 +78,7 @@ tFadeState fadeProcess(tFade *pFade) {
 }
 
 void fadeChangeRefPalette(
-	tFade *pFade, const UWORD *pPalette, UBYTE ubColorCount
+	tFade *pFade, const UWORD *pPaletteRef, UBYTE ubColorCount
 ) {
 	pFade->ubColorCount = ubColorCount;
 	const UBYTE ubMaxColors = (
@@ -91,6 +91,6 @@ void fadeChangeRefPalette(
 		);
 	}
 	for(UBYTE i = 0; i < ubColorCount; ++i) {
-		pFade->pPaletteRef[i] = pPalette[i];
+		pFade->pPaletteRef[i] = pPaletteRef[i];
 	}
 }

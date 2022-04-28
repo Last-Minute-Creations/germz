@@ -27,7 +27,7 @@ typedef struct tFade {
 	tView *pView;
 } tFade;
 
-tFade *fadeCreate(tView *pView, const UWORD *pPalette, UBYTE ubColorCount);
+tFade *fadeCreate(tView *pView, const UWORD *pPaletteRef, UBYTE ubColorCount);
 
 void fadeDestroy(tFade *pFade);
 
@@ -37,7 +37,7 @@ void fadeSet(
 );
 
 void fadeChangeRefPalette(
-	tFade *pFade, const UWORD *pPalette, UBYTE ubColorCount
+	tFade *pFade, const UWORD *pPaletteRef, UBYTE ubColorCount
 );
 
 /**
