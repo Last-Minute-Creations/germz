@@ -7,12 +7,6 @@
 
 #include "steer.h"
 
-/**
- * @brief
- *
- * @param ubPlayerIdx 0: P1
- * @return UBYTE
- */
-UBYTE menuIsPlayerActive(UBYTE ubPlayerIdx);
+void menuStartWithCredits(void);
 
 #endif // GERMZ_MENU_H

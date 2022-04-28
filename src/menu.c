@@ -46,6 +46,7 @@ static UBYTE s_ubTeamCfg;
 static UBYTE s_isCampaign;
 static UBYTE s_ubMapCount;
 static UBYTE s_ubStartingLevel = 1;
+static UBYTE s_isStartWithCredits = 0;
 
 static UBYTE s_pPlayerSteers[4] = {
 	STEER_MODE_JOY_1, STEER_MODE_JOY_2,
@@ -280,7 +281,13 @@ static void menuGsCreate(void) {
 
 	systemUnuse();
 	musicLoadPreset(MUSIC_PRESET_MENU);
-	stateChange(s_pStateMachineMenu, &s_sStateMain);
+	if(s_isStartWithCredits) {
+		s_isStartWithCredits = 0;
+		stateChange(s_pStateMachineMenu, &s_sStateCredits);
+	}
+	else {
+		stateChange(s_pStateMachineMenu, &s_sStateMain);
+	}
 
 	fadeSet(s_pFadeMenu, FADE_STATE_IN, 50, 1, 0);
 	viewLoad(s_pView);
@@ -316,12 +323,10 @@ static void menuGsDestroy(void) {
 	fadeDestroy(s_pFadeMenu);
 }
 
-UBYTE menuIsPlayerActive(UBYTE ubPlayerIdx) {
-	if(s_pPlayerSteers[ubPlayerIdx] == STEER_MODE_OFF) {
-		return 0;
-	}
-	return 1;
+void menuStartWithCredits(void) {
+	s_isStartWithCredits = 1;
 }
+
 
 //------------------------------------------------------------- SUBSTATE: COMMON
 

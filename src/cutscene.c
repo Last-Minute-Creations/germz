@@ -312,6 +312,7 @@ static void veryNastyOutroHack() {
 static void onCutsceneFadeOut(void) {
 		if(s_isOutro && !s_isFinale) {
 			s_isFinale = 1;
+			menuStartWithCredits();
 			veryNastyOutroHack();
 			return;
 		}
