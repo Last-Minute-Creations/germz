@@ -919,7 +919,7 @@ static const char *s_pCreditsLines[] = {
 	"  Graphics: Softiron",
 	"  Sound & Music: Luc3k",
 	"  Code: KaiN",
-	"Alpha tests: Sordan, Renton, Tomu\x84",
+	"Tests: Sordan, Renton, Tomu\x84, JakubH",
 	"",
 	"Preview released on 2020.04.25 RETROnizacja 3.9 Zoom meeting.",
 	"Final version released on 2022.04.30 RETROnizacja 4 Party.",
