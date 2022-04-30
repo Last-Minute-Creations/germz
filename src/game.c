@@ -21,6 +21,7 @@
 #include "germz.h"
 #include "color.h"
 #include "music.h"
+#include "cutscene.h"
 
 #define GAME_COPPERLIST_COLOR_CHANGES 4
 
