@@ -25,6 +25,8 @@
 		"joy.h": "c",
 		"cutscene.h": "c",
 		"ptplayer.h": "c",
-		"types.h": "c"
+		"types.h": "c",
+		"palette.h": "c",
+		"music.h": "c"
 	}
 }

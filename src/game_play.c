@@ -40,6 +40,24 @@ tHudState s_eHudState;
 
 static tBitMap s_sBmHudAlias, s_sBmHudAliasFront;
 
+void gamePlayHudClear(void) {
+	const UBYTE ubMonitorPad = 7;
+	const UWORD uwMonitorX = HUD_OFFS_X + ubMonitorPad;
+	s_sBmHudAliasFront.Planes[0] = gameGetFrontBuffer()->Planes[2];
+
+	for(UBYTE i = 0; i < 4; ++i) {
+		if(!s_pHudPlayersWereDead[i]) {
+			const UWORD uwMonitorY = i * HUD_MONITOR_SIZE + ubMonitorPad;
+
+			// Erase whole HUD
+			blitRect(
+				&s_sBmHudAliasFront, uwMonitorX, uwMonitorY,
+				48, HUD_GRABBED_OFFS_Y + g_pFontBig->uwHeight, 0
+			);
+		}
+	}
+}
+
 static void hudProcess(void) {
 	static const UWORD pPlayerColors[][2] = {
 		{RGB8TO4(68, 255, 153), RGB8TO4(51, 204, 119)},

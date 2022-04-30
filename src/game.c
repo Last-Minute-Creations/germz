@@ -98,16 +98,19 @@ static void onGameCampaignAdvanceFadeout(void) {
 
 void gameQuit(void) {
 	s_isQuitting = 1;
+	gamePlayHudClear();
 	fadeSet(s_pFade, FADE_STATE_OUT, 50, 1, onGameQuitFadeout);
 }
 
 void gameRestart(void) {
 	s_isQuitting = 1;
+	gamePlayHudClear();
 	fadeSet(s_pFade, FADE_STATE_OUT, 50, 1, onGameRestartFadeout);
 }
 
 void gameCampaignAdvance(void) {
 	s_isQuitting = 1;
+	gamePlayHudClear();
 	fadeSet(s_pFade, FADE_STATE_OUT, 50, 1, onGameCampaignAdvanceFadeout);
 }
 

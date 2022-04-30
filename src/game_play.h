@@ -5,4 +5,6 @@
 #ifndef GERMZ_GAME_PLAY_H
 #define GERMZ_GAME_PLAY_H
 
+void gamePlayHudClear(void);
+
 #endif // GERMZ_GAME_PLAY_H
