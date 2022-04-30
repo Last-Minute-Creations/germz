@@ -188,6 +188,61 @@ static void hudReset(void) {
 	s_eHudState = 0;
 }
 
+static UBYTE isEndOfMatch(UBYTE ubFfaAliveCount, tPauseKind *pPauseKind) {
+	// Process end of match conditions
+	if(gameIsCampaign()) {
+		// Campaign
+		if(playerFromIdx(PLAYER_1)->isDead) {
+			*pPauseKind = PAUSE_KIND_CAMPAIGN_DEFEAT;
+			return 1;
+		}
+		if(
+			playerFromIdx(PLAYER_2)->isDead &&
+			playerFromIdx(PLAYER_3)->isDead &&
+			playerFromIdx(PLAYER_4)->isDead
+		) {
+			*pPauseKind = PAUSE_KIND_CAMPAIGN_WIN;
+			return 1;
+		}
+	}
+	else {
+		// Battle
+		if(gameGetBattleMode() == BATTLE_MODE_TEAMS) {
+			// Teams
+			tTeamIdx eTeam  = gameGetWinnerTeams();
+			if(eTeam != TEAM_NONE) {
+				if(gameIsStartedByEditor()) {
+					stateChange(g_pStateMachineGame, &g_sStateEditor);
+				}
+				else {
+					UBYTE *pScores = gameGetScores();
+					pScores[eTeam] = MIN(pScores[eTeam] + 1, 99);
+					*pPauseKind = PAUSE_KIND_BATTLE_SUMMARY;
+				}
+				return 1;
+			}
+		}
+		else {
+			// FFA
+			if(ubFfaAliveCount <= 1) {
+				tPlayerIdx eWinner = gameGetWinnerFfa();
+				if(eWinner != PLAYER_NONE) {
+					if(gameIsStartedByEditor()) {
+						stateChange(g_pStateMachineGame, &g_sStateEditor);
+					}
+					else {
+						UBYTE *pScores = gameGetScores();
+						pScores[eWinner] = MIN(pScores[eWinner] + 1, 99);
+						*pPauseKind = PAUSE_KIND_BATTLE_SUMMARY;
+					}
+					return 1;
+				}
+			}
+		}
+	}
+	return 0;
+}
+
 //-------------------------------------------------------------------- GAMESTATE
 
 static void gamePlayGsCreate(void) {
@@ -215,56 +270,10 @@ static void gamePlayGsLoop(void) {
 	bobNewPushingDone();
 	mapProcessNodes();
 
-	// Process end of match conditions
-	if(gameIsCampaign()) {
-		// Campaign
-		if(playerFromIdx(PLAYER_1)->isDead) {
-			gamePauseEnable(PAUSE_KIND_CAMPAIGN_DEFEAT);
-			return;
-		}
-		if(
-			playerFromIdx(PLAYER_2)->isDead &&
-			playerFromIdx(PLAYER_3)->isDead &&
-			playerFromIdx(PLAYER_4)->isDead
-		) {
-			gamePauseEnable(PAUSE_KIND_CAMPAIGN_WIN);
-			return;
-		}
-	}
-	else {
-		// Battle
-		if(gameGetBattleMode() == BATTLE_MODE_TEAMS) {
-			// Teams
-			tTeamIdx eTeam  = gameGetWinnerTeams();
-			if(eTeam != TEAM_NONE) {
-				if(gameIsStartedByEditor()) {
-					stateChange(g_pStateMachineGame, &g_sStateEditor);
-				}
-				else {
-					UBYTE *pScores = gameGetScores();
-					pScores[eTeam] = MIN(pScores[eTeam] + 1, 99);
-					gamePauseEnable(PAUSE_KIND_BATTLE_SUMMARY);
-				}
-				return;
-			}
-		}
-		else {
-			// FFA
-			if(ubAliveCount <= 1) {
-				tPlayerIdx eWinner = gameGetWinnerFfa();
-				if(eWinner != PLAYER_NONE) {
-					if(gameIsStartedByEditor()) {
-						stateChange(g_pStateMachineGame, &g_sStateEditor);
-					}
-					else {
-						UBYTE *pScores = gameGetScores();
-						pScores[eWinner] = MIN(pScores[eWinner] + 1, 99);
-						gamePauseEnable(PAUSE_KIND_BATTLE_SUMMARY);
-					}
-					return;
-				}
-			}
-		}
+	tPauseKind ePauseKind;
+	if(isEndOfMatch(ubAliveCount, &ePauseKind)) {
+		gamePauseEnable(ePauseKind);
+		return;
 	}
 	gamePostprocess();
 }
