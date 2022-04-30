@@ -170,9 +170,7 @@ void plepProcess(tPlep *pPlep) {
 				default:
 					// end of anim - end of plep
 					pPlep->isActive = 0;
-					if(pPlep->eAnim == PLEP_ANIM_LOSE) {
-						playerUpdateDead(pPlep->pPlayer);
-					}
+					playerUpdateDead(pPlep->pPlayer);
 					break;
 			}
 			pPlep->sBob.pBitmap = s_pBmPleps[playerToIdx(pPlep->pPlayer)][pPlep->eDir];
