@@ -276,50 +276,133 @@ foreach(player RANGE 3)
 endforeach()
 
 # Group small gfx into bigger tile sheets
+set(CURSOR_PATHS
+	${GEN_DIR}/cursors/0.png
+	${GEN_DIR}/cursors/1.png
+	${GEN_DIR}/cursors/2.png
+	${GEN_DIR}/cursors/3.png
+)
 convertTileset(
 	TARGET ${GERMZ_EXECUTABLE} SIZE 16
 	SOURCE ${GEN_DIR}/cursors DESTINATION ${GEN_DIR}/cursors.png
-	TILES 0.png 1.png 2.png 3.png
+	TILE_PATHS ${CURSOR_PATHS}
 )
+
 foreach(i RANGE 4)
+	set(BLOB_PATHS
+		${GEN_DIR}/blob${i}/0.png
+		${GEN_DIR}/blob${i}/1.png
+		${GEN_DIR}/blob${i}/2.png
+		${GEN_DIR}/blob${i}/3.png
+		${GEN_DIR}/blob${i}/4.png
+		${GEN_DIR}/blob${i}/5.png
+		${GEN_DIR}/blob${i}/6.png
+		${GEN_DIR}/blob${i}/7.png
+		${GEN_DIR}/blob${i}/8.png
+		${GEN_DIR}/blob${i}/9.png
+		${GEN_DIR}/blob${i}/10.png
+		${GEN_DIR}/blob${i}/11.png
+	)
 	convertTileset(
 		TARGET ${GERMZ_EXECUTABLE} SIZE 16
 		SOURCE ${GEN_DIR}/blob${i} DESTINATION ${GEN_DIR}/blob${i}.png
-		TILES 0.png 1.png 2.png 3.png 4.png 5.png 6.png 7.png 8.png 9.png 10.png 11.png
+		TILE_PATHS ${BLOB_PATHS}
 	)
 endforeach()
+
+set(LINK_PATHS
+	${GEN_DIR}/links/0.png
+	${GEN_DIR}/links/1.png
+	${GEN_DIR}/links/2.png
+	${GEN_DIR}/links/3.png
+	${GEN_DIR}/links/4.png
+	${GEN_DIR}/links/5.png
+	${GEN_DIR}/links/6.png
+	${GEN_DIR}/links/7.png
+	${GEN_DIR}/links/8.png
+	${GEN_DIR}/links/9.png
+	${GEN_DIR}/links/10.png
+	${GEN_DIR}/links/11.png
+	${GEN_DIR}/links/12.png
+)
 convertTileset(
 	TARGET ${GERMZ_EXECUTABLE} SIZE 16
 	SOURCE ${GEN_DIR}/links DESTINATION ${GEN_DIR}/links.png
-	TILES 0.png 1.png 2.png 3.png 4.png 5.png 6.png 7.png 8.png 9.png 10.png 11.png 12.png
+	TILE_PATHS ${LINK_PATHS}
+)
+
+set(BTN_SMALL_PATHS
+	${GEN_DIR}/btn_small/0.png
+	${GEN_DIR}/btn_small/1.png
+	${GEN_DIR}/btn_small/2.png
+	${GEN_DIR}/btn_small/3.png
+	${GEN_DIR}/btn_small/4.png
+	${GEN_DIR}/btn_small/5.png
+	${GEN_DIR}/btn_small/6.png
+	${GEN_DIR}/btn_small/7.png
+	${GEN_DIR}/btn_small/8.png
 )
 convertTileset(
-	TARGET ${GERMZ_EXECUTABLE} SIZE 16 HEIGHT 10 TILES 0.png 1.png 2.png 3.png 4.png 5.png 6.png 7.png
+	TARGET ${GERMZ_EXECUTABLE} SIZE 16 HEIGHT 10
 	SOURCE ${GEN_DIR}/btn_small DESTINATION ${GEN_DIR}/btn_small.png
+	TILE_PATHS ${BTN_SMALL_PATHS}
+)
+
+set(BTN_BIG_PATHS
+	${GEN_DIR}/btn_big/0.png
+	${GEN_DIR}/btn_big/1.png
+	${GEN_DIR}/btn_big/2.png
+	${GEN_DIR}/btn_big/3.png
+	${GEN_DIR}/btn_big/4.png
+	${GEN_DIR}/btn_big/5.png
 )
 convertTileset(
-	TARGET ${GERMZ_EXECUTABLE} SIZE 32 HEIGHT 10 TILES 0.png 1.png 2.png 3.png 4.png 5.png
+	TARGET ${GERMZ_EXECUTABLE} SIZE 32 HEIGHT 10
 	SOURCE ${GEN_DIR}/btn_big DESTINATION ${GEN_DIR}/btn_big.png
+	TILE_PATHS ${BTN_BIG_PATHS}
+)
+
+set(LED_BIG_PATHS
+	${GEN_DIR}/led_big/0.png
+	${GEN_DIR}/led_big/1.png
+	${GEN_DIR}/led_big/2.png
+	${GEN_DIR}/led_big/3.png
+	${GEN_DIR}/led_big/4.png
 )
 convertTileset(
-	TARGET ${GERMZ_EXECUTABLE} SIZE 32 HEIGHT 10 TILES 0.png 1.png 2.png 3.png 4.png
+	TARGET ${GERMZ_EXECUTABLE} SIZE 32 HEIGHT 10
 	SOURCE ${GEN_DIR}/led_big DESTINATION ${GEN_DIR}/led_big.png
+	TILE_PATHS ${LED_BIG_PATHS}
+)
+
+set(DISPLAY_PATHS
+	${GEN_DIR}/display/0.png
+	${GEN_DIR}/display/1.png
+	${GEN_DIR}/display/2.png
+	${GEN_DIR}/display/3.png
+	${GEN_DIR}/display/4.png
+	${GEN_DIR}/display/5.png
+	${GEN_DIR}/display/6.png
+	${GEN_DIR}/display/7.png
+	${GEN_DIR}/display/8.png
 )
 convertTileset(
 	TARGET ${GERMZ_EXECUTABLE} SIZE 16
-	TILES 0.png 1.png 2.png 3.png 4.png 5.png 6.png 7.png 8.png
 	SOURCE ${GEN_DIR}/display DESTINATION ${GEN_DIR}/display.png
+	TILE_PATHS ${DISPLAY_PATHS}
 )
+
 set(DIRS "up;down;left;right")
 foreach(player RANGE 3)
 	foreach(dir ${DIRS})
+		set(PLEP_PATHS "")
+		foreach(frame RANGE 23)
+			list(APPEND PLEP_PATHS "${GEN_DIR}/plep${player}_${dir}/${frame}.png")
+		endforeach()
 		convertTileset(
 			TARGET ${GERMZ_EXECUTABLE} SIZE 16
 			SOURCE ${GEN_DIR}/plep${player}_${dir} DESTINATION ${GEN_DIR}/plep${player}_${dir}.png
-			TILES
-				0.png 1.png 2.png 3.png 4.png 5.png 6.png 7.png 8.png 9.png
-				10.png 11.png 12.png 13.png 14.png 15.png 16.png 17.png 18.png 19.png
-				20.png 21.png 22.png 23.png
+			TILE_PATHS ${PLEP_PATHS}
 		)
 	endforeach()
 endforeach()

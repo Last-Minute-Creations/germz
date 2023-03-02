@@ -13,6 +13,7 @@
 #include "assets.h"
 #include "color.h"
 #include "music.h"
+#include "menu.h"
 
 #define SLIDES_MAX 10
 #define LINES_PER_SLIDE_MAX 6
@@ -192,7 +193,7 @@ static void onFadeIn(void) {
 
 static void cutsceneGsCreate(void) {
 	s_pView = viewCreate(0,
-		TAG_VIEW_GLOBAL_CLUT, 1,
+		TAG_VIEW_GLOBAL_PALETTE, 1,
 	TAG_END);
 
 	s_pVp = vPortCreate(0,
