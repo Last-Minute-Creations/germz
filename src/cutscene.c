@@ -334,11 +334,11 @@ static void onFadeOutSlide(void) {
 
 static void cutsceneLoopFinale(void) {
 	tFadeState eFadeState = fadeProcess(s_pFade);
+	vPortWaitForEnd(s_pVp);
 	if(eFadeState != FADE_STATE_IDLE) {
 		return;
 	}
 
-	vPortWaitForEnd(s_pVp);
 	UBYTE isEnabled34 = joyIsParallelEnabled();
 	if(s_ubFadeStep <= 0x10) {
 		// Process text fade-in
