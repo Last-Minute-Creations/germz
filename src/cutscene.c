@@ -334,7 +334,9 @@ static void onFadeOutSlide(void) {
 
 static void cutsceneLoopFinale(void) {
 	tFadeState eFadeState = fadeProcess(s_pFade);
-	vPortWaitForEnd(s_pVp);
+	if(s_pVp) {
+		vPortWaitForEnd(s_pVp);
+	}
 	if(eFadeState != FADE_STATE_IDLE) {
 		return;
 	}
@@ -470,6 +472,7 @@ static void cutsceneGsDestroy(void) {
 	systemUse();
 	viewDestroy(s_pView);
 	fadeDestroy(s_pFade);
+	s_pVp = 0;
 
 	// Destroy slides
 	for(UBYTE i = 0; i < s_ubSlideCount; ++i) {
